@@ -1,0 +1,139 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #1b1b1b;
+    min-height: 100vh; 
+    position: relative; 
+    font-size: 20px;
+}
+html, body {
+    overflow-x: hidden; 
+    margin: 0;
+    padding: 0;
+}
+
+.quadrado{
+    z-index: 5;
+    position: absolute; 
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #dcdbcf;
+    padding: 20px;
+    border-radius: 5px;
+    width: 680px;
+    height: 780px;
+    
+}
+.lb_cad{
+    text-align: center;
+    font-family: 'montserrat', sans-serif;
+    font-weight: 800;
+    margin-bottom: 20%;
+}
+
+.container-respostas{
+    text-align: center;
+    font-family: 'nunito', sans-serif;
+    font-size: 25px
+    
+}
+
+.container-respostas input[type="email"],
+.container-respostas input[type="password"] {
+    border-radius: 8px; 
+    font-size: 25px;
+    height: 50px; 
+    width: 400px; 
+    padding: 0 15px;
+    border: 1px solid #ccc; 
+    box-sizing: border-box; 
+    margin-bottom: 100px; 
+    margin-left: auto; 
+    margin-right: auto;
+}
+.btn_cadas{
+    font-family: 'nunito', sans-serif;
+    font-size: 20px;
+    background-color: #9c8146;
+    color: #cfd8dc;
+    border-radius: 30px;
+    border-bottom: none; 
+    line-height: 1.2;
+    cursor: pointer;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    width: 230px;
+    height: 55px;
+    margin: 20px auto 0 auto; 
+    margin-top: 12%;    
+}
+
+.logo {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    margin-left: 50px;
+    margin-top: 10px;
+    z-index: 9; 
+}
+
+.logo-image {
+    height: 78px; 
+    width: auto;
+}
+.container-fim {
+    min-height: 30px; 
+    margin: 0px auto 10px auto; 
+    max-width: 80%; 
+    width: 100%; 
+    border-radius: 10px;
+    transition: background-color 0.3s ease-in-out, border 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 10px;
+    box-sizing: border-box;
+}
+
+.respostas {
+    font-weight: bold;
+    padding: 10px;
+    margin: 0; 
+    text-align: center;
+    opacity:0; 
+    transition: opacity 0.3s ease-in-out;
+    word-break: break-word; 
+    font-size: 25px; 
+    line-height: 1.2;
+    font-family: 'nunito', sans-serif;
+}
+
+.container-fim-success,
+.container-fim-error {
+    opacity: 1;
+}
+
+.container-fim-success {
+    background-color: #d4edda; 
+    border: 1px solid #c3e6cb;
+}
+.container-fim-success .respostas {
+    color: #155724; 
+    opacity: 1;
+}
+
+.container-fim-error {
+    background-color: #f8d7da; 
+    border: 1px solid #f5c6cb; 
+}
+.container-fim-error .respostas {
+    color: #721c24; 
+    opacity: 1;
+}
+.container-respostas input::placeholder {
+    color: #90a4ae;
+    font-size: 18px; 
+    font-weight: 400;
+}

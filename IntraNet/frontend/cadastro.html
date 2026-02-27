@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+    <!-- Certifique-se de que o arquivo stylelog.css existe na mesma pasta -->
+    <link rel="stylesheet" href="stylelog.css">
+</head>
+<body>
+    <div class="container">
+        <div class="quadrado">
+            <h1 class="lb_cad">Cadastro</h1>
+            <div class="container-respostas">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" placeholder="Digite o email para cadastro">
+                <br>
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" placeholder="Digite a senha da conta">
+                <br>
+                <label for="confsenha">Confirmar Senha</label>
+                <input type="password" id="confsenha" placeholder="Confirme a senha">
+            </div>
+            <div class="container-fim">
+                <p id="respostas" class="respostas"></p>
+            </div>
+            <!-- Alterado o ID para btn_cadas para bater com o script -->
+            <button id="btn_cadas" class="btn_cadas">Cadastrar</button>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Agora o ID bate com o botão do HTML
+        const btnCadas = document.getElementById("btn_cadas");
+
+        if (!btnCadas) {
+            console.error("Erro: Botão de cadastro (#btn_cadas) não encontrado.");
+            return;
+        }
+
+        btnCadas.addEventListener("click", async () => {    
+            const email = document.getElementById("email").value;
+            const senha = document.getElementById("senha").value;
+            const confsenha = document.getElementById("confsenha").value;
+            
+            const pMessageEl = document.getElementById("respostas");
+            const containerFimEl = document.querySelector(".container-fim");
+
+            // Validação básica antes de enviar ao servidor
+            if (senha !== confsenha) {
+                pMessageEl.innerText = "As senhas não coincidem!";
+                containerFimEl.classList.add('container-fim-error');
+                return;
+            }
+            
+            pMessageEl.innerText = "Realizando cadastro...";
+            
+            try {
+                // Rota alterada para /cadastro (ajuste conforme seu servidor node)
+                const resposta = await fetch(`http://localhost:3000/cadastro`, {
+                    method: "POST",
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({"email": email, "senha": senha})
+                });
+
+                const dados = await resposta.json();
+
+                if (resposta.ok) {
+                    containerFimEl.classList.remove('container-fim-error');
+                    containerFimEl.classList.add('container-fim-success');
+                    pMessageEl.innerText = "Cadastro realizado com sucesso! Redirecionando...";
+                    
+                    // REDIRECIONAMENTO: Após 1.5 segundos, vai para a tela de login
+                    setTimeout(() => {
+                        window.location.href = 'index.html'; 
+                    }, 1500);
+
+                } else {
+                    containerFimEl.classList.add('container-fim-error');
+                    pMessageEl.innerText = dados.resposta || "Erro ao realizar cadastro.";
+                }
+
+            } catch (error) {
+                containerFimEl.classList.add('container-fim-error');
+                pMessageEl.innerText = "Erro de conexão com o servidor.";
+                console.error("Erro de rede:", error);
+            }
+        });
+    });
+    </script>
+</body>
+</html>
