@@ -2,7 +2,7 @@
 -- Servidor:                     127.0.0.1
 -- Versão do servidor:           10.4.32-MariaDB - mariadb.org binary distribution
 -- OS do Servidor:               Win64
--- HeidiSQL Versão:              12.10.0.7000
+-- HeidiSQL Versão:              12.15.0.7171
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -27,16 +27,18 @@ CREATE TABLE IF NOT EXISTS `produtos` (
   `codigo_barras` varchar(50) NOT NULL DEFAULT '',
   `nome` varchar(255) NOT NULL DEFAULT '',
   `preco` decimal(10,2) NOT NULL DEFAULT 0.00,
-  `foto_url` varchar(255) NOT NULL DEFAULT '',
+  `img` varchar(255) NOT NULL DEFAULT '',
   `qtd` int(11) NOT NULL,
   `aapm` tinyint(4) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id_produto`)
-) ENGINE=InnoDB AUTO_INCREMENT=2147483648 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela pdv_cantina.produtos: ~1 rows (aproximadamente)
+-- Copiando dados para a tabela pdv_cantina.produtos: ~3 rows (aproximadamente)
 DELETE FROM `produtos`;
-INSERT INTO `produtos` (`id_produto`, `codigo_barras`, `nome`, `preco`, `foto_url`, `qtd`, `aapm`) VALUES
-	(1, '123', 'Paçoca Premium DiMarco', 3.30, 'adsdda', 1, 1);
+INSERT INTO `produtos` (`id_produto`, `codigo_barras`, `nome`, `preco`, `img`, `qtd`, `aapm`) VALUES
+	(1, '7898956836018', 'Paçoca Premium DiMarco', 3.30, 'adsdda', 1, 1),
+	(2, '7898055420392', 'Cereal em Barra sabor coco e aveia', 2.00, 'asasd', 3, 0),
+	(3, '2133', 'cereal', 2.20, '/imagens/1772310454134.webp', 0, 0);
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
