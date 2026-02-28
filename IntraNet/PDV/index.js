@@ -11,3 +11,21 @@ app.use(cors())
 app.listen(porta, () => { 
     console.log(`Servidor rodando em: http://localhost:${porta}`)
 })
+/* 🔧 AQUI você pode mudar a rota */
+app.get("/usuarios", (req, res) => {
+
+  /* 🔧 AQUI você muda o nome da sua tabela */
+  const sql = "SELECT * FROM produtos WHERE codigo_barras = ?";
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      return res.status(500).json(err);
+    }
+
+    res.json(result);
+  });
+});
+
+app.listen(3000, () => {
+  console.log("Servidor rodando na porta 3000");
+});

@@ -1,11 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
-</html>
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Document</title> 
+
+</head> 
+<body> 
+
+    <section id="sc_inputs"> 
+
+        <label id="lb_codb">Código do Produto</label> 
+        <input type="text" id="inp_codb"> 
+
+        <label id="lb_codb">Quantidade</label> 
+        <input type="text" id="inp_codb"> 
+
+        <label id="lb_codb">Total do Item</label>  
+        <div id="d_total_item"></div> 
+
+        <label id="lb_codb">Total</label> 
+        <div id="d_total_compra"></div> 
+
+        <label id="lb_codb">Desconto</label> 
+        <input type="text" id="inp_desconto"> 
+
+        <label id="lb_codb">Valor Unitário</label> 
+        <div id="d_valoru"></div> 
+
+ 
+
+
+    </section> 
+    <section id="sc_tabela">
+        <table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Código</th>
+      <th scope="col">Nome</th>
+      <th scope="col">Quantidade</th>
+      <th scope="col">Preço</th>
+    </tr>
+  </thead>
+
+  <tbody id="tb_tbl_produtos">
+  </tbody>
+
+</table>
+    </section>
+</body> 
+<script>
+/* 🔧 AQUI você coloca a rota do backend */
+fetch("http://localhost:3000/produtos")
+  .then(res => res.json())
+  .then(data => {
+
+    const tbody = document.getElementById("tabela_produtos");
+
+    data.forEach(produto => {
+
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <!-- 🔧 AQUI você coloca os nomes das colunas do seu banco -->
+        <td>${produto.codigo_barras}</td>
+        <td>${produto.nome}</td>
+        <td>${produto.qtd}</td>
+        <td>${produto.preco}</td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+
+  })
+  .catch(error => console.error(error));
+</script>
+</html> 
