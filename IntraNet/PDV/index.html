@@ -1,22 +1,157 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>PDV Cantina</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <section id="inputs">
-        <label id="lb_codb">Código do Produto</label>
-        <input type="text" id="inp_codb">
-        <label id="lb_codb">Quantidade</label>
-        <input type="text" id="inp_codb">
-        <div id="d_total_item"></div>
-        <div id="d_total_compra"></div>
-        <input type="text" id="inp_desconto">
-        <div id="d_valoru"></div>
 
+<section id="sc_inputs">
+    <label>Código do Produto</label>
+    <input type="text" id="inp_codb">
 
-    </section>
+    <label>Qtd</label>
+    <div id="d_qtd">0</div>
+
+    <label>Valor Unitário</label>
+    <div id="d_valoru">R$ 0,00</div>
+
+    <label>Total do Item</label>  
+    <div id="d_total_item">R$ 0,00</div>
+
+    <label>Total da Compra</label>
+    <div id="d_total_compra">R$ 0,00</div>
+
+    <label id="label">Foto do Produto</label>
+    <img alt="imagem" id="img_prod" width="150" height="150">
+</section>
+
+<section id="sc_tabela">
+    <table class="table table-striped table-hover border">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Código</th>
+                <th scope="col">Nome</th>
+                <th scope="col">Quantidade</th>
+                <th scope="col">Preço</th>
+            </tr>
+        </thead>
+        <tbody id="tb_tbl_produtos">
+        </tbody>
+    </table>
+</section>
+
+<section id="sc_modal">
+  <button id="b_final" onclick="abrirModal">Finalizar Compra</button>
+  <dialog id="d_modal" open="">
+    <article>
+        <header>
+          <div>
+            Finalizar Compra
+          </div>
+        </header>
+        <section>
+            <div>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            </div>
+        </section>
+          <footer>
+            <div>
+              <button id="b_fechar">
+                <span>Fechar</span>
+              </button>
+            </div>
+          </footer>
+      </article>
+  </dialog>
+
+  </div>
+
+  <button id="sc_botoes">Agendamento</button>
+
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+const inp_codb = document.getElementById("inp_codb");
+const tbody = document.getElementById("tb_tbl_produtos");
+const img_prod = document.getElementById("img_prod");
+
+let carrinho = {}; // objeto vazio (guarda várias informações organizadas) ele organiza por nme/id
+let totalCompra = 0; // guarda o valor incial da comrpa q é 0
+
+function formatar(valor) {
+  return Number(valor).toFixed(2).replace(".", ","); //troca a , por .
+}
+
+function atualizarTotalCompra() {
+  totalCompra = 0;
+  Object.values(carrinho).forEach(item => {
+    totalCompra += item.preco * item.qtd;
+  });
+  document.getElementById("d_total_compra").innerText = "R$ " + formatar(totalCompra);
+}
+
+function atualizarVisores(item) {
+  document.getElementById("d_qtd").innerText = item.qtd;
+  document.getElementById("d_valoru").innerText = "R$ " + formatar(item.preco);
+  document.getElementById("d_total_item").innerText = "R$ " + formatar(item.preco * item.qtd);
+}
+
+const URL_BACKEND_CAD = "http://localhost:3001"; // backend de cadastro, porta 3001
+
+inp_codb.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter") return;
+
+  const codigo = inp_codb.value.trim();
+  if (!codigo) return;
+
+  fetch(`${URL_BACKEND_CAD}/produtos/${codigo}`)
+    .then(res => res.json())
+    .then(data => {
+      const produto = data[0];
+      if (!produto) return;
+
+      img_prod.src = URL_BACKEND_CAD + produto.img;
+
+      if (carrinho[codigo]) {
+        carrinho[codigo].qtd++;
+        const linha = document.getElementById("linha_" + codigo);
+        linha.querySelector(".qtd").innerText = carrinho[codigo].qtd;
+      } else {
+        carrinho[codigo] = {
+          codigo: produto.codigo_barras,
+          nome: produto.nome,
+          preco: Number(produto.preco),
+          qtd: 1
+        };
+        const tr = document.createElement("tr"); //cria a linha na tabela
+        tr.id = "linha_" + codigo; //põe o código dentro dela(linha abaixo)
+        tr.innerHTML = `
+          <td>${produto.codigo_barras}</td>
+          <td>${produto.nome}</td>
+          <td class="qtd">1</td>
+          <td>R$ ${Number(produto.preco).toFixed(2).replace(".", ",")}</td>
+        `;
+        tbody.appendChild(tr); // adiciona a linha na tabela
+      }
+
+      atualizarVisores(carrinho[codigo]);
+      atualizarTotalCompra();
+      inp_codb.value = "";//limpa o input do código
+    })
+    .catch(err => console.error("Erro ao buscar produto:", err));
+});
+
+function abrirModal(total) {
+  document.getElementById("totalVenda").innerText = total;
+  document.getElementById("modalFinalizar").style.display = "flex";
+}
+
+</script>
+
 </body>
 </html>
