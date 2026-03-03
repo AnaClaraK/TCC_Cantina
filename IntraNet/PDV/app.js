@@ -66,3 +66,5 @@ app.post("/produtos", upload.single("imagem"), async (req, res) => {
     res.status(500).json({ erro: "Erro ao cadastrar" });
   }
 });
+
+//------------------------------------------------

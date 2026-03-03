@@ -9,22 +9,21 @@
 <body>
 
 <section id="sc_inputs">
-    <label>Código do Produto</label>
-    <input type="text" id="inp_codb">
+    <label>Código do Produto</label> <input type="text" id="inp_codb">
 
-    <label>Qtd</label>
+    <h2 id="h_qtd">Quantidade</h2>
     <div id="d_qtd">0</div>
 
-    <label>Valor Unitário</label>
-    <div id="d_valoru">R$ 0,00</div>
+    <h2 id="h_vl_und">Valor Unitário</h2>
+    <div id="d_vl_und">R$ 0,00</div>
 
-    <label>Total do Item</label>  
-    <div id="d_total_item">R$ 0,00</div>
+    <h2 id="h_ttl_i">Total do Item</h2>  
+    <div id="d_ttl_i">R$ 0,00</div>
 
-    <label>Total da Compra</label>
-    <div id="d_total_compra">R$ 0,00</div>
+    <h2 id="h_ttl_c">Total da Compra</h2>
+    <div id="d_ttl_c">R$ 0,00</div>
 
-    <label id="label">Foto do Produto</label>
+    <h2 id="h_foto">Foto do Produto</h2>
     <img alt="imagem" id="img_prod" width="150" height="150">
 </section>
 
@@ -44,8 +43,10 @@
 </section>
 
 <section id="sc_modal">
-  <button id="b_final" onclick="abrirModal">Finalizar Compra</button>
-  <dialog id="d_modal" open="">
+  <button id="b_final">
+    <span>Finalizar Compra</span>
+  </button>
+  <dialog id="d_modal">
     <article>
         <header>
           <div>
@@ -54,13 +55,24 @@
         </header>
         <section>
             <div>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <h2>Venda Finalizada</h2>
+                <h2>Pedido n°</h2>
+                <span id="s_pedido"></span>
+                <h2>Data e Hora</h2>
+                <span id="s_dt"></span>
+                <h2>Total da Compra</h2>
+                <span id="s_tot"></span>
+                <h2>Forma de Pagamento</h2> <!--Por aquela ista de escolha-->
+              <button id="b_din">Dinheiro</button>
+              <button id="b_cart_cred">Cartão de Crédito</button>
+              <button id="b_cart_deb">Cartão de Débito</button>
+              <button id="b_pix">PIX</button>
             </div>
         </section>
           <footer>
             <div>
-              <button id="b_fechar">
-                <span>Fechar</span>
+              <button id="b_nv_venda">
+                <span>Nova Venda</span>
               </button>
             </div>
           </footer>
@@ -69,7 +81,8 @@
 
   </div>
 
-  <button id="sc_botoes">Agendamento</button>
+  <button id="bt_agend">Agendamento</button>
+  <button id="bt_canc">Cancelar(ESC)</button>
 
 </section>
 
@@ -92,16 +105,16 @@ function atualizarTotalCompra() {
   Object.values(carrinho).forEach(item => {
     totalCompra += item.preco * item.qtd;
   });
-  document.getElementById("d_total_compra").innerText = "R$ " + formatar(totalCompra);
+  document.getElementById("d_ttl_c").innerText = "R$ " + formatar(totalCompra);
 }
 
 function atualizarVisores(item) {
   document.getElementById("d_qtd").innerText = item.qtd;
-  document.getElementById("d_valoru").innerText = "R$ " + formatar(item.preco);
-  document.getElementById("d_total_item").innerText = "R$ " + formatar(item.preco * item.qtd);
+  document.getElementById("d_vl_und").innerText = "R$ " + formatar(item.preco);
+  document.getElementById("d_ttl_i").innerText = "R$ " + formatar(item.preco * item.qtd);
 }
 
-const URL_BACKEND_CAD = "http://localhost:3001"; // backend de cadastro, porta 3001
+const URL_BACKEND_CAD = "http://localhost:3002"; // backend de cadastro, porta 3000
 
 inp_codb.addEventListener("keydown", (event) => {
   if (event.key !== "Enter") return;
@@ -150,7 +163,18 @@ function abrirModal(total) {
   document.getElementById("totalVenda").innerText = total;
   document.getElementById("modalFinalizar").style.display = "flex";
 }
+// -----------------------------
+const b_abrir = document.querySelector("#b_final")
+const modal = document.querySelector("#d_modal")
+const b_fechar = document.querySelector("#b_nv_venda")
 
+b_abrir.addEventListener("click", (e) =>{
+  modal.showModal();
+})
+
+b_fechar.addEventListener("click", (e) =>{
+  modal.close();
+})
 </script>
 
 </body>

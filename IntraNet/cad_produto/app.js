@@ -3,14 +3,14 @@ const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
 const conexao = require("./db");
-const porta =3001
+const porta =3002
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.listen(3001, () => {
-  console.log("Servidor rodando em http://localhost:3000");
+app.listen(3002, () => {
+  console.log("Servidor rodando em http://localhost:3002");
 });
 
 app.use("/imagens", express.static("imagens"));

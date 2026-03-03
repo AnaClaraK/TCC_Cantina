@@ -3,7 +3,13 @@
     margin: 0;
     box-sizing: border-box;
 }
+#b_final{
+    cursor: pointer;
+}
 
+#b_nv_venda{
+    cursor: pointer;
+}
 #d_modal{
     outline: none;
     margin: auto;
