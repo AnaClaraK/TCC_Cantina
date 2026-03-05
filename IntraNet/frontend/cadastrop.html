@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar</title>
+</head>
+<body>
+    <form id="formProduto" enctype="multipart/form-data">
+  <input type="text" name="nome" placeholder="Nome">
+  <input type="text" name="codigo_barras" placeholder="Código">
+  <input type="text" name="preco" placeholder="Preço">
+  <input type="file" name="imagem">
+  <button type="submit">Cadastrar</button>
+</form>
+
+<script>
+document.getElementById("formProduto").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(e.target);
+
+  await fetch("http://localhost:3000/produtos", {
+    method: "POST",
+    body: formData
+  });
+
+  alert("Produto cadastrado");
+});
+</script>
+</body>
+</html>
