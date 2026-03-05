@@ -1,18 +1,40 @@
-const express = require("express");
-const cors = require("cors");
+const express = require('express')
+const cors = require('cors')
+const crypto = require('crypto')
+const app = express()
+const porta = 3000
+const conexao = require('./db.js')
 const multer = require("multer");
 const path = require("path");
-const conexao = require("./db");
-const porta =3002
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+app.use(express.json())
+app.use(cors())
 
-app.listen(3002, () => {
-  console.log("Servidor rodando em http://localhost:3002");
+app.listen(porta, () => { 
+    console.log(`Servidor rodando em: http://localhost:${porta}`)
+})
+
+//--------- PDV
+
+app.use("/imagens", express.static("imagens"));
+
+app.get("/produtos/:codigo", async (req, res) => {
+  const { codigo } = req.params;
+
+  const sql = "SELECT * FROM produtos WHERE codigo_barras = ?";
+
+  const [result] = await conexao.query(sql, [codigo]);
+
+  res.json(result);
 });
 
+app.listen(3000, () => {
+  console.log("Servidor rodando na porta 3000");
+});
+
+
+//----
+// ------- cadastro produtos
 app.use("/imagens", express.static("imagens"));
 
 const storage = multer.diskStorage({
