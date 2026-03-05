@@ -2,12 +2,53 @@
     padding: 0;
     margin: 0;
     box-sizing: border-box;
-}
-#b_final{
-    cursor: pointer;
+    background-color: #d9d9d9;
 }
 
+#b_final{
+    cursor: pointer;
+
+}
+#s_final{
+        background-color: #bedf95;
+}
+
+#b_canc{
+    cursor: pointer;
+    background-color: #e99393;
+}
+
+#inp_codb{
+    width: 500px;
+    height: 30px;
+}
+
+.titulo{
+    text-align: center;
+    width: 500px;
+    height: 30px;
+}
+
+.d_val{
+    text-align: center;
+    width: 500px;
+    height: 30px;
+}
+
+#img_prod{
+    align-items: center;
+    justify-content: center;
+    width: 300px;
+    height: 300px;
+}
+
+
+
 #b_nv_venda{
+    cursor: pointer;
+}
+#b_agend{
+    background-color: #ffd699;
     cursor: pointer;
 }
 #d_modal{
