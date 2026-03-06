@@ -2,3 +2,29 @@ git config --global user.name "Ana Clara"
 git config --global user.email "anaclarinhakassao@gmail.com"
 
 ALTER TABLE produtos AUTO_INCREMENT = 4;
+
+N ta funfando:
+//------- Registro de compra
+app.post("/pedidos", (req, res) => {
+
+  const { valor_total } = req.body
+
+  const sql = "INSERT INTO pedidos (dt_hr, valor_total) VALUES (NOW(),?)"
+
+  conexao.query(sql, [valor_total], (err, result) => {
+
+    if(err){
+      console.log(err)
+      return res.status(500).json(err)
+    }
+
+    const agora = new Date()
+
+    res.json({
+      id_pedido: result.insertId,
+      dt_hr: agora
+    })
+
+  })
+
+})
