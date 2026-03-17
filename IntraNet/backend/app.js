@@ -161,3 +161,18 @@ app.get("/produtos/:codigo", async (req, res) => {
     res.status(500).json({ erro: "Erro ao buscar produto" });
   }
 });
+
+//-------------------------------- ESTOQUE
+
+app.get("/produtos", async (req, res) => {
+  try {
+    // Busca todos os produtos para exibir na tabela do estoque
+    const [rows] = await conexao.query("SELECT * FROM produtos");
+    
+    // Envia a lista para o seu HTML
+    res.json(rows);
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).json({ erro: "Erro ao buscar a lista de produtos" });
+  }
+});

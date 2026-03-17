@@ -159,9 +159,9 @@ CREATE TABLE IF NOT EXISTS `produtos` (
 -- Copiando dados para a tabela cantina.produtos: ~3 rows (aproximadamente)
 DELETE FROM `produtos`;
 INSERT INTO `produtos` (`id_produto`, `id_categoria`, `codigo_barras`, `nome`, `descricao`, `preco`, `dt_validade`, `qtd`, `img`, `disponivel`) VALUES
-	(1, NULL, '1', 'coca\r\n', NULL, 3.00, NULL, 10, '/imagens/1772548011594.jpg', NULL),
-	(2, NULL, '2', 'paçoca', NULL, 2.00, NULL, 0, '/imagens/1772729991633.webp', NULL),
-	(3, NULL, '3', 'cereal', NULL, 2.20, NULL, 0, '/imagens/1772730083078.webp', NULL);
+	(1, 0, '1', 'coca\r\n', 'uma coquinha geladinha', 3.00, '2026-04-28', 10, '/imagens/1772548011594.jpg', 1),
+	(2, NULL, '2', 'paçoca', 'uma deliciosa paçoca', 2.00, '2026-03-28', 0, '/imagens/1772729991633.webp', 0),
+	(3, NULL, '3', 'cereal', 'uma barrinha de cereallllllllllllllllllllllllllllllllllllllllllllllllllllllllllll', 2.20, '2026-04-08', 3, '/imagens/1772730083078.webp', 1);
 
 -- Copiando estrutura para tabela cantina.users
 DROP TABLE IF EXISTS `users`;
