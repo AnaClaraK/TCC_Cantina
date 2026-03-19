@@ -1,0 +1,121 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "API PDV",
+      "version": "1.0.0",
+      "description": "Documentação do sistema"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3000"
+      }
+    ],
+    "paths": {
+      "/cadastro": {
+        "post": {
+          "summary": "Cadastro de usuário",
+          "tags": ["Login"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": { "type": "string" },
+                    "senha": { "type": "string" },
+                    "confsenha": { "type": "string" }
+                  },
+                  "required": ["email", "senha", "confsenha"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": { "description": "Cadastro realizado com sucesso" },
+            "400": { "description": "Erro de validação" }
+          }
+        }
+      },
+      "/login": {
+        "post": {
+          "summary": "Login do usuário",
+          "tags": ["Login"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": { "type": "string" },
+                    "senha": { "type": "string" }
+                  },
+                  "required": ["email", "senha"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": { "description": "Login realizado com sucesso" },
+            "401": { "description": "Credenciais inválidas" }
+          }
+        }
+      },
+      "/produtos": {
+        "get": {
+          "summary": "Listar produtos",
+          "tags": ["Produtos"],
+          "responses": {
+            "200": { "description": "Lista de produtos" }
+          }
+        },
+        "post": {
+          "summary": "Cadastrar produto",
+          "tags": ["Produtos"],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "nome": { "type": "string" },
+                    "preco": { "type": "string" },
+                    "codigo_barras": { "type": "string" },
+                    "imagem": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": { "description": "Produto cadastrado" }
+          }
+        }
+      },
+      "/produtos/{codigo}": {
+        "get": {
+          "summary": "Buscar produto por código de barras",
+          "tags": ["Produtos"],
+          "parameters": [
+            {
+              "name": "codigo",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": { "description": "Produto encontrado" },
+            "404": { "description": "Produto não encontrado" }
+          }
+        }
+      }
+    }
+  }

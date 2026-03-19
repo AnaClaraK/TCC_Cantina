@@ -8,6 +8,11 @@ const conexao = require('./db.js') // Certifique-se que o db.js está na mesma p
 const app = express()
 const porta = 3000
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 
 // Configurações iniciais
 app.use(express.json())
