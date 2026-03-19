@@ -27,16 +27,12 @@ CREATE TABLE IF NOT EXISTS `cadastro` (
   `email` varchar(255) NOT NULL DEFAULT '',
   `senha` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id_cadastro`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.cadastro: ~5 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.cadastro: ~1 rows (aproximadamente)
 DELETE FROM `cadastro`;
 INSERT INTO `cadastro` (`id_cadastro`, `email`, `senha`) VALUES
-	(2, 'clarinhakassao@gmail.com', '53646ae3a9424a0dfa2444e8d194a0d24cb45bfbca699f3b7f7eff604b70a904'),
-	(3, 'clarinhakassaoa@gmail.com', '53646ae3a9424a0dfa2444e8d194a0d24cb45bfbca699f3b7f7eff604b70a904'),
-	(4, 'clarinhakassaoaa@gmail.com', '961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506'),
-	(5, 'clarinhakassaoaaa@gmail.com', '961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506'),
-	(6, 'clarinhakassaao@gmail.com', '961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506');
+	(1, 'anabanana@gmail.com', 'c64a0fbaee020a68288cd158bbd2d711ef7b8c07b592903546e7bc38fc002f02');
 
 -- Copiando estrutura para tabela cantina.cardapio_dia
 DROP TABLE IF EXISTS `cardapio_dia`;
@@ -156,7 +152,7 @@ CREATE TABLE IF NOT EXISTS `produtos` (
   KEY `Index 2` (`id_categoria`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.produtos: ~3 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.produtos: ~4 rows (aproximadamente)
 DELETE FROM `produtos`;
 INSERT INTO `produtos` (`id_produto`, `id_categoria`, `codigo_barras`, `nome`, `descricao`, `preco`, `dt_validade`, `qtd`, `img`, `disponivel`) VALUES
 	(1, 0, '1', 'coca\r\n', 'uma coquinha geladinha', 3.00, '2026-04-28', 10, '/imagens/1772548011594.jpg', 1),
