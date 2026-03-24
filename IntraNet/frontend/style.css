@@ -1,68 +1,67 @@
-* {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-    background-color: #d9d9d9;
-
+body{
+    background-color: #242628;
+}
+.custom-header {
+    background-color: #efac4a !important;
 }
 
-#b_final{
-    cursor: pointer;
-
+.custom-sidebar {
+    background-color: #efac4a !important; 
 }
-#s_final{
-        background-color: #bedf95;
-}
-
-#b_canc{
-    cursor: pointer;
-    background-color: #e99393;
-}
-
-#inp_codb{
-    width: 500px;
-    height: 30px;
-}
-
-.titulo{
-    text-align: center;
-    width: 500px;
-    height: 30px;
-}
-
-.d_val{
-    text-align: center;
-    width: 500px;
-    height: 30px;
-}
-
-#img_prod{
-    align-items: center;
-    justify-content: center;
+.a_btn {
+    /* Transforma o link em um bloco flexível */
+    display: inline-flex;
+    flex-direction: column; /* Alinha os itens em coluna (um sob o outro) */
+    align-items: center;    /* Centraliza horizontalmente */
+    justify-content: center; /* Centraliza verticalmente */
+    
+    /* Tamanho do Botão */
     width: 300px;
     height: 300px;
+    
+    /* Estilo Visual */
+    background-color: #efac4a;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.3s ease;
 }
 
+.a_btn:hover {
+    background-color: #efac4a;
+    border-color: #bbb;
+    transform: translateY(-3px); /* Efeito de levante ao passar o mouse */
+}
 
+/* Tamanho da Imagem dentro do botão */
+.a_btn img {
+    width: 200px;
+    height: 200px;
+    margin-bottom: 8px; /* Espaço entre imagem e texto do botão */
+    object-fit: contain;
+}
 
-#b_nv_venda{
-    cursor: pointer;
+/* Texto de legenda fora do botão */
+.p_nome {
+    margin-top: 10px;
+    font-size: 20px;
+    color: #efac4a;
+    text-align: center;
+    width: 300px; /* Mesma largura do botão para alinhar */
 }
-#b_agend{
-    background-color: #ffd699;
-    cursor: pointer;
-}
-#d_modal{
-    outline: none;
-    margin: auto;
-    width: 600px;
-    border-color: black;
-    border: 1px solid #000000;
-    border-radius: 3px;
-    padding: 15px;
-}
-#d_modal > article {
+/* Este container garante que o botão e o texto fiquem um sob o outro */
+.bloco-item {
     display: flex;
-    flex-direction: column;
-    gap: 1em;
+    flex-direction: column; /* Alinha o botão em cima e o texto embaixo */
+    align-items: center;    /* Centraliza os dois horizontalmente */
+    width: 300px;           /* Mesma largura que você deu ao botão */
+}
+
+/* 1. CONTAINER: Alinha os botões em LINHA */
+.s_btn {
+    display: flex;         /* Ativa o Flexbox para alinhar os filhos (<a>) */
+    flex-direction: row;   /* Define o alinhamento como linha (horizontal) */
+    gap: 50px;            /* Cria um espaço de 20px entre cada botão */
+    padding: 20px;
+    justify-content: center; /* Opcional: Centraliza o grupo de botões na tela */
 }

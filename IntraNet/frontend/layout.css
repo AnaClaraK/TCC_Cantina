@@ -1,0 +1,112 @@
+/* layout.css */
+:root {
+    --sidebar-width: 250px;
+    --sidebar-collapsed-width: 70px;
+    --header-height: 80px;
+}
+
+/* O PADRÃO AGORA É FECHADO */
+body {
+    margin: 0;
+    padding-top: var(--header-height);
+    padding-left: var(--sidebar-collapsed-width); /* Começa com espaço pequeno */
+    transition: padding-left 0.3s ease;
+}
+
+.custom-sidebar {
+    width: var(--sidebar-collapsed-width); /* Começa estreita */
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background: #242628;
+    transition: width 0.3s ease;
+    overflow: hidden;
+    z-index: 999;
+}
+
+/* Esconde textos por padrão */
+.user-name, .nav-text {
+    display: none;
+    white-space: nowrap;
+}
+
+/* --- QUANDO ESTIVER ABERTA (Via JS) --- */
+body.sidebar-open {
+    padding-left: var(--sidebar-width);
+}
+
+body.sidebar-open .custom-sidebar {
+    width: var(--sidebar-width);
+}
+
+body.sidebar-open .user-name, 
+body.sidebar-open .nav-text {
+    display: inline; /* Mostra os textos quando abrir */
+}
+/* HEADER */
+.custom-header {
+    height: var(--header-height);
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: #242628; /* Cor para identificar */
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 1000;
+    box-sizing: border-box; /* Impede o corte no canto direito */
+}
+
+/* SIDEBAR */
+.custom-sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background: #242628; /* Cor para identificar */
+    color: white;
+    transition: width 0.3s;
+    overflow: hidden;
+    z-index: 999;
+    padding-top: var(--header-height);
+}
+
+.sidebar-closed .custom-sidebar { width: var(--sidebar-collapsed-width); }
+
+/* Conteúdo da Sidebar */
+.user-info {
+    padding: 20px 10px;
+    text-align: center;
+    border-bottom: 1px solid #555;
+    white-space: nowrap;
+}
+
+.user-photo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ddd;
+    display: inline-block;
+}
+
+/* Esconde nome quando fechado */
+.sidebar-closed .user-name, 
+.sidebar-closed .nav-text { display: none; }
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 15px 25px;
+    color: white;
+    text-decoration: none;
+}
+
+.i_img{
+    width: 50px;
+    height: 50px;
+}
