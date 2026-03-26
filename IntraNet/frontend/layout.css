@@ -1,37 +1,105 @@
-/* layout.css */
+/* --- VARIÁVEIS E RESET --- */
 :root {
     --sidebar-width: 250px;
     --sidebar-collapsed-width: 70px;
     --header-height: 80px;
+    --cor-principal: #efac4a;
+    --cor-fundo: #242628;
 }
 
-/* O PADRÃO AGORA É FECHADO */
+@font-face {
+    font-family: 'Roca One';
+    /* Removida a barra inicial para evitar erro 404 no servidor local */
+    src: url('fonts/roca-one-regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 body {
     margin: 0;
     padding-top: var(--header-height);
-    padding-left: var(--sidebar-collapsed-width); /* Começa com espaço pequeno */
+    padding-left: var(--sidebar-collapsed-width);
+    background-color: var(--cor-fundo);
     transition: padding-left 0.3s ease;
+    font-family: sans-serif; /* Fallback */
 }
 
+/* Configuração Base dos Ícones */
+.icon-nav {
+    width: 40px;
+    height: 40px;
+    display: inline-block;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    flex-shrink: 0;
+}
+
+/* --- TEMA 1: FUNDO ESCURO (Ícones Laranjas) --- */
+body.fundo-escuro {
+    background-color: #efac4a;
+}
+body.fundo-escuro .custom-header, 
+body.fundo-escuro .custom-sidebar { background-color: #242628; border-color: #444; }
+body.fundo-escuro .nav-text, body.fundo-escuro #btn-menu { color: #efac4a; }
+
+/* Imagens Laranja */
+body.fundo-escuro .logo-container { content: url('images/logo_l.png'); width: 200px; }
+body.fundo-escuro .icon-inicio { background-image: url('images/inicio_l.png'); }
+body.fundo-escuro .icon-pdv { background-image: url('images/pdv_l.png'); }
+body.fundo-escuro .icon-estoque { background-image: url('images/estoque_l.png'); }
+body.fundo-escuro .icon-agendamento { background-image: url('images/agendamento_l.png'); }
+
+
+/* --- TEMA 2: FUNDO LARANJA (Ícones Pretos) --- */
+body.fundo-laranja {
+    background-color: #242628;
+}
+body.fundo-laranja .custom-header, 
+body.fundo-laranja .custom-sidebar { background-color: #efac4a; border-color: rgba(0,0,0,0.1); }
+body.fundo-laranja .nav-text, body.fundo-laranja #btn-menu { color: #242628; }
+
+/* Imagens Pretas */
+body.fundo-laranja .logo-container { content: url('images/logo_p.png'); width: 200px; }
+body.fundo-laranja .icon-inicio { background-image: url('images/inicio_p.png'); }
+body.fundo-laranja .icon-pdv { background-image: url('images/pdv_p.png'); }
+body.fundo-laranja .icon-estoque { background-image: url('images/estoque_p.png'); }
+body.fundo-laranja .icon-agendamento { background-image: url('images/agendamento_p.png'); }
+
+/* --- HEADER --- */
+.custom-header {
+    height: var(--header-height);
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: var(--cor-fundo);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 1000;
+    box-sizing: border-box;
+    border-bottom: 1px solid #444;
+}
+
+/* --- SIDEBAR E NAVEGAÇÃO --- */
 .custom-sidebar {
-    width: var(--sidebar-collapsed-width); /* Começa estreita */
+    width: var(--sidebar-collapsed-width);
     height: 100vh;
     position: fixed;
     left: 0;
     top: 0;
-    background: #242628;
+    background: var(--cor-fundo);
     transition: width 0.3s ease;
     overflow: hidden;
     z-index: 999;
+    padding-top: var(--header-height);
 }
 
-/* Esconde textos por padrão */
-.user-name, .nav-text {
-    display: none;
-    white-space: nowrap;
-}
-
-/* --- QUANDO ESTIVER ABERTA (Via JS) --- */
+/* Quando a sidebar abre (via Classe no Body) */
 body.sidebar-open {
     padding-left: var(--sidebar-width);
 }
@@ -40,73 +108,148 @@ body.sidebar-open .custom-sidebar {
     width: var(--sidebar-width);
 }
 
-body.sidebar-open .user-name, 
-body.sidebar-open .nav-text {
-    display: inline; /* Mostra os textos quando abrir */
-}
-/* HEADER */
-.custom-header {
-    height: var(--header-height);
-    width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    background: #242628; /* Cor para identificar */
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
-    z-index: 1000;
-    box-sizing: border-box; /* Impede o corte no canto direito */
-}
-
-/* SIDEBAR */
-.custom-sidebar {
-    width: var(--sidebar-width);
-    height: 100vh;
-    position: fixed;
-    left: 0;
-    top: 0;
-    background: #242628; /* Cor para identificar */
-    color: white;
-    transition: width 0.3s;
-    overflow: hidden;
-    z-index: 999;
-    padding-top: var(--header-height);
-}
-
-.sidebar-closed .custom-sidebar { width: var(--sidebar-collapsed-width); }
-
-/* Conteúdo da Sidebar */
-.user-info {
-    padding: 20px 10px;
-    text-align: center;
-    border-bottom: 1px solid #555;
-    white-space: nowrap;
-}
-
-.user-photo {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #ddd;
-    display: inline-block;
-}
-
-/* Esconde nome quando fechado */
-.sidebar-closed .user-name, 
-.sidebar-closed .nav-text { display: none; }
-
+/* Itens de Menu */
 .nav-link {
     display: flex;
     align-items: center;
-    padding: 15px 25px;
+    padding: 10px 15px;
     color: white;
     text-decoration: none;
+    height: 60px;
+    transition: background 0.2s;
 }
 
-.i_img{
-    width: 50px;
-    height: 50px;
+.nav-link:hover {
+    background: rgba(239, 172, 74, 0.1);
+}
+
+.i_img {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0; /* Impede deformação */
+    object-fit: contain;
+}
+
+.nav-text {
+    display: none; /* Escondido por padrão */
+    padding-left: 15px;
+    font-size: 22px;
+    font-family: 'Roca One', serif;
+    color: #242628;
+    line-height: 0.9; /* Diminui o espaço entre linhas se o texto quebrar */
+    white-space: nowrap; /* Permite quebra de linha se necessário */
+}
+
+/* Mostrar textos quando a sidebar estiver aberta */
+body.sidebar-open .nav-text,
+body.sidebar-open .user-name {
+    display: block;
+}
+
+#btn-menu{
+    background:none; 
+    border:none; 
+    color:#242628; 
+    font-size:48px; 
+    cursor:pointer; 
+    margin-right: 20px;
+    margin-left: -12px;
+    margin-top: -5px;
+}
+
+/* --- BOTÕES DO CONTEÚDO (ESTOQUE) --- */
+.s_btn {
+    display: flex;
+    flex-direction: row;
+    gap: 50px;
+    padding: 40px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.bloco-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 300px;      
+    min-width: 300px;    
+    text-align: center;
+}
+
+.a_btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 300px;
+    height: 300px;
+    background-color: var(--cor-principal);
+    border-radius: 20px;
+    text-decoration: none;
+    transition: transform 0.3s ease;
+}
+
+.a_btn:hover {
+    transform: translateY(-5px);
+}
+
+.a_btn img {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+}
+
+.p_nome {
+    margin-top: 10px;
+    font-size: 30px;
+    font-family: 'Roca One', serif;
+    color: var(--cor-principal);
+    text-align: center;
+    line-height: 0.8; /* Texto do botão bem compacto */
+}
+
+/* --- INFO DO USUÁRIO --- */
+/* Container que centraliza tudo na sidebar */
+.user-info {
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid #444;
+}
+
+/* O Círculo (Moldura) */
+.user-photo {
+    width: 60px;           /* Tamanho do círculo */
+    height: 60px;
+    border-radius: 50%;    /* Faz ficar redondo */
+    overflow: hidden;      /* Corta o que sobrar da imagem para fora do círculo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #333; /* Cor de fundo caso a imagem falhe */
+    border: 2px solid #efac4a; /* Bordinha dourada para combinar com seu layout */
+}
+
+
+.p_img {
+    width: 100%;           /* Força a largura a preencher o círculo */
+    height: 100%;          /* Força a altura a preencher o círculo */
+    object-fit: cover;     /* Aumenta e centraliza a foto automaticamente sem amassar */
+    object-position: center; /* Garante que o centro da foto seja o foco */
+    display: block;
+}
+
+/* Nome do Usuário */
+.user-name {
+    margin-top: 10px;
+    color: #242628;
+    font-family: 'Roca One', serif;
+    font-size: 18px;
+    text-align: center;
+    line-height: 1;        /* Mantém o nome compacto */
+}
+.l_img{
+    width: 230px;
 }

@@ -8,43 +8,128 @@
     <link rel="stylesheet" href="style.css">
     <title>Document</title>
 </head>
-<body>
+<body class="fundo-laranja">
+    
     <section class="s_btn">
         <div>
         <a href="pdv.html" class="a_btn">
-            <img class="b_img" src="images/pdv.png"/>
+            <img class="b_img" src="images/pdv_p.png"/>
         </a>
         <p class="p_nome">PDV</p>
         </div>
 
         <div>
         <a href="estoque.html" class="a_btn">
-            <img class="b_img" src="" alt="">
+            <img class="b_img" src="images/estoque_p.png" alt="">
         </a>
         <p class="p_nome">Estoque</p>
         </div>
 
         <div>
         <a href="agendamento.html" class="a_btn">
-            <img class="b_img" src="" alt="">
+            <img class="b_img" src="images/agendamento_p.png" alt="">
         </a>
         <p class="p_nome">Agendamentos</p>
         </div>
 
         <div>
         <a href="pedido.html" class="a_btn">
-            <img class="b_img" src="" alt="">
+            <img class="b_img" src="images/pedidos_p.png" alt="">
         </a>
         <p class="p_nome">Pedidos</p>
         </div>
 
         <div>
         <a href="compras.html" class="a_btn">
-            <img class="b_img" src="" alt="">
+            <img class="b_img" src="images/compras_p.png" alt="">
         </a>
         <p class="p_nome">Compras</p>
         </div>
-
     </section>
+
+    <section class="agenda-box">
+        <header class="agenda-header">
+            <div class="dia-grande" id="dia-grande-js">26</div>
+            <div class="info-mes">
+                <h2 id="nome-mes-js" style="margin: 0; font-size: 35px;">Março</h2>
+                <p id="hoje-texto-js" style="margin: 0; font-size: 18px; opacity: 0.8;">Hoje, Quinta-feira</p>
+            </div>
+            <div class="nav-agenda" style="margin-left: auto; display: flex; gap: 5px;">
+                <button class="btn-seta" onclick="mudarMes(-1)">◀</button>
+                <button class="btn-seta" onclick="mudarMes(1)">▶</button>
+            </div>
+        </header>
+    
+        <div class="corpo-agenda">
+            <div class="dias-grid" style="font-weight: bold; opacity: 0.7; margin-bottom: 5px;">
+                <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+            </div>
+            <div class="dias-grid" id="calendario-numeros">
+                </div>
+        </div>
+    
+        <footer class="f_agenda">
+            <a href="agendamento.html" class="btn-agenda-footer">Ver agenda</a>
+        </footer>
+    </section>
+    <script>
+        // Variáveis para controlar qual mês estamos vendo
+let dataExibicao = new Date();
+
+function atualizarCalendario() {
+    const listaDias = document.getElementById("calendario-numeros");
+    const txtDiaGrande = document.getElementById("dia-grande-js");
+    const txtMes = document.getElementById("nome-mes-js");
+    const txtHoje = document.getElementById("hoje-texto-js");
+
+    const diaAtual = new Date(); // Data real de hoje
+    const mes = dataExibicao.getMonth();
+    const ano = dataExibicao.getFullYear();
+
+    // 1. Atualizar Textos do Topo
+    const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+    
+    txtMes.innerText = meses[mes];
+    txtDiaGrande.innerText = diaAtual.getDate(); // Mantém o dia de hoje no destaque
+    txtHoje.innerText = `Hoje, ${diasSemana[diaAtual.getDay()]}`;
+
+    // 2. Lógica da Grade de Dias
+    const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
+    const ultimoDiaMes = new Date(ano, mes + 1, 0).getDate();
+
+    listaDias.innerHTML = ""; // Limpa a grade
+
+    // Criar espaços vazios
+    for (let i = 0; i < primeiroDiaSemana; i++) {
+        const divVazia = document.createElement("div");
+        divVazia.style.padding = "8px 0";
+        listaDias.appendChild(divVazia);
+    }
+
+    // Criar os números
+    for (let dia = 1; dia <= ultimoDiaMes; dia++) {
+        const divDia = document.createElement("div");
+        divDia.classList.add("dia-numero");
+        divDia.innerText = dia;
+
+        // Destaque se for hoje (apenas se estivermos no mês/ano atual)
+        if (dia === diaAtual.getDate() && mes === diaAtual.getMonth() && ano === diaAtual.getFullYear()) {
+            divDia.classList.add("tem-evento");
+        }
+
+        listaDias.appendChild(divDia);
+    }
+}
+
+// Função para as setinhas funcionarem
+function mudarMes(direcao) {
+    dataExibicao.setMonth(dataExibicao.getMonth() + direcao);
+    atualizarCalendario();
+}
+
+// Iniciar ao carregar a página
+window.onload = atualizarCalendario;
+    </script>
 </body>
 </html>

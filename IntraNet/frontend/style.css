@@ -1,5 +1,16 @@
+@font-face {
+    font-family: 'Roca One';
+    /* Certifique-se de que os arquivos estejam na pasta 'fonts' ao lado do seu CSS */
+    src: url('fonts/roca-one-regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap; /* Melhora o carregamento da página */
+  }
+
 body{
     background-color: #242628;
+    overflow: hidden;
+    
 }
 .custom-header {
     background-color: #efac4a !important;
@@ -8,6 +19,7 @@ body{
 .custom-sidebar {
     background-color: #efac4a !important; 
 }
+
 .a_btn {
     /* Transforma o link em um bloco flexível */
     display: inline-flex;
@@ -42,9 +54,10 @@ body{
 }
 
 /* Texto de legenda fora do botão */
-.p_nome {
+.p_nome {font-family: 'Roca One', serif;
     margin-top: 10px;
-    font-size: 20px;
+    font-size: 30px;
+    font-family: 'Roca One', serif;
     color: #efac4a;
     text-align: center;
     width: 300px; /* Mesma largura do botão para alinhar */
@@ -57,11 +70,147 @@ body{
     width: 300px;           /* Mesma largura que você deu ao botão */
 }
 
-/* 1. CONTAINER: Alinha os botões em LINHA */
+/* 1. O container que segura os botões de estoque */
 .s_btn {
-    display: flex;         /* Ativa o Flexbox para alinhar os filhos (<a>) */
-    flex-direction: row;   /* Define o alinhamento como linha (horizontal) */
-    gap: 50px;            /* Cria um espaço de 20px entre cada botão */
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;          /* Permite quebrar linha se REALMENTE não couber */
+    justify-content: center;  /* Mantém centralizado */
+    gap: 20px;                /* Reduzi o gap de 50px para 20px para ganhar espaço */
     padding: 20px;
-    justify-content: center; /* Opcional: Centraliza o grupo de botões na tela */
+    
+    /* Cálculo mágico: 100% da largura menos a largura da sidebar */
+    width: auto; 
+    transition: all 0.3s ease; /* Segue o movimento da sidebar suavemente */
+    
+}
+
+/* 2. Garante que o conteúdo principal não "vaze" para fora da tela */
+main, .conteudo-principal { 
+    overflow-x: hidden;
+}
+
+/*agenda*/
+.agenda-box {
+    background-color: #efac4a;
+    border-radius: 20px;
+    padding: 23px;
+    width: 450px;
+    height: 450px; /* Altura fixa garantida */
+    color: #242628;
+    font-family: 'Roca One', serif;
+    margin: 0px 60px;
+    position: relative; /* FUNDAMENTAL: vira a referência para os botões */
+    box-sizing: border-box;
+}
+
+.f_agenda {
+    position: absolute;
+    bottom: 25px; /* Distância fixa do fundo */
+    right: 25px;  /* Distância fixa da direita */
+}
+
+.btn-agenda-footer {
+    background-color: #242628;
+    color: #efac4a;
+    text-decoration: none;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-family: 'Roca One', serif;
+    font-size: 20px;
+    display: block;
+}
+
+/* Garante que a grade de dias não empurre o botão para fora */
+.corpo-agenda {
+    flex-grow: 1; 
+    margin-top: 8px;
+}
+
+
+.btn-agenda-footer:hover {
+    transform: scale(1.05);
+}
+
+
+/* Estilo do botão "Ver agenda" */
+
+/* Cabeçalho com o Número Grande */
+.agenda-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.dia-grande {
+    font-size: 70px;
+    line-height: 1;
+}
+
+/* Grade dos Dias */
+.dias-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 7 colunas iguais */
+    gap: 6px;
+    text-align: center;
+}
+/* Grade dos Dias - Ajustada para não mover o layout */
+#calendario-numeros {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    text-align: center;
+    min-height: 200px; /* VALOR CHAVE: Mantém o espaço de 6 linhas sempre ocupado */
+    align-content: start;
+}
+
+.dia-numero {
+    padding: 7px 0;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+/* Destaque para dias que possuem agendamento */
+.tem-evento {
+    background-color: #242628;
+    color: #efac4a;
+    font-weight: bold;
+}
+
+.dia-numero:hover {
+    background-color: rgba(0,0,0,0.1);
+}
+
+.info-mes {
+    width: 180px; /* Ajuste conforme necessário para caber o maior nome de mês */
+    flex-shrink: 0;
+}
+
+.nav-agenda {
+    position: absolute;
+    top: 25px;    /* Distância do topo igual ao padding */
+    right: 25px;  /* Distância da direita igual ao padding */
+    display: flex;
+    gap: 8px;
+}
+
+.btn-seta {
+    background: #242628;
+    color: #efac4a;
+    border: none;
+    border-radius: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.d_quad{
+    background-color: #242628;
+    max-width: 150px;
+    
 }
