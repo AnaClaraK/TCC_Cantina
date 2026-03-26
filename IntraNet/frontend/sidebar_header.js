@@ -38,7 +38,7 @@ const menuHTML = `
         </a>
         <a href="cadastrop.html" class="nav-link">
             <img class="i_img" data-name="cadastrop" src="images/cadastrop_p.png"/> 
-            <span class="nav-text">Cadastro</span>
+            <span class="nav-text">Cadastro de <br> Produtos</span>
         </a>
     </nav>
 </aside>
