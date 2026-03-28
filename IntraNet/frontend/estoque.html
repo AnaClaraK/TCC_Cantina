@@ -8,16 +8,18 @@
     <link rel="stylesheet" href="styleagend.css">
     <title>Estoque</title>
 </head>
-<body class="fundo-laranja">
-    <div class="div_ag">
+<body class="fundo-escuro">
+    <div class="d_util">
         <h2 class="h_ag">Estoque</h2>
         <button id="b_addq" >
             <span id="s_addq">Adicionar Quantidade</span>
         </button>
-        <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
+        <div id="d_inp">
+            <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
+        </div>
     </div>
     <section id="sc_tabela" class="container mt-5">
-        <table class="table table-striped table-hover border">
+        <table class="tabela">
             <thead class="table-dark">
                 <tr>
                     <th scope="col">Categoria</th>

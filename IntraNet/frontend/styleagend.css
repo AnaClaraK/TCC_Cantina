@@ -1,10 +1,7 @@
 body{
     background-color: #efac4a;
-}
-.div_ag{
-    display: inline-flex;
-    flex-direction: row;
-    
+    display: flex;
+    justify-content: center;
 }
 #inputBusca{
     height: 20;
@@ -50,4 +47,11 @@ table tbody tr:hover {
 }
 #d_modal{
     background-color: #fed89d;
+}
+
+.tabela{
+    margin-top: 120px;
+}
+#d_inp{
+    justify-content: flex-end;
 }
