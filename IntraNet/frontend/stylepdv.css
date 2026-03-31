@@ -1,68 +1,305 @@
 * {
-    padding: 0;
     margin: 0;
+    padding: 0;
     box-sizing: border-box;
-    background-color: #efac4a;
-
 }
 
-#b_final{
-    cursor: pointer;
-
-}
-#s_final{
-        background-color: #bedf95;
-}
-
-#b_canc{
-    cursor: pointer;
-    background-color: #e99393;
-}
-
-#inp_codb{
-    width: 500px;
-    height: 30px;
+body {
+    background-color: #f0a830;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+        "inputs  tabela"
+        "inputs  tabela"
+        "modal   tabela";
+    height: 100vh;
+    gap: 0;
+    padding: 10px;
+    column-gap: 10px;
 }
 
-.titulo{
+/* ===== SECTION INPUTS (esquerda) ===== */
+#sc_inputs {
+    grid-area: inputs;
+    background-color: #2b1f14;
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto auto auto auto 1fr;
+    gap: 6px 10px;
+    align-items: start;
+}
+
+/* Título Código do Produto — ocupa toda a largura */
+#sc_inputs h2:first-child {
+    grid-column: 1 / -1;
+    color: #f0a830;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+/* Input do código — ocupa toda a largura */
+#inp_codb {
+    grid-column: 1 / -1;
+    background-color: #f0a830;
+    border: none;
+    border-radius: 6px;
+    height: 36px;
+    padding: 0 10px;
+    font-size: 1rem;
+    color: #2b1f14;
+    outline: none;
+}
+
+/* Títulos Quantidade / Valor Unitário / Total do Item */
+#h_qtd {
+    grid-column: 1;
+    color: #f0a830;
+    font-size: 0.85rem;
+    font-weight: 500;
     text-align: center;
-    width: 500px;
-    height: 30px;
 }
 
-.d_val{
+#h_vl_und {
+    grid-column: 2;
+    color: #f0a830;
+    font-size: 0.85rem;
+    font-weight: 500;
     text-align: center;
-    width: 500px;
-    height: 30px;
 }
 
-#img_prod{
+#h_ttl_i {
+    grid-column: 3;
+    color: #f0a830;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Visores (display boxes) */
+.inp_val {
+    background-color: #f0a830;
+    border-radius: 6px;
+    height: 36px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    width: 300px;
-    height: 300px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #2b1f14;
 }
 
+#d_qtd    { grid-column: 1; }
+#d_vl_und { grid-column: 2; }
+#d_ttl_i  { grid-column: 3; }
 
+/* Total da Compra — título e visor à direita, imagem à esquerda */
+#h_ttl_c {
+    grid-column: 2 / -1;
+    color: #f0a830;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+    margin-top: 6px;
+}
 
-#b_nv_venda{
-    cursor: pointer;
+#d_ttl_c {
+    grid-column: 2 / -1;
 }
-#b_agend{
-    background-color: #ffd699;
-    cursor: pointer;
+
+/* Imagem do produto */
+#img_prod {
+    grid-column: 1;
+    grid-row: 5 / 7;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 8px;
+    background-color: #b0b0b0;
+    border: 2px solid #888;
 }
-#d_modal{
-    outline: none;
-    margin: auto;
-    width: 600px;
-    border-color: black;
-    border: 1px solid #000000;
-    border-radius: 3px;
-    padding: 15px;
-}
-#d_modal > article {
+
+/* ===== SECTION TABELA (direita) ===== */
+#sc_tabela {
+    grid-area: tabela;
+    background-color: #f0a830;
+    border-radius: 10px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 1em;
+}
+
+#sc_tabela table {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+#sc_tabela thead tr {
+    background-color: #2b1f14 !important;
+    color: #f0a830 !important;
+}
+
+#sc_tabela thead th {
+    padding: 10px 8px;
+    text-align: center;
+    font-weight: 600;
+    border: 1px solid #c8821a;
+    background-color: #2b1f14 !important;
+    color: #f0a830 !important;
+}
+
+#sc_tabela tbody tr {
+    background-color: #f0a830 !important;
+}
+
+#sc_tabela tbody td {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #c8821a;
+    color: #2b1f14;
+}
+
+/* ===== SECTION MODAL / BOTÕES (rodapé esquerdo) ===== */
+#sc_modal {
+    grid-area: modal;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0 0 0;
+}
+
+#b_agend {
+    background-color: #f0a830;
+    color: #2b1f14;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 22px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.2s;
+}
+#b_agend:hover { filter: brightness(1.1); }
+
+#b_canc {
+    background-color: #e06060;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 22px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.2s;
+}
+#b_canc:hover { filter: brightness(1.1); }
+
+#b_final {
+    background-color: #6dbf6d;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 22px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: filter 0.2s;
+    margin-left: auto;
+}
+#b_final:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+#b_final:not(:disabled):hover { filter: brightness(1.1); }
+
+/* ===== DIALOG / MODAL ===== */
+#d_modal {
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+    width: 380px;
+    background-color: #2b1f14;
+    color: #f0a830;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+}
+
+#d_modal::backdrop {
+    background: rgba(0,0,0,0.6);
+}
+
+#d_modal article {
+    display: flex;
+    flex-direction: column;
+}
+
+#d_modal article > section {
+    padding: 24px 28px;
+}
+
+#d_modal article > section > div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#d_modal h2 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #f0a830;
+    margin-top: 10px;
+}
+
+#d_modal span {
+    font-size: 1rem;
+    color: #fff;
+}
+
+.pagamento {
+    background-color: #f0a830;
+    color: #2b1f14;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: filter 0.2s;
+}
+.pagamento:hover { filter: brightness(1.1); }
+
+#d_modal footer {
+    background-color: #1a1008;
+    padding: 14px 28px;
+    border-radius: 0 0 12px 12px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+#b_nv_venda {
+    background-color: #6dbf6d;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+#b_nv_venda:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+/* ===== TÍTULOS GERAIS ===== */
+.titulo {
+    color: #f0a830;
+    font-size: 0.9rem;
+    font-weight: 500;
 }
