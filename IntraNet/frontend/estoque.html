@@ -22,9 +22,9 @@
         <table class="tabela">
             <thead class="table-dark">
                 <tr>
-                    <th scope="col">Categoria</th>
                     <th scope="col">Código de Barras</th>
-                    <th scope="col">Nome</th>
+                    <th scope="col">Produto</th>
+                    <th scope="col">Categoria</th>
                     <th scope="col">Preço</th>
                     <th scope="col">Data de Validade</th>
                     <th scope="col">Quantidade</th>
@@ -89,9 +89,9 @@
                 // Certifique-se de que os nomes (id, nome, etc) são iguais aos do seu banco/API
                 tabela.innerHTML += `
                     <tr>
-                        <td>${produto.id_categoria}</td>
                         <td>${produto.codigo_barras}</td>
                         <td>${produto.nome}</td>
+                        <td>${produto.id_categoria}</td>
                         <td>R$ ${parseFloat(produto.preco).toFixed(2)}</td>
                         <td>${dataFormatada}</td>
                         <td>${produto.qtd}</td>

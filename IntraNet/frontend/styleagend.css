@@ -1,57 +1,104 @@
+/* FUNDO */
 body{
     background-color: #efac4a;
-    display: flex;
-    justify-content: center;
-}
-#inputBusca{
-    height: 20;
-}
-/* Estilo geral da tabela */
-table {
-    width: 80%;
-    border-collapse: collapse; /* Faz as bordas ficarem simples/finas */
+    margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #F8C471; /* Cor de fundo base (laranja claro) */
 }
 
-/* Estilo do Cabeçalho (Preto com letras douradas/laranjas) */
-table thead th {
-    background-color: #000000;
-    color: #F8C471; /* Cor da fonte combinando com a tabela */
-    text-align: left;
-    padding: 12px;
+/* TOPO */
+.d_util{
+    width: 90%;
+    margin: 30px auto 10px auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* TÍTULO */
+.h_ag{
+    background-color: #1c1c1c;
+    color: #f8c471;
+    padding: 10px 20px;
+    margin: 0;
+}
+
+/* BOTÃO */
+#b_addq{
+    background-color: #1c1c1c;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+#s_addq{
+    color: #f8c471;
     font-weight: bold;
-    border: 1px solid #000; /* Borda preta */
 }
 
-/* Estilo das células (Corpo da tabela) */
-table tbody td {
-    padding: 10px;
-    border: 1px solid #000; /* Linhas pretas finas entre colunas e linhas */
+/* INPUT DIREITA */
+#d_inp{
+    margin-left: auto;
 }
 
-/* EFEITO ZEBRA: Linhas pares com uma cor um pouco mais escura */
-table tbody tr:nth-child(even) {
-    background-color: #f2b661; /* Laranja um pouco mais forte */
+#inputBusca{
+    border: 2px solid #1c1c1c;
+    background-color: #efac4a;
+    padding: 5px 30px;
 }
 
-/* EFEITO ZEBRA: Linhas ímpares com a cor mais clara */
-table tbody tr:nth-child(odd) {
-    background-color: #F8C471;
-}
-
-/* Opcional: Efeito ao passar o mouse para destacar a linha */
-table tbody tr:hover {
-    filter: brightness(90%);
-    cursor: default;
-}
-#d_modal{
-    background-color: #fed89d;
+/* TABELA */
+#sc_tabela{
+    width: 90%;
+    margin: 0 auto;
 }
 
 .tabela{
-    margin-top: 120px;
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #f8c471;
 }
-#d_inp{
-    justify-content: flex-end;
+
+/* CABEÇALHO */
+.tabela thead th{
+    background-color: #000;
+    color: #f8c471;
+    padding: 12px;
+    text-align: left;
+}
+
+/* LINHAS */
+.tabela tbody td{
+    padding: 10px;
+}
+
+/* ZEBRA */
+.tabela tbody tr:nth-child(even){
+    background-color: #e5b066;
+}
+
+.tabela tbody tr:nth-child(odd){
+    background-color: #f2c57c;
+}
+
+/* LINHAS VERTICAIS GROSSAS */
+.tabela th,
+.tabela td{
+    border-right: 3px solid #1c1c1c;
+}
+
+.tabela th:last-child,
+.tabela td:last-child{
+    border-right: none;
+}
+
+/* HOVER */
+.tabela tbody tr:hover{
+    filter: brightness(90%);
+}
+
+/* MODAL */
+#d_modal{
+    background-color: #fed89d;
+    border: none;
+    padding: 20px;
 }
