@@ -7,11 +7,11 @@ body{
 
 /* TOPO */
 .d_util{
-    width: 90%;
+    width: 95%;
     margin: 30px auto 10px auto;
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 60px;
 }
 
 /* TÍTULO */
@@ -28,23 +28,38 @@ body{
     border: none;
     padding: 10px 20px;
     cursor: pointer;
+    border-radius: 5px;
 }
 
 #s_addq{
     color: #f8c471;
     font-weight: bold;
+    font-size: 24px;
 }
 
 /* INPUT DIREITA */
 #d_inp{
     margin-left: auto;
 }
+.busca-box{
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.icone-busca{
+    position: absolute;
+    left: 8px;
+    width: 16px;
+    height: 16px;
+}
 
 #inputBusca{
     border: 2px solid #1c1c1c;
     background-color: #efac4a;
-    padding: 5px 30px;
+    padding: 5px 10px 5px 30px; /* espaço pra lupa */
 }
+
 
 /* TABELA */
 #sc_tabela{

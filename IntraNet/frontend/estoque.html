@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="sidebar_header.js"></script>
     <link rel="stylesheet" href="layout.css">
-    <link rel="stylesheet" href="styleagend.css">
+    <link rel="stylesheet" href="styleag_es.css">
     <title>Estoque</title>
 </head>
 <body class="fundo-escuro">
@@ -15,7 +15,10 @@
             <span id="s_addq">Adicionar Quantidade</span>
         </button>
         <div id="d_inp">
-            <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
+            <div class="busca-box">
+                <img src="images/lupa.png" class="icone-busca">
+                <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
+            </div>
         </div>
     </div>
     <section id="sc_tabela" class="container mt-5">
@@ -117,25 +120,24 @@
 //Buscar
 const inputBusca = document.getElementById('inputBusca');
 
-inputBusca.addEventListener('keyup', function() {
-    const termoBusca = inputBusca.value.toLowerCase().trim();
+inputBusca.addEventListener('input', function() {
+    const termo = inputBusca.value.toLowerCase().trim();
     const linhas = document.querySelectorAll('#tb_tbl_produtos tr');
 
     linhas.forEach(linha => {
-        // Pega apenas a célula do Código de Barras (índice 1)
-        // [0] é Categoria, [1] é Código de Barras, [2] é Nome...
-        const celulaCodigo = linha.getElementsByTagName('td')[1];
-        
-        if (celulaCodigo) {
-            const textoCodigo = celulaCodigo.textContent.toLowerCase().trim();
+        const colunas = linha.getElementsByTagName('td');
 
-            // Verifica se o texto da célula é EXATAMENTE igual ao que foi digitado
-            // Ou, se o campo estiver vazio, mostra tudo
-            if (termoBusca === "" || textoCodigo === termoBusca) {
-                linha.style.display = ""; // Mostra
-            } else {
-                linha.style.display = "none"; // Esconde
-            }
+        const codigo = colunas[0]?.textContent.toLowerCase() || "";
+        const nome = colunas[1]?.textContent.toLowerCase() || "";
+
+        if (
+            codigo.startsWith(termo) ||
+            nome.startsWith(termo) ||
+            termo === ""
+        ) {
+            linha.style.display = "";
+        } else {
+            linha.style.display = "none";
         }
     });
 });

@@ -4,27 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="sidebar_header.js"></script>
-    <link rel="stylesheet" href="styleagend.css">
+    <link rel="stylesheet" href="styleag_es.css">
     <link rel="stylesheet" href="layout.css">
-    <title>Estoque</title>
+    <title>Agendamentos</title>
 </head>
 <body class="fundo-escuro">
-    <div class="div_ag">
+    <div class="d_util">
         <h2 class="h_ag">Agendamento</h2>
-        <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
+        <div id="d_inp">
+            <div class="busca-box">
+                <img src="images/lupa.png" class="icone-busca">
+                <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
+            </div>
+        </div>
     </div>
+
     <section id="sc_tabela" class="container mt-5">
         
-        <table class="table table-striped table-hover border">
+        <table class="tabela table-striped table-hover border">
             <thead class="table-dark">
                 <tr>
-                    <th scope="col">Categoria</th>
-                    <th scope="col">Código de Barras</th>
                     <th scope="col">Nome</th>
+                    <th scope="col">Produto</th>
                     <th scope="col">Preço</th>
-                    <th scope="col">Data de Validade</th>
                     <th scope="col">Quantidade</th>
-                    <th scope="col">Disponível</th>
                 </tr>
             </thead>
             <tbody id="tb_tbl_produtos">
@@ -33,48 +36,7 @@
     </section>     
 
 <script>
-    async function buscarProdutosEstoque() {
-        try {
-            const resposta = await fetch('http://localhost:3000/produtos');
-            
-            if (!resposta.ok) {
-                throw new Error('Erro ao buscar dados do servidor');
-            }
-
-            const produtos = await resposta.json();
-
-            // AJUSTE AQUI: O ID agora corresponde ao HTML
-            const tabela = document.getElementById('tb_tbl_produtos');
-                // Imagine que 'produto' é o objeto que vem do seu banco
-                tabela.innerHTML = ''; 
-
-            produtos.forEach(produto => {
-                // Criamos um objeto de data a partir da string variável do banco
-                let dataObjeto = new Date(produto.dt_validade); 
-                
-                // Formatamos para o padrão brasileiro
-                let dataFormatada = dataObjeto.toLocaleDateString('pt-BR');
-
-                // Certifique-se de que os nomes (id, nome, etc) são iguais aos do seu banco/API
-                tabela.innerHTML += `
-                    <tr>
-                        <td>${produto.id_categoria}</td>
-                        <td>${produto.codigo_barras}</td>
-                        <td>${produto.nome}</td>
-                        <td>R$ ${parseFloat(produto.preco).toFixed(2)}</td>
-                        <td>${dataFormatada}</td>
-                        <td>${produto.qtd}</td>
-                        <td>${produto.disponivel}</td>
-                    </tr>
-                `;
-            });
-            
-        } catch (erro) {
-            console.error("Erro ao carregar estoque:", erro);
-            document.getElementById('tb_tbl_produtos').innerHTML = `<tr><td colspan="4" class="text-center text-danger">Erro ao carregar produtos. Verifique se o servidor está rodando.</td></tr>`;
-        }
-    }
-//Buscar
+   
 const inputBusca = document.getElementById('inputBusca');
 
 inputBusca.addEventListener('keyup', function() {
@@ -82,27 +44,21 @@ inputBusca.addEventListener('keyup', function() {
     const linhas = document.querySelectorAll('#tb_tbl_produtos tr');
 
     linhas.forEach(linha => {
-        // Pega apenas a célula do Código de Barras (índice 1)
-        // [0] é Categoria, [1] é Código de Barras, [2] é Nome...
         const celulaCodigo = linha.getElementsByTagName('td')[1];
         
         if (celulaCodigo) {
             const textoCodigo = celulaCodigo.textContent.toLowerCase().trim();
 
-            // Verifica se o texto da célula é EXATAMENTE igual ao que foi digitado
-            // Ou, se o campo estiver vazio, mostra tudo
             if (termoBusca === "" || textoCodigo === termoBusca) {
-                linha.style.display = ""; // Mostra
+                linha.style.display = "";
             } else {
-                linha.style.display = "none"; // Esconde
+                linha.style.display = "none";
             }
         }
     });
 });
 
-    // Executa a função assim que a página termina de carregar
-    document.addEventListener('DOMContentLoaded', buscarProdutosEstoque)
-
+document.addEventListener('DOMContentLoaded', buscarProdutosEstoque)
 </script>
 </body>
 </html>
