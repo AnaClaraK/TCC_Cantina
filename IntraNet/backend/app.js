@@ -10,9 +10,12 @@ const porta = 3000
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
-
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+let ejs = require('ejs');
+// Define o EJS como o motor de busca
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views')); // Pasta onde ficarão os arquivos
 
 // Configurações iniciais
 app.use(express.json())

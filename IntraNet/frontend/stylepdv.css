@@ -1,0 +1,68 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    background-color: #efac4a;
+
+}
+
+#b_final{
+    cursor: pointer;
+
+}
+#s_final{
+        background-color: #bedf95;
+}
+
+#b_canc{
+    cursor: pointer;
+    background-color: #e99393;
+}
+
+#inp_codb{
+    width: 500px;
+    height: 30px;
+}
+
+.titulo{
+    text-align: center;
+    width: 500px;
+    height: 30px;
+}
+
+.d_val{
+    text-align: center;
+    width: 500px;
+    height: 30px;
+}
+
+#img_prod{
+    align-items: center;
+    justify-content: center;
+    width: 300px;
+    height: 300px;
+}
+
+
+
+#b_nv_venda{
+    cursor: pointer;
+}
+#b_agend{
+    background-color: #ffd699;
+    cursor: pointer;
+}
+#d_modal{
+    outline: none;
+    margin: auto;
+    width: 600px;
+    border-color: black;
+    border: 1px solid #000000;
+    border-radius: 3px;
+    padding: 15px;
+}
+#d_modal > article {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}

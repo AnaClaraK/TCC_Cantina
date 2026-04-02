@@ -4,19 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="sidebar_header.js"></script>
-    <link rel="stylesheet" href="layout.css">
     <link rel="stylesheet" href="styleagend.css">
+    <link rel="stylesheet" href="layout.css">
     <title>Estoque</title>
 </head>
-<body class="fundo-laranja">
+<body class="fundo-escuro">
     <div class="div_ag">
-        <h2 class="h_ag">Estoque</h2>
-        <button id="b_addq" >
-            <span id="s_addq">Adicionar Quantidade</span>
-        </button>
+        <h2 class="h_ag">Agendamento</h2>
         <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
     </div>
     <section id="sc_tabela" class="container mt-5">
+        
         <table class="table table-striped table-hover border">
             <thead class="table-dark">
                 <tr>
@@ -32,34 +30,7 @@
             <tbody id="tb_tbl_produtos">
             </tbody>
         </table>
-    </section>
-
-    <section id="sc_modal">
-        <dialog id="d_modal">
-          <article>
-              <section>
-                  <div>
-                      <h2>Atualizar Quantidade do produto</h2>
-                      <h2>Produto</h2>
-                      <span id="s_produto"></span>
-                      <h2>Quantidade Atual</h2>
-                      <span id="s_qtda"></span>
-                      <h2>Adicionar Quantidade</h2>
-                      <input type="number" id="">
-                      <h2>Validade</h2>
-                      <input type="date">
-                      <span
-                  </div>
-              </section>
-                <footer>
-                  <div>
-                    <button id="b_addf">
-                      <span>Adicionar</span>
-                    </button>
-                  </div>
-                </footer>
-            </article>
-        </dialog>
+    </section>     
 
 <script>
     async function buscarProdutosEstoque() {
@@ -103,15 +74,6 @@
             document.getElementById('tb_tbl_produtos').innerHTML = `<tr><td colspan="4" class="text-center text-danger">Erro ao carregar produtos. Verifique se o servidor está rodando.</td></tr>`;
         }
     }
-//Abrir e fechar modal
-    const modal = document.querySelector("#d_modal")
-  
-  b_addq.addEventListener("click", () =>{
-    modal.showModal();
-  })
- b_addf.addEventListener("click", () =>{
-    modal.close();
-  })
 //Buscar
 const inputBusca = document.getElementById('inputBusca');
 
