@@ -1,7 +1,31 @@
+<<<<<<< HEAD
 /* ============================================================
    1. RESET E VARIÁVEIS GLOBAIS
    ============================================================ */
    * {
+=======
+<<<<<<< HEAD
+/* Estilos Gerais e Cores */
+:root {
+    --bg-dark: #2b1d16;
+    --accent-orange: #f3b562;
+    --text-orange: #f3b562;
+    --btn-cancel: #e57373;
+    --btn-finish: #b8d9a0;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-orange);
+    font-family: sans-serif;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 20px;
+    gap: 20px;
+=======
+* {
+>>>>>>> 60d3df068207f04227aaab9a08843f632d167f8f
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -229,5 +253,243 @@ button.btn-acao {
     aspect-ratio: 1/1;
     object-fit: cover;
     border-radius: 8px;
+<<<<<<< HEAD
     border: 2px solid #888;
+=======
+    padding: 12px 22px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.2s;
+}
+#b_canc:hover { filter: brightness(1.1); }
+
+#b_final {
+    background-color: #6dbf6d;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 22px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: filter 0.2s;
+    margin-left: auto;
+}
+#b_final:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+#b_final:not(:disabled):hover { filter: brightness(1.1); }
+
+/* ===== DIALOG / MODAL ===== */
+#d_modal {
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+    width: 380px;
+    background-color: #2b1f14;
+    color: #f0a830;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+}
+
+#d_modal::backdrop {
+    background: rgba(0,0,0,0.6);
+}
+
+#d_modal article {
+    display: flex;
+    flex-direction: column;
+}
+
+#d_modal article > section {
+    padding: 24px 28px;
+}
+
+#d_modal article > section > div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#d_modal h2 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #f0a830;
+    margin-top: 10px;
+}
+
+#d_modal span {
+    font-size: 1rem;
+    color: #fff;
+}
+
+.pagamento {
+    background-color: #f0a830;
+    color: #2b1f14;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: filter 0.2s;
+}
+.pagamento:hover { filter: brightness(1.1); }
+
+#d_modal footer {
+    background-color: #1a1008;
+    padding: 14px 28px;
+    border-radius: 0 0 12px 12px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+#b_nv_venda {
+    background-color: #6dbf6d;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+#b_nv_venda:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+/* ===== TÍTULOS GERAIS ===== */
+.titulo {
+    color: #f0a830;
+    font-size: 0.9rem;
+    font-weight: 500;
+>>>>>>> 826e7abd34a607d1e0a8e251d3fa0641b192ffb4
+}
+
+/* Títulos (H2) */
+.titulo {
+    font-size: 1.1rem;
+    font-weight: normal;
+    margin: 10px 0 5px 0;
+}
+
+/* Estilização dos Visores e Input */
+#inp_codb, .inp_val {
+    background-color: var(--accent-orange);
+    border: none;
+    border-radius: 4px;
+    height: 40px;
+    width: 100%;
+    color: #33261e;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    box-sizing: border-box;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+/* Organização do Lado Esquerdo (Inputs) */
+#sc_inputs {
+    flex: 1;
+    min-width: 450px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; /* 3 colunas para os visores */
+    gap: 10px;
+}
+
+/* Faz o Código do Produto ocupar a linha toda */
+.titulo:first-of-type, #inp_codb {
+    grid-column: span 3;
+}
+
+/* Posicionamento da Imagem e Totais */
+#img_prod {
+    grid-column: span 2;
+    background-color: #bdbdbd;
+    width: 100%;
+    height: 250px;
+    object-fit: contain;
+    margin-top: 15px;
+}
+
+/* Posiciona o Total da Compra ao lado da foto */
+#h_ttl_c {
+    grid-column: 3;
+    grid-row: 5; /* Ajusta para alinhar com o topo da foto */
+}
+#d_ttl_c {
+    grid-column: 3;
+    grid-row: 6;
+    height: 60px; /* Destaque para o total */
+    font-size: 1.4rem;
+}
+
+/* Organização da Tabela (Lado Direito) */
+#sc_tabela {
+    flex: 1;
+    min-width: 400px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+}
+
+th {
+    background-color: var(--accent-orange);
+    color: #33261e;
+    padding: 12px;
+    border: 1px solid #000;
+}
+
+td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+    color: #33261e;
+}
+
+/* Efeito Zebrado da Tabela */
+tbody tr:nth-child(odd) { background-color: #e0e0e0; }
+tbody tr:nth-child(even) { background-color: #f5f5f5; }
+
+/* Seção de Botões (Rodapé) */
+/* Botões Inferiores */
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+button {
+    border: none;
+    padding: 15px 10px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    flex: 1;
+}
+
+#b_agend { background-color: var(--accent-orange); }
+#b_canc { background-color: var(--btn-cancel); }
+#b_final { background-color: var(--btn-finish); }
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Modal */
+#d_modal {
+    border: none;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #fff;
+>>>>>>> 60d3df068207f04227aaab9a08843f632d167f8f
 }
