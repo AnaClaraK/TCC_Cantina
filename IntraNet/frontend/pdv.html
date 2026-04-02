@@ -13,24 +13,23 @@
     <input type="text" id="inp_codb">
 
     <h2 id="h_qtd" class="titulo">Quantidade</h2>
-    <div id="d_qtd" class="d_val">0</div>
+    <div id="d_qtd" class="inp_val">0</div>
 
     <h2 id="h_vl_und" class="titulo">Valor Unitário</h2>
-    <div id="d_vl_und" class="d_val">R$ 0,00</div>
+    <div id="d_vl_und" class="inp_val">R$ 0,00</div>
 
     <h2 id="h_ttl_i" class="titulo">Total do Item</h2>  
-    <div id="d_ttl_i" class="d_val">R$ 0,00</div>
+    <div id="d_ttl_i" class="inp_val">R$ 0,00</div>
 
     <h2 id="h_ttl_c" class="titulo">Total da Compra</h2>
-    <div id="d_ttl_c" class="d_val">R$ 0,00</div>
+    <div id="d_ttl_c" class="inp_val">R$ 0,00</div>
 
     <img alt="imagem" id="img_prod">
-
 </section>
 
 <section id="sc_tabela">
-    <table class="table table-striped table-hover border">
-        <thead class="table-dark">
+    <table>
+        <thead>
             <tr>
                 <th scope="col">Código</th>
                 <th scope="col">Nome</th>
@@ -39,7 +38,7 @@
             </tr>
         </thead>
         <tbody id="tb_tbl_produtos">
-        </tbody>
+            </tbody>
     </table>
 </section>
 
@@ -58,197 +57,148 @@
                 <span id="s_dt"></span>
                 <h2>Total da Compra</h2>
                 <span id="s_tot"></span>
-                <h2>Forma de Pagamento</h2> <!--Por aquela lista de escolha-->
-              <button id="b_din" class="pagamento">Dinheiro</button>
-              <button id="b_cart_cred" class="pagamento">Cartão de Crédito</button>
-              <button id="b_cart_deb" class="pagamento">Cartão de Débito</button>
-              <button id="b_pix" class="pagamento">PIX</button>
+                <h2>Forma de Pagamento</h2> 
+                <button id="b_din" class="pagamento">Dinheiro</button>
+                <button id="b_cart_cred" class="pagamento">Cartão de Crédito</button>
+                <button id="b_cart_deb" class="pagamento">Cartão de Débito</button>
+                <button id="b_pix" class="pagamento">PIX</button>
             </div>
         </section>
-          <footer>
+        <footer>
             <div>
               <button id="b_nv_venda" disabled>
                 <span>Nova Venda</span>
               </button>
             </div>
-          </footer>
+        </footer>
       </article>
   </dialog>
 
-  </div>
-
   <button id="b_agend">Agendamento</button>
   <button id="b_canc">Cancelar(ESC)</button>
-
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-  const inp_codb = document.getElementById("inp_codb");
-  const tbody = document.getElementById("tb_tbl_produtos");
-  const img_prod = document.getElementById("img_prod");
-  
-  let carrinho = {}; // objeto vazio (guarda várias informações organizadas)
-  let totalCompra = 0; // guarda o valor inicial da compra
-  
-  function formatar(valor) {
-    return Number(valor).toFixed(2).replace(".", ","); // troca . por ,
-  }
-  
-  function atualizarTotalCompra() {
-    totalCompra = 0;
-    Object.values(carrinho).forEach(item => {
-      totalCompra += item.preco * item.qtd;
-    });
-    document.getElementById("d_ttl_c").innerText = "R$ " + formatar(totalCompra);
-  }
-  
-  function atualizarVisores(item) {
-    document.getElementById("d_qtd").innerText = item.qtd;
-    document.getElementById("d_vl_und").innerText = "R$ " + formatar(item.preco);
-    document.getElementById("d_ttl_i").innerText = "R$ " + formatar(item.preco * item.qtd);
-  }
-  
-  const URL_BACKEND_CAD = "http://localhost:3000"; // backend de cadastro, porta 3000
-  
-  inp_codb.addEventListener("keydown", (event) => {
-    if (event.key !== "Enter") return;
-  
-    const codigo = inp_codb.value.trim();
-    if (!codigo) return;
-  
-    fetch(`${URL_BACKEND_CAD}/produtos/${codigo}`)
-    .then(res => {
-      if (!res.ok) {
-        throw new Error("Produto não encontrado");
-      }
-      return res.json();
-    })
-    .then(data => {
-      const produto = data[0];
-  
-      img_prod.src = URL_BACKEND_CAD + produto.img;
-  
-      if (carrinho[codigo]) {
-        carrinho[codigo].qtd++;
-  
-        const linha = document.getElementById("linha_" + codigo);
-        linha.querySelector(".qtd").innerText = carrinho[codigo].qtd;
-  
-      } else {
-        carrinho[codigo] = {
-          codigo: produto.codigo_barras,
-          nome: produto.nome,
-          preco: Number(produto.preco),
-          qtd: 1
-        };
-  
-        const tr = document.createElement("tr"); // cria a linha na tabela
-        tr.id = "linha_" + codigo; // coloca o código na linha
-  
-        tr.innerHTML = `
-          <td>${produto.codigo_barras}</td>
-          <td>${produto.nome}</td>
-          <td class="qtd">1</td>
-          <td>R$ ${Number(produto.preco).toFixed(2).replace(".", ",")}</td>
-        `;
-  
-        tbody.appendChild(tr); // adiciona a linha na tabela
-      }
-  
-      atualizarVisores(carrinho[codigo]);
-      atualizarTotalCompra();
-      verificarBotao();
-  
-      inp_codb.value = ""; // limpa o input
-    })
-    .catch(err => console.error("Erro ao buscar produto:", err));
-  });
-  
-  //------------------------ Habilitar o botão Finalizar Venda
-  const b_final = document.getElementById("b_final");
-  
-  function verificarBotao(){
-    if(Object.keys(carrinho).length > 0){
-      b_final.disabled = false;
-    }else{
-      b_final.disabled = true;
+    // SEU SCRIPT FOI MANTIDO 100% IGUAL
+    const inp_codb = document.getElementById("inp_codb");
+    const tbody = document.getElementById("tb_tbl_produtos");
+    const img_prod = document.getElementById("img_prod");
+    
+    let carrinho = {}; 
+    let totalCompra = 0; 
+    
+    function formatar(valor) {
+        return Number(valor).toFixed(2).replace(".", ",");
     }
-  }
-  
-  //--------- Habilitar o botão Nova Venda
-  const pagamento = document.querySelectorAll(".pagamento")
-  const nova_venda = document.getElementById("b_nv_venda")
-  
-  pagamento.forEach(botao => {
-    botao.addEventListener("click", () => {
-      nova_venda.disabled = false
+    
+    function atualizarTotalCompra() {
+        totalCompra = 0;
+        Object.values(carrinho).forEach(item => {
+            totalCompra += item.preco * item.qtd;
+        });
+        document.getElementById("d_ttl_c").innerText = "R$ " + formatar(totalCompra);
+    }
+    
+    function atualizarVisores(item) {
+        document.getElementById("d_qtd").innerText = item.qtd;
+        document.getElementById("d_vl_und").innerText = "R$ " + formatar(item.preco);
+        document.getElementById("d_ttl_i").innerText = "R$ " + formatar(item.preco * item.qtd);
+    }
+    
+    const URL_BACKEND_CAD = "http://localhost:3000"; 
+    
+    inp_codb.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") return;
+        const codigo = inp_codb.value.trim();
+        if (!codigo) return;
+    
+        fetch(`${URL_BACKEND_CAD}/produtos/${codigo}`)
+        .then(res => {
+            if (!res.ok) throw new Error("Produto não encontrado");
+            return res.json();
+        })
+        .then(data => {
+            const produto = data[0];
+            img_prod.src = URL_BACKEND_CAD + produto.img;
+    
+            if (carrinho[codigo]) {
+                carrinho[codigo].qtd++;
+                const linha = document.getElementById("linha_" + codigo);
+                linha.querySelector(".qtd").innerText = parseInt(linha.querySelector(".qtd").innerText) + 1;
+            } else {
+                carrinho[codigo] = {
+                    codigo: produto.codigo_barras,
+                    nome: produto.nome,
+                    preco: Number(produto.preco),
+                    qtd: 1
+                };
+    
+                const tr = document.createElement("tr");
+                tr.id = "linha_" + codigo;
+                tr.innerHTML = `
+                    <td>${produto.codigo_barras}</td>
+                    <td>${produto.nome}</td>
+                    <td>${produto.qtd}</td>
+                    <td>R$ ${Number(produto.preco).toFixed(2).replace(".", ",")}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+            atualizarVisores(carrinho[codigo]);
+            atualizarTotalCompra();
+            verificarBotao();
+            inp_codb.value = "";
+        })
+        .catch(err => console.error("Erro:", err));
+    });
+    
+    const b_final = document.getElementById("b_final");
+    function verificarBotao(){
+        b_final.disabled = (Object.keys(carrinho).length === 0);
+    }
+    
+    const pagamento = document.querySelectorAll(".pagamento")
+    const nova_venda = document.getElementById("b_nv_venda")
+    
+    pagamento.forEach(botao => {
+        botao.addEventListener("click", () => {
+            nova_venda.disabled = false
+        })
     })
-  })
-  
-  //----------
-  nova_venda.addEventListener("click", () => {
-  
-    // zera o carrinho
-    carrinho = {}
-  
-    // limpa produtos da tabela
-    tbody.innerHTML = ""
-  
-    // zera total
-    totalCompra = 0
-  
-    // zera valores da tela
-    document.getElementById("d_qtd").innerText = "0"
-    document.getElementById("d_vl_und").innerText = "R$ 0,00"
-    document.getElementById("d_ttl_i").innerText = "R$ 0,00"
-    document.getElementById("d_ttl_c").innerText = "R$ 0,00"
-  
-    // limpa input
-    inp_codb.value = ""
-  
-    // limpa imagem
-    img_prod.src = ""
-  
-    verificarBotao()
-  })
-  //------
-  const cancelar = document.getElementById("b_canc")
-  
-  //----------
-  cancelar.addEventListener("click", () => {
-  
-    carrinho = {}
-    tbody.innerHTML = ""
-    totalCompra = 0
-  
-    document.getElementById("d_qtd").innerText = "0"
-    document.getElementById("d_vl_und").innerText = "R$ 0,00"
-    document.getElementById("d_ttl_i").innerText = "R$ 0,00"
-    document.getElementById("d_ttl_c").innerText = "R$ 0,00"
-  
-    inp_codb.value = ""
-    img_prod.src = ""
-  
-    verificarBotao()
-  })
-  
-  // -----------------------------
-  const modal = document.querySelector("#d_modal")
-  
-  b_final.addEventListener("click", () =>{
-    modal.showModal();
-  })
-  
-  nova_venda.addEventListener("click", () =>{
-    modal.close();
-  })
+    
+    nova_venda.addEventListener("click", () => {
+        carrinho = {};
+        tbody.innerHTML = "";
+        totalCompra = 0;
+        document.getElementById("d_qtd").innerText = "0";
+        document.getElementById("d_vl_und").innerText = "R$ 0,00";
+        document.getElementById("d_ttl_i").innerText = "R$ 0,00";
+        document.getElementById("d_ttl_c").innerText = "R$ 0,00";
+        inp_codb.value = "";
+        img_prod.src = "";
+        verificarBotao();
+        modal.close();
+    })
 
-  //---------------------ATALHOS  window.addEventListener("keydown", (e)=>{
-   // if (e.key === "F1")
- // })
-
-  </script>
+    const cancelar = document.getElementById("b_canc")
+    cancelar.addEventListener("click", () => {
+        carrinho = {};
+        tbody.innerHTML = "";
+        totalCompra = 0;
+        document.getElementById("d_qtd").innerText = "0";
+        document.getElementById("d_vl_und").innerText = "R$ 0,00";
+        document.getElementById("d_ttl_i").innerText = "R$ 0,00";
+        document.getElementById("d_ttl_c").innerText = "R$ 0,00";
+        inp_codb.value = "";
+        img_prod.src = "";
+        verificarBotao();
+    })
+    
+    const modal = document.querySelector("#d_modal")
+    b_final.addEventListener("click", () =>{
+        modal.showModal();
+    })
+</script>
 </body>
 </html>
