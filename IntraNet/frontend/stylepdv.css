@@ -1,305 +1,233 @@
-* {
+/* ============================================================
+   1. RESET E VARIÁVEIS GLOBAIS
+   ============================================================ */
+   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-body {
-    background-color: #f0a830;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-        "inputs  tabela"
-        "inputs  tabela"
-        "modal   tabela";
-    height: 100vh;
-    gap: 0;
-    padding: 10px;
-    column-gap: 10px;
+:root {
+    --sidebar-width: 250px;
+    --sidebar-collapsed-width: 70px;
+    --header-height: 60px;
+    --cor-laranja: #f0a830;
+    --cor-escuro: #2b1f14;
+    --cor-grafite: #242628;
 }
 
-/* ===== SECTION INPUTS (esquerda) ===== */
+/* ============================================================
+   2. ESTRUTURA DO BODY (GRID DO PDV + ESPAÇOS DO MENU)
+   ============================================================ */
+body {
+    background-color: var(--cor-laranja);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: grid;
+    height: 100vh;
+    gap: 0;
+    column-gap: 10px;
+    
+    /* grid-template: Linhas e Colunas */
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 1.2fr 1fr;
+    grid-template-areas:
+        "inputs   tabela"
+        "inputs   tabela"
+        "modal    tabela";
+
+    /* ESPAÇAMENTO PARA O MENU NÃO COBRIR O CONTEÚDO */
+    /* Topo: Header | Esquerda: Sidebar fechada */
+    padding: 70px 10px 10px 80px; 
+    transition: padding-left 0.3s ease;
+}
+
+/* Quando a Sidebar abre, empurra o conteúdo do PDV mais para a direita */
+body.sidebar-open {
+    padding-left: 260px;
+}
+
+/* Quando a tela NÃO tem sidebar (ex: Login) */
+body.sem-sidebar {
+    padding-left: 10px !important;
+}
+
+/* ============================================================
+   3. CSS DO HEADER E SIDEBAR (FIXOS)
+   ============================================================ */
+.custom-header {
+    height: var(--header-height);
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: var(--cor-laranja);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 1000;
+}
+
+.custom-sidebar {
+    width: var(--sidebar-collapsed-width);
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background: var(--cor-laranja);
+    transition: width 0.3s ease;
+    overflow: hidden;
+    z-index: 999;
+    padding-top: var(--header-height);
+    border-right: 1px solid rgba(0,0,0,0.1);
+}
+
+body.sidebar-open .custom-sidebar {
+    width: var(--sidebar-width);
+}
+
+/* Botão Hambúrguer e Ícones */
+#btn-menu {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 15px;
+    color: var(--cor-escuro);
+}
+
+.i_img {
+    width: 25px;
+    height: 25px;
+    margin-right: 15px;
+    object-fit: contain;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 15px 22px;
+    color: var(--cor-escuro);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.nav-text {
+    display: none;
+}
+
+body.sidebar-open .nav-text {
+    display: inline;
+}
+
+/* ============================================================
+   4. TEMAS (FUNDO ESCURO / SEM SIDEBAR)
+   ============================================================ */
+body.fundo-escuro .custom-header, 
+body.fundo-escuro .custom-sidebar { 
+    background-color: var(--cor-grafite); 
+    border-color: #444; 
+}
+
+body.fundo-escuro .nav-text, 
+body.fundo-escuro #btn-menu,
+body.fundo-escuro .nav-link { 
+    color: var(--cor-laranja); 
+}
+
+/* ============================================================
+   5. CONTEÚDO DO PDV (INPUTS, TABELA E MODAL)
+   ============================================================ */
+
+/* SECTION INPUTS (Esquerda) */
 #sc_inputs {
     grid-area: inputs;
-    background-color: #2b1f14;
+    background-color: var(--cor-escuro);
     border-radius: 10px;
     padding: 18px 20px;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: auto auto auto auto auto 1fr;
-    gap: 6px 10px;
-    align-items: start;
+    gap: 8px 10px;
 }
 
-/* Título Código do Produto — ocupa toda a largura */
-#sc_inputs h2:first-child {
-    grid-column: 1 / -1;
-    color: #f0a830;
-    font-size: 1rem;
-    font-weight: 500;
-    margin-bottom: 2px;
-}
+#sc_inputs h2 { color: var(--cor-laranja); font-size: 1rem; grid-column: 1/-1; }
 
-/* Input do código — ocupa toda a largura */
 #inp_codb {
     grid-column: 1 / -1;
-    background-color: #f0a830;
+    background-color: var(--cor-laranja);
     border: none;
     border-radius: 6px;
-    height: 36px;
+    height: 40px;
     padding: 0 10px;
-    font-size: 1rem;
-    color: #2b1f14;
-    outline: none;
+    color: var(--cor-escuro);
+    font-weight: bold;
 }
 
-/* Títulos Quantidade / Valor Unitário / Total do Item */
-#h_qtd {
-    grid-column: 1;
-    color: #f0a830;
-    font-size: 0.85rem;
-    font-weight: 500;
-    text-align: center;
-}
-
-#h_vl_und {
-    grid-column: 2;
-    color: #f0a830;
-    font-size: 0.85rem;
-    font-weight: 500;
-    text-align: center;
-}
-
-#h_ttl_i {
-    grid-column: 3;
-    color: #f0a830;
-    font-size: 0.85rem;
-    font-weight: 500;
-    text-align: center;
-}
-
-/* Visores (display boxes) */
 .inp_val {
-    background-color: #f0a830;
+    background-color: var(--cor-laranja);
     border-radius: 6px;
     height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #2b1f14;
+    font-weight: 700;
+    color: var(--cor-escuro);
 }
 
-#d_qtd    { grid-column: 1; }
-#d_vl_und { grid-column: 2; }
-#d_ttl_i  { grid-column: 3; }
-
-/* Total da Compra — título e visor à direita, imagem à esquerda */
-#h_ttl_c {
-    grid-column: 2 / -1;
-    color: #f0a830;
-    font-size: 0.85rem;
-    font-weight: 500;
-    text-align: center;
-    margin-top: 6px;
-}
-
-#d_ttl_c {
-    grid-column: 2 / -1;
-}
-
-/* Imagem do produto */
-#img_prod {
-    grid-column: 1;
-    grid-row: 5 / 7;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    border-radius: 8px;
-    background-color: #b0b0b0;
-    border: 2px solid #888;
-}
-
-/* ===== SECTION TABELA (direita) ===== */
+/* SECTION TABELA (Direita) */
 #sc_tabela {
     grid-area: tabela;
-    background-color: #f0a830;
+    background-color: var(--cor-laranja);
     border-radius: 10px;
+    border: 2px solid var(--cor-escuro);
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
 }
 
 #sc_tabela table {
     width: 100%;
-    height: 100%;
     border-collapse: collapse;
-    font-size: 0.9rem;
-}
-
-#sc_tabela thead tr {
-    background-color: #2b1f14 !important;
-    color: #f0a830 !important;
 }
 
 #sc_tabela thead th {
-    padding: 10px 8px;
-    text-align: center;
-    font-weight: 600;
-    border: 1px solid #c8821a;
-    background-color: #2b1f14 !important;
-    color: #f0a830 !important;
-}
-
-#sc_tabela tbody tr {
-    background-color: #f0a830 !important;
+    background-color: var(--cor-escuro);
+    color: var(--cor-laranja);
+    padding: 12px;
+    border: 1px solid #444;
 }
 
 #sc_tabela tbody td {
-    padding: 8px;
+    padding: 10px;
+    border: 1px solid var(--cor-escuro);
     text-align: center;
-    border: 1px solid #c8821a;
-    color: #2b1f14;
+    font-weight: 500;
 }
 
-/* ===== SECTION MODAL / BOTÕES (rodapé esquerdo) ===== */
+/* SECTION BOTOES (Rodapé) */
 #sc_modal {
     grid-area: modal;
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 0 0 0;
+    padding-top: 10px;
 }
 
-#b_agend {
-    background-color: #f0a830;
-    color: #2b1f14;
-    border: none;
+button.btn-acao {
+    padding: 12px 20px;
     border-radius: 8px;
-    padding: 12px 22px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: filter 0.2s;
-}
-#b_agend:hover { filter: brightness(1.1); }
-
-#b_canc {
-    background-color: #e06060;
-    color: #fff;
     border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#b_final { background-color: #6dbf6d; color: white; margin-left: auto; padding: 15px 30px; }
+#b_canc { background-color: #e06060; color: white; }
+
+/* IMAGEM PRODUTO */
+#img_prod {
+    grid-column: 1;
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
     border-radius: 8px;
-    padding: 12px 22px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: filter 0.2s;
-}
-#b_canc:hover { filter: brightness(1.1); }
-
-#b_final {
-    background-color: #6dbf6d;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 22px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: filter 0.2s;
-    margin-left: auto;
-}
-#b_final:disabled {
-    background-color: #aaa;
-    cursor: not-allowed;
-}
-#b_final:not(:disabled):hover { filter: brightness(1.1); }
-
-/* ===== DIALOG / MODAL ===== */
-#d_modal {
-    border: none;
-    border-radius: 12px;
-    padding: 0;
-    width: 380px;
-    background-color: #2b1f14;
-    color: #f0a830;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-}
-
-#d_modal::backdrop {
-    background: rgba(0,0,0,0.6);
-}
-
-#d_modal article {
-    display: flex;
-    flex-direction: column;
-}
-
-#d_modal article > section {
-    padding: 24px 28px;
-}
-
-#d_modal article > section > div {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-#d_modal h2 {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #f0a830;
-    margin-top: 10px;
-}
-
-#d_modal span {
-    font-size: 1rem;
-    color: #fff;
-}
-
-.pagamento {
-    background-color: #f0a830;
-    color: #2b1f14;
-    border: none;
-    border-radius: 6px;
-    padding: 8px 14px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 4px;
-    transition: filter 0.2s;
-}
-.pagamento:hover { filter: brightness(1.1); }
-
-#d_modal footer {
-    background-color: #1a1008;
-    padding: 14px 28px;
-    border-radius: 0 0 12px 12px;
-    display: flex;
-    justify-content: flex-end;
-}
-
-#b_nv_venda {
-    background-color: #6dbf6d;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 24px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-}
-#b_nv_venda:disabled {
-    background-color: #aaa;
-    cursor: not-allowed;
-}
-
-/* ===== TÍTULOS GERAIS ===== */
-.titulo {
-    color: #f0a830;
-    font-size: 0.9rem;
-    font-weight: 500;
+    border: 2px solid #888;
 }

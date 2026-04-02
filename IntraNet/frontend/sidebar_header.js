@@ -1,11 +1,15 @@
-const menuHTML = `
+// 1. Definição do Header
+const headerHTML = `
 <header class="custom-header">
     <div style="display: flex; align-items: center;">
         <button id="btn-menu">☰</button>
         <span><img class="l_img" data-name="logo" src="images/logo_p.png"/></span>
     </div>
 </header>
+`;
 
+// 2. Definição da Sidebar
+const sidebarHTML = `
 <aside class="custom-sidebar">
     <div class="user-info">
         <div class="user-photo"><img class="p_img" src="images/jimin.jpg"/></div>
@@ -45,37 +49,48 @@ const menuHTML = `
 `;
 
 function carregarMenu() {
-    // 1. Insere o HTML do menu
-    document.body.insertAdjacentHTML('afterbegin', menuHTML);
-    
-    // 2. IDENTIFICAÇÃO DA TELA
-    // Se o body tem 'fundo-laranja', queremos ícones PRETOS (_p)
-    // Se o body tem 'fundo-escuro' (ou qualquer outro), queremos ícones LARANJAS (_l)
-    let sufixo = '_l'; // Padrão: Laranja (para fundo escuro)
+    const body = document.body;
 
-    if (document.body.classList.contains('fundo-laranja')) {
-        sufixo = '_p'; // Se o fundo é laranja, o ícone DEVE ser preto
+    // A. INSERE O HEADER (Sempre aparece)
+    body.insertAdjacentHTML('afterbegin', headerHTML);
+
+    // B. VERIFICA SE DEVE INSERIR A SIDEBAR
+    if (!body.classList.contains('sem-sidebar')) {
+        // Inserção da Sidebar
+        body.insertAdjacentHTML('beforeend', sidebarHTML);
+        
+        // Garante que comece fechada se você não tiver a classe open
+        if(!body.classList.contains('sidebar-open')) {
+             body.classList.add('sidebar-closed');
+        }
+
+        // Lógica do Botão Menu para abrir/fechar
+        const btn = document.getElementById('btn-menu');
+        if (btn) {
+            btn.addEventListener('click', () => {
+                body.classList.toggle('sidebar-open');
+                body.classList.toggle('sidebar-closed');
+            });
+        }
+    } else {
+        // Se NÃO tem sidebar, esconde o botão de hambúrguer
+        const btn = document.getElementById('btn-menu');
+        if (btn) btn.style.display = 'none';
     }
 
-    // 3. TROCA REAL DAS IMAGENS
+    // C. LÓGICA DAS CORES DOS ÍCONES (Sufixo _p ou _l)
+    let sufixo = '_l'; 
+    if (body.classList.contains('fundo-laranja')) {
+        sufixo = '_p';
+    }
+
     const imagens = document.querySelectorAll('.i_img, .l_img');
-    
     imagens.forEach(img => {
-        // Pegamos o nome base que definimos no 'data-name'
         const nomeBase = img.getAttribute('data-name');
-        
         if (nomeBase) {
-            // Monta o caminho do zero: images/ + nome + _p ou _l + .png
             img.src = `images/${nomeBase}${sufixo}.png`;
         }
     });
-
-    // 4. Lógica do Botão Menu
-    const btn = document.getElementById('btn-menu');
-    if (btn) {
-        btn.addEventListener('click', () => {
-            document.body.classList.toggle('sidebar-open');
-        });
-    }
 }
+
 document.addEventListener('DOMContentLoaded', carregarMenu);
