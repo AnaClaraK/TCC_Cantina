@@ -1,17 +1,38 @@
-<<<<<<< HEAD
-/* Reset básico */
+/* Reset bás
+ico */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: Arial, sans-serif;
 }
-
+/* Garante que o conteúdo flua de cima para baixo */
 body {
-    background-color: #2b1d16;
-    color: #f5d6a0;
+    background-color: #242628;
     display: flex;
-    height: 100vh;
+    flex-direction: column; /* Alinha os itens verticalmente */
+    height: auto; /* Permite que a página cresça se necessário */
+    min-height: 100vh;
+    overflow-y: auto; /* Permite scroll se a agenda for para baixo */
+    overflow-x: hidden;
+}
+
+
+/* Ajuste na Agenda para centralizar embaixo */
+.agenda-box {
+    background-color: #efac4a;
+    border-radius: 20px;
+    padding: 23px;
+    /* Ajustes solicitados */
+    width: 600px;           /* Aumentei a largura de 450px para 600px */
+    margin: 20px 0 20px 50px; /* '50px' na esquerda para encostar mais na lateral */
+    height: auto;           /* Mudei para auto para comportar o aumento dos números */
+    min-height: 500px;
+    
+    color: #242628;
+    font-family: 'Roca One', serif;
+    position: relative;
+    box-sizing: border-box;
 }
 
 /* Layout principal: esquerda inputs e direita tabela */
@@ -196,7 +217,7 @@ dialog {
     width: 100%;
     border-radius: 4px;
     margin-bottom: 8px;
-=======
+}
 @font-face {
     font-family: 'Roca One';
     /* Certifique-se de que os arquivos estejam na pasta 'fonts' ao lado do seu CSS */
@@ -290,18 +311,7 @@ main, .conteudo-principal {
 }
 
 /*agenda*/
-.agenda-box {
-    background-color: #efac4a;
-    border-radius: 20px;
-    padding: 23px;
-    width: 450px;
-    height: 450px; /* Altura fixa garantida */
-    color: #242628;
-    font-family: 'Roca One', serif;
-    margin: 0px 60px;
-    position: relative; /* FUNDAMENTAL: vira a referência para os botões */
-    box-sizing: border-box;
-}
+
 
 .f_agenda {
     position: absolute;
@@ -412,5 +422,4 @@ main, .conteudo-principal {
     background-color: #242628;
     max-width: 150px;
     
->>>>>>> a99480a25ec3f75fc16585ed7a490811e1c2b797
 }
