@@ -244,11 +244,17 @@ body.sidebar-open .user-name {
 /* Nome do Usuário */
 .user-name {
     margin-top: 10px;
-    color: #242628;
     font-family: 'Roca One', serif;
     font-size: 18px;
     text-align: center;
     line-height: 1;        /* Mantém o nome compacto */
+}
+body.fundo-escuro .user-name{
+    color: #efac4a;
+}
+
+body.fundo-laranja .user-name{
+    color: #242628;
 }
 .l_img{
     width: 230px;

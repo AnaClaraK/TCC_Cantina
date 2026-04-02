@@ -1,22 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="sidebar_header.js"></script>
-    <link rel="stylesheet" href="layout.css">
-    <title>Cadastrar</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="sidebar_header.js"></script>
+<link rel="stylesheet" href="layout.css">
+<link rel="stylesheet" href="stylecadp.css">
+<title>Cadastro de Produtos</title>
 </head>
-<body>
-    <form id="formProduto" enctype="multipart/form-data">
-  <input type="text" name="nome" placeholder="Nome">
-  <input type="text" name="codigo_barras" placeholder="Código">
-  <input type="text" name="preco" placeholder="Preço">
-  <input type="file" name="imagem">
+
+<body class="fundo-escuro">
+
+<form id="formProduto" enctype="multipart/form-data">
+  <h2>Cadastro de Produto</h2>
+
+  <input type="text" class="inp_p" placeholder="Código">
+  <input type="text" class="inp_p" placeholder="Nome">
+  <input type="text" class="inp_p" placeholder="Descrição">
+  <input type="number" class="inp_p" placeholder="Preço">
+  <input type="number" class="inp_p" placeholder="Quantidade">
+
+
+  <label class="file-label">
+    Escolher imagem
+    <input type="file" name="imagem" id="inputImagem">
+  </label>
+
+  <img id="preview">
+
   <button type="submit">Cadastrar</button>
 </form>
 
 <script>
+  const inputImagem = document.getElementById("inputImagem");
+const preview = document.getElementById("preview");
+
+// MOSTRAR IMAGEM
+inputImagem.addEventListener("change", () => {
+    const file = inputImagem.files[0];
+
+    if(file){
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+    }
+});
+
+// ENVIAR
 document.getElementById("formProduto").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -30,5 +59,6 @@ document.getElementById("formProduto").addEventListener("submit", async (e) => {
   alert("Produto cadastrado");
 });
 </script>
+
 </body>
 </html>

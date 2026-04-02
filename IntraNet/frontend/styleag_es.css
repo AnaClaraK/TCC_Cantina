@@ -1,0 +1,119 @@
+/* FUNDO */
+body{
+    background-color: #efac4a;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* TOPO */
+.d_util{
+    width: 95%;
+    margin: 30px auto 10px auto;
+    display: flex;
+    align-items: center;
+    gap: 60px;
+}
+
+/* TÍTULO */
+.h_ag{
+    background-color: #1c1c1c;
+    color: #f8c471;
+    padding: 10px 20px;
+    margin: 0;
+}
+
+/* BOTÃO */
+#b_addq{
+    background-color: #1c1c1c;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#s_addq{
+    color: #f8c471;
+    font-weight: bold;
+    font-size: 24px;
+}
+
+/* INPUT DIREITA */
+#d_inp{
+    margin-left: auto;
+}
+.busca-box{
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.icone-busca{
+    position: absolute;
+    left: 8px;
+    width: 16px;
+    height: 16px;
+}
+
+#inputBusca{
+    border: 2px solid #1c1c1c;
+    background-color: #efac4a;
+    padding: 5px 10px 5px 30px; /* espaço pra lupa */
+}
+
+
+/* TABELA */
+#sc_tabela{
+    width: 90%;
+    margin: 0 auto;
+}
+
+.tabela{
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #f8c471;
+}
+
+/* CABEÇALHO */
+.tabela thead th{
+    background-color: #000;
+    color: #f8c471;
+    padding: 12px;
+    text-align: left;
+}
+
+/* LINHAS */
+.tabela tbody td{
+    padding: 10px;
+}
+
+/* ZEBRA */
+.tabela tbody tr:nth-child(even){
+    background-color: #e5b066;
+}
+
+.tabela tbody tr:nth-child(odd){
+    background-color: #f2c57c;
+}
+
+/* LINHAS VERTICAIS GROSSAS */
+.tabela th,
+.tabela td{
+    border-right: 3px solid #1c1c1c;
+}
+
+.tabela th:last-child,
+.tabela td:last-child{
+    border-right: none;
+}
+
+/* HOVER */
+.tabela tbody tr:hover{
+    filter: brightness(90%);
+}
+
+/* MODAL */
+#d_modal{
+    background-color: #fed89d;
+    border: none;
+    padding: 20px;
+}
