@@ -1,31 +1,7 @@
-<<<<<<< HEAD
 /* ============================================================
    1. RESET E VARIÁVEIS GLOBAIS
    ============================================================ */
    * {
-=======
-<<<<<<< HEAD
-/* Estilos Gerais e Cores */
-:root {
-    --bg-dark: #2b1d16;
-    --accent-orange: #f3b562;
-    --text-orange: #f3b562;
-    --btn-cancel: #e57373;
-    --btn-finish: #b8d9a0;
-}
-
-body {
-    background-color: var(--bg-dark);
-    color: var(--text-orange);
-    font-family: sans-serif;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    padding: 20px;
-    gap: 20px;
-=======
-* {
->>>>>>> 60d3df068207f04227aaab9a08843f632d167f8f
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -38,20 +14,21 @@ body {
     --cor-laranja: #f0a830;
     --cor-escuro: #2b1f14;
     --cor-grafite: #242628;
+    --btn-cancel: #e06060;
+    --btn-finish: #6dbf6d;
 }
 
 /* ============================================================
-   2. ESTRUTURA DO BODY (GRID DO PDV + ESPAÇOS DO MENU)
+   2. ESTRUTURA DO BODY (GRID DO PDV)
    ============================================================ */
 body {
     background-color: var(--cor-laranja);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: grid;
     height: 100vh;
-    gap: 0;
-    column-gap: 10px;
+    overflow: hidden; /* Evita scroll na tela toda */
     
-    /* grid-template: Linhas e Colunas */
+    /* grid-template: 3 áreas principais */
     grid-template-rows: auto 1fr auto;
     grid-template-columns: 1.2fr 1fr;
     grid-template-areas:
@@ -59,24 +36,18 @@ body {
         "inputs   tabela"
         "modal    tabela";
 
-    /* ESPAÇAMENTO PARA O MENU NÃO COBRIR O CONTEÚDO */
-    /* Topo: Header | Esquerda: Sidebar fechada */
-    padding: 70px 10px 10px 80px; 
+    /* Espaço para o Header e Sidebar fixos */
+    padding: 75px 15px 15px 85px; 
+    gap: 15px;
     transition: padding-left 0.3s ease;
 }
 
-/* Quando a Sidebar abre, empurra o conteúdo do PDV mais para a direita */
-body.sidebar-open {
-    padding-left: 260px;
-}
-
-/* Quando a tela NÃO tem sidebar (ex: Login) */
-body.sem-sidebar {
-    padding-left: 10px !important;
-}
+/* Ajustes de layout para Sidebar aberta ou ausente */
+body.sidebar-open { padding-left: 265px; }
+body.sem-sidebar { padding-left: 15px !important; }
 
 /* ============================================================
-   3. CSS DO HEADER E SIDEBAR (FIXOS)
+   3. HEADER E SIDEBAR (FIXOS)
    ============================================================ */
 .custom-header {
     height: var(--header-height);
@@ -86,10 +57,10 @@ body.sem-sidebar {
     left: 0;
     background: var(--cor-laranja);
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding: 0 20px;
     z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .custom-sidebar {
@@ -103,393 +74,144 @@ body.sem-sidebar {
     overflow: hidden;
     z-index: 999;
     padding-top: var(--header-height);
-    border-right: 1px solid rgba(0,0,0,0.1);
 }
 
-body.sidebar-open .custom-sidebar {
-    width: var(--sidebar-width);
-}
+body.sidebar-open .custom-sidebar { width: var(--sidebar-width); }
 
-/* Botão Hambúrguer e Ícones */
-#btn-menu {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    margin-right: 15px;
-    color: var(--cor-escuro);
-}
-
-.i_img {
-    width: 25px;
-    height: 25px;
-    margin-right: 15px;
-    object-fit: contain;
-}
-
-.nav-link {
-    display: flex;
-    align-items: center;
-    padding: 15px 22px;
-    color: var(--cor-escuro);
-    text-decoration: none;
-    white-space: nowrap;
-}
-
-.nav-text {
-    display: none;
-}
-
-body.sidebar-open .nav-text {
-    display: inline;
-}
-
-/* ============================================================
-   4. TEMAS (FUNDO ESCURO / SEM SIDEBAR)
-   ============================================================ */
+/* Temas Escuros */
 body.fundo-escuro .custom-header, 
 body.fundo-escuro .custom-sidebar { 
     background-color: var(--cor-grafite); 
     border-color: #444; 
 }
-
-body.fundo-escuro .nav-text, 
-body.fundo-escuro #btn-menu,
-body.fundo-escuro .nav-link { 
-    color: var(--cor-laranja); 
-}
+body.fundo-escuro #btn-menu, body.fundo-escuro .nav-link { color: var(--cor-laranja); }
 
 /* ============================================================
-   5. CONTEÚDO DO PDV (INPUTS, TABELA E MODAL)
+   4. LADO ESQUERDO: INPUTS E IMAGEM
    ============================================================ */
-
-/* SECTION INPUTS (Esquerda) */
 #sc_inputs {
     grid-area: inputs;
     background-color: var(--cor-escuro);
-    border-radius: 10px;
-    padding: 18px 20px;
+    border-radius: 12px;
+    padding: 20px;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px 10px;
-}
-
-#sc_inputs h2 { color: var(--cor-laranja); font-size: 1rem; grid-column: 1/-1; }
-
-#inp_codb {
-    grid-column: 1 / -1;
-    background-color: var(--cor-laranja);
-    border: none;
-    border-radius: 6px;
-    height: 40px;
-    padding: 0 10px;
-    color: var(--cor-escuro);
-    font-weight: bold;
-}
-
-.inp_val {
-    background-color: var(--cor-laranja);
-    border-radius: 6px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    color: var(--cor-escuro);
-}
-
-/* SECTION TABELA (Direita) */
-#sc_tabela {
-    grid-area: tabela;
-    background-color: var(--cor-laranja);
-    border-radius: 10px;
-    border: 2px solid var(--cor-escuro);
-    overflow: hidden;
-}
-
-#sc_tabela table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-#sc_tabela thead th {
-    background-color: var(--cor-escuro);
-    color: var(--cor-laranja);
-    padding: 12px;
-    border: 1px solid #444;
-}
-
-#sc_tabela tbody td {
-    padding: 10px;
-    border: 1px solid var(--cor-escuro);
-    text-align: center;
-    font-weight: 500;
-}
-
-/* SECTION BOTOES (Rodapé) */
-#sc_modal {
-    grid-area: modal;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding-top: 10px;
-}
-
-button.btn-acao {
-    padding: 12px 20px;
-    border-radius: 8px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-#b_final { background-color: #6dbf6d; color: white; margin-left: auto; padding: 15px 30px; }
-#b_canc { background-color: #e06060; color: white; }
-
-/* IMAGEM PRODUTO */
-#img_prod {
-    grid-column: 1;
-    width: 100%;
-    aspect-ratio: 1/1;
-    object-fit: cover;
-    border-radius: 8px;
-<<<<<<< HEAD
-    border: 2px solid #888;
-=======
-    padding: 12px 22px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: filter 0.2s;
-}
-#b_canc:hover { filter: brightness(1.1); }
-
-#b_final {
-    background-color: #6dbf6d;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 22px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: filter 0.2s;
-    margin-left: auto;
-}
-#b_final:disabled {
-    background-color: #aaa;
-    cursor: not-allowed;
-}
-#b_final:not(:disabled):hover { filter: brightness(1.1); }
-
-/* ===== DIALOG / MODAL ===== */
-#d_modal {
-    border: none;
-    border-radius: 12px;
-    padding: 0;
-    width: 380px;
-    background-color: #2b1f14;
-    color: #f0a830;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-}
-
-#d_modal::backdrop {
-    background: rgba(0,0,0,0.6);
-}
-
-#d_modal article {
-    display: flex;
-    flex-direction: column;
-}
-
-#d_modal article > section {
-    padding: 24px 28px;
-}
-
-#d_modal article > section > div {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-#d_modal h2 {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #f0a830;
-    margin-top: 10px;
-}
-
-#d_modal span {
-    font-size: 1rem;
-    color: #fff;
-}
-
-.pagamento {
-    background-color: #f0a830;
-    color: #2b1f14;
-    border: none;
-    border-radius: 6px;
-    padding: 8px 14px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 4px;
-    transition: filter 0.2s;
-}
-.pagamento:hover { filter: brightness(1.1); }
-
-#d_modal footer {
-    background-color: #1a1008;
-    padding: 14px 28px;
-    border-radius: 0 0 12px 12px;
-    display: flex;
-    justify-content: flex-end;
-}
-
-#b_nv_venda {
-    background-color: #6dbf6d;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 24px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-}
-#b_nv_venda:disabled {
-    background-color: #aaa;
-    cursor: not-allowed;
-}
-
-/* ===== TÍTULOS GERAIS ===== */
-.titulo {
-    color: #f0a830;
-    font-size: 0.9rem;
-    font-weight: 500;
->>>>>>> 826e7abd34a607d1e0a8e251d3fa0641b192ffb4
-}
-
-/* Títulos (H2) */
-.titulo {
-    font-size: 1.1rem;
-    font-weight: normal;
-    margin: 10px 0 5px 0;
-}
-
-/* Estilização dos Visores e Input */
-#inp_codb, .inp_val {
-    background-color: var(--accent-orange);
-    border: none;
-    border-radius: 4px;
-    height: 40px;
-    width: 100%;
-    color: #33261e;
-    display: flex;
-    align-items: center;
-    padding: 0 10px;
-    box-sizing: border-box;
-    font-weight: bold;
-    font-size: 1rem;
-}
-
-/* Organização do Lado Esquerdo (Inputs) */
-#sc_inputs {
-    flex: 1;
-    min-width: 450px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr; /* 3 colunas para os visores */
     gap: 10px;
+    align-content: start;
 }
 
-/* Faz o Código do Produto ocupar a linha toda */
-.titulo:first-of-type, #inp_codb {
+.titulo {
+    color: var(--cor-laranja);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+/* Input de código ocupa a linha toda */
+#sc_inputs h2:first-of-type, #inp_codb {
     grid-column: span 3;
 }
 
-/* Posicionamento da Imagem e Totais */
+#inp_codb, .inp_val {
+    background-color: var(--cor-laranja);
+    border: none;
+    border-radius: 6px;
+    height: 42px;
+    color: var(--cor-escuro);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+}
+
 #img_prod {
     grid-column: span 2;
-    background-color: #bdbdbd;
     width: 100%;
-    height: 250px;
-    object-fit: contain;
-    margin-top: 15px;
+    height: 280px;
+    object-fit: cover;
+    border-radius: 8px;
+    background-color: #333;
+    border: 2px solid #444;
+    margin-top: 10px;
 }
 
-/* Posiciona o Total da Compra ao lado da foto */
-#h_ttl_c {
-    grid-column: 3;
-    grid-row: 5; /* Ajusta para alinhar com o topo da foto */
-}
-#d_ttl_c {
-    grid-column: 3;
-    grid-row: 6;
-    height: 60px; /* Destaque para o total */
-    font-size: 1.4rem;
-}
-
-/* Organização da Tabela (Lado Direito) */
+/* ============================================================
+   5. LADO DIREITO: TABELA
+   ============================================================ */
 #sc_tabela {
-    flex: 1;
-    min-width: 400px;
+    grid-area: tabela;
+    background-color: #fff;
+    border-radius: 12px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    background-color: #fff;
 }
 
 th {
-    background-color: var(--accent-orange);
-    color: #33261e;
-    padding: 12px;
-    border: 1px solid #000;
+    background-color: var(--cor-escuro);
+    color: var(--cor-laranja);
+    padding: 15px;
+    position: sticky;
+    top: 0;
 }
 
 td {
-    border: 1px solid #ccc;
-    padding: 10px;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
     text-align: center;
-    color: #33261e;
+    color: #333;
 }
 
-/* Efeito Zebrado da Tabela */
-tbody tr:nth-child(odd) { background-color: #e0e0e0; }
-tbody tr:nth-child(even) { background-color: #f5f5f5; }
+tbody tr:nth-child(even) { background-color: #f9f9f9; }
 
-/* Seção de Botões (Rodapé) */
-/* Botões Inferiores */
-.button-group {
+/* ============================================================
+   6. RODAPÉ E MODAL
+   ============================================================ */
+#sc_modal {
+    grid-area: modal;
     display: flex;
-    gap: 10px;
-    margin-top: 30px;
+    gap: 15px;
 }
 
-button {
-    border: none;
-    padding: 15px 10px;
-    font-size: 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    flex: 1;
-}
-
-#b_agend { background-color: var(--accent-orange); }
-#b_canc { background-color: var(--btn-cancel); }
-#b_final { background-color: var(--btn-finish); }
-
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* Modal */
-#d_modal {
+#sc_modal button {
     border: none;
     border-radius: 8px;
-    padding: 20px;
-    background-color: #fff;
->>>>>>> 60d3df068207f04227aaab9a08843f632d167f8f
+    padding: 15px 25px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#b_agend { background-color: #fff; color: var(--cor-escuro); }
+#b_canc { background-color: var(--btn-cancel); color: #fff; }
+#b_final { background-color: var(--btn-finish); color: #fff; margin-left: auto; }
+
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Dialog do Modal */
+#d_modal {
+    border: none;
+    border-radius: 15px;
+    width: 400px;
+    margin: auto;
+    padding: 25px;
+    background-color: var(--cor-escuro);
+    color: var(--cor-laranja);
+}
+
+#d_modal::backdrop { background: rgba(0,0,0,0.7); }
+
+.pagamento {
+    width: 100%;
+    background: var(--cor-laranja);
+    color: var(--cor-escuro);
+    padding: 10px;
+    margin-top: 8px;
+    border-radius: 5px;
+    border: none;
+    font-weight: bold;
 }

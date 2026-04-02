@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDV</title>
-    <script src="sidebar_header.js"></script>
+    <title>PDV - Sistema Cantina</title>
     <link rel="stylesheet" href="layout.css">
     <link rel="stylesheet" href="stylepdv.css">
+    <script src="sidebar_header.js"></script>
 </head>
 <body class="sem-sidebar fundo-laranja">
 
 <section id="sc_inputs">
     <h2 class="titulo">Código do Produto</h2> 
-    <input type="text" id="inp_codb">
+    <input type="text" id="inp_codb" autofocus>
 
     <h2 id="h_qtd" class="titulo">Quantidade</h2>
     <div id="d_qtd" class="inp_val">0</div>
@@ -26,7 +26,7 @@
     <h2 id="h_ttl_c" class="titulo">Total da Compra</h2>
     <div id="d_ttl_c" class="inp_val">R$ 0,00</div>
 
-    <img alt="imagem" id="img_prod">
+    <img src="images/img_ntf.png" alt="imagem produto" id="img_prod">
 </section>
 
 <section id="sc_tabela">
@@ -35,7 +35,7 @@
             <tr>
                 <th scope="col">Código</th>
                 <th scope="col">Nome</th>
-                <th scope="col">Quantidade</th>
+                <th scope="col">Qtd</th>
                 <th scope="col">Preço</th>
             </tr>
         </thead>
@@ -48,30 +48,28 @@
   <button id="b_final" disabled>
     <span id="s_final">Finalizar Compra</span>
   </button>
+
   <dialog id="d_modal">
     <article>
         <section>
             <div>
                 <h2>Venda Finalizada</h2>
                 <h2>Pedido n°</h2>
-                <span id="s_pedido"></span>
+                <span id="s_pedido">001</span>
                 <h2>Data e Hora</h2>
                 <span id="s_dt"></span>
                 <h2>Total da Compra</h2>
-                <span id="s_tot"></span>
+                <span id="s_tot">R$ 0,00</span>
+                
                 <h2>Forma de Pagamento</h2> 
-                <button id="b_din" class="pagamento">Dinheiro</button>
-                <button id="b_cart_cred" class="pagamento">Cartão de Crédito</button>
-                <button id="b_cart_deb" class="pagamento">Cartão de Débito</button>
-                <button id="b_pix" class="pagamento">PIX</button>
+                <button class="pagamento">Dinheiro</button>
+                <button class="pagamento">Cartão de Crédito</button>
+                <button class="pagamento">Cartão de Débito</button>
+                <button class="pagamento">PIX</button>
             </div>
         </section>
         <footer>
-            <div>
-              <button id="b_nv_venda" disabled>
-                <span>Nova Venda</span>
-              </button>
-            </div>
+            <button id="b_nv_venda" disabled>Nova Venda</button>
         </footer>
       </article>
   </dialog>
@@ -80,150 +78,53 @@
   <button id="b_canc">Cancelar(ESC)</button>
 </section>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
-<<<<<<< HEAD
-    // SEU SCRIPT FOI MANTIDO 100% IGUAL
+    // Seletores
     const inp_codb = document.getElementById("inp_codb");
     const tbody = document.getElementById("tb_tbl_produtos");
     const img_prod = document.getElementById("img_prod");
+    const b_final = document.getElementById("b_final");
+    const modal = document.getElementById("d_modal");
+    const nova_venda = document.getElementById("b_nv_venda");
     
+    // Configurações
+    const URL_BACKEND_CAD = "http://localhost:3000";
+    const IMG_PADRAO = "images/img_ntf.png";
+
     let carrinho = {}; 
     let totalCompra = 0; 
-    
+
+    // Funções de Auxílio
     function formatar(valor) {
         return Number(valor).toFixed(2).replace(".", ",");
-=======
-  const inp_codb = document.getElementById("inp_codb");
-  const tbody = document.getElementById("tb_tbl_produtos");
-  const img_prod = document.getElementById("img_prod");
-  
-  let carrinho = {}; // objeto vazio (guarda várias informações organizadas)
-  let totalCompra = 0; // guarda o valor inicial da compra
-  
-  function formatar(valor) {
-    return Number(valor).toFixed(2).replace(".", ","); // troca . por ,
-  }
-  
-  function atualizarTotalCompra() {
-    totalCompra = 0;
-    Object.values(carrinho).forEach(item => {
-      totalCompra += item.preco * item.qtd;
-    });
-    document.getElementById("d_ttl_c").innerText = "R$ " + formatar(totalCompra);
-  }
-  
-  function atualizarVisores(item) {
-    document.getElementById("d_qtd").innerText = item.qtd;
-    document.getElementById("d_vl_und").innerText = "R$ " + formatar(item.preco);
-    document.getElementById("d_ttl_i").innerText = "R$ " + formatar(item.preco * item.qtd);
-  }
-  
-  const URL_BACKEND_CAD = "http://localhost:3000";
-
-const IMG_PADRAO = "images/img_ntf.png";
-
-// imagem padrão ao iniciar
-img_prod.src = IMG_PADRAO;
-
-// fallback se quebrar
-img_prod.onerror = () => {
-  img_prod.src = IMG_PADRAO;
-};
-
-inp_codb.addEventListener("keydown", (event) => {
-  if (event.key !== "Enter") return;
-
-  const codigo = inp_codb.value.trim();
-  if (!codigo) return;
-
-  fetch(`${URL_BACKEND_CAD}/produtos/${codigo}`)
-  .then(res => {
-    if (!res.ok) {
-      throw new Error("Produto não encontrado");
-    }
-    return res.json();
-  })
-  .then(data => {
-    const produto = data[0];
-
-    // 🔥 AQUI resolve tudo
-    const caminhoImagem = produto.img 
-      ? URL_BACKEND_CAD + produto.img 
-      : IMG_PADRAO;
-
-    img_prod.src = caminhoImagem;
-
-    if (carrinho[codigo]) {
-      carrinho[codigo].qtd++;
-
-      const linha = document.getElementById("linha_" + codigo);
-      linha.querySelector(".qtd").innerText = carrinho[codigo].qtd;
-
-    } else {
-      carrinho[codigo] = {
-        codigo: produto.codigo_barras,
-        nome: produto.nome,
-        preco: Number(produto.preco),
-        qtd: 1
-      };
-
-      const tr = document.createElement("tr");
-
-      tr.id = "linha_" + codigo;
-
-      tr.innerHTML = `
-        <td>${produto.codigo_barras}</td>
-        <td>${produto.nome}</td>
-        <td class="qtd">1</td>
-        <td>R$ ${Number(produto.preco).toFixed(2).replace(".", ",")}</td>
-      `;
-
-      tbody.appendChild(tr);
     }
 
-    atualizarVisores(carrinho[codigo]);
-    atualizarTotalCompra();
-    verificarBotao();
-
-    inp_codb.value = "";
-  })
-  .catch(err => console.error("Erro ao buscar produto:", err));
-});
-  
-  //------------------------ Habilitar o botão Finalizar Venda
-  const b_final = document.getElementById("b_final");
-  
-  function verificarBotao(){
-    if(Object.keys(carrinho).length > 0){
-      b_final.disabled = false;
-    }else{
-      b_final.disabled = true;
->>>>>>> 826e7abd34a607d1e0a8e251d3fa0641b192ffb4
-    }
-    
     function atualizarTotalCompra() {
         totalCompra = 0;
         Object.values(carrinho).forEach(item => {
             totalCompra += item.preco * item.qtd;
         });
-        document.getElementById("d_ttl_c").innerText = "R$ " + formatar(totalCompra);
+        const totalFormatado = "R$ " + formatar(totalCompra);
+        document.getElementById("d_ttl_c").innerText = totalFormatado;
+        document.getElementById("s_tot").innerText = totalFormatado;
     }
-    
+
     function atualizarVisores(item) {
         document.getElementById("d_qtd").innerText = item.qtd;
         document.getElementById("d_vl_und").innerText = "R$ " + formatar(item.preco);
         document.getElementById("d_ttl_i").innerText = "R$ " + formatar(item.preco * item.qtd);
     }
-    
-    const URL_BACKEND_CAD = "http://localhost:3000"; 
-    
+
+    function verificarBotao(){
+        b_final.disabled = (Object.keys(carrinho).length === 0);
+    }
+
+    // Evento de busca de produto
     inp_codb.addEventListener("keydown", (event) => {
         if (event.key !== "Enter") return;
         const codigo = inp_codb.value.trim();
         if (!codigo) return;
-    
+
         fetch(`${URL_BACKEND_CAD}/produtos/${codigo}`)
         .then(res => {
             if (!res.ok) throw new Error("Produto não encontrado");
@@ -231,12 +132,12 @@ inp_codb.addEventListener("keydown", (event) => {
         })
         .then(data => {
             const produto = data[0];
-            img_prod.src = URL_BACKEND_CAD + produto.img;
-    
+            img_prod.src = produto.img ? URL_BACKEND_CAD + produto.img : IMG_PADRAO;
+
             if (carrinho[codigo]) {
                 carrinho[codigo].qtd++;
                 const linha = document.getElementById("linha_" + codigo);
-                linha.querySelector(".qtd").innerText = parseInt(linha.querySelector(".qtd").innerText) + 1;
+                linha.querySelector(".qtd-col").innerText = carrinho[codigo].qtd;
             } else {
                 carrinho[codigo] = {
                     codigo: produto.codigo_barras,
@@ -244,14 +145,14 @@ inp_codb.addEventListener("keydown", (event) => {
                     preco: Number(produto.preco),
                     qtd: 1
                 };
-    
+
                 const tr = document.createElement("tr");
                 tr.id = "linha_" + codigo;
                 tr.innerHTML = `
                     <td>${produto.codigo_barras}</td>
                     <td>${produto.nome}</td>
-                    <td>${produto.qtd}</td>
-                    <td>R$ ${Number(produto.preco).toFixed(2).replace(".", ",")}</td>
+                    <td class="qtd-col">1</td>
+                    <td>R$ ${formatar(produto.preco)}</td>
                 `;
                 tbody.appendChild(tr);
             }
@@ -260,39 +161,27 @@ inp_codb.addEventListener("keydown", (event) => {
             verificarBotao();
             inp_codb.value = "";
         })
-        .catch(err => console.error("Erro:", err));
+        .catch(err => {
+            console.error(err);
+            alert("Produto não encontrado!");
+            inp_codb.value = "";
+        });
     });
-    
-    const b_final = document.getElementById("b_final");
-    function verificarBotao(){
-        b_final.disabled = (Object.keys(carrinho).length === 0);
-    }
-    
-    const pagamento = document.querySelectorAll(".pagamento")
-    const nova_venda = document.getElementById("b_nv_venda")
-    
-    pagamento.forEach(botao => {
-        botao.addEventListener("click", () => {
-            nova_venda.disabled = false
-        })
-    })
-    
-    nova_venda.addEventListener("click", () => {
-        carrinho = {};
-        tbody.innerHTML = "";
-        totalCompra = 0;
-        document.getElementById("d_qtd").innerText = "0";
-        document.getElementById("d_vl_und").innerText = "R$ 0,00";
-        document.getElementById("d_ttl_i").innerText = "R$ 0,00";
-        document.getElementById("d_ttl_c").innerText = "R$ 0,00";
-        inp_codb.value = "";
-        img_prod.src = "";
-        verificarBotao();
-        modal.close();
-    })
 
-    const cancelar = document.getElementById("b_canc")
-    cancelar.addEventListener("click", () => {
+    // Modal e Finalização
+    b_final.addEventListener("click", () => {
+        document.getElementById("s_dt").innerText = new Date().toLocaleString();
+        modal.showModal();
+    });
+
+    document.querySelectorAll(".pagamento").forEach(botao => {
+        botao.addEventListener("click", () => {
+            nova_venda.disabled = false;
+        });
+    });
+
+    // Reiniciar Venda (Usado no botão Nova Venda e Cancelar)
+    function resetarPDV() {
         carrinho = {};
         tbody.innerHTML = "";
         totalCompra = 0;
@@ -301,14 +190,19 @@ inp_codb.addEventListener("keydown", (event) => {
         document.getElementById("d_ttl_i").innerText = "R$ 0,00";
         document.getElementById("d_ttl_c").innerText = "R$ 0,00";
         inp_codb.value = "";
-        img_prod.src = "";
+        img_prod.src = IMG_PADRAO;
         verificarBotao();
-    })
-    
-    const modal = document.querySelector("#d_modal")
-    b_final.addEventListener("click", () =>{
-        modal.showModal();
-    })
+        if(modal.open) modal.close();
+        nova_venda.disabled = true;
+    }
+
+    nova_venda.addEventListener("click", resetarPDV);
+    document.getElementById("b_canc").addEventListener("click", resetarPDV);
+
+    // Fechar com ESC (opcional, já que o dialog faz isso, mas limpa o PDV)
+    window.addEventListener("keydown", (e) => {
+        if(e.key === "Escape") resetarPDV();
+    });
 </script>
 </body>
 </html>
