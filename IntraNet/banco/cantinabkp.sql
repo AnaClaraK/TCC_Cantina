@@ -48,16 +48,25 @@ CREATE TABLE IF NOT EXISTS `cardapio_dia` (
 -- Copiando dados para a tabela cantina.cardapio_dia: ~0 rows (aproximadamente)
 DELETE FROM `cardapio_dia`;
 
--- Copiando estrutura para tabela cantina.categoria
-DROP TABLE IF EXISTS `categoria`;
-CREATE TABLE IF NOT EXISTS `categoria` (
+-- Copiando estrutura para tabela cantina.categorias
+DROP TABLE IF EXISTS `categorias`;
+CREATE TABLE IF NOT EXISTS `categorias` (
   `id_categ` int(11) NOT NULL AUTO_INCREMENT,
   `nome` varchar(255) NOT NULL,
   PRIMARY KEY (`id_categ`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.categoria: ~0 rows (aproximadamente)
-DELETE FROM `categoria`;
+-- Copiando dados para a tabela cantina.categorias: ~8 rows (aproximadamente)
+DELETE FROM `categorias`;
+INSERT INTO `categorias` (`id_categ`, `nome`) VALUES
+	(1, 'Bebidas Quentes'),
+	(2, 'Marmitas'),
+	(3, 'Picolés e Sorvetes'),
+	(4, 'Assados'),
+	(5, 'Lanches'),
+	(6, 'Guloseimas'),
+	(7, 'Trufas'),
+	(8, 'Bebidas');
 
 -- Copiando estrutura para tabela cantina.controle_reserva
 DROP TABLE IF EXISTS `controle_reserva`;
@@ -142,22 +151,87 @@ CREATE TABLE IF NOT EXISTS `produtos` (
   `id_categoria` int(11) DEFAULT NULL,
   `codigo_barras` varchar(255) NOT NULL DEFAULT '',
   `nome` varchar(255) NOT NULL DEFAULT '',
-  `descricao` text DEFAULT NULL,
+  `descricao` text NOT NULL,
   `preco` decimal(10,2) NOT NULL DEFAULT 0.00,
   `dt_validade` date DEFAULT NULL,
-  `qtd` int(11) NOT NULL,
+  `qtd` int(11) DEFAULT NULL,
   `img` varchar(255) NOT NULL DEFAULT '',
   `disponivel` int(11) DEFAULT NULL,
   PRIMARY KEY (`id_produto`),
   KEY `Index 2` (`id_categoria`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.produtos: ~4 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.produtos: ~68 rows (aproximadamente)
 DELETE FROM `produtos`;
 INSERT INTO `produtos` (`id_produto`, `id_categoria`, `codigo_barras`, `nome`, `descricao`, `preco`, `dt_validade`, `qtd`, `img`, `disponivel`) VALUES
-	(1, 0, '1', 'coca\r\n', 'uma coquinha geladinha', 3.00, '2026-04-28', 10, '/imagens/1772548011594.jpg', 1),
-	(2, NULL, '2', 'paçoca', 'uma deliciosa paçoca', 2.00, '2026-03-28', 0, '/imagens/1772729991633.webp', 0),
-	(3, NULL, '3', 'cereal', 'uma barrinha de cereallllllllllllllllllllllllllllllllllllllllllllllllllllllllllll', 2.20, '2026-04-08', 3, '/imagens/1772730083078.webp', 1);
+	(1, 1, '', 'Café coado 50ml', '', 2.26, NULL, NULL, '/images', 1),
+	(2, 1, '', 'Café coado 100ml', '', 3.50, NULL, NULL, '/images', 1),
+	(3, 1, '', 'Pingado 150ml', '', 3.80, NULL, NULL, '/images', 1),
+	(4, 1, '', 'Chocolate quente 200ml', '', 6.94, NULL, NULL, '/images', 1),
+	(5, 2, '', 'Arroz, Strogonoff de frango P', '', 18.60, NULL, NULL, '/images', 1),
+	(6, 2, '', 'Arroz, Strogonoff de frango M', '', 19.50, NULL, NULL, '/images', 1),
+	(7, 2, '', 'Arroz, Strogonoff de frango G', '', 20.70, NULL, NULL, '/images', 1),
+	(8, 2, '', 'Arroz, lasanha bolonhesa P', '', 18.60, NULL, NULL, '/images', 1),
+	(9, 2, '', 'Arroz, lasanha bolonhesa M', '', 19.50, NULL, NULL, '/images', 1),
+	(10, 2, '', 'Arroz, lasanha bolonhesa G', '', 20.70, NULL, NULL, '/images', 1),
+	(11, 2, '', 'Arroz, feijão, carne de panela P', '', 18.60, NULL, NULL, '/images', 1),
+	(12, 2, '', 'Arroz, feijão, carne de panela M', '', 19.50, NULL, NULL, '/images', 1),
+	(13, 2, '', 'Arroz, feijão, carne de panela G', '', 20.70, NULL, NULL, '/images', 1),
+	(14, 2, '', 'Macarrão bolonhesa P', '', 18.60, NULL, NULL, '/images', 1),
+	(15, 2, '', 'Macarrão bolonhesa M', '', 19.50, NULL, NULL, '/images', 1),
+	(16, 2, '', 'Macarrão bolonhesa G', '', 20.70, NULL, NULL, '/images', 1),
+	(17, 3, '', 'Picolé de água', '', 3.06, NULL, NULL, '/images', 1),
+	(18, 3, '', 'Picolé de leite', '', 4.20, NULL, NULL, '/images', 1),
+	(19, 3, '', 'Picolé tipo skimo', '', 5.50, NULL, NULL, '/images', 1),
+	(20, 3, '', 'Picolé gianduia', '', 5.50, NULL, NULL, '/images', 1),
+	(21, 3, '', 'Picolé Maxxi leite trufado', '', 9.00, NULL, NULL, '/images', 1),
+	(22, 3, '', 'Picolé Maxxi Black', '', 9.00, NULL, NULL, '/images', 1),
+	(23, 3, '', 'Picolé Maxxi White', '', 9.00, NULL, NULL, '/images', 1),
+	(24, 3, '', 'Copo Big bombom', '', 7.00, NULL, NULL, '/images', 1),
+	(25, 3, '', 'Copo Big flocos', '', 7.00, NULL, NULL, '/images', 1),
+	(26, 3, '', 'Copo Big napolitano', '', 7.00, NULL, NULL, '/images', 1),
+	(27, 3, '', 'Copo Big speciale', '', 7.00, NULL, NULL, '/images', 1),
+	(28, 3, '', 'Mini bombom Maxxi açaí', '', 15.50, NULL, NULL, '/images', 1),
+	(29, 3, '', 'Mini bombom Maxxi skimo', '', 15.50, NULL, NULL, '/images', 1),
+	(30, 3, '', 'Pote de açaí 240ml', '', 12.50, NULL, NULL, '/images', 1),
+	(31, 3, '', 'Sorvete misto', '', 2.00, NULL, NULL, '/images', 1),
+	(32, 4, '', 'Esfirra de carne', '', 7.29, NULL, NULL, '/images', 1),
+	(33, 4, '', 'Esfirra de frango catu', '', 7.29, NULL, NULL, '/images', 1),
+	(34, 4, '', 'Enrolado de queijo', '', 7.29, NULL, NULL, '/images', 1),
+	(35, 4, '', 'Enrolado de salsicha', '', 7.29, NULL, NULL, '/images', 1),
+	(36, 4, '', 'Hambúrguer com cheddar', '', 7.29, NULL, NULL, '/images', 1),
+	(37, 4, '', 'Assado calabresa com queijo', '', 7.29, NULL, NULL, '/images', 1),
+	(38, 4, '', 'Torta frango catu tomate', '', 8.14, NULL, NULL, '/images', 1),
+	(39, 4, '', 'Torta presunto queijo catu', '', 8.14, NULL, NULL, '/images', 1),
+	(40, 4, '', 'Coxinha de carne', '', 7.58, NULL, NULL, '/images', 1),
+	(41, 4, '', 'Coxinha de frango', '', 7.58, NULL, NULL, '/images', 1),
+	(42, 4, '', 'Coxinha de costela', '', 8.50, NULL, NULL, '/images', 1),
+	(43, 5, '', 'Pão com ovo', '', 5.62, NULL, NULL, '/images', 1),
+	(44, 5, '', 'Bauru', '', 10.66, NULL, NULL, '/images', 1),
+	(45, 5, '', 'Americano', '', 18.42, NULL, NULL, '/images', 1),
+	(46, 5, '', 'Omelete simples', '', 5.00, NULL, NULL, '/images', 1),
+	(47, 5, '', 'Omelete presunto e queijo', '', 7.50, NULL, NULL, '/images', 1),
+	(48, 5, '', 'Ovo mexido', '', 4.50, NULL, NULL, '/images', 1),
+	(49, 5, '', 'Misto quente', '', 6.50, NULL, NULL, '/images', 1),
+	(50, 6, '', 'Trento avelã', '', 4.11, NULL, NULL, '/images', 1),
+	(51, 6, '', 'Trento chocolate', '', 4.11, NULL, NULL, '/images', 1),
+	(52, 6, '', 'Stikadinho', '', 2.00, NULL, NULL, '/images', 1),
+	(53, 6, '', 'Halls morango', '', 2.50, NULL, NULL, '/images', 1),
+	(54, 6, '', 'Paçoca', '', 3.00, NULL, NULL, '/images', 1),
+	(55, 7, '', 'Trufa de brigadeiro', '', 6.00, NULL, NULL, '/images', 1),
+	(56, 7, '', 'Trufa de beijinho', '', 6.00, NULL, NULL, '/images', 1),
+	(57, 7, '', 'Trufa de ninho', '', 6.00, NULL, NULL, '/images', 1),
+	(58, 7, '', 'Trufa Ovomaltine', '', 6.50, NULL, NULL, '/images', 1),
+	(59, 7, '', 'Trufa Nutella', '', 6.50, NULL, NULL, '/images', 1),
+	(60, 7, '', 'Trufa Maracujá', '', 6.50, NULL, NULL, '/images', 1),
+	(61, 7, '', 'Trufa Oreo', '', 6.50, NULL, NULL, '/images', 1),
+	(62, 7, '', 'Bala baiana', '', 6.00, NULL, NULL, '/images', 1),
+	(63, 8, '', 'Mini Coca-Cola', '', 3.00, NULL, NULL, '/images', 1),
+	(64, 8, '', 'Mini Fanta', '', 3.00, NULL, NULL, '/images', 1),
+	(65, 8, '', 'Água', '', 2.69, NULL, NULL, '/images', 1),
+	(66, 8, '', 'Água com gás', '', 2.70, NULL, NULL, '/images', 1),
+	(67, 8, '', 'Coca-Cola 2L', '', 11.97, NULL, NULL, '/images', 1),
+	(68, 8, '', 'Fanta 2L', '', 11.50, NULL, NULL, '/images', 1);
 
 -- Copiando estrutura para tabela cantina.users
 DROP TABLE IF EXISTS `users`;
