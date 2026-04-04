@@ -20,7 +20,9 @@ app.set('views', path.join(__dirname, 'views')); // Pasta onde ficarão os arqui
 // Configurações iniciais
 app.use(express.json())
 app.use(cors())
-app.use("/imagens", express.static("imagens")); // Serve as imagens para o frontend
+
+// Esta linha é a mágica: ela torna a pasta de imagens acessível via URL
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 app.listen(porta, () => { 
   console.log(`Servidor rodando em: http://localhost:${porta}`)
@@ -175,12 +177,57 @@ app.get("/produtos/:codigo", async (req, res) => {
 app.get("/produtos", async (req, res) => {
   try {
     // Busca todos os produtos para exibir na tabela do estoque
-    const [rows] = await conexao.query("SELECT * FROM produtos");
+    const [rows] = await conexao.query("SELECT p.*, c.nome AS categoria_nome FROM produtos p JOIN categorias c ON p.id_categoria = c.id_categoria");
     
     // Envia a lista para o seu HTML
     res.json(rows);
   } catch (erro) {
     console.error(erro);
     res.status(500).json({ erro: "Erro ao buscar a lista de produtos" });
+  }
+});
+// GET produtos
+app.get("/produtos", async (req, res) => {
+  try {
+    const [rows] = await conexao.query(`
+      SELECT p.*, c.nome AS categoria_nome
+      FROM produtos p
+      LEFT JOIN categorias c ON p.id_categoria = c.id_categoria
+    `);
+
+    res.json(rows);
+  } catch (erro) {
+    res.status(500).json({ erro: "Erro ao buscar produtos" });
+  }
+});
+
+// ADD estoque
+app.put("/produtos/:codigo/add", async (req, res) => {
+  try {
+    const codigo = req.params.codigo;
+    const { quantidade } = req.body;
+
+    if (!quantidade || quantidade <= 0) {
+      return res.status(400).json({ erro: "Quantidade inválida" });
+    }
+
+    const [rows] = await conexao.query(
+      "SELECT * FROM produtos WHERE codigo_barras = ?",
+      [codigo]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ erro: "Produto não encontrado" });
+    }
+
+    await conexao.query(
+      "UPDATE produtos SET qtd = COALESCE(qtd, 0) + ? WHERE codigo_barras = ?",
+      [quantidade, codigo]
+    );
+
+    res.json({ mensagem: "Estoque atualizado" });
+
+  } catch (erro) {
+    res.status(500).json({ erro: "Erro ao atualizar estoque" });
   }
 });

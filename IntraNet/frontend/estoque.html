@@ -2,149 +2,161 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="sidebar_header.js"></script>
     <link rel="stylesheet" href="layout.css">
     <link rel="stylesheet" href="styleag_es.css">
     <title>Estoque</title>
 </head>
-<body class="fundo-escuro">
-    <div class="d_util">
-        <h2 class="h_ag">Estoque</h2>
-        <button id="b_addq" >
-            <span id="s_addq">Adicionar Quantidade</span>
-        </button>
-        <div id="d_inp">
-            <div class="busca-box">
-                <img src="images/lupa.png" class="icone-busca">
-                <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
-            </div>
-        </div>
-    </div>
-    <section id="sc_tabela" class="container mt-5">
-        <table class="tabela">
-            <thead class="table-dark">
-                <tr>
-                    <th scope="col">Código de Barras</th>
-                    <th scope="col">Produto</th>
-                    <th scope="col">Categoria</th>
-                    <th scope="col">Preço</th>
-                    <th scope="col">Data de Validade</th>
-                    <th scope="col">Quantidade</th>
-                    <th scope="col">Disponível</th>
-                </tr>
-            </thead>
-            <tbody id="tb_tbl_produtos">
-            </tbody>
-        </table>
-    </section>
 
-    <section id="sc_modal">
-        <dialog id="d_modal">
-          <article>
-              <section>
-                  <div>
-                      <h2>Atualizar Quantidade do produto</h2>
-                      <h2>Produto</h2>
-                      <span id="s_produto"></span>
-                      <h2>Quantidade Atual</h2>
-                      <span id="s_qtda"></span>
-                      <h2>Adicionar Quantidade</h2>
-                      <input type="number" id="">
-                      <h2>Validade</h2>
-                      <input type="date">
-                      <span
-                  </div>
-              </section>
-                <footer>
-                  <div>
-                    <button id="b_addf">
-                      <span>Adicionar</span>
-                    </button>
-                  </div>
-                </footer>
-            </article>
-        </dialog>
+<body class="fundo-escuro">
+
+<div class="d_util">
+    <h2 class="h_ag">Estoque</h2>
+    <button id="b_addq">
+      <span id="s_addq">Adicionar Quantidade</span>
+    </button>
+    <div id="d_inp">
+    <div class="busca-box">
+        <img src="images/lupa.png" class="icone-busca">
+        <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
+    </div>
+</div>
+</div>
+
+<section id="sc_tabela" class="container mt-5">
+    <table class="tabela">
+<table class="tabela">
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>Produto</th>
+            <th>Categoria</th>
+            <th>Preço</th>
+            <th>Quantidade</th>
+        </tr>
+    </thead>
+    <tbody id="tb_tbl_produtos"></tbody>
+</table>
+
+<dialog id="d_modal">
+    <div class="modal_box">
+
+        <h2>Atualizar Quantidade</h2>
+
+        <input type="text" id="inp_busca_modal" placeholder="Código ou nome">
+        <ul id="lista_sugestoes"></ul>
+
+        <p>Selecionado: <span id="s_produto">---</span></p>
+        <p>Qtd atual: <span id="s_qtda">0</span></p>
+
+        <input type="number" id="inp_add_qtd" value="0">
+
+        <button id="b_addf" type="button">Adicionar</button>
+
+    </div>
+</dialog>
 
 <script>
-    async function buscarProdutosEstoque() {
-        try {
-            const resposta = await fetch('http://localhost:3000/produtos');
-            
-            if (!resposta.ok) {
-                throw new Error('Erro ao buscar dados do servidor');
-            }
+const modal = document.getElementById("d_modal");
+const b_addq = document.getElementById("b_addq");
+const b_addf = document.getElementById("b_addf");
+const tabela = document.getElementById("tb_tbl_produtos");
 
-            const produtos = await resposta.json();
+const inpBuscaModal = document.getElementById("inp_busca_modal");
+const lista = document.getElementById("lista_sugestoes");
 
-            // AJUSTE AQUI: O ID agora corresponde ao HTML
-            const tabela = document.getElementById('tb_tbl_produtos');
-                // Imagine que 'produto' é o objeto que vem do seu banco
-                tabela.innerHTML = ''; 
+let produtosCache = [];
+let indexSelecionado = -1;
 
-            produtos.forEach(produto => {
-                // Criamos um objeto de data a partir da string variável do banco
-                let dataObjeto = new Date(produto.dt_validade); 
-                
-                // Formatamos para o padrão brasileiro
-                let dataFormatada = dataObjeto.toLocaleDateString('pt-BR');
-
-                // Certifique-se de que os nomes (id, nome, etc) são iguais aos do seu banco/API
-                tabela.innerHTML += `
-                    <tr>
-                        <td>${produto.codigo_barras}</td>
-                        <td>${produto.nome}</td>
-                        <td>${produto.id_categoria}</td>
-                        <td>R$ ${parseFloat(produto.preco).toFixed(2)}</td>
-                        <td>${dataFormatada}</td>
-                        <td>${produto.qtd}</td>
-                        <td>${produto.disponivel}</td>
-                    </tr>
-                `;
-            });
-            
-        } catch (erro) {
-            console.error("Erro ao carregar estoque:", erro);
-            document.getElementById('tb_tbl_produtos').innerHTML = `<tr><td colspan="4" class="text-center text-danger">Erro ao carregar produtos. Verifique se o servidor está rodando.</td></tr>`;
-        }
-    }
-//Abrir e fechar modal
-    const modal = document.querySelector("#d_modal")
-  
-  b_addq.addEventListener("click", () =>{
+// abrir modal
+b_addq.addEventListener("click", () => {
+    limparModal();
     modal.showModal();
-  })
- b_addf.addEventListener("click", () =>{
+});
+
+// 🔥 ÚNICO EVENTO (corrigido)
+b_addf.addEventListener("click", async () => {
+    const codigo = inpBuscaModal.dataset.codigo;
+
+    if (!codigo) {
+        alert("Selecione um produto");
+        return;
+    }
+
+    const qtdAdd = Number(document.getElementById("inp_add_qtd").value);
+    if (qtdAdd <= 0) return alert("Quantidade inválida");
+
+    await fetch(`http://localhost:3000/produtos/${codigo}/add`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quantidade: qtdAdd })
+    });
+
     modal.close();
-  })
-//Buscar
-const inputBusca = document.getElementById('inputBusca');
+    limparModal();
+    carregarProdutos();
+});
 
-inputBusca.addEventListener('input', function() {
-    const termo = inputBusca.value.toLowerCase().trim();
-    const linhas = document.querySelectorAll('#tb_tbl_produtos tr');
+function limparModal() {
+    inpBuscaModal.value = "";
+    inpBuscaModal.dataset.codigo = "";
+    document.getElementById("s_produto").innerText = "---";
+    document.getElementById("s_qtda").innerText = "0";
+    document.getElementById("inp_add_qtd").value = 0;
+    lista.innerHTML = "";
+}
 
-    linhas.forEach(linha => {
-        const colunas = linha.getElementsByTagName('td');
+// carregar tabela
+async function carregarProdutos() {
+    const res = await fetch("http://localhost:3000/produtos");
+    const produtos = await res.json();
 
-        const codigo = colunas[0]?.textContent.toLowerCase() || "";
-        const nome = colunas[1]?.textContent.toLowerCase() || "";
+    produtosCache = produtos;
+    tabela.innerHTML = "";
 
-        if (
-            codigo.startsWith(termo) ||
-            nome.startsWith(termo) ||
-            termo === ""
-        ) {
-            linha.style.display = "";
-        } else {
-            linha.style.display = "none";
-        }
+    produtos.forEach(p => {
+        tabela.innerHTML += `
+            <tr>
+                <td>${p.codigo_barras || ""}</td>
+                <td>${p.nome || ""}</td>
+                <td>${p.categoria_nome || ""}</td>
+                <td>R$ ${parseFloat(p.preco || 0).toFixed(2)}</td>
+                <td>${p.qtd || 0}</td>
+            </tr>
+        `;
+    });
+}
+
+// autocomplete
+inpBuscaModal.addEventListener("input", () => {
+    const termo = inpBuscaModal.value.toLowerCase();
+    lista.innerHTML = "";
+
+    const filtrados = produtosCache.filter(p =>
+        (p.nome || "").toLowerCase().includes(termo) ||
+        (p.codigo_barras || "").startsWith(termo)
+    ).slice(0, 5);
+
+    filtrados.forEach(p => {
+        const li = document.createElement("li");
+        li.textContent = p.nome;
+
+        li.onclick = () => {
+            inpBuscaModal.value = p.nome;
+            inpBuscaModal.dataset.codigo = p.codigo_barras;
+
+            document.getElementById("s_produto").innerText = p.nome;
+            document.getElementById("s_qtda").innerText = p.qtd || 0;
+
+            lista.innerHTML = "";
+        };
+
+        lista.appendChild(li);
     });
 });
 
-    // Executa a função assim que a página termina de carregar
-    document.addEventListener('DOMContentLoaded', buscarProdutosEstoque)
-
+document.addEventListener("DOMContentLoaded", carregarProdutos);
 </script>
+
 </body>
 </html>

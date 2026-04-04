@@ -1,223 +1,4 @@
-/* Reset bás
-ico */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
-/* Garante que o conteúdo flua de cima para baixo */
-body {
-    background-color: #242628;
-    display: flex;
-    flex-direction: column; /* Alinha os itens verticalmente */
-    height: auto; /* Permite que a página cresça se necessário */
-    min-height: 100vh;
-    overflow-y: auto; /* Permite scroll se a agenda for para baixo */
-    overflow-x: hidden;
-}
 
-
-/* Ajuste na Agenda para centralizar embaixo */
-.agenda-box {
-    background-color: #efac4a;
-    border-radius: 20px;
-    padding: 23px;
-    /* Ajustes solicitados */
-    width: 600px;           /* Aumentei a largura de 450px para 600px */
-    margin: 20px 0 20px 50px; /* '50px' na esquerda para encostar mais na lateral */
-    height: auto;           /* Mudei para auto para comportar o aumento dos números */
-    min-height: 500px;
-    
-    color: #242628;
-    font-family: 'Roca One', serif;
-    position: relative;
-    box-sizing: border-box;
-}
-
-/* Layout principal: esquerda inputs e direita tabela */
-#sc_inputs {
-    width: 35%;
-    padding: 15px;
-    border-right: 4px solid #e0a85c;
-    display: flex;
-    flex-direction: column;
-}
-
-#logo {
-    font-weight: bold;
-    font-size: 20px;
-    margin-bottom: 15px;
-}
-
-/* Código do Produto input */
-#inp_codb {
-    height: 36px;
-    background-color: #e0a85c;
-    border: none;
-    padding-left: 10px;
-    font-weight: bold;
-    color: #000;
-    font-size: 16px;
-}
-
-/* Linha com os 3 campos lado a lado */
-.linha-campos {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 12px;
-}
-
-.campo {
-    width: 32%;
-    display: flex;
-    flex-direction: column;
-}
-
-.titulo {
-    font-size: 13px;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #f5d6a0;
-}
-
-.d_val {
-    background-color: #e0a85c;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: #000;
-    border-radius: 3px;
-}
-
-/* Foto do produto */
-#img_container {
-    margin-top: 12px;
-    background-color: #cfcfcf;
-    height: 140px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#img_prod {
-    max-height: 130px;
-    max-width: 100%;
-    object-fit: contain;
-}
-
-/* Desconto input */
-.desconto input {
-    height: 36px;
-    border: none;
-    background-color: #e0a85c;
-    padding-left: 10px;
-    font-weight: bold;
-    color: #000;
-    border-radius: 3px;
-    font-size: 14px;
-}
-
-/* Total destacado */
-.total-valor {
-    font-size: 18px;
-    font-weight: bolder;
-}
-
-/* Botões em linha, espaçados */
-#botoes {
-    margin-top: 15px;
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-}
-
-#botoes button {
-    flex: 1;
-    padding: 12px;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    color: #000;
-}
-
-/* Botões coloridos */
-#b_agend {
-    background-color: #e0a85c;
-}
-
-#b_canc {
-    background-color: #e57373;
-}
-
-#b_final {
-    background-color: #8bc34a;
-}
-
-#b_final:disabled {
-    background-color: #555;
-    cursor: not-allowed;
-}
-
-/* Lado direito: tabela */
-#sc_tabela {
-    width: 65%;
-    padding: 15px;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    color: #000;
-}
-
-thead {
-    background-color: #e0a85c;
-}
-
-thead th {
-    padding: 8px;
-    border: 1px solid #000;
-    font-weight: bold;
-    text-align: left;
-}
-
-tbody tr:nth-child(even) {
-    background-color: #ddd;
-}
-
-tbody tr:nth-child(odd) {
-    background-color: #bbb;
-}
-
-tbody td {
-    padding: 6px;
-    border: 1px solid #444;
-}
-
-/* Modal styling */
-dialog {
-    background-color: #2b1d16;
-    color: #f5d6a0;
-    border: 2px solid #e0a85c;
-    padding: 20px;
-}
-
-.pagamento {
-    background-color: #e0a85c;
-    margin-top: 8px;
-    padding: 10px;
-    border: none;
-    cursor: pointer;
-    color: #000;
-    font-weight: bold;
-    width: 100%;
-    border-radius: 4px;
-    margin-bottom: 8px;
-}
 @font-face {
     font-family: 'Roca One';
     /* Certifique-se de que os arquivos estejam na pasta 'fonts' ao lado do seu CSS */
@@ -234,8 +15,8 @@ body{
 }
 .custom-header {
     background-color: #efac4a !important;
-}
 
+}
 .custom-sidebar {
     background-color: #efac4a !important; 
 }
@@ -243,61 +24,33 @@ body{
 .a_btn {
     /* Transforma o link em um bloco flexível */
     display: inline-flex;
-    flex-direction: column; /* Alinha os itens em coluna (um sob o outro) */
-    align-items: center;    /* Centraliza horizontalmente */
-    justify-content: center; /* Centraliza verticalmente */
-    
-    /* Tamanho do Botão */
-    width: 300px;
-    height: 300px;
-    
-    /* Estilo Visual */
-    background-color: #efac4a;
-    border-radius: 20px;
-    text-decoration: none;
-    color: #333;
-    transition: all 0.3s ease;
+
 }
 
-.a_btn:hover {
-    background-color: #efac4a;
-    border-color: #bbb;
-    transform: translateY(-3px); /* Efeito de levante ao passar o mouse */
-}
 
-/* Tamanho da Imagem dentro do botão */
-.a_btn img {
-    width: 200px;
-    height: 200px;
-    margin-bottom: 8px; /* Espaço entre imagem e texto do botão */
-    object-fit: contain;
-}
-
-/* Texto de legenda fora do botão */
 .p_nome {font-family: 'Roca One', serif;
     margin-top: 10px;
+    font-size: 20px;
     font-size: 30px;
     font-family: 'Roca One', serif;
     color: #efac4a;
     text-align: center;
     width: 300px; /* Mesma largura do botão para alinhar */
 }
-/* Este container garante que o botão e o texto fiquem um sob o outro */
-.bloco-item {
-    display: flex;
-    flex-direction: column; /* Alinha o botão em cima e o texto embaixo */
-    align-items: center;    /* Centraliza os dois horizontalmente */
-    width: 300px;           /* Mesma largura que você deu ao botão */
-}
 
+/* 1. CONTAINER: Alinha os botões em LINHA */
 /* 1. O container que segura os botões de estoque */
 .s_btn {
+    display: flex;         /* Ativa o Flexbox para alinhar os filhos (<a>) */
+    flex-direction: row;   /* Define o alinhamento como linha (horizontal) */
+    gap: 50px;            /* Cria um espaço de 20px entre cada botão */
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;          /* Permite quebrar linha se REALMENTE não couber */
     justify-content: center;  /* Mantém centralizado */
     gap: 20px;                /* Reduzi o gap de 50px para 20px para ganhar espaço */
     padding: 20px;
+    justify-content: center; /* Opcional: Centraliza o grupo de botões na tela */
     
     /* Cálculo mágico: 100% da largura menos a largura da sidebar */
     width: auto; 
@@ -311,7 +64,18 @@ main, .conteudo-principal {
 }
 
 /*agenda*/
-
+.agenda-box {
+    background-color: #efac4a;
+    border-radius: 20px;
+    padding: 23px;
+    width: 450px;
+    height: 450px; /* Altura fixa garantida */
+    color: #242628;
+    font-family: 'Roca One', serif;
+    margin: 0px 60px;
+    position: relative; /* FUNDAMENTAL: vira a referência para os botões */
+    box-sizing: border-box;
+}
 
 .f_agenda {
     position: absolute;
@@ -334,6 +98,7 @@ main, .conteudo-principal {
 .corpo-agenda {
     flex-grow: 1; 
     margin-top: 8px;
+
 }
 
 
