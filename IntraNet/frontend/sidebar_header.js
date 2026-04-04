@@ -44,6 +44,10 @@ const sidebarHTML = `
             <img class="i_img" data-name="cadastrop" src="images/cadastrop_p.png"/> 
             <span class="nav-text">Cadastro de <br> Produtos</span>
         </a>
+        <a href="cadastrof.html" class="nav-link">
+            <img class="i_img" data-name="cadastrof" src="images/cadastrof_p.png"/> 
+            <span class="nav-text">Cadastro de <br> Funcionários</span>
+        </a>
     </nav>
 </aside>
 `;
