@@ -7,27 +7,36 @@
     <link rel="stylesheet" href="layout.css">
     <link rel="stylesheet" href="stylepdv.css">
     <script src="sidebar_header.js"></script>
-    <script src="sidebar_header.js"></script>
 </head>
 <body class="sem-sidebar fundo-laranja">
 
 <section id="sc_inputs">
-    <h2 class="titulo">Código do Produto</h2> 
-    <input type="text" id="inp_codb" autofocus>
+    <div class="grupo-input" style="grid-column: 1 / span 3;">
+        <h2 class="titulo">Código do Produto</h2> 
+        <input type="text" id="inp_codb" autofocus>
+    </div>
 
-    <h2 id="h_qtd" class="titulo">Quantidade</h2>
-    <div id="d_qtd" class="inp_val">0</div>
+    <div class="grupo-input">
+        <h2 id="h_qtd" class="titulo">Quantidade</h2>
+        <div id="d_qtd" class="inp_val">0</div>
+    </div>
 
-    <h2 id="h_vl_und" class="titulo">Valor Unitário</h2>
-    <div id="d_vl_und" class="inp_val">R$ 0,00</div>
+    <div class="grupo-input">
+        <h2 id="h_vl_und" class="titulo">Valor Unitário</h2>
+        <div id="d_vl_und" class="inp_val">R$ 0,00</div>
+    </div>
 
-    <h2 id="h_ttl_i" class="titulo">Total do Item</h2>  
-    <div id="d_ttl_i" class="inp_val">R$ 0,00</div>
-
-    <h2 id="h_ttl_c" class="titulo">Total da Compra</h2>
-    <div id="d_ttl_c" class="inp_val">R$ 0,00</div>
+    <div class="grupo-input">
+        <h2 id="h_ttl_i" class="titulo">Total do Item</h2>  
+        <div id="d_ttl_i" class="inp_val">R$ 0,00</div>
+    </div>
 
     <img src="images/img_ntf.png" alt="imagem produto" id="img_prod">
+
+    <div class="grupo-input" style="grid-column: 3; align-self: start;">
+        <h2 id="h_ttl_c" class="titulo">Total da Compra</h2>
+        <div id="d_ttl_c" class="inp_val">R$ 0,00</div>
+    </div>
 </section>
 
 <section id="sc_tabela">
@@ -41,11 +50,9 @@
             </tr>
         </thead>
         <tbody id="tb_tbl_produtos">
-            </tbody>
+        </tbody>
     </table>
 </section>
-
-<table class="tabela"> <thead>
 
 <section id="sc_modal">
   <button id="b_final" disabled>
@@ -80,6 +87,7 @@
   <button id="b_agend">Agendamento</button>
   <button id="b_canc">Cancelar(ESC)</button>
 </section>
+
 <div id="erro_overlay">
     <div id="erro_box">PRODUTO NÃO CADASTRADO</div>
 </div>
@@ -136,19 +144,14 @@
             if (!res.ok) throw new Error("Produto não encontrado");
             return res.json();
         })
-        
         .then(data => {
             const produto = data[0];
 
-            // CORREÇÃO AQUI: 
-            // Verificamos se existe a imagem e montamos com a barra "/"
             if (produto.img) {
                 img_prod.src = URL_BACKEND_CAD + "/" + produto.img;
             } else {
                 img_prod.src = IMG_PADRAO;
             }
-
-            // A LINHA QUE ESTAVA AQUI EMBAIXO FOI REMOVIDA POIS ESTAVA ERRADA E REPETIDA
 
             if (carrinho[codigo]) {
                 carrinho[codigo].qtd++;
@@ -179,19 +182,15 @@
         })
         .catch(err => {
             console.error(err);
-
             document.getElementById("erro_overlay").style.display = "flex";
-
             img_prod.src = IMG_PADRAO;
             inp_codb.value = "";
-
             setTimeout(() => {
                 document.getElementById("erro_overlay").style.display = "none";
             }, 1500);
         });
     });
 
-    // Modal e Finalização
     b_final.addEventListener("click", () => {
         document.getElementById("s_dt").innerText = new Date().toLocaleString();
         modal.showModal();
@@ -203,7 +202,6 @@
         });
     });
 
-    // Reiniciar Venda (Usado no botão Nova Venda e Cancelar)
     function resetarPDV() {
         carrinho = {};
         tbody.innerHTML = "";
@@ -222,7 +220,6 @@
     nova_venda.addEventListener("click", resetarPDV);
     document.getElementById("b_canc").addEventListener("click", resetarPDV);
 
-    // Fechar com ESC (opcional, já que o dialog faz isso, mas limpa o PDV)
     window.addEventListener("keydown", (e) => {
         if(e.key === "Escape") resetarPDV();
     });
