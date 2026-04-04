@@ -31,7 +31,7 @@
         <div id="d_ttl_i" class="inp_val">R$ 0,00</div>
     </div>
 
-    <img src="images/img_ntf.png" alt="imagem produto" id="img_prod">
+    <img src="images/img_ntf.png" alt="imagem product" id="img_prod">
 
     <div class="grupo-input" style="grid-column: 3; align-self: start;">
         <h2 id="h_ttl_c" class="titulo">Total da Compra</h2>
@@ -50,6 +50,23 @@
             </tr>
         </thead>
         <tbody id="tb_tbl_produtos">
+            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
+            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
         </tbody>
     </table>
 </section>
@@ -113,6 +130,31 @@
         return Number(valor).toFixed(2).replace(".", ",");
     }
 
+    // --- ADIÇÃO: FUNÇÃO PARA MANTER O EFEITO ZEBRA E JOGAR NO TOPO ---
+    function atualizarTabelaNoTopo() {
+        tbody.innerHTML = ""; // Limpa para organizar
+        const itens = Object.values(carrinho).reverse(); // Inverte para o último ser o primeiro
+        
+        itens.forEach(item => {
+            const tr = document.createElement("tr");
+            tr.id = "linha_" + item.codigo;
+            tr.innerHTML = `
+                <td>${item.codigo}</td>
+                <td>${item.nome}</td>
+                <td class="qtd-col">${item.qtd}</td>
+                <td>R$ ${formatar(item.preco)}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Mantém as linhas vazias para não quebrar seu layout/zebra
+        for (let i = 0; i < (17 - itens.length); i++) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = "<td>&nbsp;</td><td></td><td></td><td></td>";
+            tbody.appendChild(tr);
+        }
+    }
+
     function atualizarTotalCompra() {
         totalCompra = 0;
         Object.values(carrinho).forEach(item => {
@@ -155,8 +197,10 @@
 
             if (carrinho[codigo]) {
                 carrinho[codigo].qtd++;
-                const linha = document.getElementById("linha_" + codigo);
-                linha.querySelector(".qtd-col").innerText = carrinho[codigo].qtd;
+                // Reposiciona no topo do objeto para o reverse() funcionar
+                const temp = carrinho[codigo];
+                delete carrinho[codigo];
+                carrinho[codigo] = temp;
             } else {
                 carrinho[codigo] = {
                     codigo: produto.codigo_barras,
@@ -164,17 +208,9 @@
                     preco: Number(produto.preco),
                     qtd: 1
                 };
-
-                const tr = document.createElement("tr");
-                tr.id = "linha_" + codigo;
-                tr.innerHTML = `
-                    <td>${produto.codigo_barras}</td>
-                    <td>${produto.nome}</td>
-                    <td class="qtd-col">1</td>
-                    <td>R$ ${formatar(produto.preco)}</td>
-                `;
-                tbody.appendChild(tr);
             }
+
+            atualizarTabelaNoTopo(); // Chamo a função que adicionei acima
             atualizarVisores(carrinho[codigo]);
             atualizarTotalCompra();
             verificarBotao();
@@ -204,7 +240,7 @@
 
     function resetarPDV() {
         carrinho = {};
-        tbody.innerHTML = "";
+        atualizarTabelaNoTopo(); // Usa a função de limpeza
         totalCompra = 0;
         document.getElementById("d_qtd").innerText = "0";
         document.getElementById("d_vl_und").innerText = "R$ 0,00";
@@ -223,50 +259,42 @@
     window.addEventListener("keydown", (e) => {
         if(e.key === "Escape") resetarPDV();
     });
+
     // =============================
-// ATALHOS TECLADO (F1 - F6)
-// =============================
-window.addEventListener("keydown", (e) => {
-
-switch(e.key){
-
-    case "F1":
-        e.preventDefault();
-        if(!b_final.disabled) b_final.click();
-    break;
-
-    case "F2":
-        e.preventDefault();
-        if(modal.open) document.getElementById("pg_dinheiro").click();
-    break;
-
-    case "F3":
-        e.preventDefault();
-        if(modal.open) document.getElementById("pg_credito").click();
-    break;
-
-    case "F4":
-        e.preventDefault();
-        if(modal.open) document.getElementById("pg_debito").click();
-    break;
-
-    case "F5":
-        e.preventDefault();
-        if(modal.open) document.getElementById("pg_pix").click();
-    break;
-
-    case "F6":
-        e.preventDefault();
-        if(!nova_venda.disabled) nova_venda.click();
-    break;
-
-    case "F7":
-         e.preventDefault();
-         document.getElementById("b_agend").click();
-    break; 
-
-}
-});
+    // ATALHOS TECLADO (F1 - F6)
+    // =============================
+    window.addEventListener("keydown", (e) => {
+        switch(e.key){
+            case "F1":
+                e.preventDefault();
+                if(!b_final.disabled) b_final.click();
+            break;
+            case "F2":
+                e.preventDefault();
+                if(modal.open) document.getElementById("pg_dinheiro").click();
+            break;
+            case "F3":
+                e.preventDefault();
+                if(modal.open) document.getElementById("pg_credito").click();
+            break;
+            case "F4":
+                e.preventDefault();
+                if(modal.open) document.getElementById("pg_debito").click();
+            break;
+            case "F5":
+                e.preventDefault();
+                if(modal.open) document.getElementById("pg_pix").click();
+            break;
+            case "F6":
+                e.preventDefault();
+                if(!nova_venda.disabled) nova_venda.click();
+            break;
+            case "F7":
+                 e.preventDefault();
+                 document.getElementById("b_agend").click();
+            break; 
+        }
+    });
 </script>
 </body>
 </html>
