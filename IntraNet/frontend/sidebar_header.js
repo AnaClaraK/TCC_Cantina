@@ -79,10 +79,14 @@ function carregarMenu() {
     }
 
     // C. LÓGICA DAS CORES DOS ÍCONES (Sufixo _p ou _l)
-    let sufixo = '_l'; 
-    if (body.classList.contains('fundo-laranja')) {
-        sufixo = '_p';
-    }
+    let sufixo = '_l'; // padrão (fundo-escuro)
+
+        if (
+            body.classList.contains('fundo-laranja') ||
+            body.classList.contains('fundo-marrom')
+        ) {
+            sufixo = '_p';
+        }
 
     const imagens = document.querySelectorAll('.i_img, .l_img');
     imagens.forEach(img => {

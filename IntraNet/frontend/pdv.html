@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="stylepdv.css">
     <script src="sidebar_header.js"></script>
 </head>
-<body class="sem-sidebar fundo-laranja">
+<body class="sem-sidebar fundo-marrom">
 
 <section id="sc_inputs">
     <div class="grupo-input" style="grid-column: 1 / span 3;">
@@ -72,14 +72,14 @@
                 <span id="s_tot">R$ 0,00</span>
                 
                 <h2>Forma de Pagamento</h2> 
-                <button class="pagamento">Dinheiro</button>
-                <button class="pagamento">Cartão de Crédito</button>
-                <button class="pagamento">Cartão de Débito</button>
-                <button class="pagamento">PIX</button>
+                <button class="pagamento" id="pg_dinheiro">Dinheiro (F2)</button>
+                <button class="pagamento" id="pg_credito">Cartão de Crédito (F3)</button>
+                <button class="pagamento" id="pg_debito">Cartão de Débito (F4)</button>
+                <button class="pagamento" id="pg_pix">PIX (F5)</button>
             </div>
         </section>
         <footer>
-            <button id="b_nv_venda" disabled>Nova Venda</button>
+            <button id="b_nv_venda" disabled>Nova Venda (F6)</button>
         </footer>
       </article>
   </dialog>
@@ -223,6 +223,50 @@
     window.addEventListener("keydown", (e) => {
         if(e.key === "Escape") resetarPDV();
     });
+    // =============================
+// ATALHOS TECLADO (F1 - F6)
+// =============================
+window.addEventListener("keydown", (e) => {
+
+switch(e.key){
+
+    case "F1":
+        e.preventDefault();
+        if(!b_final.disabled) b_final.click();
+    break;
+
+    case "F2":
+        e.preventDefault();
+        if(modal.open) document.getElementById("pg_dinheiro").click();
+    break;
+
+    case "F3":
+        e.preventDefault();
+        if(modal.open) document.getElementById("pg_credito").click();
+    break;
+
+    case "F4":
+        e.preventDefault();
+        if(modal.open) document.getElementById("pg_debito").click();
+    break;
+
+    case "F5":
+        e.preventDefault();
+        if(modal.open) document.getElementById("pg_pix").click();
+    break;
+
+    case "F6":
+        e.preventDefault();
+        if(!nova_venda.disabled) nova_venda.click();
+    break;
+
+    case "F7":
+         e.preventDefault();
+         document.getElementById("b_agend").click();
+    break; 
+
+}
+});
 </script>
 </body>
 </html>

@@ -67,6 +67,38 @@ body.fundo-laranja .icon-pdv { background-image: url('images/pdv_p.png'); }
 body.fundo-laranja .icon-estoque { background-image: url('images/estoque_p.png'); }
 body.fundo-laranja .icon-agendamento { background-image: url('images/agendamento_p.png'); }
 
+/* --- TEMA 3: FUNDO MARROM --- */
+body.fundo-marrom {
+    background-color: #2b211d;
+}
+
+/* Header + Sidebar */
+body.fundo-marrom .custom-header, 
+body.fundo-marrom .custom-sidebar { 
+    background-color: #f1b869; 
+    border-color: #f1b869; 
+}
+
+/* Texto */
+body.fundo-marrom .nav-text, 
+body.fundo-marrom #btn-menu { 
+    color: #242628; 
+}
+
+/* Logo (usa a mesma laranja) */
+body.fundo-marrom .logo-container { content: url('images/logo_p.png'); width: 200px; }
+
+/* Ícones (mantém padrão laranja) */
+body.fundo-marrom .icon-inicio { background-image: url('images/inicio_p.png'); }
+body.fundo-marrom .icon-pdv { background-image: url('images/pdv_p.png'); }
+body.fundo-marrom .icon-estoque { background-image: url('images/estoque_p.png'); }
+body.fundo-marrom .icon-agendamento { background-image: url('images/agendamento_p.png'); }
+
+/* Nome usuário */
+body.fundo-marrom .user-name{
+    color: #242628;
+}
+
 /* --- HEADER --- */
 .custom-header {
     height: var(--header-height);
