@@ -80,6 +80,9 @@
   <button id="b_agend">Agendamento</button>
   <button id="b_canc">Cancelar(ESC)</button>
 </section>
+<div id="erro_overlay">
+    <div id="erro_box">PRODUTO NÃO CADASTRADO</div>
+</div>
 
 <script>
     // Seletores
@@ -133,9 +136,19 @@
             if (!res.ok) throw new Error("Produto não encontrado");
             return res.json();
         })
+        
         .then(data => {
             const produto = data[0];
-            img_prod.src = produto.img ? URL_BACKEND_CAD + produto.img : IMG_PADRAO;
+
+            // CORREÇÃO AQUI: 
+            // Verificamos se existe a imagem e montamos com a barra "/"
+            if (produto.img) {
+                img_prod.src = URL_BACKEND_CAD + "/" + produto.img;
+            } else {
+                img_prod.src = IMG_PADRAO;
+            }
+
+            // A LINHA QUE ESTAVA AQUI EMBAIXO FOI REMOVIDA POIS ESTAVA ERRADA E REPETIDA
 
             if (carrinho[codigo]) {
                 carrinho[codigo].qtd++;
@@ -166,8 +179,15 @@
         })
         .catch(err => {
             console.error(err);
-            alert("Produto não encontrado!");
+
+            document.getElementById("erro_overlay").style.display = "flex";
+
+            img_prod.src = IMG_PADRAO;
             inp_codb.value = "";
+
+            setTimeout(() => {
+                document.getElementById("erro_overlay").style.display = "none";
+            }, 1500);
         });
     });
 

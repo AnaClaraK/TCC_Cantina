@@ -1,7 +1,19 @@
 /* ============================================================
+   0. IMPORTAÇÃO DE FONTES EXTERNAS
+   ============================================================ */
+@font-face {
+    font-family: 'Roca One';
+    /* Certifique-se de que os arquivos estejam na pasta 'fonts' ao lado do seu CSS */
+    src: url('fonts/roca-one-regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap; /* Melhora o carregamento da página */
+}
+
+/* ============================================================
    1. RESET E VARIÁVEIS GLOBAIS
    ============================================================ */
-   * {
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -10,7 +22,7 @@
 :root {
     --sidebar-width: 250px;
     --sidebar-collapsed-width: 70px;
-    --header-height: 60px;
+    --header-height: 65px;
     --cor-laranja: #f1b869;
     --cor-escuro: #2b1f14;
     --cor-grafite: #242628;
@@ -23,12 +35,12 @@
    ============================================================ */
 body {
     background-color: var(--cor-laranja);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* AQUI VOCÊ MODIFICA A FONTE PRINCIPAL */
+    font-family: 'Roca One', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: grid;
     height: 100vh;
-    overflow: hidden; /* Evita scroll na tela toda */
+    overflow: hidden;
     
-    /* grid-template: 3 áreas principais */
     grid-template-rows: auto 1fr auto;
     grid-template-columns: 1.2fr 1fr;
     grid-template-areas:
@@ -36,110 +48,44 @@ body {
         "inputs   tabela"
         "modal    tabela";
 
-    /* Espaço para o Header e Sidebar fixos */
     padding: 75px 15px 15px 85px; 
     gap: 15px;
     transition: padding-left 0.3s ease;
 }
 
-/* Ajustes de layout para Sidebar aberta ou ausente */
 body.sidebar-open { padding-left: 265px; }
 body.sem-sidebar { padding-left: 15px !important; }
 
 /* ============================================================
-   3. HEADER E SIDEBAR (FIXOS)
+   3. CONFIGURAÇÃO DOS INPUTS (ALINHAMENTO EM CIMA)
    ============================================================ */
-.custom-header {
-    height: var(--header-height);
-    width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    background: var(--cor-laranja);
-    display: flex;
-    align-items: center;
-    padding: 0 20px;
-    z-index: 1000;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.custom-sidebar {
-    width: var(--sidebar-collapsed-width);
-    height: 100vh;
-    position: fixed;
-    left: 0;
-    top: 0;
-    background: var(--cor-laranja);
-    transition: width 0.3s ease;
-    overflow: hidden;
-    z-index: 999;
-    padding-top: var(--header-height);
-}
-
-body.sidebar-open .custom-sidebar { width: var(--sidebar-width); }
-
-/* Temas Escuros */
-body.fundo-escuro .custom-header, 
-body.fundo-escuro .custom-sidebar { 
-    background-color: var(--cor-grafite); 
-    border-color: #444; 
-}
-body.fundo-escuro #btn-menu, body.fundo-escuro .nav-link { color: var(--cor-laranja); }
-
-/* ============================================================
-   4. LADO ESQUERDO: INPUTS E IMAGEM (ALINHAMENTO CORRIGIDO)
-   ============================================================ */
-   #sc_inputs {
+#sc_inputs {
     grid-area: inputs;
     background-color: var(--cor-escuro);
     border-radius: 12px;
     padding: 20px;
     display: grid;
-    /* Criamos 3 colunas iguais */
     grid-template-columns: repeat(3, 1fr); 
-    gap: 10px;
+    gap: 15px;
     align-content: start;
+    /* Ajustado para 4 linhas: inputs, visores, imagem e total */
+    grid-template-rows: auto auto auto auto;
 }
 
-/* Títulos e Visores de Código e Total da Compra (Ocupam a linha toda) */
-#sc_inputs h2:first-of-type, 
-#inp_codb,
-#h_ttl_c, 
-#d_ttl_c {
-    grid-column: 1 / span 3;
-}
-
-/* Alinhamento da linha do meio: Quantidade, Valor e Total Item */
-#h_qtd, #d_qtd, 
-#h_vl_und, #d_vl_und, 
-#h_ttl_i, #d_ttl_i {
-    grid-column: span 1;
-}
-
-/* Foto ocupa 2 colunas na esquerda */
-#img_prod {
-    grid-column: span 2;
-    grid-row: span 4; /* Faz a foto 'esticar' para baixo ao lado dos inputs */
-    width: 100%;
-    height: 280px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-top: 10px;
-}
-
-/* Campos de Desconto e Total (que ficam à direita da foto) */
-/* Se você tiver IDs para Desconto no HTML, adicione-os aqui */
-#h_desconto, #d_desconto, /* Exemplo de IDs */
-#h_ttl_c, #d_ttl_c {
-    grid-column: 3; /* Força a ficar na terceira coluna, ao lado da foto */
+/* A MÁGICA PARA O TEXTO FICAR EM CIMA */
+.grupo-input {
+    display: flex;
+    flex-direction: column; /* Alinha título em cima do input */
+    gap: 5px; /* Espaço entre o texto e o visor */
 }
 
 .titulo {
     color: var(--cor-laranja);
-    font-size: 0.9rem;
+    /* MODIFIQUE O TAMANHO DOS TÍTULOS DOS INPUTS AQUI */
+    font-size: 1.4rem;
     font-weight: 600;
-    margin-bottom: 2px;
-    text-align: left; /* Alinhado à esquerda como no seu print */
+    margin-bottom: 0; 
+    text-align: left;
 }
 
 #inp_codb, .inp_val {
@@ -153,11 +99,44 @@ body.fundo-escuro #btn-menu, body.fundo-escuro .nav-link { color: var(--cor-lara
     align-items: center;
     padding: 0 12px;
     width: 100%;
+    /* MODIFIQUE O TAMANHO DO TEXTO DENTRO DOS VISORES AQUI */
+    font-size: 1.5rem;
 }
+
+/* FOTO DO PRODUTO */
+#img_prod {
+    grid-column: span 2;
+    grid-row: 3 / span 2; /* Ocupa o espaço ao lado do total */
+    width: 80%;
+    height: 480px;
+    object-fit: contain;
+    background-color: #fff;
+    border-radius: 8px;
+    border: 2px solid #ddd;
+    margin-top: 10px;
+    display: block;
+    padding: 10px;
+    margin-left: 60px;
+}
+
+/* ADICIONADO: Move o Total da Compra para alinhar com o final da imagem e aumenta o visor */
+#sc_inputs .grupo-input:last-of-type {
+    grid-column: 3;
+    grid-row: 4; /* Posicionado na linha final do bloco de imagem */
+    align-self: end; /* Gruda no fundo */
+}
+
+/* ESTILO ESPECÍFICO DO VISOR DE TOTAL DA COMPRA (Aumentado como pedido) */
+#d_ttl_c {
+    height: 60px; /* Aumentado de 42px para 60px */
+    /* MODIFIQUE O TAMANHO DA FONTE DO TOTAL DA COMPRA AQUI */
+    font-size: 2.2rem; 
+}
+
 /* ============================================================
-   5. LADO DIREITO: TABELA
+   4. LADO DIREITO: TABELA
    ============================================================ */
-   #sc_tabela {
+#sc_tabela {
     grid-area: tabela;
     background-color: #fff;
     border-radius: 12px;
@@ -170,16 +149,9 @@ table {
     border-collapse: collapse;
 }
 
-/* ZEBRA CORRIGIDA */
-/* Aplica cor nas linhas PARES */
-.tabela tbody tr:nth-child(even) {
-    background-color: #e5b066;
-}
-
-/* Aplica cor nas linhas ÍMPARES */
-.tabela tbody tr:nth-child(odd) {
-    background-color: #f2c57c;
-}
+/* EFEITO ZEBRA CORRIGIDO (Usando cores da sua imagem) */
+table tbody tr:nth-child(even) { background-color: #d9d9d9; }
+table tbody tr:nth-child(odd) { background-color: #ffffff; }
 
 th {
     background-color: #f1b869;
@@ -187,21 +159,29 @@ th {
     padding: 15px;
     position: sticky;
     top: 0;
-    z-index: 10; /* Garante que o header fique sobre as linhas */
+    z-index: 10;
+    /* MODIFIQUE O TAMANHO DO CABEÇALHO DA TABELA AQUI */
+    font-size: 1rem;
+    border-right: 3px solid #1c1c1c; /* LINHA VERTICAL */
 }
 
 td {
     padding: 12px;
-    border-bottom: 1px solid rgba(0,0,0,0.05); /* Borda sutil para não brigar com a zebra */
     text-align: center;
-    color: #2b1f14; /* Cor mais escura para melhor leitura sobre o laranja */
+    color: #2b1f14;
     font-weight: 500;
+    /* MODIFIQUE O TAMANHO DO TEXTO DA TABELA AQUI */
+    font-size: 0.95rem;
+    border-right: 3px solid #1c1c1c; /* LINHA VERTICAL */
 }
 
-/* Removi a regra antiga que forçava cinza (f9f9f9) e causava conflito */
+/* REMOVE LINHA VERTICAL DA ÚLTIMA COLUNA */
+th:last-child, td:last-child {
+    border-right: none;
+}
 
 /* ============================================================
-   6. RODAPÉ E MODAL
+   5. RODAPÉ E MODAL
    ============================================================ */
 #sc_modal {
     grid-area: modal;
@@ -216,6 +196,8 @@ td {
     font-weight: bold;
     cursor: pointer;
     transition: 0.2s;
+    /* MODIFIQUE O TAMANHO DOS BOTÕES DE AÇÃO AQUI */
+    font-size: 1rem;
 }
 
 #b_agend { background-color: #f1b869; color: var(--cor-escuro); }
@@ -224,26 +206,23 @@ td {
 
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* Dialog do Modal */
-#d_modal {
-    border: none;
-    border-radius: 15px;
-    width: 400px;
-    margin: auto;
-    padding: 25px;
-    background-color: var(--cor-escuro);
-    color: var(--cor-laranja);
+/* Estilos de Erro */
+#erro_overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
 }
 
-#d_modal::backdrop { background: rgba(0,0,0,0.7); }
-
-.pagamento {
-    width: 100%;
-    background: var(--cor-laranja);
-    color: var(--cor-escuro);
-    padding: 10px;
-    margin-top: 8px;
-    border-radius: 5px;
-    border: none;
+#erro_box {
+    background: #fff;
+    color: #b00020;
+    padding: 40px 60px;
+    border-radius: 12px;
+    /* MODIFIQUE O TAMANHO DO ALERTA DE ERRO AQUI */
+    font-size: 2rem;
     font-weight: bold;
 }
