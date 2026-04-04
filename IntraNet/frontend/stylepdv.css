@@ -11,7 +11,7 @@
     --sidebar-width: 250px;
     --sidebar-collapsed-width: 70px;
     --header-height: 60px;
-    --cor-laranja: #f0a830;
+    --cor-laranja: #f1b869;
     --cor-escuro: #2b1f14;
     --cor-grafite: #242628;
     --btn-cancel: #e06060;
@@ -87,17 +87,51 @@ body.fundo-escuro .custom-sidebar {
 body.fundo-escuro #btn-menu, body.fundo-escuro .nav-link { color: var(--cor-laranja); }
 
 /* ============================================================
-   4. LADO ESQUERDO: INPUTS E IMAGEM
+   4. LADO ESQUERDO: INPUTS E IMAGEM (ALINHAMENTO CORRIGIDO)
    ============================================================ */
-#sc_inputs {
+   #sc_inputs {
     grid-area: inputs;
     background-color: var(--cor-escuro);
     border-radius: 12px;
     padding: 20px;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    /* Criamos 3 colunas iguais */
+    grid-template-columns: repeat(3, 1fr); 
     gap: 10px;
     align-content: start;
+}
+
+/* Títulos e Visores de Código e Total da Compra (Ocupam a linha toda) */
+#sc_inputs h2:first-of-type, 
+#inp_codb,
+#h_ttl_c, 
+#d_ttl_c {
+    grid-column: 1 / span 3;
+}
+
+/* Alinhamento da linha do meio: Quantidade, Valor e Total Item */
+#h_qtd, #d_qtd, 
+#h_vl_und, #d_vl_und, 
+#h_ttl_i, #d_ttl_i {
+    grid-column: span 1;
+}
+
+/* Foto ocupa 2 colunas na esquerda */
+#img_prod {
+    grid-column: span 2;
+    grid-row: span 4; /* Faz a foto 'esticar' para baixo ao lado dos inputs */
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+/* Campos de Desconto e Total (que ficam à direita da foto) */
+/* Se você tiver IDs para Desconto no HTML, adicione-os aqui */
+#h_desconto, #d_desconto, /* Exemplo de IDs */
+#h_ttl_c, #d_ttl_c {
+    grid-column: 3; /* Força a ficar na terceira coluna, ao lado da foto */
 }
 
 .titulo {
@@ -105,11 +139,7 @@ body.fundo-escuro #btn-menu, body.fundo-escuro .nav-link { color: var(--cor-lara
     font-size: 0.9rem;
     font-weight: 600;
     margin-bottom: 2px;
-}
-
-/* Input de código ocupa a linha toda */
-#sc_inputs h2:first-of-type, #inp_codb {
-    grid-column: span 3;
+    text-align: left; /* Alinhado à esquerda como no seu print */
 }
 
 #inp_codb, .inp_val {
@@ -122,23 +152,12 @@ body.fundo-escuro #btn-menu, body.fundo-escuro .nav-link { color: var(--cor-lara
     display: flex;
     align-items: center;
     padding: 0 12px;
-}
-
-#img_prod {
-    grid-column: span 2;
     width: 100%;
-    height: 280px;
-    object-fit: cover;
-    border-radius: 8px;
-    background-color: #333;
-    border: 2px solid #444;
-    margin-top: 10px;
 }
-
 /* ============================================================
    5. LADO DIREITO: TABELA
    ============================================================ */
-#sc_tabela {
+   #sc_tabela {
     grid-area: tabela;
     background-color: #fff;
     border-radius: 12px;
@@ -151,22 +170,35 @@ table {
     border-collapse: collapse;
 }
 
+/* ZEBRA CORRIGIDA */
+/* Aplica cor nas linhas PARES */
+.tabela tbody tr:nth-child(even) {
+    background-color: #e5b066;
+}
+
+/* Aplica cor nas linhas ÍMPARES */
+.tabela tbody tr:nth-child(odd) {
+    background-color: #f2c57c;
+}
+
 th {
-    background-color: var(--cor-escuro);
-    color: var(--cor-laranja);
+    background-color: #f1b869;
+    color: #000000;
     padding: 15px;
     position: sticky;
     top: 0;
+    z-index: 10; /* Garante que o header fique sobre as linhas */
 }
 
 td {
     padding: 12px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid rgba(0,0,0,0.05); /* Borda sutil para não brigar com a zebra */
     text-align: center;
-    color: #333;
+    color: #2b1f14; /* Cor mais escura para melhor leitura sobre o laranja */
+    font-weight: 500;
 }
 
-tbody tr:nth-child(even) { background-color: #f9f9f9; }
+/* Removi a regra antiga que forçava cinza (f9f9f9) e causava conflito */
 
 /* ============================================================
    6. RODAPÉ E MODAL
@@ -186,7 +218,7 @@ tbody tr:nth-child(even) { background-color: #f9f9f9; }
     transition: 0.2s;
 }
 
-#b_agend { background-color: #fff; color: var(--cor-escuro); }
+#b_agend { background-color: #f1b869; color: var(--cor-escuro); }
 #b_canc { background-color: var(--btn-cancel); color: #fff; }
 #b_final { background-color: var(--btn-finish); color: #fff; margin-left: auto; }
 
