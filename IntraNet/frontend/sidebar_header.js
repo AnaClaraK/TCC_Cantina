@@ -2,7 +2,7 @@ const headerHTML = `
 <header class="custom-header">
     <div style="display: flex; align-items: center;">
         <button id="btn-menu">☰</button>
-        <span><img class="l_img" data-name="logo" src="images/logo_p.png"/></span>
+        <span><img class="l_img" data-name="logo" src="imagens/logo_p.png"/></span>
     </div>
 </header>
 `;
@@ -19,35 +19,35 @@ const sidebarHTML = `
     </a>
     <nav>
         <a href="index.html" class="nav-link">
-            <img class="i_img" data-name="inicio" src="images/inicio_p.png"/> 
+            <img class="i_img" data-name="inicio" src="imagens/inicio_p.png"/> 
             <span class="nav-text">Início</span>
         </a>
         <a href="pdv.html" class="nav-link">
-            <img class="i_img" data-name="pdv" src="images/pdv_p.png"/> 
+            <img class="i_img" data-name="pdv" src="imagens/pdv_p.png"/> 
             <span class="nav-text">PDV</span>
         </a>
         <a href="estoque.html" class="nav-link">
-            <img class="i_img" data-name="estoque" src="images/estoque_p.png"/> 
+            <img class="i_img" data-name="estoque" src="imagens/estoque_p.png"/> 
             <span class="nav-text">Estoque</span>
         </a>
         <a href="agendamento.html" class="nav-link">
-            <img class="i_img" data-name="agendamento" src="images/agendamento_p.png"/> 
+            <img class="i_img" data-name="agendamento" src="imagens/agendamento_p.png"/> 
             <span class="nav-text">Agendamentos</span>
         </a>
         <a href="pedidos.html" class="nav-link">
-            <img class="i_img" data-name="pedidos" src="images/pedidos_p.png"/> 
+            <img class="i_img" data-name="pedidos" src="imagens/pedidos_p.png"/> 
             <span class="nav-text">Pedidos</span>
         </a>
         <a href="compras.html" class="nav-link">
-            <img class="i_img" data-name="compras" src="images/compras_p.png"/> 
+            <img class="i_img" data-name="compras" src="imagens/compras_p.png"/> 
             <span class="nav-text">Compras</span>
         </a>
         <a href="cadastrop.html" class="nav-link">
-            <img class="i_img" data-name="cadastrop" src="images/cadastrop_p.png"/> 
+            <img class="i_img" data-name="cadastrop" src="imagens/cadastrop_p.png"/> 
             <span class="nav-text">Cadastro de <br> Produtos</span>
         </a>
         <a href="cadastrof.html" class="nav-link">
-            <img class="i_img" data-name="cadastrof" src="images/cadastrof_p.png"/> 
+            <img class="i_img" data-name="cadastrof" src="imagens/cadastrof_p.png"/> 
             <span class="nav-text">Cadastro de <br> Funcionários</span>
         </a>
     </nav>
@@ -74,7 +74,7 @@ function carregarMenu() {
             if (fotoBanco && fotoBanco !== "null") {
                 elFoto.src = "http://localhost:3000" + fotoBanco;
             } else {
-                elFoto.src = "images/def_avt.jpg"; 
+                elFoto.src = "../backend/imagens/def_avt.jpg"; 
             }
         }
 
@@ -101,8 +101,18 @@ function carregarMenu() {
     imagens.forEach(img => {
         const nomeBase = img.getAttribute('data-name');
         if (nomeBase) {
-            img.src = `images/${nomeBase}${sufixo}.png`;
+            img.src = `../backend/imagens/${nomeBase}${sufixo}.png`;
         }
+        const links = document.querySelectorAll('.nav-link');
+const paginaAtual = window.location.pathname.split("/").pop();
+
+links.forEach(link => {
+    const href = link.getAttribute('href');
+
+    if(href === paginaAtual){
+        link.classList.add('ativo');
+    }
+});
     });
 }
 

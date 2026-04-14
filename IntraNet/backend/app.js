@@ -4,7 +4,7 @@ const crypto = require('crypto')
 const multer = require("multer");
 const path = require("path");
 const conexao = require('./db.js') // Certifique-se que o db.js está na mesma pasta
-
+const fs = require('fs')
 const app = express()
 const porta = 3000
 
@@ -31,7 +31,7 @@ app.listen(porta, () => {
 // Configuração do Multer para upload de fotos
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "imagens/");
+    cb(null, "images/");
   },
   filename: function (req, file, cb) {
     const nomeUnico = Date.now() + path.extname(file.originalname);
@@ -84,7 +84,7 @@ app.post("/login", async (req, res) => {
       const { email, senha } = req.body;
       const senhaHashed = crypto.createHash("sha256").update(senha.trim()).digest("hex");
 
-      const sql = `SELECT id, nome, email, senha, foto FROM cadastro WHERE email = ?`;
+      const sql = `SELECT id_cadastro, nome, email, senha, img FROM cadastro WHERE email = ?`;
       let [usuarios] = await conexao.query(sql, [email]);
 
       if (usuarios.length === 0 || usuarios[0].senha !== senhaHashed) {
@@ -98,7 +98,7 @@ app.post("/login", async (req, res) => {
           "resposta": "Login realizado com sucesso!",
           "usuario": {
               "nome": usuario.nome,
-              "foto": usuario.foto,
+              "foto": usuario.img,
               "email": usuario.email
           }
       });
@@ -106,6 +106,57 @@ app.post("/login", async (req, res) => {
   } catch (error) {
       console.error("Erro no login:", error);
       return res.status(500).json({ "resposta": "Erro interno." });
+  }
+});
+ // ----- Atualizar perfil
+app.put("/perfil/atualizar", upload.single('imagem'), async (req, res) => {
+  try {
+      const { nome, email, emailAntigo, nova_senha, conf_senha } = req.body;
+      let novaFotoPath = null;
+
+      // Se o usuário enviou uma foto nova
+      if (req.file) {
+          novaFotoPath = `images/${req.file.filename}`;
+      }
+
+      // Validação básica de senha
+      let senhaSql = "";
+      let params = [nome, email];
+
+      if (nova_senha && nova_senha === conf_senha) {
+          const senhaHashed = crypto.createHash("sha256").update(nova_senha.trim()).digest("hex");
+          senhaSql = `, senha = ?`;
+          params.push(senhaHashed);
+      }
+
+      // Se houver foto nova, adiciona ao SQL
+      let fotoSql = "";
+      if (novaFotoPath) {
+          fotoSql = `, img = ?`;
+          params.push(novaFotoPath);
+      }
+
+      // O emailAntigo é usado no WHERE para saber qual usuário atualizar
+      params.push(emailAntigo);
+
+      const sql = `UPDATE cadastro SET nome = ?, email = ? ${senhaSql} ${fotoSql} WHERE email = ?`;
+      
+      const [resultado] = await conexao.query(sql, params);
+
+      if (resultado.affectedRows > 0) {
+          return res.json({
+              "resposta": "Perfil atualizado com sucesso!",
+              "novoNome": nome,
+              "novoEmail": email,
+              "novaFoto": novaFotoPath // Retorna o novo caminho para o frontend atualizar o localStorage
+          });
+      } else {
+          return res.status(400).json({ "resposta": "Usuário não encontrado ou sem alterações." });
+      }
+
+  } catch (error) {
+      console.error("Erro ao atualizar perfil:", error);
+      return res.status(500).json({ "resposta": "Erro interno ao atualizar." });
   }
 });
 

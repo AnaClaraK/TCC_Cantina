@@ -67,20 +67,25 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Puxa do localStorage (que foi preenchido no login)
             const nome = localStorage.getItem("usuarioNome");
             const email = localStorage.getItem("usuarioEmail");
             const foto = localStorage.getItem("usuarioFoto");
 
+            console.log("Foto recuperada do localStorage:", foto);
+
             if(nome) document.getElementById('edit-nome').value = nome;
             if(email) document.getElementById('edit-email').value = email;
             
-            // Só define o SRC se a foto existir no banco
-            if(foto && foto !== "null") {
-                document.getElementById('preview-perfil').src = "http://localhost:3000" + foto;
+            const preview = document.getElementById('preview-perfil');
+
+            // Verifica se a foto existe, se não é a string "null" ou "undefined"
+            if(foto && foto !== "null" && foto !== "undefined" && foto !== "") {
+                // Se o caminho não começar com /, nós adicionamos. Se já tiver, mantemos.
+                const caminhoTratado = foto.startsWith('/') ? foto : '/' + foto;
+                preview.src = "http://localhost:3000" + caminhoTratado;
             } else {
-                // Imagem padrão caso o usuário não tenha foto
-                document.getElementById('preview-perfil').src = "images/def_avt.jpg";
+                // Imagem padrão
+                preview.src = "images/def_avt.jpg";
             }
         });
 

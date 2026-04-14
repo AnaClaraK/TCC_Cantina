@@ -13,7 +13,7 @@
             <div class="container-respostas">
                 <label for="email">E-mail</label>
                 <input type="email" id="email" placeholder="Digite seu email">
-                <br><br>
+                <br>
                 <label for="senha">Senha</label>
                 <input type="password" id="senha" placeholder="Sua senha">
             </div>
@@ -58,6 +58,15 @@
                     setTimeout(() => {
                         window.location.href = 'index.html';
                     }, 1000);
+                        const dados = await resposta.json();
+                        console.log("Dados recebidos do login:", dados); // ADICIONE ISSO PARA TESTAR
+
+                        localStorage.setItem("usuarioNome", dados.usuario.nome);
+                        localStorage.setItem("usuarioEmail", dados.usuario.email);
+
+                        // Se der undefined, verifique no console se o nome é 'foto' ou outro
+                        const fotoCaminho = dados.usuario.foto || ""; 
+                        localStorage.setItem("usuarioFoto", fotoCaminho);
 
                 } else {
                     containerFimEl.classList.add('container-fim-error');
