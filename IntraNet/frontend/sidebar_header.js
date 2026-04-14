@@ -38,7 +38,7 @@ const sidebarHTML = `
             <img class="i_img" data-name="pedidos" src="imagens/pedidos_p.png"/> 
             <span class="nav-text">Pedidos</span>
         </a>
-        <a href="compras.html" class="nav-link">
+        <a href="reposicao.html" class="nav-link">
             <img class="i_img" data-name="compras" src="imagens/compras_p.png"/> 
             <span class="nav-text">Compras</span>
         </a>
