@@ -44,88 +44,70 @@ const upload = multer({ storage });
 //---------------------------------------------------------------------------------
 
 //--------Funcionários
-app.post("/cadastro", async (req, res) => {
+app.post("/cadastro", upload.single("imagem"), async (req, res) => {
   try {
-      const { email, senha, confsenha } = req.body
+      // Agora recebemos também o 'nome' e 'confsenha' do body
+      const { nome, email, senha, confsenha } = req.body;
 
-      // 1. Validações de preenchimento
-      if (!email || email.trim() === "") {
-          return res.status(400).json({ "resposta": "Preencha o e-mail" })
-      } 
-      if (!email.includes('@') || !email.includes('.')) {
-          return res.status(400).json({ "resposta": "O e-mail deve ter o formato correto" })
-      } 
-      if (!senha || senha.trim() === "") {
-          return res.status(400).json({ "resposta": "Preencha a senha" })
-      }
-      // Nota: Se o frontend não enviar confsenha, a validação abaixo retornará erro.
-      if (!confsenha || confsenha.trim() === "") {
-          return res.status(400).json({ "resposta": "Confirme a senha" })
-      }
-      if (senha.trim() !== confsenha.trim()) {
-          return res.status(400).json({ "resposta": "As senhas não coincidem" })
-      }
+      const imagem = req.file
+          ? "/imagens/" + req.file.filename
+          : "/imagens/default-user.png"; // Uma imagem padrão caso não envie foto
+
+      // 1. Validações
+      if (!nome || nome.trim() === "") return res.status(400).json({ "resposta": "Preencha o nome" });
+      if (!email || !email.includes('@')) return res.status(400).json({ "resposta": "E-mail inválido" });
+      if (senha !== confsenha) return res.status(400).json({ "resposta": "As senhas não coincidem" });
 
       // 2. Verificar se o usuário já existe
-      const [usuarios] = await conexao.query("SELECT * FROM cadastro WHERE email = ?", [email])
-      
+      const [usuarios] = await conexao.query("SELECT * FROM cadastro WHERE email = ?", [email]);
       if (usuarios.length > 0) {
-          return res.status(400).json({ "resposta": "Este e-mail já está cadastrado." })
+          return res.status(400).json({ "resposta": "Este e-mail já está cadastrado." });
       }
 
       // 3. Criptografar a senha
-      const senhaHashed = crypto.createHash("sha256").update(senha.trim()).digest("hex")
+      const senhaHashed = crypto.createHash("sha256").update(senha.trim()).digest("hex");
 
-      // 4. SALVAR no banco de dados (O que faltava)
-      const sql = "INSERT INTO cadastro (email, senha) VALUES (?, ?)"
-      await conexao.query(sql, [email, senhaHashed])
+      // 4. SALVAR (Incluindo nome e foto)
+      // Certifique-se de que sua tabela 'cadastro' tenha as colunas 'nome' e 'foto'
+      const sql = "INSERT INTO cadastro (nome, email, senha, foto) VALUES (?, ?, ?, ?)";
+      await conexao.query(sql, [nome, email, senhaHashed, imagem]);
 
-      return res.status(201).json({ "resposta": "Cadastro realizado com sucesso!" })
+      return res.status(201).json({ "resposta": "Cadastro realizado com sucesso!" });
 
   } catch (error) {
-      console.error("Erro no processo de cadastro:", error)
-      return res.status(500).json({ "resposta": "Erro interno do Servidor." })
+      console.error("Erro no cadastro:", error);
+      return res.status(500).json({ "resposta": "Erro interno do Servidor." });
   }
-})
-
+});
 app.post("/login", async (req, res) => {
   try {
-      const { email } = req.body
-      let { senha } = req.body
+      const { email, senha } = req.body;
+      const senhaHashed = crypto.createHash("sha256").update(senha.trim()).digest("hex");
 
-      senha = senha.trim()
+      const sql = `SELECT id, nome, email, senha, foto FROM cadastro WHERE email = ?`;
+      let [usuarios] = await conexao.query(sql, [email]);
 
-      if (email == "") {
-          return res.status(400).json({ "resposta": "Preencha o e-mail" })
-      } else if (!email.includes('@') || !email.includes('.')) {
-          return res.status(400).json({ "resposta": "O e-mail deve ter o formato correto" })
-      } else if (senha == "") {
-          return res.status(400).json({ "resposta": "Preencha a senha" })
+      if (usuarios.length === 0 || usuarios[0].senha !== senhaHashed) {
+          return res.status(401).json({ "resposta": "E-mail ou senha inválidos." });
       }
 
-      const senhaHashed = crypto.createHash("sha256").update(senha).digest("hex")
+      const usuario = usuarios[0];
 
-      const sql = `SELECT * FROM cadastro WHERE email = ?`
-
-      let [usuarios] = await conexao.query(sql, [email])
-      
-      if (usuarios.length === 0) {
-          return res.status(401).json({ "resposta": "E-mail ou senha inválidos." })
-      }
-
-      const usuario = usuarios[0]
-      
-      if (usuario.senha === senhaHashed) {
-          return res.json({ "resposta": "Login realizado com sucesso!" })
-      } else {
-          return res.status(401).json({ "resposta": "E-mail ou senha inválidos." })
-      }
+      // Retornamos os dados que a sidebar vai precisar
+      return res.json({
+          "resposta": "Login realizado com sucesso!",
+          "usuario": {
+              "nome": usuario.nome,
+              "foto": usuario.foto,
+              "email": usuario.email
+          }
+      });
 
   } catch (error) {
-      console.error("Erro no processo de login:", error)
-      return res.status(500).json({ "resposta": "Erro interno do Servidor." })
+      console.error("Erro no login:", error);
+      return res.status(500).json({ "resposta": "Erro interno." });
   }
-})
+});
 
 //--------- PRODUTOS (PDV e Cadastro)
 
