@@ -1,4 +1,3 @@
-// 1. Definição do Header
 const headerHTML = `
 <header class="custom-header">
     <div style="display: flex; align-items: center;">
@@ -8,13 +7,16 @@ const headerHTML = `
 </header>
 `;
 
-// 2. Definição da Sidebar
 const sidebarHTML = `
 <aside class="custom-sidebar">
-    <div class="user-info">
-        <div class="user-photo"><img class="p_img" src="images/jimin.jpg"/></div>
-        <div class="user-name">Ana Banana</div>
-    </div>
+    <a href="editarpf.html" style="text-decoration: none; color: inherit;">
+        <div class="user-info">
+            <div class="user-photo">
+                <img id="sidebar-foto" class="p_img" src=""/> 
+            </div>
+             <div id="sidebar-nome" class="user-name"></div>
+        </div>
+    </a>
     <nav>
         <a href="index.html" class="nav-link">
             <img class="i_img" data-name="inicio" src="images/inicio_p.png"/> 
@@ -44,27 +46,42 @@ const sidebarHTML = `
             <img class="i_img" data-name="cadastrop" src="images/cadastrop_p.png"/> 
             <span class="nav-text">Cadastro de <br> Produtos</span>
         </a>
+        <a href="cadastrof.html" class="nav-link">
+            <img class="i_img" data-name="cadastrof" src="images/cadastrof_p.png"/> 
+            <span class="nav-text">Cadastro de <br> Funcionários</span>
+        </a>
     </nav>
 </aside>
 `;
 
 function carregarMenu() {
     const body = document.body;
-
-    // A. INSERE O HEADER (Sempre aparece)
     body.insertAdjacentHTML('afterbegin', headerHTML);
 
-    // B. VERIFICA SE DEVE INSERIR A SIDEBAR
     if (!body.classList.contains('sem-sidebar')) {
-        // Inserção da Sidebar
         body.insertAdjacentHTML('beforeend', sidebarHTML);
         
-        // Garante que comece fechada se você não tiver a classe open
+        const nomeBanco = localStorage.getItem("usuarioNome");
+        const fotoBanco = localStorage.getItem("usuarioFoto");
+        const elNome = document.getElementById("sidebar-nome");
+        const elFoto = document.getElementById("sidebar-foto");
+
+        if (elNome) {
+            elNome.innerText = nomeBanco || "Convidado";
+        }
+
+        if (elFoto) {
+            if (fotoBanco && fotoBanco !== "null") {
+                elFoto.src = "http://localhost:3000" + fotoBanco;
+            } else {
+                elFoto.src = "images/def_avt.jpg"; 
+            }
+        }
+
         if(!body.classList.contains('sidebar-open')) {
              body.classList.add('sidebar-closed');
         }
 
-        // Lógica do Botão Menu para abrir/fechar
         const btn = document.getElementById('btn-menu');
         if (btn) {
             btn.addEventListener('click', () => {
@@ -72,21 +89,13 @@ function carregarMenu() {
                 body.classList.toggle('sidebar-closed');
             });
         }
-    } else {
-        // Se NÃO tem sidebar, esconde o botão de hambúrguer
-        const btn = document.getElementById('btn-menu');
-        if (btn) btn.style.display = 'none';
     }
 
-    // C. LÓGICA DAS CORES DOS ÍCONES (Sufixo _p ou _l)
-    let sufixo = '_l'; // padrão (fundo-escuro)
-
-        if (
-            body.classList.contains('fundo-laranja') ||
-            body.classList.contains('fundo-marrom')
-        ) {
-            sufixo = '_p';
-        }
+    // Cores dos ícones
+    let sufixo = '_l'; 
+    if (body.classList.contains('fundo-laranja') || body.classList.contains('fundo-marrom')) {
+        sufixo = '_p';
+    }
 
     const imagens = document.querySelectorAll('.i_img, .l_img');
     imagens.forEach(img => {

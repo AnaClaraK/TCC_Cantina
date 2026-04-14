@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="sidebar_header.js"></script>
+    <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="stylecadp.css">
+    <title>Editar Perfil</title>
+    <style>
+        .user-photo-grande {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 5px solid #efac4a;
+            margin: 20px auto;
+            background-color: #444; /* Cor de fundo enquanto a foto não carrega */
+        }
+        .user-photo-grande img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .label-amarela {
+            color: #efac4a;
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+        .secao-divisora {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 2px solid #efac4a;
+        }
+    </style>
+</head>
+<body class="fundo-escuro">
+
+    <form id="formPerfil" enctype="multipart/form-data">
+        <h2>Editar Meu Perfil</h2>
+
+        <div class="user-photo-grande">
+            <img id="preview-perfil" src=""/>
+        </div>
+
+        <label class="file-label">
+            Trocar Imagem de Perfil
+            <input type="file" name="imagem" id="inputImagemPerfil" accept="image/*">
+        </label>
+
+        <label class="label-amarela">Nome</label>
+        <input type="text" id="edit-nome" name="nome" class="inp_p" placeholder="Seu nome">
+
+        <label class="label-amarela">E-mail</label>
+        <input type="email" id="edit-email" name="email" class="inp_p" placeholder="Seu e-mail">
+        
+        <div class="secao-divisora">
+            <p style="color: #efac4a; text-align: center; font-size: 14px; margin-bottom: 10px;">Alterar Senha (opcional)</p>
+            <input type="password" name="nova_senha" class="inp_p" placeholder="Nova Senha">
+            <input type="password" name="conf_senha" class="inp_p" placeholder="Confirmar Nova Senha">
+        </div>
+
+        <button type="submit">Salvar Alterações</button>
+        <button type="button" onclick="window.location.href='index.html'" style="background-color: #555; margin-top: 10px;">Cancelar</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Puxa do localStorage (que foi preenchido no login)
+            const nome = localStorage.getItem("usuarioNome");
+            const email = localStorage.getItem("usuarioEmail");
+            const foto = localStorage.getItem("usuarioFoto");
+
+            if(nome) document.getElementById('edit-nome').value = nome;
+            if(email) document.getElementById('edit-email').value = email;
+            
+            // Só define o SRC se a foto existir no banco
+            if(foto && foto !== "null") {
+                document.getElementById('preview-perfil').src = "http://localhost:3000" + foto;
+            } else {
+                // Imagem padrão caso o usuário não tenha foto
+                document.getElementById('preview-perfil').src = "images/def_avt.jpg";
+            }
+        });
+
+        const inputImagem = document.getElementById("inputImagemPerfil");
+        const preview = document.getElementById("preview-perfil");
+
+        inputImagem.addEventListener("change", () => {
+            const file = inputImagem.files[0];
+            if(file) preview.src = URL.createObjectURL(file);
+        });
+
+        document.getElementById("formPerfil").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            formData.append("emailAntigo", localStorage.getItem("usuarioEmail"));
+
+            try {
+                const response = await fetch("http://localhost:3000/perfil/atualizar", {
+                    method: "PUT",
+                    body: formData
+                });
+
+                const dados = await response.json();
+
+                if(response.ok) {
+                    localStorage.setItem("usuarioNome", dados.novoNome);
+                    localStorage.setItem("usuarioEmail", dados.novoEmail);
+                    if(dados.novaFoto) localStorage.setItem("usuarioFoto", dados.novaFoto);
+                    
+                    alert("Perfil atualizado!");
+                    window.location.reload(); 
+                } else {
+                    alert(dados.resposta || "Erro ao salvar.");
+                }
+            } catch (error) {
+                alert("Erro de conexão.");
+            }
+        });
+    </script>
+</body>
+</html>

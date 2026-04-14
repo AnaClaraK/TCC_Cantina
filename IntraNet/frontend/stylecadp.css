@@ -35,6 +35,17 @@ h2{
     font-size: 15px;
 }
 
+/* 🔥 REMOVE SETINHAS DO NUMBER */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
 /* BOTÃO */
 button{
     background-color: #1c1c1c;
