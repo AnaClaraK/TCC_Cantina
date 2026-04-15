@@ -69,7 +69,7 @@ body.fundo-laranja .icon-agendamento { background-image: url('images/agendamento
 
 /* --- TEMA 3: FUNDO MARROM --- */
 body.fundo-marrom {
-    background-color: #2b211d;
+    background-color: #2b1f14;
 }
 
 /* Header + Sidebar */
@@ -82,7 +82,7 @@ body.fundo-marrom .custom-sidebar {
 /* Texto */
 body.fundo-marrom .nav-text, 
 body.fundo-marrom #btn-menu { 
-    color: #242628; 
+    color: #2b1f14; 
 }
 
 /* Logo (usa a mesma laranja) */
@@ -96,7 +96,7 @@ body.fundo-marrom .icon-agendamento { background-image: url('images/agendamento_
 
 /* Nome usuário */
 body.fundo-marrom .user-name{
-    color: #242628;
+    color: #2b1f14;
 }
 
 /* --- HEADER --- */

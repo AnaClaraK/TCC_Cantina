@@ -1,64 +1,62 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="sidebar_header.js"></script>
-<link rel="stylesheet" href="layout.css">
-<link rel="stylesheet" href="stylecadp.css">
-<title>Cadastro de Produtos</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Produtos</title>
+    <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="stylecadp.css">
+    <script src="sidebar_header.js"></script>
 </head>
-
 <body class="fundo-escuro">
+    <main class="main-cadastro">
+        <form id="formProduto" enctype="multipart/form-data">
+            <h2>Cadastro de Produto</h2>
 
-<form id="formProduto" enctype="multipart/form-data">
-  <h2>Cadastro de Produto</h2>
+            <input type="text" name="codigo" class="inp_p" placeholder="Código" required>
+            <input type="text" name="nome" class="inp_p" placeholder="Nome" required>
+            <input type="text" name="descricao" class="inp_p" placeholder="Descrição">
+            <input type="number" name="preco" class="inp_p" placeholder="Preço" step="0.01" required>
+            <input type="number" name="quantidade" class="inp_p" placeholder="Quantidade" required>
 
-  <input type="text" class="inp_p" placeholder="Código">
-  <input type="text" class="inp_p" placeholder="Nome">
-  <input type="text" class="inp_p" placeholder="Descrição">
-  <input type="number" class="inp_p" placeholder="Preço">
-  <input type="number" class="inp_p" placeholder="Quantidade">
+            <label class="file-label">
+                Escolher imagem do produto
+                <input type="file" name="imagem" id="inputImagem" accept="image/*">
+            </label>
 
+            <img id="preview">
 
-  <label class="file-label">
-    Escolher imagem
-    <input type="file" name="imagem" id="inputImagem">
-  </label>
+            <button type="submit" class="btn-form">Cadastrar Produto</button>
+        </form>
+    </main>
 
-  <img id="preview">
+    <script>
+        const inputImagem = document.getElementById("inputImagem");
+        const preview = document.getElementById("preview");
 
-  <button type="submit">Cadastrar</button>
-</form>
+        inputImagem.addEventListener("change", () => {
+            const file = inputImagem.files[0];
+            if(file){
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = "block";
+            }
+        });
 
-<script>
-  const inputImagem = document.getElementById("inputImagem");
-const preview = document.getElementById("preview");
+        document.getElementById("formProduto").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
 
-// MOSTRAR IMAGEM
-inputImagem.addEventListener("change", () => {
-    const file = inputImagem.files[0];
-
-    if(file){
-        preview.src = URL.createObjectURL(file);
-        preview.style.display = "block";
-    }
-});
-
-// ENVIAR
-document.getElementById("formProduto").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const formData = new FormData(e.target);
-
-  await fetch("http://localhost:3000/produtos", {
-    method: "POST",
-    body: formData
-  });
-
-  alert("Produto cadastrado");
-});
-</script>
-
+            try {
+                const res = await fetch("http://localhost:3000/produtos", {
+                    method: "POST",
+                    body: formData
+                });
+                if(res.ok) alert("Produto cadastrado!");
+                else alert("Erro ao cadastrar.");
+            } catch (err) {
+                alert("Erro de servidor.");
+            }
+        });
+    </script>
 </body>
 </html>

@@ -30,7 +30,7 @@
         <h2 id="h_ttl_i" class="titulo">Total do Item</h2>  
         <div id="d_ttl_i" class="inp_val">R$ 0,00</div>
     </div>
-
+    
     <img src="images/img_ntf.png" alt="imagem product" id="img_prod">
 
     <div class="grupo-input" style="grid-column: 3; align-self: start;">
@@ -50,32 +50,11 @@
             </tr>
         </thead>
         <tbody id="tb_tbl_produtos">
-            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
-            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
-            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
-            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
-            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
-            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
-            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
-            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
-            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
-            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
-            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
-            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
-            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
-            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
-            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
-            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
-            <tr><td>&nbsp;</td><td></td><td></td><td></td></tr>
-        </tbody>
+            </tbody>
     </table>
 </section>
 
 <section id="sc_modal">
-  <button id="b_final" disabled>
-    <span id="s_final">Finalizar Compra</span>
-  </button>
-
   <dialog id="d_modal">
     <article>
         <section>
@@ -92,17 +71,20 @@
                 <button class="pagamento" id="pg_dinheiro">Dinheiro (F2)</button>
                 <button class="pagamento" id="pg_credito">Cartão de Crédito (F3)</button>
                 <button class="pagamento" id="pg_debito">Cartão de Débito (F4)</button>
-                <button class="pagamento" id="pg_pix">PIX (F5)</button>
+                <button class="pagamento" id="pg_pix">PIX (F6)</button>
             </div>
         </section>
         <footer>
-            <button id="b_nv_venda" disabled>Nova Venda (F6)</button>
+            <button id="b_nv_venda" disabled>Nova Venda (F7)</button>
         </footer>
       </article>
   </dialog>
 
-  <button id="b_agend">Agendamento</button>
-  <button id="b_canc">Cancelar(ESC)</button>
+  <div id="d_botoes">
+     <button id="b_canc">Cancelar (ESC)</button>
+     <button id="b_agend">Agendamento (F8)</button>
+     <button id="b_final" disabled>Finalizar Compra (F1)</button>
+    </div>
 </section>
 
 <div id="erro_overlay">
@@ -122,20 +104,17 @@
     const URL_BACKEND_CAD = "http://localhost:3000";
     const IMG_PADRAO = "images/img_ntf.png";
 
-    let carrinho = {}; 
+    let carrinho = []; 
     let totalCompra = 0; 
 
-    // Funções de Auxílio
     function formatar(valor) {
         return Number(valor).toFixed(2).replace(".", ",");
     }
 
-    // --- ADIÇÃO: FUNÇÃO PARA MANTER O EFEITO ZEBRA E JOGAR NO TOPO ---
     function atualizarTabelaNoTopo() {
-        tbody.innerHTML = ""; // Limpa para organizar
-        const itens = Object.values(carrinho).reverse(); // Inverte para o último ser o primeiro
+        tbody.innerHTML = ""; 
         
-        itens.forEach(item => {
+        carrinho.forEach(item => {
             const tr = document.createElement("tr");
             tr.id = "linha_" + item.codigo;
             tr.innerHTML = `
@@ -147,8 +126,8 @@
             tbody.appendChild(tr);
         });
 
-        // Mantém as linhas vazias para não quebrar seu layout/zebra
-        for (let i = 0; i < (17 - itens.length); i++) {
+        // Preenche com linhas vazias até completar 15
+        for (let i = 0; i < (15 - carrinho.length); i++){
             const tr = document.createElement("tr");
             tr.innerHTML = "<td>&nbsp;</td><td></td><td></td><td></td>";
             tbody.appendChild(tr);
@@ -157,7 +136,7 @@
 
     function atualizarTotalCompra() {
         totalCompra = 0;
-        Object.values(carrinho).forEach(item => {
+        carrinho.forEach(item => {
             totalCompra += item.preco * item.qtd;
         });
         const totalFormatado = "R$ " + formatar(totalCompra);
@@ -172,10 +151,12 @@
     }
 
     function verificarBotao(){
-        b_final.disabled = (Object.keys(carrinho).length === 0);
+        b_final.disabled = (carrinho.length === 0);
     }
 
-    // Evento de busca de produto
+    // Inicializa a tabela vazia
+    atualizarTabelaNoTopo();
+
     inp_codb.addEventListener("keydown", (event) => {
         if (event.key !== "Enter") return;
         const codigo = inp_codb.value.trim();
@@ -189,29 +170,26 @@
         .then(data => {
             const produto = data[0];
 
-            if (produto.img) {
-                img_prod.src = URL_BACKEND_CAD + "/" + produto.img;
-            } else {
-                img_prod.src = IMG_PADRAO;
-            }
+            img_prod.src = produto.img ? `${URL_BACKEND_CAD}/${produto.img}` : IMG_PADRAO;
 
-            if (carrinho[codigo]) {
-                carrinho[codigo].qtd++;
-                // Reposiciona no topo do objeto para o reverse() funcionar
-                const temp = carrinho[codigo];
-                delete carrinho[codigo];
-                carrinho[codigo] = temp;
+            let itemExistente = carrinho.find(p => p.codigo == codigo);
+
+            if (itemExistente) {
+                itemExistente.qtd++;
+                // Move o item para o topo (primeira posição do array)
+                carrinho = carrinho.filter(p => p.codigo != codigo);
+                carrinho.unshift(itemExistente);
             } else {
-                carrinho[codigo] = {
+                carrinho.unshift({
                     codigo: produto.codigo_barras,
                     nome: produto.nome,
                     preco: Number(produto.preco),
                     qtd: 1
-                };
+                });
             }
 
-            atualizarTabelaNoTopo(); // Chamo a função que adicionei acima
-            atualizarVisores(carrinho[codigo]);
+            atualizarTabelaNoTopo();
+            atualizarVisores(carrinho[0]); // O item atualizado é sempre o index 0 agora
             atualizarTotalCompra();
             verificarBotao();
             inp_codb.value = "";
@@ -239,8 +217,8 @@
     });
 
     function resetarPDV() {
-        carrinho = {};
-        atualizarTabelaNoTopo(); // Usa a função de limpeza
+        carrinho = [];
+        atualizarTabelaNoTopo();
         totalCompra = 0;
         document.getElementById("d_qtd").innerText = "0";
         document.getElementById("d_vl_und").innerText = "R$ 0,00";
@@ -251,50 +229,69 @@
         verificarBotao();
         if(modal.open) modal.close();
         nova_venda.disabled = true;
+        inp_codb.focus();
     }
 
     nova_venda.addEventListener("click", resetarPDV);
     document.getElementById("b_canc").addEventListener("click", resetarPDV);
 
-    window.addEventListener("keydown", (e) => {
-        if(e.key === "Escape") resetarPDV();
-    });
+    // =============================
+    // ATALHOS TECLADO ATUALIZADOS
+    // =============================
+ window.addEventListener("keydown", (e) => {
+    // Se o modal estiver aberto, o ESC apenas fecha ele (comportamento padrão do dialog)
+    if(e.key === "Escape") resetarPDV();
 
-    // =============================
-    // ATALHOS TECLADO (F1 - F6)
-    // =============================
-    window.addEventListener("keydown", (e) => {
-        switch(e.key){
-            case "F1":
-                e.preventDefault();
-                if(!b_final.disabled) b_final.click();
+    switch(e.key){
+        // --- ROLAGEM DA TABELA (Mesmo com foco no input) ---
+        case "ArrowDown":
+            e.preventDefault(); // Impede o cursor de mexer no input
+            document.getElementById("sc_tabela").scrollTop += 50; 
             break;
-            case "F2":
-                e.preventDefault();
-                if(modal.open) document.getElementById("pg_dinheiro").click();
+        case "ArrowUp":
+            e.preventDefault(); // Impede o cursor de mexer no input
+            document.getElementById("sc_tabela").scrollTop -= 50;
             break;
-            case "F3":
-                e.preventDefault();
-                if(modal.open) document.getElementById("pg_credito").click();
+        case "PageDown":
+            e.preventDefault();
+            document.getElementById("sc_tabela").scrollTop += 250;
             break;
-            case "F4":
-                e.preventDefault();
-                if(modal.open) document.getElementById("pg_debito").click();
+        case "PageUp":
+            e.preventDefault();
+            document.getElementById("sc_tabela").scrollTop -= 250;
             break;
-            case "F5":
-                e.preventDefault();
-                if(modal.open) document.getElementById("pg_pix").click();
+
+        // --- SEUS ATALHOS DE FUNÇÃO ---
+        case "F1":
+            e.preventDefault();
+            if(!b_final.disabled) b_final.click();
             break;
-            case "F6":
-                e.preventDefault();
-                if(!nova_venda.disabled) nova_venda.click();
+        case "F2":
+            e.preventDefault();
+            if(modal.open) document.getElementById("pg_dinheiro").click();
             break;
-            case "F7":
-                 e.preventDefault();
-                 document.getElementById("b_agend").click();
+        case "F3":
+            e.preventDefault();
+            if(modal.open) document.getElementById("pg_credito").click();
+            break;
+        case "F4":
+            e.preventDefault();
+            if(modal.open) document.getElementById("pg_debito").click();
+            break;
+        case "F6": 
+            e.preventDefault();
+            if(modal.open) document.getElementById("pg_pix").click();
+            break;
+        case "F7":
+            e.preventDefault();
+            if(!nova_venda.disabled) nova_venda.click();
+            break;
+        case "F8":
+            e.preventDefault();
+            document.getElementById("b_agend").click();
             break; 
-        }
-    });
+    }
+});
 </script>
 </body>
 </html>
