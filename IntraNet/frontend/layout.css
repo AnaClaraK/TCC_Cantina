@@ -45,11 +45,11 @@ body.fundo-escuro .custom-sidebar { background-color: #242628; border-color: #44
 body.fundo-escuro .nav-text, body.fundo-escuro #btn-menu { color: #efac4a; }
 
 /* Imagens Laranja */
-body.fundo-escuro .logo-container { content: url('images/logo_l.png'); width: 200px; }
-body.fundo-escuro .icon-inicio { background-image: url('images/inicio_l.png'); }
-body.fundo-escuro .icon-pdv { background-image: url('images/pdv_l.png'); }
-body.fundo-escuro .icon-estoque { background-image: url('images/estoque_l.png'); }
-body.fundo-escuro .icon-agendamento { background-image: url('images/agendamento_l.png'); }
+body.fundo-escuro .logo-container { content: url('imagens/logo_l.png'); width: 200px; }
+body.fundo-escuro .icon-inicio { background-image: url('imagens/inicio_l.png'); }
+body.fundo-escuro .icon-pdv { background-image: url('imagens/pdv_l.png'); }
+body.fundo-escuro .icon-estoque { background-image: url('imagens/estoque_l.png'); }
+body.fundo-escuro .icon-agendamento { background-image: url('imagens/agendamento_l.png'); }
 
 
 /* --- TEMA 2: FUNDO LARANJA (Ícones Pretos) --- */
@@ -61,11 +61,11 @@ body.fundo-laranja .custom-sidebar { background-color: #efac4a; border-color: rg
 body.fundo-laranja .nav-text, body.fundo-laranja #btn-menu { color: #242628; }
 
 /* Imagens Pretas */
-body.fundo-laranja .logo-container { content: url('images/logo_p.png'); width: 200px; }
-body.fundo-laranja .icon-inicio { background-image: url('images/inicio_p.png'); }
-body.fundo-laranja .icon-pdv { background-image: url('images/pdv_p.png'); }
-body.fundo-laranja .icon-estoque { background-image: url('images/estoque_p.png'); }
-body.fundo-laranja .icon-agendamento { background-image: url('images/agendamento_p.png'); }
+body.fundo-laranja .logo-container { content: url('imagens/logo_p.png'); width: 200px; }
+body.fundo-laranja .icon-inicio { background-image: url('imagens/inicio_p.png'); }
+body.fundo-laranja .icon-pdv { background-image: url('imagens/pdv_p.png'); }
+body.fundo-laranja .icon-estoque { background-image: url('imagens/estoque_p.png'); }
+body.fundo-laranja .icon-agendamento { background-image: url('imagens/agendamento_p.png'); }
 
 /* --- TEMA 3: FUNDO MARROM --- */
 body.fundo-marrom {
@@ -86,13 +86,13 @@ body.fundo-marrom #btn-menu {
 }
 
 /* Logo (usa a mesma laranja) */
-body.fundo-marrom .logo-container { content: url('images/logo_p.png'); width: 200px; }
+body.fundo-marrom .logo-container { content: url('imagens/logo_p.png'); width: 200px; }
 
 /* Ícones (mantém padrão laranja) */
-body.fundo-marrom .icon-inicio { background-image: url('images/inicio_p.png'); }
-body.fundo-marrom .icon-pdv { background-image: url('images/pdv_p.png'); }
-body.fundo-marrom .icon-estoque { background-image: url('images/estoque_p.png'); }
-body.fundo-marrom .icon-agendamento { background-image: url('images/agendamento_p.png'); }
+body.fundo-marrom .icon-inicio { background-image: url('imagens/inicio_p.png'); }
+body.fundo-marrom .icon-pdv { background-image: url('imagens/pdv_p.png'); }
+body.fundo-marrom .icon-estoque { background-image: url('imagens/estoque_p.png'); }
+body.fundo-marrom .icon-agendamento { background-image: url('imagens/agendamento_p.png'); }
 
 /* Nome usuário */
 body.fundo-marrom .user-name{
@@ -290,4 +290,14 @@ body.fundo-laranja .user-name{
 }
 .l_img{
     width: 230px;
+}
+
+/* ===== FUNDO ESCURO ===== */
+body.fundo-escuro .nav-link.ativo {
+    background: #f0d0a6;
+}
+
+/* ===== FUNDO LARANJA ===== */
+body.fundo-laranja .nav-link.ativo {
+    background: #f0d0a6;
 }

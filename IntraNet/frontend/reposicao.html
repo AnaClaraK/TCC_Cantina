@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="sidebar_header.js"></script>
+    <link rel="stylesheet" href="styleag_es.css">
+    <link rel="stylesheet" href="layout.css">
+    <title>Reposição</title>
+    <style>
+        /* Estilos básicos para o Modal e Botões (ajuste conforme seu CSS) */
+        dialog { border: none; border-radius: 8px; padding: 20px; background: #2c2c2c; color: white; }
+        dialog::backdrop { background: rgba(0,0,0,0.7); }
+        .btn-acao { background: #1a1a1a; color: #d4a373; border: 1px solid #000; padding: 8px 15px; cursor: pointer; margin-right: 5px; }
+        .btn-limpar { float: right; background: #d4a373; color: black; border: none; padding: 8px 15px; cursor: pointer; }
+        #lista_sugestoes { list-style: none; padding: 0; background: #444; position: absolute; width: 200px; }
+        #lista_sugestoes li { padding: 5px; cursor: pointer; border-bottom: 1px solid #555; }
+        #lista_sugestoes li:hover { background: #666; }
+    </style>
+</head>
+<body class="fundo-escuro">
+    <div class="d_util">
+        <button class="btn-limpar" id="b_limpar_lista">Apagar lista</button>
+        
+        <h2 class="h_ag">Reposição</h2>
+
+        <div style="margin-bottom: 15px;">
+            <button class="btn-acao" id="b_addq">Adicionar Produto</button>
+            <button class="btn-acao" id="b_apagar_prod">Apagar produto</button>
+        </div>
+
+        <div id="d_inp">
+            <div class="busca-box">
+                <img src="images/lupa.png" class="icone-busca">
+                <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
+            </div>
+        </div>
+    </div>
+
+    <dialog id="d_modal">
+        <h3>Adicionar à Reposição</h3>
+        <input type="text" id="inp_busca_modal" placeholder="Pesquisar produto...">
+        <ul id="lista_sugestoes"></ul>
+        
+        <div style="margin-top: 20px;">
+            <p>Produto: <span id="s_produto">---</span></p>
+            <p>Estoque atual: <span id="s_qtda">0</span></p>
+            <label>Qtd para repor:</label>
+            <input type="number" id="inp_add_qtd" value="0">
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button class="btn-acao" id="b_addf">Confirmar</button>
+            <button class="btn-acao" onclick="document.getElementById('d_modal').close()">Cancelar</button>
+        </div>
+    </dialog>
+
+    <section id="sc_tabela" class="container mt-5">
+        <table class="tabela table-striped table-hover border">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Produto</th>
+                    <th scope="col">Quantidade</th>
+                    <th scope="col">Prioridade</th>
+                    <th scope="col">Local</th>
+                    <th scope="col">Concluído</th>
+                </tr>
+            </thead>
+            <tbody id="tb_tbl_estoque">
+                </tbody>
+        </table>
+    </section>     
+
+<script>
+// ELEMENTOS DO MODAL E BOTÕES
+const modal = document.getElementById("d_modal");
+const b_addq = document.getElementById("b_addq");
+const b_addf = document.getElementById("b_addf");
+const b_apagar_prod = document.getElementById("b_apagar_prod");
+const b_limpar_lista = document.getElementById("b_limpar_lista");
+const corpoTabela = document.getElementById('tb_tbl_estoque');
+
+const inpBuscaModal = document.getElementById("inp_busca_modal");
+const lista = document.getElementById("lista_sugestoes");
+const inputBusca = document.getElementById('inputBusca');
+
+let produtosCache = []; // Aqui você carregaria os produtos do seu estoque real via fetch
+
+// --- LÓGICA DO MODAL ---
+
+b_addq.addEventListener("click", () => {
+    limparModal();
+    modal.showModal();
+});
+
+b_addf.addEventListener("click", () => {
+    const nome = document.getElementById("s_produto").innerText;
+    const qtd = document.getElementById("inp_add_qtd").value;
+
+    if (nome === "---" || qtd <= 0) {
+        alert("Selecione um produto e uma quantidade válida");
+        return;
+    }
+
+    // Adiciona na tabela de reposição
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td>${nome}</td>
+        <td>${qtd}</td>
+        <td>Alta</td> <td>Geral</td> <td><input type="checkbox"></td>
+    `;
+    corpoTabela.appendChild(tr);
+
+    modal.close();
+    limparModal();
+});
+
+function limparModal() {
+    inpBuscaModal.value = "";
+    inpBuscaModal.dataset.codigo = "";
+    document.getElementById("s_produto").innerText = "---";
+    document.getElementById("s_qtda").innerText = "0";
+    document.getElementById("inp_add_qtd").value = 0;
+    lista.innerHTML = "";
+}
+
+// --- BOTÕES APAGAR E LIMPAR ---
+
+b_apagar_prod.addEventListener("click", () => {
+    if (corpoTabela.lastElementChild) {
+        corpoTabela.removeChild(corpoTabela.lastElementChild);
+    }
+});
+
+b_limpar_lista.addEventListener("click", () => {
+    if (confirm("Deseja limpar toda a lista de reposição?")) {
+        corpoTabela.innerHTML = "";
+    }
+});
+
+// --- AUTOCOMPLETE (Simulado) ---
+
+inpBuscaModal.addEventListener("input", () => {
+    const termo = inpBuscaModal.value.toLowerCase();
+    lista.innerHTML = "";
+
+    // Simulação de produtos para teste (substitua pelo seu fetch no futuro)
+    const mockProdutos = [
+        {nome: "Coca Cola", qtd: 10, codigo_barras: "123"},
+        {nome: "Salgado Assado", qtd: 5, codigo_barras: "456"}
+    ];
+
+    const filtrados = mockProdutos.filter(p => p.nome.toLowerCase().includes(termo));
+
+    filtrados.forEach(p => {
+        const li = document.createElement("li");
+        li.textContent = p.nome;
+        li.onclick = () => {
+            inpBuscaModal.value = p.nome;
+            document.getElementById("s_produto").innerText = p.nome;
+            document.getElementById("s_qtda").innerText = p.qtd;
+            lista.innerHTML = "";
+        };
+        lista.appendChild(li);
+    });
+});
+
+// --- SUA BUSCA ORIGINAL ---
+
+inputBusca.addEventListener('keyup', function() {
+    const termoBusca = inputBusca.value.toLowerCase().trim();
+    const linhas = document.querySelectorAll('#tb_tbl_estoque tr');
+
+    linhas.forEach(linha => {
+        const celulaProduto = linha.getElementsByTagName('td')[0]; // Busca pelo nome do produto
+        
+        if (celulaProduto) {
+            const texto = celulaProduto.textContent.toLowerCase().trim();
+            linha.style.display = texto.includes(termoBusca) ? "" : "none";
+        }
+    });
+});
+
+function buscarProdutosEstoque() {
+    console.log("Página de reposição pronta");
+}
+
+document.addEventListener('DOMContentLoaded', buscarProdutosEstoque);
+</script>
+</body>
+</html>

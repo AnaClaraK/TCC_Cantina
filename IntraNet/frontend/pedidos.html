@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="sidebar_header.js"></script>
+    <link rel="stylesheet" href="styleag_es.css">
+    <link rel="stylesheet" href="layout.css">
+    <title>Histórico de pedido</title>
+</head>
+<body class="fundo-escuro">
+    <div class="d_util">
+        <h2 class="h_ag">Histórico de pedido</h2>
+        <div id="d_inp">
+            <div class="busca-box">
+                <img src="images/lupa.png" class="icone-busca">
+                <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
+            </div>
+        </div>
+    </div>
+
+    <section id="sc_tabela" class="container mt-5">
+        
+        <table class="tabela table-striped table-hover border">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Nome do cliente</th>
+                    <th scope="col">Pedido n°</th>
+                    <th scope="col">Data e hora</th>
+                    <th scope="col">Total da compra</th>
+                    <th scope="col">Forma de pagamento</th>
+                </tr>
+            </thead>
+            <tbody id="tb_tbl_produtos">
+            </tbody>
+        </table>
+    </section>     
+
+<script>
+const inputBusca = document.getElementById('inputBusca');
+const corpoTabela = document.getElementById('tb_tbl_produtos');
+
+// 1. Sua lista de pedidos (Vazia para você preencher ou conectar o back depois)
+const pedidosSimulados = [
+    // Exemplo: { nome: "João", id: "001", data: "14/04", total: "10,00", pag: "Pix" }
+];
+
+// 2. Função que busca e desenha os pedidos
+async function buscarProdutosEstoque() {
+    corpoTabela.innerHTML = ""; 
+
+    /* DICA PARA O FUTURO (BACKEND):
+       Quando você criar o PHP, você vai usar estas linhas abaixo:
+       const response = await fetch('buscar_pedidos.php');
+       const dados = await response.json();
+    */
+
+    // Por enquanto, usamos a lista manual (vazia ou preenchida por você)
+    const dadosParaExibir = pedidosSimulados;
+
+    dadosParaExibir.forEach(pedido => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${pedido.nome}</td>
+            <td>${pedido.id}</td>
+            <td>${pedido.data}</td>
+            <td>R$ ${pedido.total}</td>
+            <td>${pedido.pag}</td>
+        `;
+        corpoTabela.appendChild(tr);
+    });
+}
+
+// 3. Lógica de busca por Nome ou Código
+inputBusca.addEventListener('keyup', function() {
+    const termo = inputBusca.value.toLowerCase().trim();
+    const linhas = corpoTabela.getElementsByTagName('tr');
+
+    for (let i = 0; i < linhas.length; i++) {
+        const colunas = linhas[i].getElementsByTagName('td');
+        if (colunas.length > 0) {
+            const nomeCliente = colunas[0].textContent.toLowerCase();
+            const numPedido = colunas[1].textContent.toLowerCase();
+
+            if (nomeCliente.includes(termo) || numPedido.includes(termo)) {
+                linhas[i].style.display = ""; 
+            } else {
+                linhas[i].style.display = "none"; 
+            }
+        }
+    }
+});
+
+document.addEventListener('DOMContentLoaded', buscarProdutosEstoque);
+</script>
+</body>
+</html>

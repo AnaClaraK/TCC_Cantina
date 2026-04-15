@@ -1,0 +1,245 @@
+/* Configurações Gerais */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: #f9f9f9;
+    color: #242628;
+    line-height: 1.6;
+}
+
+/* Header e Navegação */
+header {
+    background-color: #242628;
+    padding: 0.5rem 5%; /* Reduzido para ficar mais elegante com a logo */
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* MODIFICAÇÃO AQUI: Ajuste da Logo */
+nav img {
+    height: 60px; /* Define um tamanho fixo para a imagem não vazar */
+    width: auto;  /* Mantém a proporção da imagem */
+    display: block;
+}
+
+nav ul {
+    display: flex;
+    align-items: center;
+    list-style: none;
+}
+
+nav ul li {
+    margin-left: 2rem;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #fed89d;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+nav ul li a:hover {
+    color: #efac4a;
+}
+
+.btn-contato {
+    background-color: #efac4a;
+    color: #242628 !important;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.btn-contato:hover {
+    background-color: #fed89d;
+    transform: translateY(-2px);
+}
+
+/* Seção Hero (Banner Principal) */
+.hero {
+    background: linear-gradient(135deg, #242628 60%, #efac4a 100%);
+    color: white;
+    padding: 100px 5% 150px 5%;
+    text-align: center;
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    color: #fed89d;
+    margin-bottom: 2.5rem;
+}
+
+.btns {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 800;
+    transition: 0.3s;
+}
+
+.btn-primary {
+    background-color: #efac4a;
+    color: #242628;
+}
+
+/* Estilo para indicar que o App não está disponível */
+.btn-primary:hover {
+    background-color: #fed89d;
+}
+
+.btn-secondary {
+    border: 2px solid #efac4a;
+    color: #efac4a;
+}
+
+.btn-secondary:hover {
+    background-color: #efac4a;
+    color: #242628;
+}
+
+/* Seção de Funcionalidades (Cards) */
+.features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 0 5%;
+    max-width: 1200px;
+    margin: -80px auto 100px auto; 
+}
+
+.card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+    text-align: center;
+    border-bottom: 5px solid #fed89d;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    border-color: #efac4a;
+}
+
+.card .icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    display: block;
+}
+
+.card h3 {
+    color: #242628;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.card p {
+    color: #666;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .hero h1 { font-size: 2.5rem; }
+    .btns { flex-direction: column; align-items: center; }
+    nav ul { display: none; } 
+    nav img { height: 45px; } /* Logo um pouco menor no celular */
+}
+/* Configurações da nova seção */
+.diferenciais {
+    padding: 80px 5%;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.section-title {
+    font-size: 2rem;
+    color: #242628;
+    margin-bottom: 50px;
+    position: relative;
+}
+
+/* Linha decorativa embaixo do título */
+.section-title::after {
+    content: '';
+    width: 60px;
+    height: 4px;
+    background: #efac4a;
+    display: block;
+    margin: 10px auto;
+    border-radius: 2px;
+}
+
+.grid-diferenciais {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 3rem; /* Distância maior entre os quadrados */
+}
+
+.card-extra {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 15px;
+    border-left: 8px solid #efac4a; /* Destaque lateral em vez de inferior */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    text-align: left; /* Alinhamento à esquerda para variar o visual */
+    transition: 0.3s;
+}
+
+.card-extra:hover {
+    transform: scale(1.03);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.card-extra h3 {
+    color: #efac4a;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.card-extra p {
+    color: #555;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+/* Ajuste para celular */
+@media (max-width: 768px) {
+    .diferenciais { padding: 40px 5%; }
+    .grid-diferenciais { gap: 1.5rem; }
+}

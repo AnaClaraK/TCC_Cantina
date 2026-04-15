@@ -17,7 +17,7 @@
     </button>
     <div id="d_inp">
     <div class="busca-box">
-        <img src="images/lupa.png" class="icone-busca">
+        <img src="../backend/imagens/lupa.png" class="icone-busca">
         <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
     </div>
 </div>
@@ -40,16 +40,17 @@
 
 <dialog id="d_modal">
     <div class="modal_box">
+        <button id="b_close_modal">x</button>
 
         <h2>Atualizar Quantidade</h2>
 
-        <input type="text" id="inp_busca_modal" placeholder="Código ou nome">
+        <input type="text" class="inp_m" id="inp_busca_modal" placeholder="Código ou nome">
         <ul id="lista_sugestoes"></ul>
 
-        <p>Selecionado: <span id="s_produto">---</span></p>
-        <p>Qtd atual: <span id="s_qtda">0</span></p>
+        <p class="pm">Selecionado: <span id="s_produto">---</span></p>
+        <p class="pm">Qtd atual: <span id="s_qtda">0</span></p>
 
-        <input type="number" id="inp_add_qtd" value="0">
+        <input type="number" class="inp_m" id="inp_add_qtd" value="0">
 
         <button id="b_addf" type="button">Adicionar</button>
 
@@ -67,6 +68,24 @@ const lista = document.getElementById("lista_sugestoes");
 
 let produtosCache = [];
 let indexSelecionado = -1;
+const inputBusca = document.getElementById("inputBusca");
+
+inputBusca.addEventListener("input", () => {
+    const termo = inputBusca.value.toLowerCase();
+
+    const linhas = document.querySelectorAll("#tb_tbl_produtos tr");
+
+    linhas.forEach(linha => {
+        const codigo = linha.children[0].innerText.toLowerCase();
+        const nome = linha.children[1].innerText.toLowerCase();
+
+        if (codigo.includes(termo) || nome.includes(termo)) {
+            linha.style.display = "";
+        } else {
+            linha.style.display = "none";
+        }
+    });
+});
 
 // abrir modal
 b_addq.addEventListener("click", () => {
@@ -154,6 +173,11 @@ inpBuscaModal.addEventListener("input", () => {
         lista.appendChild(li);
     });
 });
+    const b_close_modal = document.getElementById("b_close_modal");
+
+    b_close_modal.addEventListener("click", () => {
+        modal.close();
+    });
 
 document.addEventListener("DOMContentLoaded", carregarProdutos);
 </script>
