@@ -22,14 +22,15 @@ app.use(express.json())
 app.use(cors())
 
 // Esta linha é a mágica: ela torna a pasta de imagens acessível via URL
-app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/images', express.static(path.join(__dirname, '../frontend/images')));
+app.use('/imagens', express.static(path.join(__dirname, 'imagens')));
 
 app.listen(porta, () => { 
   console.log(`Servidor rodando em: http://localhost:${porta}`)
 })
 
-// Configuração do Multer para upload de fotos
-const storage = multer.diskStorage({
+// MULTER PARA PRODUTOS (frontend - comidas)
+const storageProdutos = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "images/");
   },
@@ -39,19 +40,32 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage });
+const uploadProdutos = multer({ storage: storageProdutos });
 
+
+// MULTER PARA PERFIL (backend - pessoal)
+const storagePerfil = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "imagens/");
+  },
+  filename: function (req, file, cb) {
+    const nomeUnico = Date.now() + path.extname(file.originalname);
+    cb(null, nomeUnico);
+  }
+});
+
+const uploadPerfil = multer({ storage: storagePerfil });
 //---------------------------------------------------------------------------------
 
 //--------Funcionários
-app.post("/cadastro", upload.single("imagem"), async (req, res) => {
+app.post("/cadastro", uploadPerfil.single("imagem"), async (req, res) => {
   try {
       // Agora recebemos também o 'nome' e 'confsenha' do body
       const { nome, email, senha, confsenha } = req.body;
 
       const imagem = req.file
           ? "/imagens/" + req.file.filename
-          : "/imagens/default-user.png"; // Uma imagem padrão caso não envie foto
+          : "/imagens/def_avt.jpg";
 
       // 1. Validações
       if (!nome || nome.trim() === "") return res.status(400).json({ "resposta": "Preencha o nome" });
@@ -109,14 +123,14 @@ app.post("/login", async (req, res) => {
   }
 });
  // ----- Atualizar perfil
-app.put("/perfil/atualizar", upload.single('imagem'), async (req, res) => {
+app.put("/perfil/atualizar", uploadPerfil.single('imagem'), async (req, res) => {
   try {
       const { nome, email, emailAntigo, nova_senha, conf_senha } = req.body;
       let novaFotoPath = null;
 
       // Se o usuário enviou uma foto nova
       if (req.file) {
-          novaFotoPath = `images/${req.file.filename}`;
+          novaFotoPath = `/imagens/${req.file.filename}`;;
       }
 
       // Validação básica de senha
@@ -162,16 +176,15 @@ app.put("/perfil/atualizar", upload.single('imagem'), async (req, res) => {
 
 //--------- PRODUTOS (PDV e Cadastro)
 
-app.post("/produtos", upload.single("imagem"), async (req, res) => {
+app.post("/produtos", uploadProdutos.single("imagem"), async (req, res) => {
   try {
     const { nome, preco, codigo_barras } = req.body;
     // Substitui vírgula por ponto para o banco aceitar como decimal
     const precoFormatado = preco.replace(",", ".");
 
-    const imagem = req.file
-      ? "/imagens/" + req.file.filename
-      : null;
-
+      const imagem = req.file
+        ? "/images/" + req.file.filename
+        : null;
     const sql = `
       INSERT INTO produtos (nome, preco, codigo_barras, img)
       VALUES (?, ?, ?, ?)
@@ -206,20 +219,6 @@ app.get("/produtos/:codigo", async (req, res) => {
 });
 
 //-------------------------------- ESTOQUE
-
-app.get("/produtos", async (req, res) => {
-  try {
-    // Busca todos os produtos para exibir na tabela do estoque
-    const [rows] = await conexao.query("SELECT p.*, c.nome AS categoria_nome FROM produtos p JOIN categorias c ON p.id_categoria = c.id_categoria");
-    
-    // Envia a lista para o seu HTML
-    res.json(rows);
-  } catch (erro) {
-    console.error(erro);
-    res.status(500).json({ erro: "Erro ao buscar a lista de produtos" });
-  }
-});
-// GET produtos
 app.get("/produtos", async (req, res) => {
   try {
     const [rows] = await conexao.query(`

@@ -3,63 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro</title>
-    <!-- Certifique-se de que o arquivo stylelog.css existe na mesma pasta -->
+    <title>Cadastro de Funcionários</title>
     <script src="sidebar_header.js"></script>
-    <link rel="stylesheet" href="stylelog.css">
     <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="stylecadp.css">
 </head>
-<body>
-    <div class="container">
-        <div class="quadrado">
-            <h1 class="lb_cad">Cadastro</h1>
-            <div class="container-respostas">
-                <label for="email">E-mail</label>
-                <input type="email" id="email" placeholder="Digite o email para cadastro">
-                <br>
-                <label for="senha">Senha</label>
-                <input type="password" id="senha" placeholder="Digite a senha da conta">
-                <br>
-                <label for="confsenha">Confirmar Senha</label>
-                <input type="password" id="confsenha" placeholder="Confirme a senha">
-            </div>
-            <div class="container-fim">
-                <p id="respostas" class="respostas"></p>
-            </div>
-            <!-- Alterado o ID para btn_cadas para bater com o script -->
-            <button id="btn_cadas" class="btn_cadas">Cadastrar</button>
+<body class="fundo-escuro"> <main class="main-cadastro">
+        <div class="quadrado"> <form id="formFuncionario">
+                <h2 class="lb_cad">Cadastro de Funcionário</h2>
+
+                <div class="container-respostas">
+                    <label class="lb_" for="email">E-mail</label>
+                    <input type="email" id="email" class="inp_p" placeholder="Digite o email para cadastro" required>
+                    
+                    <label for="senha" >Senha</label>
+                    <input type="password" id="senha" class="inp_p" placeholder="Digite a senha da conta" required>
+                    
+                    <label for="confsenha">Confirmar Senha</label>
+                    <input type="password" id="confsenha" class="inp_p" placeholder="Confirme a senha" required>
+                </div>
+
+                <div class="container-fim">
+                    <p id="respostas" class="respostas"></p>
+                </div>
+
+                <button type="submit" id="btn_cadas" class="btn-form">Cadastrar</button>
+            </form>
         </div>
-    </div>
+    </main>
 
     <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // Agora o ID bate com o botão do HTML
-        const btnCadas = document.getElementById("btn_cadas");
+        const formFunc = document.getElementById("formFuncionario");
+        const pMessageEl = document.getElementById("respostas");
+        const containerFimEl = document.querySelector(".container-fim");
 
-        if (!btnCadas) {
-            console.error("Erro: Botão de cadastro (#btn_cadas) não encontrado.");
-            return;
-        }
-
-        btnCadas.addEventListener("click", async () => {    
+        formFunc.addEventListener("submit", async (e) => { 
+            e.preventDefault(); // Previne o refresh da página
+            
             const email = document.getElementById("email").value;
             const senha = document.getElementById("senha").value;
             const confsenha = document.getElementById("confsenha").value;
-            
-            const pMessageEl = document.getElementById("respostas");
-            const containerFimEl = document.querySelector(".container-fim");
 
-            // Validação básica antes de enviar ao servidor
+            // Validação de senha
             if (senha !== confsenha) {
                 pMessageEl.innerText = "As senhas não coincidem!";
+                pMessageEl.style.color = "red";
                 containerFimEl.classList.add('container-fim-error');
                 return;
             }
             
             pMessageEl.innerText = "Realizando cadastro...";
+            pMessageEl.style.color = "white"; 
             
             try {
-                // Rota alterada para /cadastro (ajuste conforme seu servidor node)
                 const resposta = await fetch(`http://localhost:3000/cadastro`, {
                     method: "POST",
                     headers: {
@@ -73,23 +70,25 @@
                     containerFimEl.classList.remove('container-fim-error');
                     containerFimEl.classList.add('container-fim-success');
                     pMessageEl.innerText = "Cadastro realizado com sucesso! Redirecionando...";
+                    pMessageEl.style.color = "green";
                     
-                    // REDIRECIONAMENTO: Após 1.5 segundos, vai para a tela de login
                     setTimeout(() => {
                         window.location.href = 'index.html'; 
                     }, 1500);
 
                 } else {
-                    msg.innerText = "Erro ao cadastrar funcionário.";
-                    msg.style.color = "red";
+                    pMessageEl.innerText = "Erro ao cadastrar funcionário.";
+                    pMessageEl.style.color = "red";
                 }
 
             } catch (error) {
                 containerFimEl.classList.add('container-fim-error');
                 pMessageEl.innerText = "Erro de conexão com o servidor.";
+                pMessageEl.style.color = "red";
                 console.error("Erro de rede:", error);
             }
         });
+    });
     </script>
 </body>
 </html>
