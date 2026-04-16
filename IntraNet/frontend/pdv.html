@@ -31,14 +31,30 @@
         <div id="d_ttl_i" class="inp_val">R$ 0,00</div>
     </div>
     
+    <div class="grupo-input">
+        <h2 id="h_ttl_i" class="titulo">Quantidade Total</h2>  
+        <div id="d_ttl_i" class="inp_val">0</div>
+    </div>
+
     <img src="images/img_ntf.png" alt="imagem product" id="img_prod">
 
-    <div class="grupo-input" style="grid-column: 3; align-self: start;">
+    <div class="grupo-input" id="total">
         <h2 id="h_ttl_c" class="titulo">Total da Compra</h2>
         <div id="d_ttl_c" class="inp_val">R$ 0,00</div>
     </div>
 </section>
 
+    <section id="sc_modalp">
+        <dialog>
+            <article>
+                <section>
+                    <div>
+                        <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
+                    </div>
+                </section>
+            </article>
+        </dialog>
+    </section>
 <section id="sc_tabela">
     <table>
         <thead>
@@ -79,8 +95,8 @@
         </footer>
       </article>
   </dialog>
-
   <div id="d_botoes">
+     <button id="b_pesq">🔍︎</button>
      <button id="b_canc">Cancelar (ESC)</button>
      <button id="b_agend">Agendamento (F8)</button>
      <button id="b_final" disabled>Finalizar Compra (F1)</button>
@@ -102,10 +118,11 @@
     
     // Configurações
     const URL_BACKEND_CAD = "http://localhost:3000";
-    const IMG_PADRAO = "images/img_ntf.png";
+    const IMG_PADRAO = "http://localhost:3000/images/img_ntf.png";
 
     let carrinho = []; 
     let totalCompra = 0; 
+    let formaPagamento = "";
 
     function formatar(valor) {
         return Number(valor).toFixed(2).replace(".", ",");
@@ -170,8 +187,14 @@
         .then(data => {
             const produto = data[0];
 
-            img_prod.src = produto.img ? `${URL_BACKEND_CAD}/${produto.img}` : IMG_PADRAO;
+            let caminho = produto.img.trim();
 
+                // remove barra do começo se tiver
+                if (caminho.startsWith("/")) {
+                    caminho = caminho.slice(1);
+                }
+
+                img_prod.src = `${URL_BACKEND_CAD}/${caminho}`;
             let itemExistente = carrinho.find(p => p.codigo == codigo);
 
             if (itemExistente) {
@@ -181,6 +204,7 @@
                 carrinho.unshift(itemExistente);
             } else {
                 carrinho.unshift({
+                    id_produto: produto.id_produto, // 👈 ADD ISSO
                     codigo: produto.codigo_barras,
                     nome: produto.nome,
                     preco: Number(produto.preco),
@@ -211,8 +235,9 @@
     });
 
     document.querySelectorAll(".pagamento").forEach(botao => {
-        botao.addEventListener("click", () => {
-            nova_venda.disabled = false;
+    botao.addEventListener("click", () => {
+        formaPagamento = botao.innerText;
+        nova_venda.disabled = false;
         });
     });
 
@@ -232,7 +257,27 @@
         inp_codb.focus();
     }
 
-    nova_venda.addEventListener("click", resetarPDV);
+    nova_venda.addEventListener("click", () => {
+        fetch(`${URL_BACKEND_CAD}/pedidos`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                itens: carrinho,
+                total: totalCompra,
+                form_pag: formaPagamento
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("s_pedido").innerText = data.num_pedido;
+            resetarPDV();
+        })
+        .catch(err => {
+            console.error("Erro ao salvar pedido:", err);
+        });
+    });
     document.getElementById("b_canc").addEventListener("click", resetarPDV);
 
     // =============================
@@ -292,6 +337,25 @@
             break; 
     }
 });
+const inputBusca = document.getElementById("inputBusca");
+
+inputBusca.addEventListener("input", () => {
+    const termo = inputBusca.value.toLowerCase();
+
+    const linhas = document.querySelectorAll("#tb_tbl_produtos tr");
+
+    linhas.forEach(linha => {
+        const codigo = linha.children[0].innerText.toLowerCase();
+        const nome = linha.children[1].innerText.toLowerCase();
+
+        if (codigo.includes(termo) || nome.includes(termo)) {
+            linha.style.display = "";
+        } else {
+            linha.style.display = "none";
+        }
+    });
+});
+
 </script>
 </body>
 </html>

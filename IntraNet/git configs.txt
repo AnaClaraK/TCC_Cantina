@@ -1,7 +1,7 @@
 git config --global user.name "Ana Clara"
 git config --global user.email "anaclarinhakassao@gmail.com"
 
-ALTER TABLE produtos AUTO_INCREMENT = 4;
+ALTER TABLE produtos AUTO_INCREMENT = 1;
 
 N ta funfando:
 //------- Registro de compra

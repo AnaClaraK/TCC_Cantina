@@ -83,7 +83,7 @@ app.post("/cadastro", uploadPerfil.single("imagem"), async (req, res) => {
 
       // 4. SALVAR (Incluindo nome e foto)
       // Certifique-se de que sua tabela 'cadastro' tenha as colunas 'nome' e 'foto'
-      const sql = "INSERT INTO cadastro (nome, email, senha, foto) VALUES (?, ?, ?, ?)";
+      const sql = "INSERT INTO cadastro (nome, email, senha, img) VALUES (?, ?, ?, ?)";
       await conexao.query(sql, [nome, email, senhaHashed, imagem]);
 
       return res.status(201).json({ "resposta": "Cadastro realizado com sucesso!" });
@@ -215,6 +215,49 @@ app.get("/produtos/:codigo", async (req, res) => {
   } catch (erro) {
     console.error(erro);
     res.status(500).json({ erro: "Erro ao buscar produto" });
+  }
+});
+
+//----Pedidos
+app.post("/pedidos", async (req, res) => {
+  try {
+    const { itens, total, form_pag } = req.body;
+
+    // pega último pedido
+    const [ultimo] = await conexao.query(`
+      SELECT num_pedido FROM pedidos 
+      ORDER BY id_pedido DESC LIMIT 1
+    `);
+
+    let numero = 1;
+
+    if (ultimo.length > 0) {
+      numero = parseInt(ultimo[0].num_pedido) + 1;
+    }
+
+    const numeroFormatado = String(numero).padStart(3, "0");
+
+    // salva pedido
+    const [result] = await conexao.query(`
+      INSERT INTO pedidos (num_pedido, id_user, valor_total, form_pag)
+      VALUES (?, ?, ?, ?)
+    `, [numeroFormatado, 1, total, form_pag]);
+
+    const idPedido = result.insertId;
+
+    // salva itens
+    for (let item of itens) {
+      await conexao.query(`
+        INSERT INTO pedidos_itens (id_pedido, id_produto, qtd, preco_unitario)
+        VALUES (?, ?, ?, ?)
+      `, [idPedido, item.id_produto, item.qtd, item.preco]);
+    }
+
+    res.json({ num_pedido: numeroFormatado });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ erro: "Erro ao salvar pedido" });
   }
 });
 
