@@ -215,10 +215,111 @@ dialog::backdrop { background: rgba(0,0,0,0.8); }
     transform: scale(0.98);
 }
 
+/* MODAL VENDA */
+#d_modal {
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    padding: 0;
+    width: 600px;
+    height: 700px;
+    max-width: 95%;
+    background: #1c1c1c;
+    box-shadow: 0 10px 50px rgba(0,0,0,0.7);
+    overflow: hidden;
+    color: #f8c471;
+}
+
+/* FUNDO */
+#d_modal::backdrop {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+}
+
+/* CONTEÚDO */
+#d_modal article {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* ÁREA PRINCIPAL */
+#d_modal article section {
+    flex: 1;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* TÍTULOS */
+#d_modal h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #efac4a;
+}
+
+/* VALORES */
+#s_pedido,
+#s_dt,
+#s_tot {
+    font-weight: bold;
+    font-size: 1.4rem;
+    color: #f8c471;
+}
+
+#s_tot {
+    font-size: 2rem;
+}
+
+/* BOTÕES PAGAMENTO */
+.pagamento {
+    width: 100%;
+    background: transparent;
+    color: #f8c471;
+    border: 2px solid #efac4a;
+    padding: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: 0.2s;
+}
+
+.pagamento:hover {
+    background: #efac4a;
+    color: #1c1c1c;
+}
+
+/* FOOTER FIXO */
+#d_modal footer {
+    background: #262626;
+    padding: 20px;
+    text-align: center;
+}
+
+/* BOTÃO FINAL */
+#b_nv_venda {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: #efac4a;
+    color: #1c1c1c;
+    font-weight: bold;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+#b_nv_venda:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
 #b_agend { 
     background: var(--cor-laranja);
     height: 70px;
-    width: 250px;
+    width: 270px;
     font-size: 25px; 
     color: var(--cor-escuro);
 }
@@ -236,7 +337,7 @@ dialog::backdrop { background: rgba(0,0,0,0.8); }
 #b_final { 
     background: var(--btn-finish); 
     color: white; 
-    width: 300px; /* Um pouco mais largo para destaque */
+    width: 357px; /* Um pouco mais largo para destaque */
     height: 100px; 
     font-size: 30px;
     margin-right: 40px;
@@ -251,6 +352,122 @@ dialog::backdrop { background: rgba(0,0,0,0.8); }
     text-align: center;
     color: var(--cor-escuro);
 }
+
+/* --- ESTILO DO MODAL E CENTRALIZAÇÃO --- */
+.modal_info_venda {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    text-align: center;
+    gap: 10px;
+}
+/* Container que envolve as 3 informações */
+.bloco-info-venda {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Espaço entre pedido, data e total */
+    width: 100%;
+    margin: 20px 0;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Títulos (Pedido n°, Data e Hora...) */
+.info-label {
+    font-size: 1.3rem !important; /* Aumentado */
+    color: #efac4a !important;
+    margin-bottom: 5px !important;
+    text-transform: none; /* Mantém como você escreveu no HTML */
+}
+
+/* Valores (001, Data...) */
+.info-valor {
+    font-size: 1.6rem; /* Valor bem visível */
+    color: #f8c471;
+    font-weight: bold;
+}
+
+/* Destaque especial para o Total da Compra */
+.total-box {
+    background-color: #262626; /* Fundo levemente destacado */
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px dashed #efac4a;
+}
+
+.info-valor-total {
+    font-size: 2.5rem; /* Total bem grande */
+    color: #f8c471;
+    font-weight: 900;
+}
+.titulo-central {
+    font-size: 2rem !important;
+    color: #efac4a;
+    margin-bottom: 15px;
+    font-weight: bold;
+    width: 100%;
+    text-align: center;
+}
+
+.label-pagamento {
+    font-size: 2rem !important;
+    color: #efac4a;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    width: 100%;
+    display: block;
+    text-align: center;
+}
+
+.bloco-info h2 {
+    font-size: 1.1rem;
+    color: #efac4a;
+    margin-top: 5px;
+}
+
+/* --- ÁREA DE BOTÕES DE PAGAMENTO --- */
+.area_pagamento {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    padding: 10px;
+}
+
+/* --- BOTÃO FINALIZAR (FIXO E SEM PISCAR) --- */
+#b_final { 
+    background: var(--btn-finish); 
+    color: white; 
+    width: 357px; /* Tamanho mantido */
+    height: 100px; 
+    font-size: 30px;
+    margin-right: 40px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease, opacity 0.3s ease;
+}
+
+/* Estado desativado: cor "morta" e sem animação */
+#b_final:disabled {
+    background: #4a5a4a !important; 
+    color: #889888 !important;
+    cursor: not-allowed;
+    opacity: 0.7;
+    box-shadow: none;
+    animation: none; /* Garante que não vai piscar */
+}
+
+#b_final:not(:disabled) {
+    background: var(--btn-finish);
+    opacity: 1;
+}
+
 /* ============================================================
    AVISO DE ERRO (TOAST) - CANTO INFERIOR ESQUERDO
    ============================================================ */
@@ -300,4 +517,158 @@ dialog::backdrop { background: rgba(0,0,0,0.8); }
     border: 2px solid #1c1c1c;
     background-color: #efac4a;
     padding: 12px 80px 12px 90px; /* espaço pra lupa */
+}
+#dialogBusca {
+    width: 700px;
+    max-width: 90vw;
+    height: 500px;
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+}
+
+.modal-busca {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
+}
+
+#inputBusca {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+/* MODAL PDV */
+#dialogBusca {
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    padding: 0;
+    width: 600px;
+    height: 500px;
+    max-width: 95%;
+    background: #1c1c1c;
+    box-shadow: 0 10px 50px rgba(0,0,0,0.7);
+    overflow: hidden;
+    color: #f8c471;
+}
+
+/* FUNDO ESCURO */
+#dialogBusca::backdrop {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+}
+
+/* CAIXA */
+#dialogBusca .modal_box {
+    background: #1c1c1c;
+    color: #f8c471;
+    padding: 30px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+    position: relative;
+}
+
+/* TÍTULO */
+.modal_titulo {
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    color: #f8c471;
+}
+
+/* LABEL */
+.label {
+    font-size: 14px;
+    color: #efac4a;
+}
+
+/* INPUT */
+.inp_m {
+    width: 100%;
+    height: 50px;
+    font-size: 18px;
+    background-color: #fed89d;
+    border: 3px solid #efac4a;
+    border-radius: 10px;
+    padding: 0 10px;
+    margin-top: 20px;
+}
+
+/* LISTA */
+#listaSugestoes {
+    width: 100%;
+    background: #1c1c1c;
+    color: #f8c471;
+    border: 2px solid #efac4a;
+    border-radius: 8px;
+    max-height: 180px;
+    overflow-y: auto;
+    padding: 0;
+    list-style: none;
+}
+
+/* ITENS */
+#listaSugestoes li {
+    padding: 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #333;
+}
+
+/* HOVER + SELECIONADO */
+#listaSugestoes li:hover,
+#listaSugestoes .ativo {
+    background: #efac4a;
+    color: #1c1c1c;
+}
+
+/* SCROLL */
+#listaSugestoes::-webkit-scrollbar {
+    width: 10px;
+}
+
+#listaSugestoes::-webkit-scrollbar-thumb {
+    background: #dbb57c;
+    border-radius: 10px;
+}
+
+/* FOOTER */
+.modal_footer {
+    margin-top: auto;
+    text-align: center;
+}
+
+/* BOTÃO FECHAR */
+#b_close_busca {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    color: #efac4a;
+    font-size: 26px;
+    cursor: pointer;
+}
+
+#b_close_busca:hover {
+    color: #f8c471;
+}
+
+/* Centralização do botão adicionar caso queira fixar */
+#b_addf {
+    display: block;
+    position: relative; /* Mudado de absolute para facilitar o fluxo */
+    margin: 20px auto 0 auto; 
+    width: 80%;
+}
+.label{
+    font-size: 20px;
+    font-weight: 500;
 }

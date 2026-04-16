@@ -124,14 +124,20 @@ CREATE TABLE IF NOT EXISTS `pedidos` (
   `data` datetime DEFAULT current_timestamp(),
   `status` varchar(30) NOT NULL DEFAULT '',
   `valor_total` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `qtd_total` int(11) DEFAULT NULL,
   `form_pag` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id_pedido`),
   KEY `Index 2` (`id_user`),
-  CONSTRAINT `FK_pedidos_users` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+  CONSTRAINT `FK_pedidos_users` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.pedidos: ~0 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.pedidos: ~4 rows (aproximadamente)
 DELETE FROM `pedidos`;
+INSERT INTO `pedidos` (`id_pedido`, `id_user`, `num_pedido`, `data`, `status`, `valor_total`, `qtd_total`, `form_pag`) VALUES
+	(7, 1, 1, '2026-04-16 17:08:06', '', 0.00, 1, 'DINHEIRO (F2)'),
+	(8, 1, 2, '2026-04-16 17:08:19', '', 0.00, 2, 'CARTÃO DE CRÉDITO (F3)'),
+	(9, 1, 3, '2026-04-16 17:09:23', '', 0.00, 2, 'DINHEIRO (F2)'),
+	(10, 1, 4, '2026-04-16 17:10:44', '', 21.76, 2, 'DINHEIRO (F2)');
 
 -- Copiando estrutura para tabela cantina.pedidos_itens
 DROP TABLE IF EXISTS `pedidos_itens`;
@@ -146,10 +152,18 @@ CREATE TABLE IF NOT EXISTS `pedidos_itens` (
   KEY `Index 3` (`id_produto`),
   CONSTRAINT `FK_pedidos_itens_pedidos` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `FK_pedidos_itens_produtos` FOREIGN KEY (`id_produto`) REFERENCES `produtos` (`id_produto`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.pedidos_itens: ~0 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.pedidos_itens: ~7 rows (aproximadamente)
 DELETE FROM `pedidos_itens`;
+INSERT INTO `pedidos_itens` (`id_itens`, `id_pedido`, `id_produto`, `qtd`, `preco_unitario`) VALUES
+	(12, 7, 1, 1, 2.260000),
+	(13, 8, 14, 1, 18.600000),
+	(14, 8, 1, 1, 2.260000),
+	(15, 9, 14, 1, 18.600000),
+	(16, 9, 1, 1, 2.260000),
+	(17, 10, 6, 1, 19.500000),
+	(18, 10, 1, 1, 2.260000);
 
 -- Copiando estrutura para tabela cantina.produtos
 DROP TABLE IF EXISTS `produtos`;

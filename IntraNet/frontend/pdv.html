@@ -30,10 +30,10 @@
         <h2 id="h_ttl_i" class="titulo">Total do Item</h2>  
         <div id="d_ttl_i" class="inp_val">R$ 0,00</div>
     </div>
-    
+
     <div class="grupo-input">
-        <h2 id="h_ttl_i" class="titulo">Quantidade Total</h2>  
-        <div id="d_ttl_i" class="inp_val">0</div>
+        <h2 class="titulo">Quantidade Total</h2>  
+        <div id="d_qtd_geral" class="inp_val">0</div>
     </div>
 
     <img src="images/img_ntf.png" alt="imagem product" id="img_prod">
@@ -41,20 +41,29 @@
     <div class="grupo-input" id="total">
         <h2 id="h_ttl_c" class="titulo">Total da Compra</h2>
         <div id="d_ttl_c" class="inp_val">R$ 0,00</div>
-    </div>
+    </dilistaSv>
+</section>
+<section id="sc_modalp">
+    <dialog id="dialogBusca">
+        <div class="modal_box">
+            <button id="b_close_busca" onclick="document.getElementById('dialogBusca').close()">x</button>
+
+            <h2 class="modal_titulo">Pesquisar Produto</h2>
+
+            <div class="modal_linha">
+                <label class="label">Nome ou Código</label>
+                <input type="text" id="inputBusca" class="inp_m" placeholder="Digite para buscar..." autocomplete="off">
+            </div>
+
+            <ul id="listaSugestoes"></ul>
+
+            <div class="modal_footer">
+                <p class="pm" style="font-size: 14px; color: #efac4a;">Use as setas ↑ ↓ e Enter para selecionar</p>
+            </div>
+        </div>
+    </dialog>
 </section>
 
-    <section id="sc_modalp">
-        <dialog>
-            <article>
-                <section>
-                    <div>
-                        <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
-                    </div>
-                </section>
-            </article>
-        </dialog>
-    </section>
 <section id="sc_tabela">
     <table>
         <thead>
@@ -75,20 +84,34 @@
     <article>
         <section>
             <div>
-                <h2>Venda Finalizada</h2>
-                <h2>Pedido n°</h2>
-                <span id="s_pedido">001</span>
-                <h2>Data e Hora</h2>
-                <span id="s_dt"></span>
-                <h2>Total da Compra</h2>
-                <span id="s_tot">R$ 0,00</span>
+                <h2 id="venda_fin" class="titulo-central">Venda Finalizada</h2>
+                <div class="bloco-info-venda">
+                    <div class="info-item">
+                        <h2 class="info-label">Pedido n°</h2>
+                        <span id="s_pedido" class="info-valor">001</span>
+                    </div>
                 
-                <h2>Forma de Pagamento</h2> 
-                <button class="pagamento" id="pg_dinheiro">Dinheiro (F2)</button>
-                <button class="pagamento" id="pg_credito">Cartão de Crédito (F3)</button>
-                <button class="pagamento" id="pg_debito">Cartão de Débito (F4)</button>
-                <button class="pagamento" id="pg_pix">PIX (F6)</button>
-            </div>
+                    <div class="info-item">
+                        <h2 class="info-label">Data e Hora</h2>
+                        <span id="s_dt" class="info-valor">16/04/2026, 17:00:14</span>
+                    </div>
+                
+                    <div class="info-item total-box">
+                        <h2 class="info-label">Total da Compra</h2>
+                        <span id="s_tot" class="info-valor-total">R$ 2,26</span>
+                    </div>
+                </div>
+                <div class="secao-pagamento">
+                    <h2 class="label-pagamento">Forma de Pagamento</h2> 
+                    <div class="area_pagamento">
+                        <button class="pagamento" id="pg_dinheiro">Dinheiro (F2)</button>
+                        <button class="pagamento" id="pg_credito">Cartão de Crédito (F3)</button>
+                        <button class="pagamento" id="pg_debito">Cartão de Débito (F4)</button>
+                        <button class="pagamento" id="pg_pix">PIX (F6)</button>
+                    </div>
+                </div>
+
+</div>
         </section>
         <footer>
             <button id="b_nv_venda" disabled>Nova Venda (F7)</button>
@@ -96,7 +119,7 @@
       </article>
   </dialog>
   <div id="d_botoes">
-     <button id="b_pesq">🔍︎</button>
+     <button id="b_pesq">🔍︎ (P)</button>
      <button id="b_canc">Cancelar (ESC)</button>
      <button id="b_agend">Agendamento (F8)</button>
      <button id="b_final" disabled>Finalizar Compra (F1)</button>
@@ -114,6 +137,7 @@
     const img_prod = document.getElementById("img_prod");
     const b_final = document.getElementById("b_final");
     const modal = document.getElementById("d_modal");
+    const modalp = document.querySelector("#sc_modalp dialog");
     const nova_venda = document.getElementById("b_nv_venda");
     
     // Configurações
@@ -152,14 +176,26 @@
     }
 
     function atualizarTotalCompra() {
-        totalCompra = 0;
-        carrinho.forEach(item => {
-            totalCompra += item.preco * item.qtd;
-        });
-        const totalFormatado = "R$ " + formatar(totalCompra);
-        document.getElementById("d_ttl_c").innerText = totalFormatado;
-        document.getElementById("s_tot").innerText = totalFormatado;
+    let totalCompra = 0;
+    let totalUnidades = 0; // Variável para somar todas as quantidades
+
+    carrinho.forEach(item => {
+        totalCompra += item.preco * item.qtd;
+        totalUnidades += item.qtd; // Soma a quantidade de cada item do carrinho
+    });
+
+    const totalFormatado = "R$ " + formatar(totalCompra);
+    
+    // Atualiza o valor em dinheiro (visores e modal)
+    document.getElementById("d_ttl_c").innerText = totalFormatado;
+    document.getElementById("s_tot").innerText = totalFormatado;
+
+    // Atualiza o visor de Quantidade Total (o que você pediu)
+    const visorQtdGeral = document.getElementById("d_qtd_geral");
+    if (visorQtdGeral) {
+        visorQtdGeral.innerText = totalUnidades;
     }
+}
 
     function atualizarVisores(item) {
         document.getElementById("d_qtd").innerText = item.qtd;
@@ -167,9 +203,14 @@
         document.getElementById("d_ttl_i").innerText = "R$ " + formatar(item.preco * item.qtd);
     }
 
-    function verificarBotao(){
-        b_final.disabled = (carrinho.length === 0);
+    function verificarBotao() {
+    const botaoFinalizar = document.getElementById("b_final");
+    if (carrinho.length === 0) {
+        botaoFinalizar.disabled = true;
+    } else {
+        botaoFinalizar.disabled = false;
     }
+}
 
     // Inicializa a tabela vazia
     atualizarTabelaNoTopo();
@@ -234,6 +275,12 @@
         modal.showModal();
     });
 
+    b_pesq.addEventListener("click", () => {
+        modalp.showModal();
+        inputBusca.focus();
+    });
+
+
     document.querySelectorAll(".pagamento").forEach(botao => {
     botao.addEventListener("click", () => {
         formaPagamento = botao.innerText;
@@ -249,6 +296,7 @@
         document.getElementById("d_vl_und").innerText = "R$ 0,00";
         document.getElementById("d_ttl_i").innerText = "R$ 0,00";
         document.getElementById("d_ttl_c").innerText = "R$ 0,00";
+        document.getElementById("d_qtd_geral").innerText = "0"; // Zera a contagem total
         inp_codb.value = "";
         img_prod.src = IMG_PADRAO;
         verificarBotao();
@@ -258,27 +306,143 @@
     }
 
     nova_venda.addEventListener("click", () => {
-        fetch(`${URL_BACKEND_CAD}/pedidos`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                itens: carrinho,
-                total: totalCompra,
-                form_pag: formaPagamento
-            })
+    // CALCULA O TOTAL REAL AQUI PARA NÃO IR ZERADO
+    const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
+
+    fetch(`${URL_BACKEND_CAD}/pedidos`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            itens: carrinho,
+            total: totalReal, // <--- Enviando o cálculo exato
+            form_pag: formaPagamento
         })
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById("s_pedido").innerText = data.num_pedido;
-            resetarPDV();
-        })
-        .catch(err => {
-            console.error("Erro ao salvar pedido:", err);
-        });
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("s_pedido").innerText = data.num_pedido;
+        resetarPDV();
+    })
+    .catch(err => {
+        console.error("Erro ao salvar pedido:", err);
     });
+});
     document.getElementById("b_canc").addEventListener("click", resetarPDV);
+
+    const dialogBusca = document.getElementById("dialogBusca");
+const inputBusca = document.getElementById("inputBusca");
+const lista = document.getElementById("listaSugestoes");
+
+let produtosFiltrados = []; // Armazena os dados da busca atual
+let indexSelecionado = -1;  // Rastreia o item focado na lista
+
+// --- FUNÇÃO PARA SELECIONAR O PRODUTO ---
+function selecionarProduto(prod) {
+    inp_codb.value = prod.codigo_barras;
+    dialogBusca.close();
+    lista.innerHTML = "";
+    inputBusca.value = "";
+    indexSelecionado = -1;
+    
+    // Dispara o Enter no input principal para adicionar ao carrinho
+    inp_codb.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+}
+
+// --- CONTROLE DE NAVEGAÇÃO POR TECLADO ---
+inputBusca.addEventListener("keydown", (e) => {
+    const itens = lista.querySelectorAll("li");
+    
+    if (e.key === "ArrowDown") {
+        e.preventDefault();
+        indexSelecionado = (indexSelecionado + 1) % itens.length;
+        atualizarDestaque(itens);
+    } 
+    else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        indexSelecionado = (indexSelecionado - 1 + itens.length) % itens.length;
+        atualizarDestaque(itens);
+    } 
+    else if (e.key === "Enter") {
+        e.preventDefault();
+        if (indexSelecionado > -1 && produtosFiltrados[indexSelecionado]) {
+            selecionarProduto(produtosFiltrados[indexSelecionado]);
+        }
+    }
+});
+
+function atualizarDestaque(itens) {
+    itens.forEach((li, i) => {
+        if (i === indexSelecionado) {
+            li.style.backgroundColor = "#efac4a"; // Cor de destaque (igual ao estoque)
+            li.style.color = "#1c1c1c";
+            li.scrollIntoView({ block: "nearest" });
+        } else {
+            li.style.backgroundColor = "#fff";
+            li.style.color = "#333";
+        }
+    });
+}
+
+// --- BUSCA AO DIGITAR ---
+inputBusca.addEventListener("input", async () => {
+    const q = inputBusca.value.trim();
+    indexSelecionado = -1; // Reseta o foco ao digitar
+
+    if (!q) {
+        lista.innerHTML = "";
+        produtosFiltrados = [];
+        return;
+    }
+
+    try {
+        const resposta = await fetch(`${URL_BACKEND_CAD}/produtos/busca?q=${q}`);
+        const dados = await resposta.json();
+
+        if (!Array.isArray(dados)) return;
+        
+        produtosFiltrados = dados; // Salva para uso no Enter
+        lista.innerHTML = "";
+
+        dados.forEach((prod, index) => {
+            const li = document.createElement("li");
+            
+            // Estilos base
+            li.style.padding = "12px";
+            li.style.borderBottom = "1px solid #eee";
+            li.style.cursor = "pointer";
+            li.style.display = "flex";
+            li.style.justifyContent = "space-between";
+            li.style.backgroundColor = "#fff";
+            li.style.color = "#333";
+            li.style.marginBottom = "5px";
+            li.style.borderRadius = "4px";
+            li.style.transition = "background 0.2s";
+
+            li.innerHTML = `
+                <strong>${prod.nome}</strong>
+                <span>R$ ${formatar(prod.preco)}</span>
+            `;
+
+            // Clique com mouse
+            li.addEventListener("click", () => selecionarProduto(prod));
+
+            // Hover do mouse sincroniza com o indexSelecionado
+            li.onmouseover = () => {
+                indexSelecionado = index;
+                atualizarDestaque(lista.querySelectorAll("li"));
+            };
+
+            lista.appendChild(li);
+        });
+
+    } catch (erro) {
+        console.error("Erro na busca:", erro);
+    }
+});
+
+
 
     // =============================
     // ATALHOS TECLADO ATUALIZADOS
@@ -335,27 +499,13 @@
             e.preventDefault();
             document.getElementById("b_agend").click();
             break; 
-    }
+        case "p":
+        case "P":
+            e.preventDefault();
+            modalp.showModal();
+            break;
+            }
 });
-const inputBusca = document.getElementById("inputBusca");
-
-inputBusca.addEventListener("input", () => {
-    const termo = inputBusca.value.toLowerCase();
-
-    const linhas = document.querySelectorAll("#tb_tbl_produtos tr");
-
-    linhas.forEach(linha => {
-        const codigo = linha.children[0].innerText.toLowerCase();
-        const nome = linha.children[1].innerText.toLowerCase();
-
-        if (codigo.includes(termo) || nome.includes(termo)) {
-            linha.style.display = "";
-        } else {
-            linha.style.display = "none";
-        }
-    });
-});
-
 </script>
 </body>
 </html>

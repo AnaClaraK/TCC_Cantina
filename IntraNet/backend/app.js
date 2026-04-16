@@ -200,6 +200,28 @@ app.post("/produtos", uploadProdutos.single("imagem"), async (req, res) => {
   }
 });
 
+//-----Busca
+app.get("/produtos/busca", async (req, res) => {
+  try {
+    const q = req.query.q;
+
+    const [rows] = await conexao.query(`
+      SELECT id_produto, nome, codigo_barras, preco
+      FROM produtos
+      WHERE 
+        TRIM(codigo_barras) = ?
+      LIMIT 10
+    `, [q, `%${q}%`]);
+
+    console.log(rows); // ✔ console no lugar certo
+
+    return res.json(rows); // ✔ só uma resposta
+
+  } catch (erro) {
+    console.error(erro);
+    return res.status(500).json({ erro: "Erro na busca" });
+  }
+});
 app.get("/produtos/:codigo", async (req, res) => {
   try {
     const codigo = req.params.codigo;
@@ -237,15 +259,18 @@ app.post("/pedidos", async (req, res) => {
 
     const numeroFormatado = String(numero).padStart(3, "0");
 
-    // salva pedido
+    // 🔥 COLOCA AQUI
+    const qtd_total = itens.reduce((soma, item) => soma + item.qtd, 0);
+
+    // 🔥 SUBSTITUI TEU INSERT POR ESSE
     const [result] = await conexao.query(`
-      INSERT INTO pedidos (num_pedido, id_user, valor_total, form_pag)
-      VALUES (?, ?, ?, ?)
-    `, [numeroFormatado, 1, total, form_pag]);
+      INSERT INTO pedidos (num_pedido, id_user, valor_total, qtd_total, form_pag)
+      VALUES (?, ?, ?, ?, ?)
+    `, [numeroFormatado, 1, total, qtd_total, form_pag]);
 
     const idPedido = result.insertId;
 
-    // salva itens
+    // itens
     for (let item of itens) {
       await conexao.query(`
         INSERT INTO pedidos_itens (id_pedido, id_produto, qtd, preco_unitario)
@@ -260,7 +285,6 @@ app.post("/pedidos", async (req, res) => {
     res.status(500).json({ erro: "Erro ao salvar pedido" });
   }
 });
-
 //-------------------------------- ESTOQUE
 app.get("/produtos", async (req, res) => {
   try {
