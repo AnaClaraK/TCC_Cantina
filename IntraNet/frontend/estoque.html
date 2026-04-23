@@ -6,6 +6,9 @@
     <link rel="stylesheet" href="layout.css">
     <link rel="stylesheet" href="styleag_es.css">
     <title>Estoque</title>
+    <style>
+        body { display: none; }
+    </style>
 </head>
 
 <body class="fundo-escuro">
@@ -105,7 +108,7 @@ b_addf.addEventListener("click", async () => {
     const qtdAdd = Number(document.getElementById("inp_add_qtd").value);
     if (qtdAdd <= 0) return alert("Quantidade inválida");
 
-    await fetch(`http://localhost:3000/produtos/${codigo}/add`, {
+    await apiFetch(`http://localhost:3000/produtos/cod/${codigo}/add`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ quantidade: qtdAdd })
@@ -127,7 +130,7 @@ function limparModal() {
 
 // carregar tabela
 async function carregarProdutos() {
-    const res = await fetch("http://localhost:3000/produtos");
+    const res = await apiFetch("http://localhost:3000/produtos");
     const produtos = await res.json();
 
     produtosCache = produtos;

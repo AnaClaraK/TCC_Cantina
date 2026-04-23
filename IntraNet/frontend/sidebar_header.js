@@ -1,3 +1,90 @@
+
+// 🔒 PROTEÇÃO DE PÁGINA
+(function () {
+    const paginasPublicas = ["login.html", "cadastro.html"];
+    const pagina = window.location.pathname.split("/").pop();
+    const token = localStorage.getItem("token");
+
+    if (!token && !paginasPublicas.includes(pagina)) {
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.innerHTML = `
+                <div style="
+                    display:flex;
+                    justify-content:center;
+                    align-items:center;
+                    height:100vh;
+                    background:#242628;
+                    color:#efac4a;
+                    flex-direction:column;
+                    font-family:Arial;
+                ">
+                    <h2>Acesso restrito</h2>
+                    <p>Você não tem permissão para acessar esta página.</p>
+                    <p>Redirecionando...</p>
+                </div>
+            `;
+        });
+
+        setTimeout(() => {
+            window.location.href = "login.html";
+        }, 2000);
+
+        return;
+    }
+
+    // já logado → não volta pro login
+    if (token && pagina === "login.html") {
+        window.location.href = "index.html";
+    }
+})();
+
+
+// 👁️ MOSTRAR TELA (evita piscada)
+document.addEventListener("DOMContentLoaded", () => {
+    const paginasPublicas = ["login.html", "cadastro.html"];
+    const pagina = window.location.pathname.split("/").pop();
+    const token = localStorage.getItem("token");
+
+    if (token || paginasPublicas.includes(pagina)) {
+        document.body.style.display = "block";
+    }
+});
+
+
+// 🚪 LOGOUT
+function logout(){
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuarioNome");
+    localStorage.removeItem("usuarioFoto");
+    localStorage.removeItem("usuarioEmail");
+
+    window.location.href = "login.html";
+}
+
+
+// 🌐 FETCH GLOBAL
+async function apiFetch(url, options = {}) {
+    const token = localStorage.getItem("token");
+
+    const headers = {
+        ...(options.headers || {}),
+        "Authorization": `Bearer ${token}`
+    };
+
+    const res = await fetch(url, {
+        ...options,
+        headers
+    });
+
+    if (res.status === 401 || res.status === 403) {
+        logout();
+        return;
+    }
+
+    return res;
+}
+
 const headerHTML = `
 <header class="custom-header">
     <div style="display: flex; align-items: center;">

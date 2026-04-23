@@ -2,7 +2,9 @@
     RESET E VARIÁVEIS
 ============================================================ */
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
+body {
+    display: none; /* Esconde tudo por padrão */
+}
 :root {
     --cor-laranja: #f1b869;
     --cor-escuro: #2b1f14;

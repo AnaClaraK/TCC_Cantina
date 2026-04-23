@@ -1,4 +1,7 @@
 /* --- VARIÁVEIS E RESET --- */
+body {
+    display: none;
+}
 :root {
     --sidebar-width: 250px;
     --sidebar-collapsed-width: 70px;

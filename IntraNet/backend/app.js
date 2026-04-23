@@ -7,11 +7,29 @@ const conexao = require('./db.js') // Certifique-se que o db.js está na mesma p
 const fs = require('fs')
 const app = express()
 const porta = 3000
-
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
+const jwt = require('jsonwebtoken');
+const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3"; // Troque por algo difícil
+
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+// Middleware: Verifica se o usuário está logado
+function verificarToken(req, res, next) {
+  const token = req.headers['authorization'];
+
+  if (!token) return res.status(401).json({ "resposta": "Acesso negado. Faça login." });
+
+  // O token geralmente vem como "Bearer TOKEN_AQUI", então limpamos:
+  const tokenLimpo = token.split(' ')[1] || token;
+
+  jwt.verify(tokenLimpo, SECRET, (err, decoded) => {
+      if (err) return res.status(403).json({ "resposta": "Token inválido ou expirado." });
+      
+      req.usuarioId = decoded.id; // Salva o ID do funcionário para uso posterior
+      next();
+  });
+}
 let ejs = require('ejs');
 // Define o EJS como o motor de busca
 app.set('view engine', 'ejs');
@@ -71,7 +89,7 @@ const uploadProduto = multer({ storage: storageProduto });
 //---------------------------------------------------------------------------------
 
 //--------Funcionários
-app.post("/cadastro", uploadPerfil.single("imagem"), async (req, res) => {
+app.post("/cadastro", verificarToken, uploadPerfil.single("imagem"), async (req, res) => {
   try {
       // Agora recebemos também o 'nome' e 'confsenha' do body
       const { nome, email, senha, confsenha } = req.body;
@@ -106,6 +124,7 @@ app.post("/cadastro", uploadPerfil.single("imagem"), async (req, res) => {
       return res.status(500).json({ "resposta": "Erro interno do Servidor." });
   }
 });
+//-------- Login de Funcionários
 app.post("/login", async (req, res) => {
   try {
       const { email, senha } = req.body;
@@ -120,9 +139,12 @@ app.post("/login", async (req, res) => {
 
       const usuario = usuarios[0];
 
-      // Retornamos os dados que a sidebar vai precisar
+      // GERA O TOKEN (Válido por 8 horas)
+      const token = jwt.sign({ id: usuario.id_cadastro }, SECRET, { expiresIn: '8h' });
+
       return res.json({
           "resposta": "Login realizado com sucesso!",
+          "token": token, // O frontend deve salvar esse token no localStorage
           "usuario": {
               "nome": usuario.nome,
               "foto": usuario.img,
@@ -135,157 +157,79 @@ app.post("/login", async (req, res) => {
       return res.status(500).json({ "resposta": "Erro interno." });
   }
 });
- // ----- Atualizar perfil
-app.put("/perfil/atualizar", uploadPerfil.single('imagem'), async (req, res) => {
+ // ----- Atualizar perfil (Protegido)
+app.put("/perfil/atualizar", verificarToken, uploadPerfil.single('imagem'), async (req, res) => {
   try {
       const { nome, email, emailAntigo, nova_senha, conf_senha } = req.body;
-      let novaFotoPath = null;
-
-      // Se o usuário enviou uma foto nova
-      if (req.file) {
-          novaFotoPath = `/imagens/${req.file.filename}`;;
-      }
-
-      // Validação básica de senha
-      let senhaSql = "";
       let params = [nome, email];
+      let novaFotoPath = req.file ? `/imagens/${req.file.filename}` : null;
 
+      let senhaSql = "";
       if (nova_senha && nova_senha === conf_senha) {
           const senhaHashed = crypto.createHash("sha256").update(nova_senha.trim()).digest("hex");
           senhaSql = `, senha = ?`;
           params.push(senhaHashed);
       }
 
-      // Se houver foto nova, adiciona ao SQL
       let fotoSql = "";
       if (novaFotoPath) {
           fotoSql = `, img = ?`;
           params.push(novaFotoPath);
       }
 
-      // O emailAntigo é usado no WHERE para saber qual usuário atualizar
       params.push(emailAntigo);
 
       const sql = `UPDATE cadastro SET nome = ?, email = ? ${senhaSql} ${fotoSql} WHERE email = ?`;
-      
       const [resultado] = await conexao.query(sql, params);
 
-      if (resultado.affectedRows > 0) {
-          return res.json({
-              "resposta": "Perfil atualizado com sucesso!",
-              "novoNome": nome,
-              "novoEmail": email,
-              "novaFoto": novaFotoPath // Retorna o novo caminho para o frontend atualizar o localStorage
-          });
-      } else {
-          return res.status(400).json({ "resposta": "Usuário não encontrado ou sem alterações." });
-      }
-
+      res.json({ "resposta": "Perfil atualizado!", "novaFoto": novaFotoPath });
   } catch (error) {
-      console.error("Erro ao atualizar perfil:", error);
-      return res.status(500).json({ "resposta": "Erro interno ao atualizar." });
+      res.status(500).json({ "resposta": "Erro ao atualizar." });
   }
 });
-
-//--------Atualizar Produtos
-// BUSCAR 1 PRODUTO
-app.get("/produtos/:id", async (req, res) => {
-  const { id } = req.params;
-
-  const [rows] = await conexao.query(
-    "SELECT * FROM produtos WHERE id_produto = ?",
-    [id]
-  );
-
-  res.json(rows[0]);
-});
-
-// ATUALIZAR PRODUTO
-app.put("/produtos/:id", uploadProduto.single("img"), async (req, res) => {
-  const { id } = req.params;
-
-  const {
-    nome,
-    codigo_barras,
-    preco,
-    qtd,
-    dt_validade,
-    descricao
-  } = req.body;
-
-  let img = null;
-
-  if (req.file) {
-    img = req.file.filename;
-  }
-
-  await conexao.query(`
-    UPDATE produtos SET
-      nome = ?,
-      codigo_barras = ?,
-      preco = ?,
-      qtd = ?,
-      dt_validade = ?,
-      descricao = ?,
-      img = COALESCE(?, img)
-    WHERE id_produto = ?
-  `, [nome, codigo_barras, preco, qtd, dt_validade, descricao, img, id]);
-
-  res.json({ msg: "ok" });
-});
-
+//---buscar produto removida daqui
 //--------- PRODUTOS (PDV e Cadastro)
 
-app.post("/produtos", uploadProdutos.single("imagem"), async (req, res) => {
+//-------- Cadastro de Produtos (Protegido)
+app.post("/produtos", verificarToken, uploadProdutos.single("imagem"), async (req, res) => {
   try {
-    const { nome, preco, codigo_barras } = req.body;
-    // Substitui vírgula por ponto para o banco aceitar como decimal
-    const precoFormatado = preco.replace(",", ".");
+      const { nome, preco, codigo_barras } = req.body;
+      const precoFormatado = preco.replace(",", ".");
+      const imagem = req.file ? "/images/" + req.file.filename : null;
 
-      const imagem = req.file
-        ? "/images/" + req.file.filename
-        : null;
-    const sql = `
-      INSERT INTO produtos (nome, preco, codigo_barras, img)
-      VALUES (?, ?, ?, ?)
-    `;
+      await conexao.query("INSERT INTO produtos (nome, preco, codigo_barras, img) VALUES (?, ?, ?, ?)", 
+      [nome, precoFormatado, codigo_barras, imagem]);
 
-    await conexao.query(sql, [nome, precoFormatado, codigo_barras, imagem]);
-
-    res.json({ mensagem: "Produto cadastrado com sucesso" });
-
+      res.json({ mensagem: "Produto cadastrado com sucesso" });
   } catch (erro) {
-    console.error(erro);
-    res.status(500).json({ erro: "Erro ao cadastrar produto" });
+      res.status(500).json({ erro: "Erro ao cadastrar" });
   }
 });
 
 //-----Busca
-app.get("/produtos/busca", async (req, res) => {
+// Substitua o bloco da app.get("/produtos/busca", ...) por este:
+//----- Busca por Nome ou Código (Protegido)
+app.get("/produtos/busca", verificarToken, async (req, res) => {
   try {
     const q = req.query.q;
-
     const [rows] = await conexao.query(`
       SELECT id_produto, nome, codigo_barras, preco
       FROM produtos
-      WHERE 
-        TRIM(codigo_barras) = ?
+      WHERE nome LIKE ? OR codigo_barras = ?
       LIMIT 10
-    `, [q, `%${q}%`]);
+    `, [`%${q}%`, q]); 
 
-    console.log(rows); // ✔ console no lugar certo
-
-    return res.json(rows); // ✔ só uma resposta
-
+    return res.json(rows);
   } catch (erro) {
     console.error(erro);
     return res.status(500).json({ erro: "Erro na busca" });
   }
 });
-app.get("/produtos/:codigo", async (req, res) => {
+
+//--- Buscar por Código de Barras específico (Protegido)
+app.get("/produtos/cod/:codigo", verificarToken, async (req, res) => {
   try {
     const codigo = req.params.codigo;
-
     const [rows] = await conexao.query(
       "SELECT * FROM produtos WHERE codigo_barras = ?",
       [codigo]
@@ -293,7 +237,7 @@ app.get("/produtos/:codigo", async (req, res) => {
 
     if (rows.length === 0) return res.status(404).json({ erro: "Produto não encontrado" });
 
-    res.json(rows); // retorna o produto como array para o PDV
+    res.json(rows); 
   } catch (erro) {
     console.error(erro);
     res.status(500).json({ erro: "Erro ao buscar produto" });
@@ -301,52 +245,54 @@ app.get("/produtos/:codigo", async (req, res) => {
 });
 
 //----Pedidos
-app.post("/pedidos", async (req, res) => {
-  try {
-    const { itens, total, form_pag } = req.body;
+//---- Salvar Pedidos (Protegido e Dinâmico)
+app.post("/pedidos", verificarToken, async (req, res) => {
+    try {
+        const { itens, total, form_pag } = req.body;
 
-    // pega último pedido
-    const [ultimo] = await conexao.query(`
-      SELECT num_pedido FROM pedidos 
-      ORDER BY id_pedido DESC LIMIT 1
-    `);
+        // 1. Busca o número do último pedido para incrementar
+        const [ultimo] = await conexao.query(`
+            SELECT num_pedido FROM pedidos 
+            ORDER BY id_pedido DESC LIMIT 1
+        `);
 
-    let numero = 1;
+        let numero = 1;
+        if (ultimo.length > 0) {
+            numero = parseInt(ultimo[0].num_pedido) + 1;
+        }
 
-    if (ultimo.length > 0) {
-      numero = parseInt(ultimo[0].num_pedido) + 1;
+        const numeroFormatado = String(numero).padStart(3, "0");
+
+        // 2. Calcula a quantidade total de itens no pedido
+        const qtd_total = itens.reduce((soma, item) => soma + item.qtd, 0);
+
+        // 3. INSERT na tabela 'pedidos'
+        // Trocamos o '1' por 'req.usuarioId' que vem do verificarToken
+        const [result] = await conexao.query(`
+            INSERT INTO pedidos (num_pedido, id_user, valor_total, qtd_total, form_pag)
+            VALUES (?, ?, ?, ?, ?)
+        `, [numeroFormatado, req.usuarioId, total, qtd_total, form_pag]);
+
+        const idPedido = result.insertId;
+
+        // 4. INSERT dos itens do pedido
+        for (let item of itens) {
+            await conexao.query(`
+                INSERT INTO pedidos_itens (id_pedido, id_produto, qtd, preco_unitario)
+                VALUES (?, ?, ?, ?)
+            `, [idPedido, item.id_produto, item.qtd, item.preco]);
+        }
+
+        // Retorna o número do pedido para o frontend mostrar na tela de sucesso
+        res.json({ num_pedido: numeroFormatado });
+
+    } catch (err) {
+        console.error("Erro ao salvar pedido:", err);
+        res.status(500).json({ erro: "Erro ao salvar pedido" });
     }
-
-    const numeroFormatado = String(numero).padStart(3, "0");
-
-    // 🔥 COLOCA AQUI
-    const qtd_total = itens.reduce((soma, item) => soma + item.qtd, 0);
-
-    // 🔥 SUBSTITUI TEU INSERT POR ESSE
-    const [result] = await conexao.query(`
-      INSERT INTO pedidos (num_pedido, id_user, valor_total, qtd_total, form_pag)
-      VALUES (?, ?, ?, ?, ?)
-    `, [numeroFormatado, 1, total, qtd_total, form_pag]);
-
-    const idPedido = result.insertId;
-
-    // itens
-    for (let item of itens) {
-      await conexao.query(`
-        INSERT INTO pedidos_itens (id_pedido, id_produto, qtd, preco_unitario)
-        VALUES (?, ?, ?, ?)
-      `, [idPedido, item.id_produto, item.qtd, item.preco]);
-    }
-
-    res.json({ num_pedido: numeroFormatado });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ erro: "Erro ao salvar pedido" });
-  }
 });
 //-------------------------------- ESTOQUE
-app.get("/produtos", async (req, res) => {
+app.get("/produtos", verificarToken, async (req, res) => {
   try {
     const [rows] = await conexao.query(`
       SELECT p.*, c.nome AS categoria_nome
@@ -361,7 +307,7 @@ app.get("/produtos", async (req, res) => {
 });
 
 // ADD estoque
-app.put("/produtos/:codigo/add", async (req, res) => {
+app.put("/produtos/cod/:codigo/add", verificarToken, async (req, res) => {
   try {
     const codigo = req.params.codigo;
     const { quantidade } = req.body;
@@ -389,4 +335,31 @@ app.put("/produtos/:codigo/add", async (req, res) => {
   } catch (erro) {
     res.status(500).json({ erro: "Erro ao atualizar estoque" });
   }
+});
+
+
+//--------Atualizar Produtos
+// BUSCAR 1 PRODUTO PARA EDITAR (Protegido)
+app.get("/produtos/cod/:id", verificarToken, async (req, res) => {
+  const { id } = req.params;
+  const [rows] = await conexao.query(
+    "SELECT * FROM produtos WHERE id_produto = ?",
+    [id]
+  );
+  res.json(rows[0]);
+});
+
+// ATUALIZAR DADOS DO PRODUTO (Protegido)
+app.put("/produtos/cod/:id", verificarToken, uploadProduto.single("img"), async (req, res) => {
+  const { id } = req.params;
+  const { nome, codigo_barras, preco, qtd, dt_validade, descricao } = req.body;
+  let img = req.file ? req.file.filename : null;
+
+  await conexao.query(`
+    UPDATE produtos SET
+      nome = ?, codigo_barras = ?, preco = ?, qtd = ?, dt_validade = ?, descricao = ?, img = COALESCE(?, img)
+    WHERE id_produto = ?
+  `, [nome, codigo_barras, preco, qtd, dt_validade, descricao, img, id]);
+
+  res.json({ msg: "ok" });
 });
