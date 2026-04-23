@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<script src="sidebar_header.js"></script>
+<link rel="stylesheet" href="layout.css">
+<link rel="stylesheet" href="stylecadp.css">
+<title>Editar Produto</title>
+</head>
+
+<body class="fundo-escuro">
+
+<form id="formProduto" enctype="multipart/form-data">
+    <h2>Editar Produto</h2>
+
+    <!-- 🔍 BUSCA -->
+    <input type="text" class="inp_m" id="inp_busca_editar" placeholder="Código ou nome">
+    <ul id="lista_sugestoes"></ul>
+
+    <p class="pm">Selecionado: <span id="s_produto">---</span></p>
+    <div class="produto-img">
+        <img id="preview-img" src="">
+    </div>
+
+    <label class="file-label">
+        Trocar Imagem
+        <input type="file" name="img" id="inputImagem" accept="image/*">
+    </label>
+
+    <label class="label-amarela">Nome</label>
+    <input type="text" name="nome" id="nome" class="inp_p">
+
+    <label class="label-amarela">Código de Barras</label>
+    <input type="text" name="codigo_barras" id="codigo" class="inp_p">
+
+    <label class="label-amarela">Preço</label>
+    <input type="number" step="0.01" name="preco" id="preco" class="inp_p">
+
+    <label class="label-amarela">Quantidade</label>
+    <input type="number" name="qtd" id="qtd" class="inp_p">
+
+    <div class="secao-divisora">
+        <label class="label-amarela">Descrição</label>
+        <textarea name="descricao" id="descricao" class="inp_p"></textarea>
+    </div>
+
+    <button type="submit">Salvar</button>
+    <button type="button" onclick="window.location.href='estoque.html'" style="background:#555;margin-top:10px;">Cancelar</button>
+</form>
+
+<script>
+const nome = document.getElementById("nome");
+const codigo = document.getElementById("codigo");
+const preco = document.getElementById("preco");
+const qtd = document.getElementById("qtd");
+const validade = document.getElementById("validade");
+const descricao = document.getElementById("descricao");
+const previewImg = document.getElementById("preview-img");
+const inputImagem = document.getElementById("inputImagem");
+const formProduto = document.getElementById("formProduto");
+
+const inpBusca = document.getElementById("inp_busca_editar");
+const lista = document.getElementById("lista_sugestoes");
+
+let produtosCache = [];
+let produtoSelecionado = null;
+let indexSelecionado = -1;
+
+// carregar produtos
+async function carregarProdutos(){
+    const res = await fetch("http://localhost:3000/produtos");
+    produtosCache = await res.json();
+}
+carregarProdutos();
+
+// busca
+inpBusca.addEventListener("input", () => {
+    const termo = inpBusca.value.toLowerCase();
+    lista.innerHTML = "";
+    indexSelecionado = -1;
+
+    if(!termo) return;
+
+    const filtrados = produtosCache.filter(p =>
+        (p.nome || "").toLowerCase().includes(termo) ||
+        (p.codigo_barras || "").startsWith(termo)
+    ).slice(0, 5);
+
+    filtrados.forEach((p, i) => {
+        const li = document.createElement("li");
+        li.textContent = p.nome;
+
+        li.onclick = () => selecionarProduto(p);
+
+        lista.appendChild(li);
+    });
+});
+
+// teclado (↑ ↓ ENTER)
+inpBusca.addEventListener("keydown", (e) => {
+    const itens = lista.querySelectorAll("li");
+
+    if(e.key === "ArrowDown"){
+        indexSelecionado++;
+        if(indexSelecionado >= itens.length) indexSelecionado = 0;
+        atualizarSelecao(itens);
+    }
+
+    if(e.key === "ArrowUp"){
+        indexSelecionado--;
+        if(indexSelecionado < 0) indexSelecionado = itens.length - 1;
+        atualizarSelecao(itens);
+    }
+
+    if(e.key === "Enter"){
+        e.preventDefault();
+        if(itens[indexSelecionado]){
+            itens[indexSelecionado].click();
+        }
+    }
+});
+
+function atualizarSelecao(itens){
+    itens.forEach(li => li.style.background = "");
+
+    if(itens[indexSelecionado]){
+        itens[indexSelecionado].style.background = "#333";
+    }
+}
+
+// selecionar produto
+function selecionarProduto(p){
+    produtoSelecionado = p;
+
+    inpBusca.value = p.nome;
+    document.getElementById("s_produto").innerText = p.nome;
+
+    nome.value = p.nome || "";
+    codigo.value = p.codigo_barras || "";
+    preco.value = p.preco || 0;
+    qtd.value = p.qtd || 0;
+    validade.value = p.dt_validade ? p.dt_validade.split("T")[0] : "";
+    descricao.value = p.descricao || "";
+
+    if(p.img){
+    previewImg.src = `http://localhost:3000/imagens/${p.img}`;
+    } else {
+        previewImg.src = "imagens/img_ntf.png"; // opcional
+    }
+
+    lista.innerHTML = "";
+}
+
+// fechar lista ao clicar fora
+document.addEventListener("click", (e) => {
+    if(!inpBusca.contains(e.target) && !lista.contains(e.target)){
+        lista.innerHTML = "";
+    }
+});
+
+// preview imagem
+inputImagem.addEventListener("change", () => {
+    const file = inputImagem.files[0];
+    if(file){
+        previewImg.src = URL.createObjectURL(file);
+    }
+});
+
+// salvar
+formProduto.addEventListener("submit", async (e)=>{
+    e.preventDefault();
+
+    if(!produtoSelecionado){
+        alert("Selecione um produto");
+        return;
+    }
+
+    const formData = new FormData(formProduto);
+
+    await fetch(`http://localhost:3000/produtos/${produtoSelecionado.id_produto}`, {
+        method: "PUT",
+        body: formData
+    });
+
+    alert("Produto atualizado");
+});
+</script>
+
+</body>
+</html>

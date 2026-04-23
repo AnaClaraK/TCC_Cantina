@@ -50,6 +50,7 @@ body.fundo-escuro .icon-inicio { background-image: url('imagens/inicio_l.png'); 
 body.fundo-escuro .icon-pdv { background-image: url('imagens/pdv_l.png'); }
 body.fundo-escuro .icon-estoque { background-image: url('imagens/estoque_l.png'); }
 body.fundo-escuro .icon-agendamento { background-image: url('imagens/agendamento_l.png'); }
+body.fundo-escuro .icon-editarprod { background-image: url('imagens/editarprod_l.png'); }
 
 
 /* --- TEMA 2: FUNDO LARANJA (Ícones Pretos) --- */
@@ -66,6 +67,7 @@ body.fundo-laranja .icon-inicio { background-image: url('imagens/inicio_p.png');
 body.fundo-laranja .icon-pdv { background-image: url('imagens/pdv_p.png'); }
 body.fundo-laranja .icon-estoque { background-image: url('imagens/estoque_p.png'); }
 body.fundo-laranja .icon-agendamento { background-image: url('imagens/agendamento_p.png'); }
+body.fundo-laranja .icon-editarprod { background-image: url('imagens/editarprod_p.png'); }
 
 /* --- TEMA 3: FUNDO MARROM --- */
 body.fundo-marrom {
@@ -93,6 +95,7 @@ body.fundo-marrom .icon-inicio { background-image: url('imagens/inicio_p.png'); 
 body.fundo-marrom .icon-pdv { background-image: url('imagens/pdv_p.png'); }
 body.fundo-marrom .icon-estoque { background-image: url('imagens/estoque_p.png'); }
 body.fundo-marrom .icon-agendamento { background-image: url('imagens/agendamento_p.png'); }
+body.fundo-marrom .icon-editarprod { background-image: url('imagens/editarprod_p.png'); }
 
 /* Nome usuário */
 body.fundo-marrom .user-name{

@@ -6,6 +6,17 @@
     min-height: calc(100vh - 80px); /* Garante centralização descontando a header */
     padding: 20px;
 }
+body{
+    display: flex;
+    justify-content: center; /* horizontal */
+    align-items: center;     /* vertical */
+    height: 100vh;
+    margin: 0;
+}
+
+#formProduto{
+    width: 500px; /* ou o tamanho que quiser */
+}
 
 /* FORM - Agora com largura controlada */
 form {
@@ -119,4 +130,192 @@ form button:hover, .btn-form:hover {
     font-weight: bold;
     font-size: 14px;
     margin: 5px 0;
+}
+
+.user-photo-grande {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 5px solid #efac4a;
+            margin: 20px auto;
+            background-color: #444; /* Cor de fundo enquanto a foto não carrega */
+        }
+        .user-photo-grande img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .label-amarela {
+            color: #efac4a;
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+        .secao-divisora {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 2px solid #efac4a;
+        }
+
+/* IMAGEM DO PRODUTO */
+.produto-img {
+    width: 180px;
+    height: 180px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 5px solid #efac4a;
+    margin: 20px auto;
+    background-color: #444;
+}
+
+.produto-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* LABEL PADRÃO */
+.label-amarela {
+    color: #efac4a;
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+}
+
+/* DIVISÃO */
+.secao-divisora {
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 2px solid #efac4a;
+}
+
+
+
+/* editar produto */
+.inp_m{
+    width: 100%;
+    height: 40px;
+    font-size: 30px;
+    background-color: #fed89d;
+    border: 3px solid #efac4a;
+    border-radius: 10px;
+}
+
+/* LISTA */
+#lista_sugestoes {
+    width: 100%;
+    background: #1c1c1c;
+    color: #f8c471;
+    border: 2px solid #efac4a;
+    border-radius: 8px;
+
+    max-height: 160px;
+    overflow-y: auto;
+
+    margin-top: 5px;
+    padding: 0;
+    list-style: none;
+}
+
+/* ITENS */
+#lista_sugestoes li {
+    padding: 14px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #333;
+}
+
+/* HOVER */
+#lista_sugestoes li:hover {
+    background: #333;
+}
+
+/* SCROLL DA LISTA (MENOR) */
+#lista_sugestoes::-webkit-scrollbar {
+    width: 8px; /* 🔥 menor */
+}
+
+#lista_sugestoes::-webkit-scrollbar-track {
+    background: #1c1c1c;
+}
+
+#lista_sugestoes::-webkit-scrollbar-thumb {
+    background: #efac4a;
+    border-radius: 6px;
+}
+
+#lista_sugestoes::-webkit-scrollbar-thumb:hover {
+    background: #c2904b;
+}
+/* BARRA */
+::-webkit-scrollbar {
+    width: 18px;
+}
+
+/* FUNDO */
+::-webkit-scrollbar-track {
+    background: #ffff; /* 🔥 tira o fundo colado */
+}
+
+/* "BOTÃO" */
+::-webkit-scrollbar-thumb {
+    background: #dbb57c;
+    border-radius: 10px;
+    border: 4px solid transparent;
+    background-clip: content-box;
+}
+
+/* HOVER */
+::-webkit-scrollbar-thumb:hover {
+    background: #c2904b;
+    border-radius: 10px;
+    border: 4px solid transparent;
+    background-clip: content-box;
+}
+
+/* SCROLL DA LISTA IGUAL AO GLOBAL */
+#lista_sugestoes::-webkit-scrollbar {
+    width: 15px; /* igual ao outro */
+}
+
+#lista_sugestoes::-webkit-scrollbar-track {
+    background: #ffff; /* igual */
+    border-radius: 6px;
+}
+
+#lista_sugestoes::-webkit-scrollbar-thumb {
+    background: #dbb57c;
+    border-radius: 20px;
+    border: 4px solid transparent;
+    background-clip: content-box;
+    height: 10px;
+}
+
+#lista_sugestoes::-webkit-scrollbar-thumb:hover {
+    background: #c2904b;
+    border-radius: 20px;
+    border: 4px solid transparent;
+    background-clip: content-box;
+}
+/* BOTÃO FECHAR (X) */
+#b_close_modal {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+
+    background: transparent;
+    border: none;
+    color: #efac4a;
+
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+
+    line-height: 1;
+}
+
+/* HOVER */
+#b_close_modal:hover {
+    color: #f8c471;
+    transform: scale(1.1);
 }

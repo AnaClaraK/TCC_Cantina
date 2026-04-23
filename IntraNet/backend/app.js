@@ -54,7 +54,20 @@ const storagePerfil = multer.diskStorage({
   }
 });
 
+// MULTER PARA Produtos (backend - pessoal)
 const uploadPerfil = multer({ storage: storagePerfil });
+
+const storageProduto = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "imagens/"); // mesma pasta do perfil
+  },
+  filename: function (req, file, cb) {
+    const nomeUnico = Date.now() + path.extname(file.originalname);
+    cb(null, nomeUnico);
+  }
+});
+
+const uploadProduto = multer({ storage: storageProduto });
 //---------------------------------------------------------------------------------
 
 //--------Funcionários
@@ -172,6 +185,53 @@ app.put("/perfil/atualizar", uploadPerfil.single('imagem'), async (req, res) => 
       console.error("Erro ao atualizar perfil:", error);
       return res.status(500).json({ "resposta": "Erro interno ao atualizar." });
   }
+});
+
+//--------Atualizar Produtos
+// BUSCAR 1 PRODUTO
+app.get("/produtos/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const [rows] = await conexao.query(
+    "SELECT * FROM produtos WHERE id_produto = ?",
+    [id]
+  );
+
+  res.json(rows[0]);
+});
+
+// ATUALIZAR PRODUTO
+app.put("/produtos/:id", uploadProduto.single("img"), async (req, res) => {
+  const { id } = req.params;
+
+  const {
+    nome,
+    codigo_barras,
+    preco,
+    qtd,
+    dt_validade,
+    descricao
+  } = req.body;
+
+  let img = null;
+
+  if (req.file) {
+    img = req.file.filename;
+  }
+
+  await conexao.query(`
+    UPDATE produtos SET
+      nome = ?,
+      codigo_barras = ?,
+      preco = ?,
+      qtd = ?,
+      dt_validade = ?,
+      descricao = ?,
+      img = COALESCE(?, img)
+    WHERE id_produto = ?
+  `, [nome, codigo_barras, preco, qtd, dt_validade, descricao, img, id]);
+
+  res.json({ msg: "ok" });
 });
 
 //--------- PRODUTOS (PDV e Cadastro)

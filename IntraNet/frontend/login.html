@@ -59,7 +59,6 @@
                         window.location.href = 'index.html';
                     }, 1000);
                         const dados = await resposta.json();
-                        console.log("Dados recebidos do login:", dados); // ADICIONE ISSO PARA TESTAR
 
                         localStorage.setItem("usuarioNome", dados.usuario.nome);
                         localStorage.setItem("usuarioEmail", dados.usuario.email);

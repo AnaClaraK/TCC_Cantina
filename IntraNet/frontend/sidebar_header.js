@@ -2,7 +2,7 @@ const headerHTML = `
 <header class="custom-header">
     <div style="display: flex; align-items: center;">
         <button id="btn-menu">☰</button>
-        <span><img class="l_img" data-name="logo" src="imagens/logo_p.png"/></span>
+        <span><a href="index.html"> <img class="l_img" data-name="logo" src="imagens/logo_p.png"/> </a> </span>
     </div>
 </header>
 `;
@@ -46,11 +46,14 @@ const sidebarHTML = `
             <img class="i_img" data-name="cadastrop" src="imagens/cadastrop_p.png"/> 
             <span class="nav-text">Cadastro de <br> Produtos</span>
         </a>
+        <a href="editarprod.html" class="nav-link">
+            <img class="i_img" data-name="editarprod" src="imagens/editarprod_p.png"/> 
+            <span class="nav-text">Editar Produtos</span>
+        </a>
         <a href="cadastrof.html" class="nav-link">
             <img class="i_img" data-name="cadastrof" src="imagens/cadastrof_p.png"/> 
             <span class="nav-text">Cadastro de <br> Funcionários</span>
         </a>
-    </nav>
 </aside>
 `;
 
