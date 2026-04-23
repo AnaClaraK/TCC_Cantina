@@ -2,7 +2,7 @@
 -- Servidor:                     127.0.0.1
 -- Versão do servidor:           10.4.32-MariaDB - mariadb.org binary distribution
 -- OS do Servidor:               Win64
--- HeidiSQL Versão:              12.10.0.7000
+-- HeidiSQL Versão:              12.15.0.7171
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `cadastro` (
   PRIMARY KEY (`id_cadastro`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.cadastro: ~0 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.cadastro: ~1 rows (aproximadamente)
 DELETE FROM `cadastro`;
 INSERT INTO `cadastro` (`id_cadastro`, `nome`, `email`, `senha`, `img`) VALUES
 	(1, 'Ana Banana', 'anabanana@gmail.com', 'c64a0fbaee020a68288cd158bbd2d711ef7b8c07b592903546e7bc38fc002f02', 'images/jimin.jpg');
@@ -128,16 +128,13 @@ CREATE TABLE IF NOT EXISTS `pedidos` (
   `form_pag` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id_pedido`),
   KEY `Index 2` (`id_user`),
-  CONSTRAINT `FK_pedidos_users` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE NO ACTION ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+  CONSTRAINT `FK_pedidos_users` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.pedidos: ~4 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.pedidos: ~1 rows (aproximadamente)
 DELETE FROM `pedidos`;
 INSERT INTO `pedidos` (`id_pedido`, `id_user`, `num_pedido`, `data`, `status`, `valor_total`, `qtd_total`, `form_pag`) VALUES
-	(7, 1, 1, '2026-04-16 17:08:06', '', 0.00, 1, 'DINHEIRO (F2)'),
-	(8, 1, 2, '2026-04-16 17:08:19', '', 0.00, 2, 'CARTÃO DE CRÉDITO (F3)'),
-	(9, 1, 3, '2026-04-16 17:09:23', '', 0.00, 2, 'DINHEIRO (F2)'),
-	(10, 1, 4, '2026-04-16 17:10:44', '', 21.76, 2, 'DINHEIRO (F2)');
+	(1, 1, 1, '2026-04-16 20:41:18', '', 46.30, 4, 'DINHEIRO (F2)');
 
 -- Copiando estrutura para tabela cantina.pedidos_itens
 DROP TABLE IF EXISTS `pedidos_itens`;
@@ -150,20 +147,16 @@ CREATE TABLE IF NOT EXISTS `pedidos_itens` (
   PRIMARY KEY (`id_itens`),
   KEY `Index 2` (`id_pedido`),
   KEY `Index 3` (`id_produto`),
-  CONSTRAINT `FK_pedidos_itens_pedidos` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `FK_pedidos_itens_pedidos` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `FK_pedidos_itens_produtos` FOREIGN KEY (`id_produto`) REFERENCES `produtos` (`id_produto`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.pedidos_itens: ~7 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.pedidos_itens: ~3 rows (aproximadamente)
 DELETE FROM `pedidos_itens`;
 INSERT INTO `pedidos_itens` (`id_itens`, `id_pedido`, `id_produto`, `qtd`, `preco_unitario`) VALUES
-	(12, 7, 1, 1, 2.260000),
-	(13, 8, 14, 1, 18.600000),
-	(14, 8, 1, 1, 2.260000),
-	(15, 9, 14, 1, 18.600000),
-	(16, 9, 1, 1, 2.260000),
-	(17, 10, 6, 1, 19.500000),
-	(18, 10, 1, 1, 2.260000);
+	(1, 1, 3, 1, 3.800000),
+	(2, 1, 2, 1, 3.500000),
+	(3, 1, 6, 2, 19.500000);
 
 -- Copiando estrutura para tabela cantina.produtos
 DROP TABLE IF EXISTS `produtos`;
@@ -174,7 +167,7 @@ CREATE TABLE IF NOT EXISTS `produtos` (
   `nome` varchar(255) NOT NULL DEFAULT '',
   `descricao` text NOT NULL,
   `preco` decimal(10,2) NOT NULL DEFAULT 0.00,
-  `dt_validade` date NOT NULL,
+  `dt_validade` date DEFAULT NULL,
   `qtd` int(11) NOT NULL,
   `img` varchar(255) NOT NULL DEFAULT '',
   `disponivel` int(11) DEFAULT NULL,
@@ -267,7 +260,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   PRIMARY KEY (`id_user`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.users: ~0 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.users: ~1 rows (aproximadamente)
 DELETE FROM `users`;
 INSERT INTO `users` (`id_user`, `nome`, `cpf`, `email`, `senha`, `data_criacao`) VALUES
 	(1, 'Ana Clara', '50572398808', 'clarinhakassao@gmail.com', 'anabanana', '2026-04-16 13:04:17');
