@@ -8,15 +8,20 @@
     <link rel="stylesheet" href="layout.css">
     <link rel="stylesheet" href="stylecadp.css">
 </head>
-<body class="fundo-escuro"> <main class="main-cadastro">
-        <div class="quadrado"> <form id="formFuncionario">
+<body class="fundo-escuro"> 
+    <main class="main-cadastro">
+        <div class="quadrado"> 
+            <form id="formFuncionario">
                 <h2 class="lb_cad">Cadastro de Funcionário</h2>
 
                 <div class="container-respostas">
+                    <label class="lb_" for="nome">Nome</label>
+                    <input type="text" id="nome" class="inp_p" placeholder="Digite o nome" required>
+                
                     <label class="lb_" for="email">E-mail</label>
                     <input type="email" id="email" class="inp_p" placeholder="Digite o email para cadastro" required>
                     
-                    <label for="senha" >Senha</label>
+                    <label for="senha">Senha</label>
                     <input type="password" id="senha" class="inp_p" placeholder="Digite a senha da conta" required>
                     
                     <label for="confsenha">Confirmar Senha</label>
@@ -39,36 +44,49 @@
         const containerFimEl = document.querySelector(".container-fim");
 
         formFunc.addEventListener("submit", async (e) => { 
-            e.preventDefault(); // Previne o refresh da página
+            e.preventDefault(); 
             
+            // Captura dos valores
+            const nome = document.getElementById("nome").value;
             const email = document.getElementById("email").value;
             const senha = document.getElementById("senha").value;
             const confsenha = document.getElementById("confsenha").value;
 
-            // Validação de senha
+            // Validação local de senha
             if (senha !== confsenha) {
                 pMessageEl.innerText = "As senhas não coincidem!";
                 pMessageEl.style.color = "red";
-                containerFimEl.classList.add('container-fim-error');
+                containerFimEl.style.display = "block";
                 return;
             }
-            
+
             pMessageEl.innerText = "Realizando cadastro...";
             pMessageEl.style.color = "white"; 
-            
+
+            // Como o Backend usa Multer (uploadPerfil.single), enviamos como FormData
+            const formData = new FormData();
+            formData.append("nome", nome);
+            formData.append("email", email);
+            formData.append("senha", senha);
+            formData.append("confsenha", confsenha);
+            // Se no futuro quiser enviar foto, basta usar: formData.append("imagem", arquivoInput.files[0]);
+
             try {
-                const resposta = await apiFetch(`http://localhost:3000/cadastro`, {
+                // Recupera o token de quem está logado (necessário para rota protegida)
+                const token = localStorage.getItem("token");
+
+                const resposta = await fetch(`http://localhost:3000/cadastro`, {
                     method: "POST",
                     headers: {
-                        "Accept": "application/json",
-                        "Content-Type": "application/json"
+                        "Authorization": `Bearer ${token}`
+                        // Nota: Não defina Content-Type manual quando usar FormData
                     },
-                    body: JSON.stringify({"email": email, "senha": senha})
+                    body: formData
                 });
 
+                const dados = await resposta.json();
+
                 if (resposta.ok) {
-                    containerFimEl.classList.remove('container-fim-error');
-                    containerFimEl.classList.add('container-fim-success');
                     pMessageEl.innerText = "Cadastro realizado com sucesso! Redirecionando...";
                     pMessageEl.style.color = "green";
                     
@@ -77,12 +95,12 @@
                     }, 1500);
 
                 } else {
-                    pMessageEl.innerText = "Erro ao cadastrar funcionário.";
+                    // Exibe a mensagem exata vinda do backend (ex: "E-mail já cadastrado")
+                    pMessageEl.innerText = dados.resposta || "Erro ao cadastrar funcionário.";
                     pMessageEl.style.color = "red";
                 }
 
             } catch (error) {
-                containerFimEl.classList.add('container-fim-error');
                 pMessageEl.innerText = "Erro de conexão com o servidor.";
                 pMessageEl.style.color = "red";
                 console.error("Erro de rede:", error);

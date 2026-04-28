@@ -89,7 +89,7 @@ const uploadProduto = multer({ storage: storageProduto });
 //---------------------------------------------------------------------------------
 
 //--------Funcionários
-app.post("/cadastro", verificarToken, uploadPerfil.single("imagem"), async (req, res) => {
+app.post("/cadastro", uploadPerfil.single("imagem"), async (req, res) => {
   try {
       // Agora recebemos também o 'nome' e 'confsenha' do body
       const { nome, email, senha, confsenha } = req.body;
