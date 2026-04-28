@@ -7,6 +7,16 @@
     <link rel="stylesheet" href="styleag_es.css">
     <link rel="stylesheet" href="layout.css">
     <title>Agendamentos</title>
+    <script>
+        // Verifica se existe um token no localStorage
+        const token = localStorage.getItem("token");
+    
+        if (!token) {
+            // Se não tem token, nem carrega o resto da página
+            alert("Acesso restrito! Redirecionando para o login...");
+            window.location.href = "login.html"; 
+        }
+    </script>
 </head>
 <body class="fundo-escuro">
     <div class="d_util">
