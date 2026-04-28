@@ -157,34 +157,148 @@ app.post("/login", async (req, res) => {
       return res.status(500).json({ "resposta": "Erro interno." });
   }
 });
- // ----- Atualizar perfil (Protegido)
-app.put("/perfil/atualizar", verificarToken, uploadPerfil.single('imagem'), async (req, res) => {
-  try {
-      const { nome, email, emailAntigo, nova_senha, conf_senha } = req.body;
-      let params = [nome, email];
-      let novaFotoPath = req.file ? `/imagens/${req.file.filename}` : null;
 
-      let senhaSql = "";
-      if (nova_senha && nova_senha === conf_senha) {
-          const senhaHashed = crypto.createHash("sha256").update(nova_senha.trim()).digest("hex");
-          senhaSql = `, senha = ?`;
-          params.push(senhaHashed);
+//--Recuperar Senha
+app.put("/recuperar-senha", async (req, res) => {
+  try {
+      const { email, novaSenha, confirmarSenha } = req.body;
+
+      if (!email || !novaSenha || !confirmarSenha) {
+          return res.status(400).json({
+              resposta: "Preencha todos os campos."
+          });
       }
 
+      if (novaSenha !== confirmarSenha) {
+          return res.status(400).json({
+              resposta: "As senhas não coincidem."
+          });
+      }
+
+      const [usuarios] = await conexao.query(
+          "SELECT id_cadastro FROM cadastro WHERE email = ?",
+          [email]
+      );
+
+      if (usuarios.length === 0) {
+          return res.status(404).json({
+              resposta: "E-mail não encontrado."
+          });
+      }
+
+      const senhaHash = crypto
+          .createHash("sha256")
+          .update(novaSenha.trim())
+          .digest("hex");
+
+      await conexao.query(
+          "UPDATE cadastro SET senha = ? WHERE email = ?",
+          [senhaHash, email]
+      );
+
+      return res.json({
+          resposta: "Senha redefinida com sucesso!"
+      });
+
+  } catch (error) {
+      console.error("Erro ao redefinir senha:", error);
+      return res.status(500).json({
+          resposta: "Erro interno do servidor."
+      });
+  }
+});
+
+ // ----- Atualizar perfil (Protegido)
+ app.put("/perfil/atualizar", verificarToken, uploadPerfil.single("imagem"), async (req, res) => {
+  try {
+      const {
+          nome,
+          email,
+          emailAntigo,
+          senha_atual,
+          nova_senha,
+          conf_senha
+      } = req.body;
+
+      const [usuarios] = await conexao.query(
+          "SELECT senha FROM cadastro WHERE email = ?",
+          [emailAntigo]
+      );
+
+      if (usuarios.length === 0) {
+          return res.status(404).json({
+              resposta: "Usuário não encontrado."
+          });
+      }
+
+      let senhaSql = "";
       let fotoSql = "";
-      if (novaFotoPath) {
-          fotoSql = `, img = ?`;
+      let params = [nome, email];
+
+      if (nova_senha || conf_senha) {
+          if (!senha_atual) {
+              return res.status(400).json({
+                  resposta: "Informe sua senha atual."
+              });
+          }
+
+          const senhaAtualHash = crypto
+              .createHash("sha256")
+              .update(senha_atual.trim())
+              .digest("hex");
+
+          if (senhaAtualHash !== usuarios[0].senha) {
+              return res.status(401).json({
+                  resposta: "Senha atual incorreta."
+              });
+          }
+
+          if (nova_senha !== conf_senha) {
+              return res.status(400).json({
+                  resposta: "A nova senha e a confirmação não coincidem."
+              });
+          }
+
+          const novaSenhaHash = crypto
+              .createHash("sha256")
+              .update(nova_senha.trim())
+              .digest("hex");
+
+          senhaSql = ", senha = ?";
+          params.push(novaSenhaHash);
+      }
+
+      let novaFotoPath = null;
+      if (req.file) {
+          novaFotoPath = `/imagens/${req.file.filename}`;
+          fotoSql = ", img = ?";
           params.push(novaFotoPath);
       }
 
       params.push(emailAntigo);
 
-      const sql = `UPDATE cadastro SET nome = ?, email = ? ${senhaSql} ${fotoSql} WHERE email = ?`;
-      const [resultado] = await conexao.query(sql, params);
+      const sql = `
+          UPDATE cadastro
+          SET nome = ?, email = ?
+          ${senhaSql}
+          ${fotoSql}
+          WHERE email = ?
+      `;
 
-      res.json({ "resposta": "Perfil atualizado!", "novaFoto": novaFotoPath });
+      await conexao.query(sql, params);
+
+      return res.json({
+          resposta: "Perfil atualizado com sucesso!",
+          novoNome: nome,
+          novoEmail: email,
+          novaFoto: novaFotoPath
+      });
+
   } catch (error) {
-      res.status(500).json({ "resposta": "Erro ao atualizar." });
+      console.error("Erro ao atualizar perfil:", error);
+      return res.status(500).json({
+          resposta: "Erro ao atualizar perfil."
+      });
   }
 });
 //---buscar produto removida daqui

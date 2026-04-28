@@ -111,3 +111,18 @@ body {
     border: 1px solid #f5c6cb;
     color: #721c24;
 }
+.link-recuperar {
+    text-align: right;
+    margin-top: 8px;
+    margin-bottom: 10px;
+}
+
+.link-recuperar a {
+    color: #efac4a;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.link-recuperar a:hover {
+    text-decoration: underline;
+}
