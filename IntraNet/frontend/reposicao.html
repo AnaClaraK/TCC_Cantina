@@ -94,7 +94,7 @@
 
         <div id="d_inp">
             <div class="busca-box">
-                <img src="images/lupa.png" class="icone-busca">
+                <img src="../backend/imagens/lupa.png" class="icone-busca">
                 <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
             </div>
         </div>
@@ -218,7 +218,6 @@ async function carregarProdutos() {
         });
 
         produtosCache = await res.json();
-        console.log("Produtos carregados com sucesso:", produtosCache.length);
     } catch (err) {
         console.error("ERRO CRÍTICO AO CARREGAR PRODUTOS:", err);
 
