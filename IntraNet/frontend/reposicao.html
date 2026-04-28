@@ -65,10 +65,10 @@
         <div class="modal_box">
             <button id="b_close_modal">x</button>
            
-            <h2 class="modal_titulo">Adicionar à Reposição</h2>
+            <h2 class="modal_titulo">Reposição</h2>
            
             <div class="autocomplete-box">
-                <input type="text" class="inp_m" id="inp_busca_modal" placeholder="Pesquisar produto..." autocomplete="off">
+                <input type="text" class="inp_m" id="inp_busca_modal" placeholder="Pesquisar produto" autocomplete="off">
                 <ul id="lista_sugestoes"></ul>
             </div>
            
@@ -76,8 +76,13 @@
                 <p class="pm">Produto: <span id="s_produto">---</span></p>
                 <p class="pm">Estoque atual: <span id="s_qtda">0</span></p>
                
-                <label class="label">Qtd para repor:</label>
+                <label class="pm">Quantidade para repor:</label>
                 <input type="number" class="inp_m" id="inp_add_qtd" value="0">
+
+                <label class="pm">Local</label>
+                <input type="text" class="inp_m" id="inp_add_qtd">
+
+
             </div>
         
             <button id="b_addf">Confirmar</button>
