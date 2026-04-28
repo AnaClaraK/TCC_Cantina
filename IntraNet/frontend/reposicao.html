@@ -11,26 +11,26 @@
     <script>
         // Verifica se existe um token no localStorage
         const token = localStorage.getItem("token");
-    
+   
         if (!token) {
             // Se não tem token, nem carrega o resto da página
             alert("Acesso restrito! Redirecionando para o login...");
-            window.location.href = "login.html"; 
+            window.location.href = "login.html";
         }
     </script>
     <style>
         /* Mantendo apenas as regras específicas de layout da página de reposição */
-        .header-acoes { 
-            display: flex; 
-            align-items: center; 
+        .header-acoes {
+            display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 15px; 
-            margin-bottom: 0px; 
+            gap: 15px;
+            margin-bottom: 0px;
         }
 
-        .h_ag { 
-            margin: 0; 
-            font-size: 24px; 
+        .h_ag {
+            margin: 0;
+            font-size: 24px;
         }
 
         /* Botões do Topo */
@@ -54,20 +54,20 @@
             filter: brightness(1.2);
         }
 
-        #d_inp { 
-            margin-bottom: 0px; 
-            padding-bottom: 5px; 
+        #d_inp {
+            margin-bottom: 0px;
+            padding-bottom: 5px;
             display: flex;
             justify-content: center;
         }
 
-        #sc_tabela { 
-            margin-top: 0 !important; 
+        #sc_tabela {
+            margin-top: 0 !important;
             padding-top: 0 !important;
         }
-        
-        .tabela { 
-            margin-top: 0 !important; 
+       
+        .tabela {
+            margin-top: 0 !important;
         }
 
         .d_util {
@@ -114,23 +114,23 @@
             </thead>
             <tbody id="tb_tbl_estoque"></tbody>
         </table>
-    </section>     
+    </section>    
 
     <dialog id="d_modal">
         <div class="modal_box">
             <button id="b_close_modal">x</button>
-            
+           
             <h2 class="modal_titulo">Adicionar à Reposição</h2>
-            
+           
             <div class="autocomplete-box">
                 <input type="text" class="inp_m" id="inp_busca_modal" placeholder="Pesquisar produto..." autocomplete="off">
                 <ul id="lista_sugestoes"></ul>
             </div>
-            
+           
             <div style="margin-top: 20px;">
                 <p class="pm">Produto: <span id="s_produto">---</span></p>
                 <p class="pm">Estoque atual: <span id="s_qtda">0</span></p>
-                
+               
                 <label class="label">Qtd para repor:</label>
                 <input type="number" class="inp_m" id="inp_add_qtd" value="0">
             </div>
@@ -162,7 +162,7 @@ const inpBuscaModal = document.getElementById("inp_busca_modal");
 const lista = document.getElementById("lista_sugestoes");
 const inputBusca = document.getElementById('inputBusca');
 
-let produtosCache = []; 
+let produtosCache = [];
 
 // Lógica de abrir/fechar
 b_addq.addEventListener("click", () => {
@@ -191,7 +191,7 @@ b_addf.addEventListener("click", () => {
 
 function limparModal() {
     inpBuscaModal.value = "";
-    if(inpBuscaModal.dataset) inpBuscaModal.dataset.codigo = ""; 
+    if(inpBuscaModal.dataset) inpBuscaModal.dataset.codigo = "";
     document.getElementById("s_produto").innerText = "---";
     document.getElementById("s_qtda").innerText = "0";
     document.getElementById("inp_add_qtd").value = 0;
