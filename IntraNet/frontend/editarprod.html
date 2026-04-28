@@ -1,62 +1,68 @@
-<!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<script src="sidebar_header.js"></script>
-<link rel="stylesheet" href="layout.css">
-<link rel="stylesheet" href="stylecadp.css">
-<title>Editar Produto</title>
-<style>
-    body { display: none; }
-</style>
+    <meta charset="UTF-8">
+    <script src="sidebar_header.js"></script>
+    <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="stylecadp.css">
+    <title>Editar Produto</title>
 </head>
 
 <body class="fundo-escuro">
 
-<form id="formProduto" enctype="multipart/form-data">
+<form id="formProduto" enctype="multipart/form-data" style="width: 800px; padding: 15px 30px;">
     <h2>Editar Produto</h2>
 
-    <!-- 🔍 BUSCA -->
-    <input type="text" class="inp_m" id="inp_busca_editar" placeholder="Código ou nome">
-    <ul id="lista_sugestoes"></ul>
+    <div class="container-flex">
+        <div class="coluna">
+            <label class="label-amarela">Buscar Produto</label>
+            <input type="text" class="inp_m" id="inp_busca_editar" placeholder="Código ou nome" style="font-size: 20px; height: 35px;">
+            <ul id="lista_sugestoes"></ul>
 
-    <p class="pm">Selecionado: <span id="s_produto">---</span></p>
-    <div class="produto-img">
-        <img id="preview-img" src="">
+            <p class="pm" style="text-align: center; margin: 10px 0;">Selecionado: <span id="s_produto" style="font-weight: bold; color: #1c1c1c;">---</span></p>
+            
+            <div class="produto-img">
+                <img id="preview-img" src="">
+            </div>
+
+            <label class="file-label" style="margin-top: 10px; padding: 8px;">
+                Trocar Imagem
+                <input type="file" name="img" id="inputImagem" accept="image/*">
+            </label>
+        </div>
+
+        <div class="coluna">
+            <label class="label-amarela">Nome</label>
+            <input type="text" name="nome" id="nome" class="inp_p">
+
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label class="label-amarela">Código</label>
+                    <input type="text" name="codigo_barras" id="codigo" class="inp_p">
+                </div>
+                <div style="flex: 1;">
+                    <label class="label-amarela">Preço</label>
+                    <input type="number" step="0.01" name="preco" id="preco" class="inp_p">
+                </div>
+            </div>
+
+            <label class="label-amarela">Quantidade em Estoque</label>
+            <input type="number" name="qtd" id="qtd" class="inp_p">
+
+            <label class="label-amarela">Descrição</label>
+            <textarea name="descricao" id="descricao" class="inp_p" style="height: 60px; resize: none;"></textarea>
+        </div>
     </div>
 
-    <label class="file-label">
-        Trocar Imagem
-        <input type="file" name="img" id="inputImagem" accept="image/*">
-    </label>
-
-    <label class="label-amarela">Nome</label>
-    <input type="text" name="nome" id="nome" class="inp_p">
-
-    <label class="label-amarela">Código de Barras</label>
-    <input type="text" name="codigo_barras" id="codigo" class="inp_p">
-
-    <label class="label-amarela">Preço</label>
-    <input type="number" step="0.01" name="preco" id="preco" class="inp_p">
-
-    <label class="label-amarela">Quantidade</label>
-    <input type="number" name="qtd" id="qtd" class="inp_p">
-
-    <div class="secao-divisora">
-        <label class="label-amarela">Descrição</label>
-        <textarea name="descricao" id="descricao" class="inp_p"></textarea>
+    <div class="botoes-fileira">
+        <button type="submit" class="btn-p">Salvar Alterações</button>
+        <button type="button" onclick="window.location.href='estoque.html'" class="btn-p btn-cinza">Cancelar</button>
     </div>
-
-    <button type="submit">Salvar</button>
-    <button type="button" onclick="window.location.href='estoque.html'" style="background:#555;margin-top:10px;">Cancelar</button>
 </form>
-
 <script>
 const nome = document.getElementById("nome");
 const codigo = document.getElementById("codigo");
 const preco = document.getElementById("preco");
 const qtd = document.getElementById("qtd");
-const validade = document.getElementById("validade");
 const descricao = document.getElementById("descricao");
 const previewImg = document.getElementById("preview-img");
 const inputImagem = document.getElementById("inputImagem");
@@ -135,23 +141,27 @@ function atualizarSelecao(itens){
 function selecionarProduto(p){
     produtoSelecionado = p;
 
+    // Atualiza o texto visual e o campo de busca
     inpBusca.value = p.nome;
     document.getElementById("s_produto").innerText = p.nome;
 
-    nome.value = p.nome || "";
-    codigo.value = p.codigo_barras || "";
-    preco.value = p.preco || 0;
-    qtd.value = p.qtd || 0;
-    validade.value = p.dt_validade ? p.dt_validade.split("T")[0] : "";
-    descricao.value = p.descricao || "";
+    // Preenche os campos básicos (Verificando se existem)
+    if(nome) nome.value = p.nome || "";
+    if(codigo) codigo.value = p.codigo_barras || "";
+    if(preco) preco.value = p.preco || 0;
+    if(qtd) qtd.value = p.qtd || 0;
+    if(descricao) descricao.value = p.descricao || "";
+
 
     if(p.img){
-    previewImg.src = `http://localhost:3000/imagens/${p.img}`;
+        // Certifique-se que o caminho 'http://localhost:3000/imagens/' está correto no seu backend
+        previewImg.src = `http://localhost:3000/images/${p.img}`;
+        previewImg.style.display = "block"; 
     } else {
-        previewImg.src = "imagens/img_ntf.png"; // opcional
+        previewImg.src = "images/img_ntf.png"; // Imagem padrão caso não tenha
     }
 
-    lista.innerHTML = "";
+    lista.innerHTML = ""; // Fecha a lista de sugestões
 }
 
 // fechar lista ao clicar fora

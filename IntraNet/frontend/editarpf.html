@@ -12,37 +12,45 @@
 <body class="fundo-escuro">
 
     <form id="formPerfil" enctype="multipart/form-data">
-        <h2>Editar Meu Perfil</h2>
-
-        <div class="user-photo-grande">
-            <img id="preview-perfil" src=""/>
+        <h2 class="titulo">Editar Meu Perfil</h2>
+    
+        <div class="container-flex">
+            <div class="coluna">
+                <div class="user-photo-grande">
+                    <img id="preview-perfil" src=""/>
+                </div>
+    
+                <label class="file-label">
+                    Trocar Foto
+                    <input type="file" name="imagem" id="inputImagemPerfil" accept="image/*">
+                </label>
+    
+                <label class="label-amarela">Nome</label>
+                <input type="text" id="edit-nome" name="nome" class="inp_p" placeholder="Seu nome">
+    
+                <label class="label-amarela">E-mail</label>
+                <input type="email" id="edit-email" name="email" class="inp_p" placeholder="Seu e-mail">
+            </div>
+    
+            <div class="coluna">
+                <p id="titulo_seg">Segurança</p>
+                
+                <label class="label-amarela">Senha Atual</label>
+                <input type="password" name="senha_atual" class="inp_p" placeholder="Senha atual">
+                
+                <label class="label-amarela">Nova Senha</label>
+                <input type="password" name="nova_senha" class="inp_p" placeholder="Nova senha">
+                
+                <label class="label-amarela">Confirmar Senha</label>
+                <input type="password" name="conf_senha" class="inp_p" placeholder="Confirme a senha">
+            </div>
         </div>
-
-        <label class="file-label">
-            Trocar Imagem de Perfil
-            <input type="file" name="imagem" id="inputImagemPerfil" accept="image/*">
-        </label>
-
-        <label class="label-amarela">Nome</label>
-        <input type="text" id="edit-nome" name="nome" class="inp_p" placeholder="Seu nome">
-
-        <label class="label-amarela">E-mail</label>
-        <input type="email" id="edit-email" name="email" class="inp_p" placeholder="Seu e-mail">
-        
-        <div class="secao-divisora">
-            <p style="color: #efac4a; text-align: center; font-size: 16px; font-weight: bold ;margin-bottom: 10px;">Alterar Senha</p>
-            <input type="password" name="senha_atual" class="inp_p" placeholder="Senha Atual">
-            <input type="password" name="nova_senha" class="inp_p" placeholder="Nova Senha">
-            <input type="password" name="conf_senha" class="inp_p" placeholder="Confirmar Nova Senha">
+    
+        <div class="botoes-fileira">
+            <button type="submit" class="btn-p">Salvar</button>
+            <button type="button" onclick="window.location.href='index.html'" class="btn-p btn-cinza">Cancelar</button>
+            <button type="button" onclick="logout()" class="btn-p btn-vermelho">Sair</button>
         </div>
-        
-        <p class="link-recuperar">
-            <a href="recuperar_senha.html">Esqueceu a senha?</a>
-        </p>
-
-        <button type="submit">Salvar Alterações</button>
-        <button type="button" onclick="window.location.href='index.html'" style="background-color: #555; margin-top: 10px;">Cancelar</button>
-        <button onclick="logout()">Sair</button>
     </form>
 
     <script>

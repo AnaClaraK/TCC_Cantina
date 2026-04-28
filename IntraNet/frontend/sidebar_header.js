@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const token = localStorage.getItem("token");
 
     if (token || paginasPublicas.includes(pagina)) {
-        document.body.style.display = "block";
+        document.body.style.visibility = "visible";
     }
 });
 
@@ -125,22 +125,24 @@ const sidebarHTML = `
             <img class="i_img" data-name="pedidos" src="imagens/pedidos_p.png"/> 
             <span class="nav-text">Pedidos</span>
         </a>
+        <a href="editarprod.html" class="nav-link">
+            <img class="i_img" data-name="editarprod" id="icon_edp" src="imagens/editarprod_p.png"/> 
+            <span class="nav-text">Editar Produtos</span>
+        </a>
         <a href="reposicao.html" class="nav-link">
-            <img class="i_img" data-name="compras" src="imagens/compras_p.png"/> 
+            <img class="i_img" data-name="compras" id="icon_comp" src="imagens/compras_p.png"/> 
             <span class="nav-text">Compras</span>
         </a>
         <a href="cadastrop.html" class="nav-link">
             <img class="i_img" data-name="cadastrop" src="imagens/cadastrop_p.png"/> 
             <span class="nav-text">Cadastro de <br> Produtos</span>
         </a>
-        <a href="editarprod.html" class="nav-link">
-            <img class="i_img" data-name="editarprod" src="imagens/editarprod_p.png"/> 
-            <span class="nav-text">Editar Produtos</span>
-        </a>
+        
         <a href="cadastrof.html" class="nav-link">
-            <img class="i_img" data-name="cadastrof" src="imagens/cadastrof_p.png"/> 
+            <img class="i_img" data-name="cadastrof" id="icon_cadp" src="imagens/cadastrof_p.png"/> 
             <span class="nav-text">Cadastro de <br> Funcionários</span>
         </a>
+        
 </aside>
 `;
 

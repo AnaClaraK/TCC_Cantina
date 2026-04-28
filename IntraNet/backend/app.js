@@ -88,40 +88,89 @@ const storageProduto = multer.diskStorage({
 const uploadProduto = multer({ storage: storageProduto });
 //---------------------------------------------------------------------------------
 
-//--------Funcionários
+//-------- Cadastro Funcionários
 app.post("/cadastro", uploadPerfil.single("imagem"), async (req, res) => {
   try {
-      // Agora recebemos também o 'nome' e 'confsenha' do body
       const { nome, email, senha, confsenha } = req.body;
 
       const imagem = req.file
           ? "/imagens/" + req.file.filename
           : "/imagens/def_avt.jpg";
 
-      // 1. Validações
-      if (!nome || nome.trim() === "") return res.status(400).json({ "resposta": "Preencha o nome" });
-      if (!email || !email.includes('@')) return res.status(400).json({ "resposta": "E-mail inválido" });
-      if (senha !== confsenha) return res.status(400).json({ "resposta": "As senhas não coincidem" });
-
-      // 2. Verificar se o usuário já existe
-      const [usuarios] = await conexao.query("SELECT * FROM cadastro WHERE email = ?", [email]);
-      if (usuarios.length > 0) {
-          return res.status(400).json({ "resposta": "Este e-mail já está cadastrado." });
+      // Validações
+      if (!nome || nome.trim() === "") {
+          return res.status(400).json({
+              resposta: "Preencha o nome."
+          });
       }
 
-      // 3. Criptografar a senha
-      const senhaHashed = crypto.createHash("sha256").update(senha.trim()).digest("hex");
+      if (!email || !email.includes("@") || !email.includes(".")) {
+          return res.status(400).json({
+              resposta: "E-mail inválido."
+          });
+      }
 
-      // 4. SALVAR (Incluindo nome e foto)
-      // Certifique-se de que sua tabela 'cadastro' tenha as colunas 'nome' e 'foto'
-      const sql = "INSERT INTO cadastro (nome, email, senha, img) VALUES (?, ?, ?, ?)";
-      await conexao.query(sql, [nome, email, senhaHashed, imagem]);
+      if (!senha || !confsenha) {
+          return res.status(400).json({
+              resposta: "Preencha a senha e a confirmação."
+          });
+      }
 
-      return res.status(201).json({ "resposta": "Cadastro realizado com sucesso!" });
+      if (senha !== confsenha) {
+          return res.status(400).json({
+              resposta: "As senhas não coincidem."
+          });
+      }
+
+      if (senha.length < 8) {
+          return res.status(400).json({
+              resposta: "A senha deve ter pelo menos 8 caracteres."
+          });
+      }
+
+      if (!/[!@#$%^&*(),.?\":{}|<>]/.test(senha)) {
+          return res.status(400).json({
+              resposta: "A senha deve conter pelo menos um caractere especial."
+          });
+      }
+
+      const [usuarios] = await conexao.query(
+          "SELECT id_cadastro FROM cadastro WHERE email = ?",
+          [email.trim()]
+      );
+
+      if (usuarios.length > 0) {
+          return res.status(400).json({
+              resposta: "Este e-mail já está cadastrado."
+          });
+      }
+
+      const senhaHashed = crypto
+          .createHash("sha256")
+          .update(senha.trim())
+          .digest("hex");
+
+      const sql = `
+          INSERT INTO cadastro (nome, email, senha, img)
+          VALUES (?, ?, ?, ?)
+      `;
+
+      await conexao.query(sql, [
+          nome.trim(),
+          email.trim(),
+          senhaHashed,
+          imagem
+      ]);
+
+      return res.status(201).json({
+          resposta: "Cadastro realizado com sucesso!"
+      });
 
   } catch (error) {
       console.error("Erro no cadastro:", error);
-      return res.status(500).json({ "resposta": "Erro interno do Servidor." });
+      return res.status(500).json({
+          resposta: "Erro interno do servidor."
+      });
   }
 });
 //-------- Login de Funcionários
@@ -169,6 +218,24 @@ app.put("/recuperar-senha", async (req, res) => {
           });
       }
 
+      if (!email.includes("@") || !email.includes(".")) {
+          return res.status(400).json({
+              resposta: "E-mail inválido."
+          });
+      }
+
+      if (novaSenha.length < 8) {
+          return res.status(400).json({
+              resposta: "A senha deve ter pelo menos 8 caracteres."
+          });
+      }
+
+      if (!/[!@#$%^&*(),.?\":{}|<>]/.test(novaSenha)) {
+          return res.status(400).json({
+              resposta: "A senha deve conter pelo menos um caractere especial."
+          });
+      }
+
       if (novaSenha !== confirmarSenha) {
           return res.status(400).json({
               resposta: "As senhas não coincidem."
@@ -177,7 +244,7 @@ app.put("/recuperar-senha", async (req, res) => {
 
       const [usuarios] = await conexao.query(
           "SELECT id_cadastro FROM cadastro WHERE email = ?",
-          [email]
+          [email.trim()]
       );
 
       if (usuarios.length === 0) {
@@ -193,7 +260,7 @@ app.put("/recuperar-senha", async (req, res) => {
 
       await conexao.query(
           "UPDATE cadastro SET senha = ? WHERE email = ?",
-          [senhaHash, email]
+          [senhaHash, email.trim()]
       );
 
       return res.json({
@@ -209,7 +276,7 @@ app.put("/recuperar-senha", async (req, res) => {
 });
 
  // ----- Atualizar perfil (Protegido)
- app.put("/perfil/atualizar", verificarToken, uploadPerfil.single("imagem"), async (req, res) => {
+app.put("/perfil/atualizar", verificarToken, uploadPerfil.single("imagem"), async (req, res) => {
   try {
       const {
           nome,
@@ -219,6 +286,18 @@ app.put("/recuperar-senha", async (req, res) => {
           nova_senha,
           conf_senha
       } = req.body;
+
+      if (!nome || nome.trim() === "") {
+          return res.status(400).json({
+              resposta: "O nome é obrigatório."
+          });
+      }
+
+      if (!email || !email.includes("@") || !email.includes(".")) {
+          return res.status(400).json({
+              resposta: "E-mail inválido."
+          });
+      }
 
       const [usuarios] = await conexao.query(
           "SELECT senha FROM cadastro WHERE email = ?",
@@ -233,7 +312,7 @@ app.put("/recuperar-senha", async (req, res) => {
 
       let senhaSql = "";
       let fotoSql = "";
-      let params = [nome, email];
+      let params = [nome.trim(), email.trim()];
 
       if (nova_senha || conf_senha) {
           if (!senha_atual) {
@@ -256,6 +335,18 @@ app.put("/recuperar-senha", async (req, res) => {
           if (nova_senha !== conf_senha) {
               return res.status(400).json({
                   resposta: "A nova senha e a confirmação não coincidem."
+              });
+          }
+
+          if (nova_senha.length < 8) {
+              return res.status(400).json({
+                  resposta: "A nova senha deve ter pelo menos 8 caracteres."
+              });
+          }
+
+          if (!/[!@#$%^&*(),.?\":{}|<>]/.test(nova_senha)) {
+              return res.status(400).json({
+                  resposta: "A nova senha deve conter pelo menos um caractere especial."
               });
           }
 
@@ -289,8 +380,8 @@ app.put("/recuperar-senha", async (req, res) => {
 
       return res.json({
           resposta: "Perfil atualizado com sucesso!",
-          novoNome: nome,
-          novoEmail: email,
+          novoNome: nome.trim(),
+          novoEmail: email.trim(),
           novaFoto: novaFotoPath
       });
 

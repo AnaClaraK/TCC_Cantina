@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Senha</title>
+    <link rel="stylesheet" href="stylelog.css">
+</head>
+<body>
+    <div class="container">
+        <div class="quadrado">
+            <h1 class="lb_login">Recuperar Senha</h1>
+
+            <div class="container-respostas">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" placeholder="Digite seu e-mail">
+
+                <label for="novaSenha">Nova Senha</label>
+                <input type="password" id="novaSenha" placeholder="Digite a nova senha">
+
+                <label for="confirmarSenha">Confirmar Nova Senha</label>
+                <input type="password" id="confirmarSenha" placeholder="Confirme a nova senha">
+            </div>
+
+            <div class="container-fim">
+                <p id="resposta" class="respostas"></p>
+            </div>
+
+            <button id="btnRecuperar" class="btn_entrar">Redefinir Senha</button>
+
+            <p class="link-recuperar" style="margin-top: 15px; text-align: center;">
+                <a href="login.html">Voltar ao login</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("btnRecuperar").addEventListener("click", async () => {
+            const email = document.getElementById("email").value.trim();
+            const novaSenha = document.getElementById("novaSenha").value;
+            const confirmarSenha = document.getElementById("confirmarSenha").value;
+            const resposta = document.getElementById("resposta");
+
+            resposta.innerText = "Processando...";
+
+            try {
+                const req = await fetch("http://localhost:3000/recuperar-senha", {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email,
+                        novaSenha,
+                        confirmarSenha
+                    })
+                });
+
+                const dados = await req.json();
+                resposta.innerText = dados.resposta;
+
+                if (req.ok) {
+                    resposta.style.color = "green";
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 2000);
+                } else {
+                    resposta.style.color = "red";
+                }
+            } catch (error) {
+                resposta.innerText = "Erro ao conectar ao servidor.";
+                resposta.style.color = "red";
+            }
+        });
+    </script>
+</body>
+</html>
