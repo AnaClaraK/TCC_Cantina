@@ -42,7 +42,7 @@
 
 // 👁️ MOSTRAR TELA (evita piscada)
 document.addEventListener("DOMContentLoaded", () => {
-    const paginasPublicas = ["login.html", "cadastro.html"];
+    const paginasPublicas = ["login.html", "cadastrof.html"];
     const pagina = window.location.pathname.split("/").pop();
     const token = localStorage.getItem("token");
 
