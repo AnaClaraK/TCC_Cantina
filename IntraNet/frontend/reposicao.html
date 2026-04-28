@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="layout.css">
     <title>Reposição</title>
     <style>
-<<<<<<< HEAD
         /* Estilos do Modal */
         dialog { border: none; border-radius: 8px; padding: 20px; background: #2c2c2c; color: white; }
         dialog::backdrop { background: rgba(0,0,0,0.7); }
@@ -22,7 +21,7 @@
         .header-acoes { 
             display: flex; 
             align-items: center; 
-            justify-content: center; /* COLOCA NO MEIO */
+            justify-content: center;
             gap: 15px; 
             margin-bottom: 0px; 
         }
@@ -32,7 +31,7 @@
             font-size: 24px; 
         }
 
-        /* Botões com o MESMO MODELO E TAMANHO */
+        /* Botões */
         #b_addq, #b_apagar_prod, #b_limpar_lista {
             display: flex;
             align-items: center;
@@ -45,15 +44,14 @@
             padding: 8px 16px;
             font-weight: bold;
             transition: 0.2s;
-            width: 250px; /* LARGURA FIXA PARA FICAREM IGUAIS */
-            height: 45px; /* ALTURA PADRONIZADA */
+            width: 250px;
+            height: 45px;
         }
 
         #b_addq:hover, #b_apagar_prod:hover, #b_limpar_lista:hover {
             filter: brightness(1.2);
         }
 
-        /* Ajuste da busca para acompanhar a centralização */
         #d_inp { 
             margin-bottom: 0px; 
             padding-bottom: 5px; 
@@ -73,9 +71,6 @@
         .d_util {
             padding-bottom: 0px;
         }
-=======
-        body { display: none; }
->>>>>>> 64a4ab00218a64c0fae799fa529b877bdfe53781
     </style>
 </head>
 <body class="fundo-escuro">
@@ -89,19 +84,11 @@
             </button>
 
             <button id="b_apagar_prod">
-<<<<<<< HEAD
                 <span>Apagar produto</span>
             </button>
 
             <button id="b_limpar_lista">
                 <span>Apagar lista</span>
-=======
-                <span id="s_addq">Apagar produto</span>
-            </button>
-
-            <button id="b_limpar_lista">
-                <span id="s_addq">Apagar lista</span>
->>>>>>> 64a4ab00218a64c0fae799fa529b877bdfe53781
             </button>
         </div>
 
@@ -117,40 +104,38 @@
         <table class="tabela">
             <thead>
                 <tr>
-                    <th scope="col">Produto</th>
-                    <th scope="col">Quantidade</th>
-                    <th scope="col">Prioridade</th>
-                    <th scope="col">Local</th>
-                    <th scope="col">Concluído</th>
+                    <th>Produto</th>
+                    <th>Quantidade</th>
+                    <th>Prioridade</th>
+                    <th>Local</th>
+                    <th>Concluído</th>
                 </tr>
             </thead>
-            <tbody id="tb_tbl_estoque">
-            </tbody>
+            <tbody id="tb_tbl_estoque"></tbody>
         </table>
     </section>     
 
     <dialog id="d_modal">
         <div class="modal_box">
-            <button id="b_close_modal" onclick="document.getElementById('d_modal').close()">x</button>
+            <button onclick="document.getElementById('d_modal').close()">x</button>
             
             <h2>Adicionar à Reposição</h2>
             
-            <input type="text" class="inp_m" id="inp_busca_modal" placeholder="Pesquisar produto...">
+            <input type="text" id="inp_busca_modal" placeholder="Pesquisar produto...">
             <ul id="lista_sugestoes"></ul>
             
             <div style="margin-top: 20px;">
-                <p class="pm">Produto: <span id="s_produto">---</span></p>
-                <p class="pm">Estoque atual: <span id="s_qtda">0</span></p>
-                <label class="pm">Qtd para repor:</label>
-                <input type="number" class="inp_m" id="inp_add_qtd" value="0">
+                <p>Produto: <span id="s_produto">---</span></p>
+                <p>Estoque atual: <span id="s_qtda">0</span></p>
+                <label>Qtd para repor:</label>
+                <input type="number" id="inp_add_qtd" value="0">
             </div>
 
             <div style="margin-top: 20px;">
-                <button id="b_addf" type="button">Confirmar</button>
+                <button id="b_addf">Confirmar</button>
             </div>
         </div>
     </dialog>
-<<<<<<< HEAD
 
 <script>
 const modal = document.getElementById("d_modal");
@@ -235,132 +220,5 @@ inputBusca.addEventListener('keyup', function() {
     });
 });
 </script>
-=======
-
-    <script>
-        const modal = document.getElementById("d_modal");
-        const b_addq = document.getElementById("b_addq");
-        const b_addf = document.getElementById("b_addf");
-        const b_apagar_prod = document.getElementById("b_apagar_prod");
-        const b_limpar_lista = document.getElementById("b_limpar_lista");
-        const corpoTabela = document.getElementById('tb_tbl_estoque');
-        const inpBuscaModal = document.getElementById("inp_busca_modal");
-        const lista = document.getElementById("lista_sugestoes");
-        const inputBusca = document.getElementById('inputBusca');
-        
-        let produtosCache = [];
-        let produtoSelecionado = null;
-        
-        // 🔥 CARREGA DO BACKEND
-        async function carregarProdutos(){
-            const res = await apiFetch("http://localhost:3000/produtos");
-            produtosCache = await res.json();
-        }
-        carregarProdutos();
-        
-        
-        // ABRIR MODAL
-        b_addq.addEventListener("click", () => {
-            limparModal();
-            modal.showModal();
-        });
-        
-        // CONFIRMAR
-        b_addf.addEventListener("click", () => {
-            if (!produtoSelecionado) {
-                alert("Selecione um produto");
-                return;
-            }
-        
-            const qtd = Number(document.getElementById("inp_add_qtd").value);
-        
-            if (qtd <= 0) {
-                alert("Quantidade inválida");
-                return;
-            }
-        
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${produtoSelecionado.nome}</td>
-                <td>${qtd}</td>
-                <td>Alta</td>
-                <td>Geral</td>
-                <td><input type="checkbox"></td>
-            `;
-        
-            corpoTabela.appendChild(tr);
-        
-            modal.close();
-            limparModal();
-        });
-        
-        function limparModal() {
-            inpBuscaModal.value = "";
-            produtoSelecionado = null;
-        
-            document.getElementById("s_produto").innerText = "---";
-            document.getElementById("s_qtda").innerText = "0";
-            document.getElementById("inp_add_qtd").value = 0;
-        
-            lista.innerHTML = "";
-        }
-        
-        // APAGAR ÚLTIMO
-        b_apagar_prod.addEventListener("click", () => {
-            if (corpoTabela.lastElementChild) {
-                corpoTabela.removeChild(corpoTabela.lastElementChild);
-            }
-        });
-        
-        // LIMPAR TUDO
-        b_limpar_lista.addEventListener("click", () => {
-            if (confirm("Deseja limpar toda a lista de reposição?")) {
-                corpoTabela.innerHTML = "";
-            }
-        });
-        
-        
-        // 🔥 AUTOCOMPLETE REAL (SEM MOCK)
-        inpBuscaModal.addEventListener("input", () => {
-            const termo = inpBuscaModal.value.toLowerCase();
-            lista.innerHTML = "";
-        
-            if (!termo) return;
-        
-            const filtrados = produtosCache.filter(p =>
-                (p.nome || "").toLowerCase().includes(termo) ||
-                (p.codigo_barras || "").startsWith(termo)
-            ).slice(0, 5);
-        
-            filtrados.forEach(p => {
-                const li = document.createElement("li");
-                li.textContent = p.nome;
-        
-                li.onclick = () => {
-                    produtoSelecionado = p;
-        
-                    inpBuscaModal.value = p.nome;
-                    document.getElementById("s_produto").innerText = p.nome;
-                    document.getElementById("s_qtda").innerText = p.qtd || 0;
-        
-                    lista.innerHTML = "";
-                };
-        
-                lista.appendChild(li);
-            });
-        });
-        
-        
-        // BUSCA NA TABELA
-        inputBusca.addEventListener('keyup', () => {
-            const termo = inputBusca.value.toLowerCase();
-        
-            document.querySelectorAll('#tb_tbl_estoque tr').forEach(linha => {
-                const nome = linha.children[0].innerText.toLowerCase();
-                linha.style.display = nome.includes(termo) ? "" : "none";
-            });
-        });
-        </script>
->>>>>>> 64a4ab00218a64c0fae799fa529b877bdfe53781
 </body>
-</html> 
+</html>
