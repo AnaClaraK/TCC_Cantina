@@ -23,7 +23,7 @@
 <section id="sc_inputs">
     <div class="grupo-input" style="grid-column: 1 / span 3;">
         <h2 class="titulo">Código do Produto</h2> 
-        <input type="text" id="inp_codb" autofocus>
+        <input type="text" id="inp_codb" autofocus readonly placeholder="Aguardando Leitor...">
     </div>
 
     <div class="grupo-input">
@@ -158,6 +158,12 @@
     let carrinho = []; 
     let totalCompra = 0; 
     let formaPagamento = "";
+    // Impede que o input perca o foco (essencial para o leitor de código de barras)
+    inp_codb.addEventListener("blur", () => {
+        if (!modal.open && !dialogBusca.open) {
+            setTimeout(() => inp_codb.focus(), 10);
+        }
+    });
 
     function formatar(valor) {
         return Number(valor).toFixed(2).replace(".", ",");
@@ -179,7 +185,7 @@
         });
 
         // Preenche com linhas vazias até completar 15
-        for (let i = 0; i < (15 - carrinho.length); i++){
+        for (let i = 0; i < (18 - carrinho.length); i++){
             const tr = document.createElement("tr");
             tr.innerHTML = "<td>&nbsp;</td><td></td><td></td><td></td>";
             tbody.appendChild(tr);
@@ -344,8 +350,21 @@
         nova_venda.disabled = true;
         inp_codb.focus();
     }
-
-    nova_venda.addEventListener("click", () => {
+    // Procure onde você fecha o modal de busca e adicione o foco:
+    function selecionarProduto(prod) {
+        inp_codb.value = prod.codigo_barras;
+        dialogBusca.close();
+        lista.innerHTML = "";
+        inputBusca.value = "";
+        indexSelecionado = -1;
+        
+        // Dispara o processo
+        inp_codb.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+        
+        // Devolve o foco para o leitor
+        inp_codb.focus(); 
+    }
+        nova_venda.addEventListener("click", () => {
     // CALCULA O TOTAL REAL AQUI PARA NÃO IR ZERADO
     const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
 
@@ -494,7 +513,15 @@ inputBusca.addEventListener("input", async () => {
     // ATALHOS TECLADO ATUALIZADOS
     // =============================
  window.addEventListener("keydown", (e) => {
-    // Se o modal estiver aberto, o ESC apenas fecha ele (comportamento padrão do dialog)
+    // Se houver itens no carrinho, impede F5, Ctrl+R ou Cmd+R
+    const teclasRecarregar = (e.key === "F5" || ((e.ctrlKey || e.metaKey) && e.key === "r"));
+    
+    if (carrinho.length > 0 && teclasRecarregar) {
+        e.preventDefault();
+        alert("Finalize ou cancele a venda antes de atualizar a página!");
+        return;
+    }
+
     if(e.key === "Escape") resetarPDV();
 
     switch(e.key){
@@ -551,6 +578,13 @@ inputBusca.addEventListener("input", async () => {
             modalp.showModal();
             break;
             }
+});
+// Mostra um aviso do navegador se o usuário tentar fechar a aba com itens no carrinho
+window.addEventListener("beforeunload", (e) => {
+    if (carrinho.length > 0) {
+        e.preventDefault();
+        e.returnValue = "Existem itens no carrinho. Deseja realmente sair?";
+    }
 });
 </script>
 </body>

@@ -1,7 +1,18 @@
 /* ============================================================
     RESET E VARIÁVEIS
 ============================================================ */
+
+@font-face {
+    font-family: 'Roca One';
+    /* Certifique-se de que os arquivos estejam na pasta 'fonts' ao lado do seu CSS */
+    src: url('fonts/roca-one-regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap; /* Melhora o carregamento da página */
+  }
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
 :root {
     --cor-laranja: #f1b869;
     --cor-escuro: #2b1f14;
@@ -11,7 +22,7 @@
 
 body {
     background-color: var(--cor-laranja);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Roca One';
     display: grid;
     height: 100vh;
     overflow: hidden;
@@ -52,17 +63,28 @@ body.sem-sidebar .sidebar {
 }
 
 .grupo-input { display: flex; flex-direction: column; gap: 5px; }
-.titulo { color: var(--cor-laranja); font-size: 1.4rem; font-weight: 600; }
+.titulo { 
+    color: var(--cor-laranja); 
+    font-size: 1.4rem; 
+    font-weight: 600; 
+}
 
 #inp_codb, .inp_val {
     background-color: var(--cor-laranja);
     border: none;
-    border-radius: 6px;
     height: 42px;
     color: var(--cor-escuro);
     font-weight: bold;
     padding: 0 12px;
     font-size: 1.5rem;
+    outline: none;
+}
+#inp_codb::placeholder {
+    color: #ffeed5;
+    opacity: 1;
+}
+#inp_codb {
+    cursor: default; /* Força o mouse de digitar mesmo sendo readonly */
 }
 
 #img_prod {
@@ -88,7 +110,7 @@ body.sem-sidebar .sidebar {
     border-radius: 12px;
     overflow-y: auto;
     border: 1px solid #ccc;
-    height: 803px;
+    height: 963px;
     margin-top: 30px;
     margin-right: 10px;
 }
@@ -98,7 +120,9 @@ table {
     border-collapse: collapse;
     table-layout: fixed;
 }
-
+thead{
+    font-size: 22px;
+}
 tbody tr {
     height: 35px; /* força TODAS iguais */
 }
@@ -148,7 +172,7 @@ td {
     scrollbar-color: var(--cor-laranja) var(--cor-escuro);
 }
 /* ============================================================
-    MODAL (CORREÇÃO CRÍTICA)
+    MODAL
 ============================================================ */
 dialog {
     margin: auto;
@@ -325,6 +349,7 @@ dialog::backdrop { background: rgba(0,0,0,0.8); }
     width: 270px;
     font-size: 25px; 
     color: var(--cor-escuro);
+    font-family: 'Roca One';
 }
 
 #b_canc { 
@@ -333,6 +358,7 @@ dialog::backdrop { background: rgba(0,0,0,0.8); }
     height: 70px;
     width: 250px;
     font-size: 25px;
+    font-family: 'Roca One';
     /* Removida a margin-left exagerada para o gap: 30px trabalhar sozinho */
 
 }
@@ -344,6 +370,7 @@ dialog::backdrop { background: rgba(0,0,0,0.8); }
     height: 100px; 
     font-size: 30px;
     margin-right: 40px;
+    font-family: 'Roca One';
 
 }
 #b_pesq{
@@ -354,6 +381,7 @@ dialog::backdrop { background: rgba(0,0,0,0.8); }
     margin-left: 100px;
     text-align: center;
     color: var(--cor-escuro);
+    font-family: 'Roca One';
 }
 
 /* --- ESTILO DO MODAL E CENTRALIZAÇÃO --- */
