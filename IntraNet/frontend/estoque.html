@@ -64,6 +64,10 @@
 
         <button id="b_addf" type="button">Adicionar</button>
 
+        <div class="modal_footer">
+            <p class="pmf">Use as setas ↑ ↓ e Enter para selecionar</p>
+        </div>
+
     </div>
 </dialog>
 
@@ -97,12 +101,34 @@ inputBusca.addEventListener("input", () => {
     });
 });
 
-// abrir modal
 b_addq.addEventListener("click", () => {
     limparModal();
+
+    const produtosBaixoEstoque = produtosCache
+        .filter(p => (p.qtd || 0) <= 10)
+        .sort((a, b) => (a.qtd || 0) - (b.qtd || 0));
+
+    lista.innerHTML = "";
+
+    produtosBaixoEstoque.forEach(p => {
+        const li = document.createElement("li");
+        li.textContent = `${p.nome} (${p.qtd || 0} un.)`;
+
+        li.onclick = () => {
+            inpBuscaModal.value = p.nome;
+            inpBuscaModal.dataset.codigo = p.codigo_barras;
+
+            document.getElementById("s_produto").innerText = p.nome;
+            document.getElementById("s_qtda").innerText = p.qtd || 0;
+
+            lista.innerHTML = "";
+        };
+
+        lista.appendChild(li);
+    });
+
     modal.showModal();
 });
-
 // 🔥 ÚNICO EVENTO (corrigido)
 b_addf.addEventListener("click", async () => {
     const codigo = inpBuscaModal.dataset.codigo;
@@ -155,7 +181,66 @@ async function carregarProdutos() {
         `;
     });
 }
+function selecionarProdutoModal(produto) {
+    inpBuscaModal.value = produto.nome;
+    inpBuscaModal.dataset.codigo = produto.codigo_barras;
 
+    document.getElementById("s_produto").innerText = produto.nome;
+    document.getElementById("s_qtda").innerText = produto.qtd || 0;
+
+    lista.innerHTML = "";
+    indexSelecionado = -1;
+}
+
+function atualizarDestaqueModal(itens) {
+    itens.forEach((li, i) => {
+        if (i === indexSelecionado) {
+            li.style.backgroundColor = "#efac4a";
+            li.style.color = "#1c1c1c";
+            li.scrollIntoView({ block: "nearest" });
+        } else {
+            li.style.backgroundColor = "";
+            li.style.color = "";
+        }
+    });
+}
+modal.addEventListener("keydown", (e) => {
+    if (!modal.open) return;
+
+    const teclasNavegacao = ["ArrowDown", "ArrowUp", "Enter"];
+
+    if (!teclasNavegacao.includes(e.key)) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+
+    const itens = lista.querySelectorAll("li");
+    if (itens.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+        indexSelecionado = (indexSelecionado + 1) % itens.length;
+        atualizarDestaqueModal(itens);
+    }
+
+    else if (e.key === "ArrowUp") {
+        indexSelecionado = (indexSelecionado - 1 + itens.length) % itens.length;
+        atualizarDestaqueModal(itens);
+    }
+
+    else if (e.key === "Enter") {
+        const termo = inpBuscaModal.value.toLowerCase();
+
+        const filtrados = produtosCache.filter(p =>
+            (p.nome || "").toLowerCase().includes(termo) ||
+            (p.codigo_barras || "").startsWith(termo)
+        );
+
+        if (indexSelecionado >= 0 && filtrados[indexSelecionado]) {
+            selecionarProdutoModal(filtrados[indexSelecionado]);
+        }
+    }
+}, true);
 // autocomplete
 inpBuscaModal.addEventListener("input", () => {
     const termo = inpBuscaModal.value.toLowerCase();
@@ -170,15 +255,7 @@ inpBuscaModal.addEventListener("input", () => {
         const li = document.createElement("li");
         li.textContent = p.nome;
 
-        li.onclick = () => {
-            inpBuscaModal.value = p.nome;
-            inpBuscaModal.dataset.codigo = p.codigo_barras;
-
-            document.getElementById("s_produto").innerText = p.nome;
-            document.getElementById("s_qtda").innerText = p.qtd || 0;
-
-            lista.innerHTML = "";
-        };
+        li.onclick = () => selecionarProdutoModal(p);
 
         lista.appendChild(li);
     });

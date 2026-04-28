@@ -142,7 +142,6 @@ body{
     backdrop-filter: blur(4px);
 }
 
-/* CAIXA INTERNA */
 .modal_box {
     background: #1c1c1c;
     color: #f8c471;
@@ -150,14 +149,12 @@ body{
     border-radius: 16px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;           /* Reduzi levemente o gap geral */
     height: 100%;
     position: relative;
-
-    padding-bottom: 140px; /* 🔥 AUMENTEI pra caber o botão */
-    overflow: hidden;
+    padding-bottom: 20px; /* Reduzido, pois o botão agora flui sozinho */
+    overflow-y: auto;    /* Permite scroll interno se o conteúdo crescer */
 }
-
 /* TÍTULO */
 .modal_titulo {
     color: #f8c471;
@@ -218,6 +215,11 @@ input[type=number] {
 .pm{
     font-size: 25px;
 }
+.pmf{
+    font-size: 14px; 
+    color: #efac4a;
+    padding: 0px;    
+}
 /* VALORES */
 #s_produto, #s_qtda, #s_pedido, #s_dt, #s_tot {
     font-weight: bold;
@@ -244,28 +246,36 @@ input[type=number] {
     font-size: 1rem;
 }
 
-/* FOOTER */
+/* FOOTER*/
 .modal_footer {
-    background: #262626;
-    padding: 25px;
+    padding: 10px;       /* Reduzido de 25px para 10px */
     text-align: center;
+    margin-top: auto;    /* Empurra o footer para o fim do modal caso haja espaço */
+    margin-bottom: 30px;
+
+}
+
+/* Texto dentro do footer */
+.modal_footer .pm {
+    font-size: 14px;     /* Tamanho menor conforme solicitado */
+    margin: 0;
 }
 
 /* BOTÃO PRINCIPAL */
+
 #b_addf {
-    position: absolute;
+    display: block;      /* Faz o botão ocupar sua linha */
+    width: 300px;        /* Largura mantida */
+    margin: 20px auto;   /* Centraliza horizontalmente e dá espaço nas verticais */
     padding: 16px;
     border: none;
     border-radius: 10px;
     background: #efac4a;
-    color: #1c1c1c;
+    color: #f0e0e0;
     font-weight: bold;
     font-size: 1.2rem;
     cursor: pointer;
-    margin-top: 680px;
-    width: 300px;
-    margin-left: 120px;
-
+    /* Removidos: position absolute, margin-top fixa e margin-left */
 }
 
 /* LISTA */

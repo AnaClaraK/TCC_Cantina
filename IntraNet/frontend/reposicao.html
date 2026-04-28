@@ -121,8 +121,10 @@
             
             <h2 class="modal_titulo">Adicionar à Reposição</h2>
             
-            <input type="text" class="inp_m" id="inp_busca_modal" placeholder="Pesquisar produto...">
-            <ul id="lista_sugestoes"></ul>
+            <div class="autocomplete-box">
+                <input type="text" class="inp_m" id="inp_busca_modal" placeholder="Pesquisar produto...">
+                <ul id="lista_sugestoes"></ul>
+            </div>
             
             <div style="margin-top: 20px;">
                 <p class="pm">Produto: <span id="s_produto">---</span></p>
@@ -208,14 +210,24 @@ b_limpar_lista.addEventListener("click", () => {
 
 async function carregarProdutos() {
     try {
-        const res = await apiFetch("http://localhost:3000/produtos");
+        const res = await apiFetch("http://localhost:3000/produtos", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+
         produtosCache = await res.json();
         console.log("Produtos carregados com sucesso:", produtosCache.length);
     } catch (err) {
         console.error("ERRO CRÍTICO AO CARREGAR PRODUTOS:", err);
+
+        if (err.message.includes("401")) {
+            alert("Sua sessão expirou. Faça login novamente.");
+            window.location.href = "login.html";
+        }
     }
 }
-
 inpBuscaModal.addEventListener("input", () => {
     const termo = inpBuscaModal.value.toLowerCase().trim();
     lista.innerHTML = "";

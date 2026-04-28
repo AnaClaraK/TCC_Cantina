@@ -568,3 +568,47 @@ app.put("/produtos/cod/:id", verificarToken, uploadProduto.single("img"), async 
 
   res.json({ msg: "ok" });
 });
+
+//--Reposição(compra)
+// LISTAR PRODUTOS PARA REPOSIÇÃO (Protegido)
+app.get("/reposicao/produtos", verificarToken, async (req, res) => {
+    try {
+        const termo = (req.query.q || "").trim();
+
+        let sql = `
+            SELECT 
+                id_produto,
+                nome,
+                codigo_barras,
+                qtd,
+                preco,
+                img
+            FROM produtos
+        `;
+
+        let params = [];
+
+        if (termo !== "") {
+            sql += `
+                WHERE nome LIKE ?
+                   OR codigo_barras LIKE ?
+            `;
+            params = [`%${termo}%`, `${termo}%`];
+        }
+
+        sql += `
+            ORDER BY nome ASC
+            LIMIT 10
+        `;
+
+        const [produtos] = await conexao.query(sql, params);
+
+        return res.json(produtos);
+
+    } catch (erro) {
+        console.error("Erro ao buscar produtos para reposição:", erro);
+        return res.status(500).json({
+            erro: "Erro ao buscar produtos."
+        });
+    }
+});

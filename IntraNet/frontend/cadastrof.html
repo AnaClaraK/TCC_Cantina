@@ -90,7 +90,7 @@
                 if (resposta.ok) {
                     pMessageEl.innerText = "Cadastro realizado com sucesso! Redirecionando...";
                     pMessageEl.style.color = "green";
-                    setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+                    setTimeout(() => { window.location.href = 'login.html'; }, 1500);
                 } else {
                     pMessageEl.innerText = dados.resposta || "Erro ao cadastrar funcionário.";
                     pMessageEl.style.color = "red";
