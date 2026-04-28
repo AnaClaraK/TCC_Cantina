@@ -6,12 +6,13 @@
     min-height: calc(100vh - 80px); /* Garante centralização descontando a header */
     padding: 20px;
 }
-body{
+body {
     display: flex;
-    justify-content: center; /* horizontal */
-    align-items: center;     /* vertical */
+    justify-content: center;
+    align-items: center;
     height: 100vh;
     margin: 0;
+    overflow: hidden; /* Evita rolagem na página inteira */
 }
 
 #formProduto{
@@ -30,13 +31,6 @@ form {
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-/* TÍTULO */
-h2 {
-    margin: 0 0 10px 0;
-    text-align: center;
-    color: #1c1c1c;
-    font-family: Arial, sans-serif;
-}
 
 /* INPUTS */
 .inp_p {
@@ -133,14 +127,16 @@ form button:hover, .btn-form:hover {
 }
 
 .user-photo-grande {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 5px solid #efac4a;
-            margin: 20px auto;
-            background-color: #444; /* Cor de fundo enquanto a foto não carrega */
-        }
+    width: 180px; 
+    height: 180px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #efac4a;
+    margin: 5px auto; /* Margem mínima */
+}
+
+/* Títulos e Labels mais compactos */
+h2 { margin: 5px 0; font-size: 22px; }
         .user-photo-grande img {
             width: 100%;
             height: 100%;
@@ -318,4 +314,82 @@ form button:hover, .btn-form:hover {
 #b_close_modal:hover {
     color: #f8c471;
     transform: scale(1.1);
+}
+#formPerfil {
+    background-color: #fed89d;
+    padding: 15px 30px; /* Reduzido padding superior e inferior */
+    border-radius: 20px;
+    width: 750px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+/* Blocos Lado a Lado */
+.container-flex {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 10px;
+}
+
+.coluna {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilo do título da senha para alinhar com o topo da coluna 2 */
+.titulo {
+    color: #2b211d;
+    border-bottom: 2px solid #efac4a;
+    font-size: 25px;
+    font-weight: bold;
+    margin: 10px 0;
+    margin-top: 80px;
+    text-align: center;
+}
+#titulo_seg{
+    color: #2b211d;
+    border-bottom: 2px solid #efac4a;
+    font-size: 25px;
+    font-weight: bold;
+    margin-top: 0;
+    text-align: center;
+}
+/* FILEIRA DE BOTÕES */
+.botoes-fileira {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+.btn-p {
+    flex: 1; /* Faz os botões terem o mesmo tamanho */
+    padding: 13px;
+    font-size: 16px;
+    max-width: 150px; /* Botões menores */
+}
+
+.btn-cinza { background-color: #666 !important; }
+.btn-vermelho { background-color: #c0392b !important; }
+/* Container de botões ocupando a largura total abaixo */
+.botoes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-top: 2px solid #efac4a;
+    padding-top: 20px;
+}
+
+/* Ajuste para telas menores (Responsividade) */
+@media (max-width: 768px) {
+    .container-flex {
+        flex-direction: column;
+    }
+    #formPerfil {
+        width: 350px;
+    }
 }

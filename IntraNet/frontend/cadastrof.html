@@ -16,16 +16,16 @@
 
                 <div class="container-respostas">
                     <label class="lb_" for="nome">Nome</label>
-                    <input type="text" id="nome" class="inp_p" placeholder="Digite o nome" required>
+                    <input type="text" id="nome" class="inp_p input-field" placeholder="Digite o nome" required>
                 
                     <label class="lb_" for="email">E-mail</label>
-                    <input type="email" id="email" class="inp_p" placeholder="Digite o email para cadastro" required>
+                    <input type="email" id="email" class="inp_p input-field" placeholder="Digite o email para cadastro" required>
                     
                     <label for="senha">Senha</label>
-                    <input type="password" id="senha" class="inp_p" placeholder="Digite a senha da conta" required>
+                    <input type="password" id="senha" class="inp_p input-field" placeholder="Digite a senha da conta" required>
                     
                     <label for="confsenha">Confirmar Senha</label>
-                    <input type="password" id="confsenha" class="inp_p" placeholder="Confirme a senha" required>
+                    <input type="password" id="confsenha" class="inp_p input-field" placeholder="Confirme a senha" required>
                 </div>
 
                 <div class="container-fim">
@@ -42,44 +42,45 @@
         const formFunc = document.getElementById("formFuncionario");
         const pMessageEl = document.getElementById("respostas");
         const containerFimEl = document.querySelector(".container-fim");
+        const inputs = document.querySelectorAll(".input-field");
 
-        formFunc.addEventListener("submit", async (e) => { 
-            e.preventDefault(); 
-            
-            // Captura dos valores
+        // --- FUNÇÃO DE CADASTRO REUTILIZÁVEL ---
+        const realizarCadastro = async () => {
             const nome = document.getElementById("nome").value;
             const email = document.getElementById("email").value;
             const senha = document.getElementById("senha").value;
             const confsenha = document.getElementById("confsenha").value;
 
+            // Validação básica de preenchimento
+            if (!nome || !email || !senha || !confsenha) {
+                pMessageEl.innerText = "Por favor, preencha todos os campos.";
+                pMessageEl.style.color = "yellow";
+                return;
+            }
+
             // Validação local de senha
             if (senha !== confsenha) {
                 pMessageEl.innerText = "As senhas não coincidem!";
                 pMessageEl.style.color = "red";
-                containerFimEl.style.display = "block";
                 return;
             }
 
             pMessageEl.innerText = "Realizando cadastro...";
             pMessageEl.style.color = "white"; 
 
-            // Como o Backend usa Multer (uploadPerfil.single), enviamos como FormData
             const formData = new FormData();
             formData.append("nome", nome);
             formData.append("email", email);
             formData.append("senha", senha);
             formData.append("confsenha", confsenha);
-            // Se no futuro quiser enviar foto, basta usar: formData.append("imagem", arquivoInput.files[0]);
 
             try {
-                // Recupera o token de quem está logado (necessário para rota protegida)
                 const token = localStorage.getItem("token");
 
                 const resposta = await fetch(`http://localhost:3000/cadastro`, {
                     method: "POST",
                     headers: {
                         "Authorization": `Bearer ${token}`
-                        // Nota: Não defina Content-Type manual quando usar FormData
                     },
                     body: formData
                 });
@@ -89,13 +90,8 @@
                 if (resposta.ok) {
                     pMessageEl.innerText = "Cadastro realizado com sucesso! Redirecionando...";
                     pMessageEl.style.color = "green";
-                    
-                    setTimeout(() => {
-                        window.location.href = 'index.html'; 
-                    }, 1500);
-
+                    setTimeout(() => { window.location.href = 'index.html'; }, 1500);
                 } else {
-                    // Exibe a mensagem exata vinda do backend (ex: "E-mail já cadastrado")
                     pMessageEl.innerText = dados.resposta || "Erro ao cadastrar funcionário.";
                     pMessageEl.style.color = "red";
                 }
@@ -105,6 +101,29 @@
                 pMessageEl.style.color = "red";
                 console.error("Erro de rede:", error);
             }
+        };
+
+        // --- LÓGICA PARA NAVEGAÇÃO COM ENTER ---
+        inputs.forEach((input, index) => {
+            input.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault(); // Impede o envio prematuro do formulário
+                    
+                    if (index < inputs.length - 1) {
+                        // Se não for o último, foca no próximo
+                        inputs[index + 1].focus();
+                    } else {
+                        // Se for o último campo, dispara o cadastro
+                        realizarCadastro();
+                    }
+                }
+            });
+        });
+
+        // Evento padrão de clique no botão ou submit do formulário
+        formFunc.addEventListener("submit", (e) => {
+            e.preventDefault();
+            realizarCadastro();
         });
     });
     </script>

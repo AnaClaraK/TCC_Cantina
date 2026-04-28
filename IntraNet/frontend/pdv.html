@@ -256,12 +256,11 @@
 
             // --- TRATAMENTO DA IMAGEM ---
             if (produto.img) {
-                let caminho = produto.img.trim();
-                // Remove a barra inicial se houver para não duplicar na URL
-                if (caminho.startsWith("/")) {
-                    caminho = caminho.slice(1);
-                }
-                img_prod.src = `${URL_BACKEND_CAD}/${caminho}`;
+                // Remove qualquer repetição de "/images/" ou barras soltas que venham do banco
+                const nomeArquivo = produto.img.replace('/images/', '').replace(/^\//, '');
+                
+                // Monta o caminho final limpo
+                img_prod.src = `${URL_BACKEND_CAD}/images/${nomeArquivo}`;
             } else {
                 img_prod.src = IMG_PADRAO;
             }

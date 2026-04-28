@@ -1,10 +1,10 @@
 /* --- VARIÁVEIS E RESET --- */
 body {
-    display: none;
+    visibility: hidden;
 }
 :root {
     --sidebar-width: 250px;
-    --sidebar-collapsed-width: 70px;
+    --sidebar-collapsed-width: 74px;
     --header-height: 80px;
     --cor-principal: #efac4a;
     --cor-fundo: #242628;
@@ -306,4 +306,17 @@ body.fundo-escuro .nav-link.ativo {
 /* ===== FUNDO LARANJA ===== */
 body.fundo-laranja .nav-link.ativo {
     background: #f0d0a6;
+}
+
+#icon_edp{
+    margin-left: 4px;
+    width: 45px;
+}
+#icon_cadp{
+    margin-left: 1px;
+    width: 45px;
+}
+#icon_comp{
+    margin-left: 0px;
+    width: 46px;
 }
