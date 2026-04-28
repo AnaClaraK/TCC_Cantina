@@ -8,7 +8,74 @@
     <link rel="stylesheet" href="layout.css">
     <title>Reposição</title>
     <style>
+<<<<<<< HEAD
+        /* Estilos do Modal */
+        dialog { border: none; border-radius: 8px; padding: 20px; background: #2c2c2c; color: white; }
+        dialog::backdrop { background: rgba(0,0,0,0.7); }
+        
+        /* Estilos do Autocomplete */
+        #lista_sugestoes { list-style: none; padding: 0; background: #444; position: absolute; width: 200px; z-index: 100; }
+        #lista_sugestoes li { padding: 5px; cursor: pointer; border-bottom: 1px solid #555; }
+        #lista_sugestoes li:hover { background: #666; }
+
+        /* CENTRALIZAÇÃO E ESPAÇAMENTO */
+        .header-acoes { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; /* COLOCA NO MEIO */
+            gap: 15px; 
+            margin-bottom: 0px; 
+        }
+
+        .h_ag { 
+            margin: 0; 
+            font-size: 24px; 
+        }
+
+        /* Botões com o MESMO MODELO E TAMANHO */
+        #b_addq, #b_apagar_prod, #b_limpar_lista {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background-color: #1a1a1a;
+            color: #ffc27a;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-weight: bold;
+            transition: 0.2s;
+            width: 250px; /* LARGURA FIXA PARA FICAREM IGUAIS */
+            height: 45px; /* ALTURA PADRONIZADA */
+        }
+
+        #b_addq:hover, #b_apagar_prod:hover, #b_limpar_lista:hover {
+            filter: brightness(1.2);
+        }
+
+        /* Ajuste da busca para acompanhar a centralização */
+        #d_inp { 
+            margin-bottom: 0px; 
+            padding-bottom: 5px; 
+            display: flex;
+            justify-content: center;
+        }
+
+        #sc_tabela { 
+            margin-top: 0 !important; 
+            padding-top: 0 !important;
+        }
+        
+        .tabela { 
+            margin-top: 0 !important; 
+        }
+
+        .d_util {
+            padding-bottom: 0px;
+        }
+=======
         body { display: none; }
+>>>>>>> 64a4ab00218a64c0fae799fa529b877bdfe53781
     </style>
 </head>
 <body class="fundo-escuro">
@@ -22,11 +89,19 @@
             </button>
 
             <button id="b_apagar_prod">
+<<<<<<< HEAD
+                <span>Apagar produto</span>
+            </button>
+
+            <button id="b_limpar_lista">
+                <span>Apagar lista</span>
+=======
                 <span id="s_addq">Apagar produto</span>
             </button>
 
             <button id="b_limpar_lista">
                 <span id="s_addq">Apagar lista</span>
+>>>>>>> 64a4ab00218a64c0fae799fa529b877bdfe53781
             </button>
         </div>
 
@@ -75,6 +150,92 @@
             </div>
         </div>
     </dialog>
+<<<<<<< HEAD
+
+<script>
+const modal = document.getElementById("d_modal");
+const b_addq = document.getElementById("b_addq");
+const b_addf = document.getElementById("b_addf");
+const b_apagar_prod = document.getElementById("b_apagar_prod");
+const b_limpar_lista = document.getElementById("b_limpar_lista");
+const corpoTabela = document.getElementById('tb_tbl_estoque');
+const inpBuscaModal = document.getElementById("inp_busca_modal");
+const lista = document.getElementById("lista_sugestoes");
+const inputBusca = document.getElementById('inputBusca');
+
+b_addq.addEventListener("click", () => {
+    limparModal();
+    modal.showModal();
+});
+
+b_addf.addEventListener("click", () => {
+    const nome = document.getElementById("s_produto").innerText;
+    const qtd = document.getElementById("inp_add_qtd").value;
+    if (nome === "---" || qtd <= 0) {
+        alert("Selecione um produto e uma quantidade válida");
+        return;
+    }
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${nome}</td><td>${qtd}</td><td>Alta</td><td>Geral</td><td><input type="checkbox"></td>`;
+    corpoTabela.appendChild(tr);
+    modal.close();
+    limparModal();
+});
+
+function limparModal() {
+    inpBuscaModal.value = "";
+    document.getElementById("s_produto").innerText = "---";
+    document.getElementById("s_qtda").innerText = "0";
+    document.getElementById("inp_add_qtd").value = 0;
+    lista.innerHTML = "";
+}
+
+b_apagar_prod.addEventListener("click", () => {
+    if (corpoTabela.lastElementChild) {
+        corpoTabela.removeChild(corpoTabela.lastElementChild);
+    }
+});
+
+b_limpar_lista.addEventListener("click", () => {
+    if (confirm("Deseja limpar toda a lista de reposição?")) {
+        corpoTabela.innerHTML = "";
+    }
+});
+
+inpBuscaModal.addEventListener("input", () => {
+    const termo = inpBuscaModal.value.toLowerCase();
+    lista.innerHTML = "";
+    const mockProdutos = [
+        {nome: "Coca Cola", qtd: 10},
+        {nome: "Salgado Assado", qtd: 5}
+    ];
+    const filtrados = mockProdutos.filter(p => p.nome.toLowerCase().includes(termo));
+    filtrados.forEach(p => {
+        const li = document.createElement("li");
+        li.textContent = p.nome;
+        li.onclick = () => {
+            inpBuscaModal.value = p.nome;
+            document.getElementById("s_produto").innerText = p.nome;
+            document.getElementById("s_qtda").innerText = p.qtd;
+            lista.innerHTML = "";
+        };
+        lista.appendChild(li);
+    });
+});
+
+inputBusca.addEventListener('keyup', function() {
+    const termoBusca = inputBusca.value.toLowerCase().trim();
+    const linhas = document.querySelectorAll('#tb_tbl_estoque tr');
+    linhas.forEach(linha => {
+        const celulaProduto = linha.getElementsByTagName('td')[0];
+        if (celulaProduto) {
+            const texto = celulaProduto.textContent.toLowerCase().trim();
+            linha.style.display = texto.includes(termoBusca) ? "" : "none";
+        }
+    });
+});
+</script>
+=======
 
     <script>
         const modal = document.getElementById("d_modal");
@@ -200,5 +361,6 @@
             });
         });
         </script>
+>>>>>>> 64a4ab00218a64c0fae799fa529b877bdfe53781
 </body>
 </html> 
