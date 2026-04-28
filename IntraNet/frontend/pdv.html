@@ -7,6 +7,16 @@
     <link rel="stylesheet" href="layout.css">
     <link rel="stylesheet" href="stylepdv.css">
     <script src="sidebar_header.js"></script>
+    <script>
+        // Verifica se existe um token no localStorage
+        const token = localStorage.getItem("token");
+    
+        if (!token) {
+            // Se não tem token, nem carrega o resto da página
+            alert("Acesso restrito! Redirecionando para o login...");
+            window.location.href = "login.html"; 
+        }
+    </script>
 </head>
 <body class="sem-sidebar fundo-marrom">
 
@@ -41,7 +51,7 @@
     <div class="grupo-input" id="total">
         <h2 id="h_ttl_c" class="titulo">Total da Compra</h2>
         <div id="d_ttl_c" class="inp_val">R$ 0,00</div>
-    </dilistaSv>
+    </div>
 </section>
 <section id="sc_modalp">
     <dialog id="dialogBusca">
@@ -131,6 +141,7 @@
 </div>
 
 <script>
+    
     // Seletores
     const inp_codb = document.getElementById("inp_codb");
     const tbody = document.getElementById("tb_tbl_produtos");
@@ -216,36 +227,56 @@
     atualizarTabelaNoTopo();
 
     inp_codb.addEventListener("keydown", (event) => {
-        if (event.key !== "Enter") return;
-        const codigo = inp_codb.value.trim();
-        if (!codigo) return;
+    if (event.key !== "Enter") return;
+    
+    const codigo = inp_codb.value.trim();
+    if (!codigo) return;
 
-        fetch(`${URL_BACKEND_CAD}/produtos/${codigo}`)
+    apiFetch(`${URL_BACKEND_CAD}/produtos/cod/${codigo}`, {
+    method: "GET",
+    headers: {
+        // AQUI ESTÁ O SEGREDO: Enviando o token que salvamos no login
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+    }
+        })
         .then(res => {
+            if (res.status === 401 || res.status === 403) {
+                alert("Sua sessão expirou. Faça login novamente.");
+                window.location.href = "login.html";
+            }
             if (!res.ok) throw new Error("Produto não encontrado");
             return res.json();
         })
+
         .then(data => {
-            const produto = data[0];
+            // O backend retorna um array [{}]. Pegamos a primeira posição.
+            const produto = Array.isArray(data) ? data[0] : data;
 
-            let caminho = produto.img.trim();
+            if (!produto) throw new Error("Dados do produto inválidos");
 
-                // remove barra do começo se tiver
+            // --- TRATAMENTO DA IMAGEM ---
+            if (produto.img) {
+                let caminho = produto.img.trim();
+                // Remove a barra inicial se houver para não duplicar na URL
                 if (caminho.startsWith("/")) {
                     caminho = caminho.slice(1);
                 }
-
                 img_prod.src = `${URL_BACKEND_CAD}/${caminho}`;
+            } else {
+                img_prod.src = IMG_PADRAO;
+            }
+
+            // --- LÓGICA DO CARRINHO ---
             let itemExistente = carrinho.find(p => p.codigo == codigo);
 
             if (itemExistente) {
                 itemExistente.qtd++;
-                // Move o item para o topo (primeira posição do array)
+                // Move o item para o topo da lista (destaque no PDV)
                 carrinho = carrinho.filter(p => p.codigo != codigo);
                 carrinho.unshift(itemExistente);
             } else {
                 carrinho.unshift({
-                    id_produto: produto.id_produto, // 👈 ADD ISSO
+                    id_produto: produto.id_produto,
                     codigo: produto.codigo_barras,
                     nome: produto.nome,
                     preco: Number(produto.preco),
@@ -253,22 +284,32 @@
                 });
             }
 
+            // --- ATUALIZAÇÃO DA INTERFACE ---
             atualizarTabelaNoTopo();
-            atualizarVisores(carrinho[0]); // O item atualizado é sempre o index 0 agora
+            atualizarVisores(carrinho[0]); 
             atualizarTotalCompra();
             verificarBotao();
+            
             inp_codb.value = "";
+            inp_codb.focus();
         })
         .catch(err => {
-            console.error(err);
-            document.getElementById("erro_overlay").style.display = "flex";
+            console.error("Erro na requisição:", err);
+            
+            // Exibe o overlay de erro (Produto não cadastrado)
+            const overlay = document.getElementById("erro_overlay");
+            if (overlay) {
+                overlay.style.display = "flex";
+                setTimeout(() => {
+                    overlay.style.display = "none";
+                }, 1500);
+            }
+            
             img_prod.src = IMG_PADRAO;
             inp_codb.value = "";
-            setTimeout(() => {
-                document.getElementById("erro_overlay").style.display = "none";
-            }, 1500);
+            inp_codb.focus();
         });
-    });
+});
 
     b_final.addEventListener("click", () => {
         document.getElementById("s_dt").innerText = new Date().toLocaleString();
@@ -309,16 +350,18 @@
     // CALCULA O TOTAL REAL AQUI PARA NÃO IR ZERADO
     const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
 
-    fetch(`${URL_BACKEND_CAD}/pedidos`, {
+    apiFetch(`${URL_BACKEND_CAD}/pedidos`, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
-        },
+            "Content-Type": "application/json",
+            // Adicione esta linha:
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+    },
         body: JSON.stringify({
             itens: carrinho,
-            total: totalReal, // <--- Enviando o cálculo exato
+            total: totalReal,
             form_pag: formaPagamento
-        })
+    })
     })
     .then(res => res.json())
     .then(data => {
@@ -397,7 +440,11 @@ inputBusca.addEventListener("input", async () => {
     }
 
     try {
-        const resposta = await fetch(`${URL_BACKEND_CAD}/produtos/busca?q=${q}`);
+        const resposta = await apiFetch(`${URL_BACKEND_CAD}/produtos/busca?q=${q}`, {
+            headers: {
+               "Authorization": `Bearer ${localStorage.getItem("token")}`
+             }
+        });
         const dados = await resposta.json();
 
         if (!Array.isArray(dados)) return;

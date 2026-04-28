@@ -57,7 +57,7 @@
             pMessageEl.style.color = "white"; 
             
             try {
-                const resposta = await fetch(`http://localhost:3000/cadastro`, {
+                const resposta = await apiFetch(`http://localhost:3000/cadastro`, {
                     method: "POST",
                     headers: {
                         "Accept": "application/json",

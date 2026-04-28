@@ -6,6 +6,9 @@
 <link rel="stylesheet" href="layout.css">
 <link rel="stylesheet" href="stylecadp.css">
 <title>Editar Produto</title>
+<style>
+    body { display: none; }
+</style>
 </head>
 
 <body class="fundo-escuro">
@@ -68,7 +71,7 @@ let indexSelecionado = -1;
 
 // carregar produtos
 async function carregarProdutos(){
-    const res = await fetch("http://localhost:3000/produtos");
+    const res = await apiFetch("http://localhost:3000/produtos");
     produtosCache = await res.json();
 }
 carregarProdutos();
@@ -177,7 +180,7 @@ formProduto.addEventListener("submit", async (e)=>{
 
     const formData = new FormData(formProduto);
 
-    await fetch(`http://localhost:3000/produtos/${produtoSelecionado.id_produto}`, {
+    await apiFetch(`http://localhost:3000/produtos/cod/${produtoSelecionado.id_produto}`, {
         method: "PUT",
         body: formData
     });

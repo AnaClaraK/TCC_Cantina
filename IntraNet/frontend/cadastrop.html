@@ -47,7 +47,7 @@
             const formData = new FormData(e.target);
 
             try {
-                const res = await fetch("http://localhost:3000/produtos", {
+                const res = await apiFetch("http://localhost:3000/produtos", {
                     method: "POST",
                     body: formData
                 });
