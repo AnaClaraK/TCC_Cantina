@@ -301,6 +301,26 @@ input[type=number] {
     border-bottom: 1px solid #333;
     font-size: 15px;
 }
+/* Destaque para seleção via teclado */
+#lista_sugestoes li.ativo {
+    background-color: #efac4a !important;
+    color: #1c1c1c !important;
+    font-weight: bold;
+}
+
+/* Ajuste do rodapé de instrução */
+.modal_footer_instrucao {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.modal_footer_instrucao p {
+    font-size: 13px !important;
+    color: #efac4a;
+    opacity: 0.8;
+    margin: 0;
+}
+
 
 /* SCROLL DA LISTA (MENOR) */
 #lista_sugestoes::-webkit-scrollbar {

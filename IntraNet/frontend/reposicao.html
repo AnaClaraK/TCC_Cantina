@@ -6,6 +6,7 @@
     <script src="sidebar_header.js"></script>
     <link rel="stylesheet" href="styleag_es.css">
     <link rel="stylesheet" href="layout.css">
+    <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
     <title>Reposição</title>
     <script>
         // Verifica se existe um token no localStorage
@@ -122,7 +123,7 @@
             <h2 class="modal_titulo">Adicionar à Reposição</h2>
             
             <div class="autocomplete-box">
-                <input type="text" class="inp_m" id="inp_busca_modal" placeholder="Pesquisar produto...">
+                <input type="text" class="inp_m" id="inp_busca_modal" placeholder="Pesquisar produto..." autocomplete="off">
                 <ul id="lista_sugestoes"></ul>
             </div>
             
@@ -133,8 +134,12 @@
                 <label class="label">Qtd para repor:</label>
                 <input type="number" class="inp_m" id="inp_add_qtd" value="0">
             </div>
-
+        
             <button id="b_addf">Confirmar</button>
+        
+            <div class="modal_footer_instrucao">
+                <p>Use as setas ↑ ↓ e Enter para selecionar</p>
+            </div>
         </div>
     </dialog>
 
@@ -271,6 +276,71 @@ inputBusca.addEventListener('keyup', function() {
             const texto = celulaProduto.textContent.toLowerCase().trim();
             linha.style.display = texto.includes(termoBusca) ? "" : "none";
         }
+    });
+});
+let indexSelecionado = -1;
+
+// Função para destacar o item na lista
+function atualizarDestaque(itens) {
+    itens.forEach((li, i) => {
+        li.classList.toggle("ativo", i === indexSelecionado);
+        if (i === indexSelecionado) {
+            li.scrollIntoView({ block: "nearest" });
+        }
+    });
+}
+
+// Evento de Teclado no Input do Modal
+inpBuscaModal.addEventListener("keydown", (e) => {
+    const itens = lista.querySelectorAll("li");
+
+    if (e.key === "ArrowDown") {
+        e.preventDefault();
+        indexSelecionado = (indexSelecionado + 1) % itens.length;
+        atualizarDestaque(itens);
+    } 
+    else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        indexSelecionado = (indexSelecionado - 1 + itens.length) % itens.length;
+        atualizarDestaque(itens);
+    } 
+    else if (e.key === "Enter") {
+        e.preventDefault();
+        if (indexSelecionado > -1 && itens[indexSelecionado]) {
+            itens[indexSelecionado].click();
+        }
+    }
+});
+
+inpBuscaModal.addEventListener("input", () => {
+    const termo = inpBuscaModal.value.toLowerCase().trim();
+    lista.innerHTML = "";
+    indexSelecionado = -1; // Reseta a seleção ao digitar
+
+    if (termo === "") return;
+
+    const filtrados = produtosCache.filter(p => {
+        const nomeProd = (p.nome || p.nome_produto || "").toLowerCase();
+        const codProd = String(p.codigo_barras || p.codigo || "").toLowerCase();
+        return nomeProd.includes(termo) || codProd.startsWith(termo);
+    }).slice(0, 5);
+
+    filtrados.forEach((p, i) => {
+        const li = document.createElement("li");
+        const nomeExibicao = p.nome || p.nome_produto || "Sem nome";
+        li.textContent = nomeExibicao;
+
+        li.onclick = () => {
+            inpBuscaModal.value = nomeExibicao;
+            inpBuscaModal.dataset.codigo = p.codigo_barras || p.codigo;
+            document.getElementById("s_produto").innerText = nomeExibicao;
+            document.getElementById("s_qtda").innerText = p.qtd || p.quantidade || 0;
+            lista.innerHTML = "";
+            indexSelecionado = -1;
+            document.getElementById("inp_add_qtd").focus(); // Foca na quantidade após selecionar
+        };
+        
+        lista.appendChild(li);
     });
 });
 </script>
