@@ -57,7 +57,7 @@
         <p class="p_nome">Compras</p>
         </div>
     </section>
-
+<section class="dashboard-inferior">
     <section class="agenda-box">
         <header class="agenda-header">
             <div class="dia-grande" id="dia-grande-js">26</div>
@@ -83,6 +83,29 @@
             <a href="agendamento.html" class="btn-agenda-footer">Ver agenda</a>
         </footer>
     </section>
+    <a href="agendamento.html" class="atalho-agendamentos">
+        <section class="painel-agendamentos">
+            <div class="painel-agendamentos-header">
+                <h3>Próximos agendamentos</h3>
+                <span>Ver todos</span>
+            </div>
+    
+            <table class="tabela-agendamentos-home">
+                <thead>
+                    <tr>
+                        <th>Nome do cliente</th>
+                        <th>Produto</th>
+                    </tr>
+                </thead>
+                <tbody id="tb_agendamentos_home">
+                    <tr>
+                        <td colspan="2" class="carregando">Carregando...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </a>
+</section>
     <script>
         // Variáveis para controlar qual mês estamos vendo
 let dataExibicao = new Date();
@@ -140,7 +163,59 @@ function mudarMes(direcao) {
 }
 
 // Iniciar ao carregar a página
-window.onload = atualizarCalendario;
+async function carregarAgendamentosHome() {
+    const tbody = document.getElementById("tb_agendamentos_home");
+
+    try {
+        const resposta = await fetch("http://localhost:3000/agendamento", {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+
+        if (!resposta.ok) {
+            throw new Error(`Erro HTTP: ${resposta.status}`);
+        }
+
+        const dados = await resposta.json();
+
+        tbody.innerHTML = "";
+
+        if (!dados || dados.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="2" class="sem-agendamentos">
+                        Nenhum agendamento encontrado.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        dados.slice(0, 8).forEach(item => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.nome_cliente || item.nome}</td>
+                    <td>${item.produto}</td>
+                </tr>
+            `;
+        });
+
+    } catch (erro) {
+        console.error("Erro ao carregar agendamentos:", erro);
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="2" class="sem-agendamentos">
+                    Erro ao carregar agendamentos.
+                </td>
+            </tr>
+        `;
+    }
+}
+window.addEventListener("load", () => {
+    atualizarCalendario();
+    carregarAgendamentosHome();
+});
     </script>
 </body>
 </html>

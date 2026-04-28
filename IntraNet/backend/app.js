@@ -612,3 +612,25 @@ app.get("/reposicao/produtos", verificarToken, async (req, res) => {
         });
     }
 });
+
+//---pedidos9sla se funciona, já q elele é pra vir doapp
+app.get("/agendamentos", verificarToken, async (req, res) => {
+    try {
+        const [pedidos] = await conexao.query(`
+            SELECT 
+                num_pedido,
+                data,
+                status
+            FROM pedidos
+            ORDER BY data ASC
+            LIMIT 8
+        `);
+
+        res.json(pedidos);
+    } catch (erro) {
+        console.error("Erro ao buscar agendamentos:", erro);
+        res.status(500).json({
+            resposta: "Erro ao buscar agendamentos."
+        });
+    }
+});
