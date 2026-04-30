@@ -45,7 +45,22 @@
         </table>
     </section>
 
+    <dialog id="d_aviso">
+        <div class="aviso_box">
+            <p id="msg_aviso"></p>
+            <div class="aviso_botoes">
+                <button id="b_confirmar_aviso">OK</button>
+                <button id="b_cancelar_aviso" style="display: none;">Cancelar</button>
+            </div>
+        </div>
+    </dialog>
+    
 <script>
+const aviso = document.getElementById("d_aviso");
+const msgAviso = document.getElementById("msg_aviso");
+const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
+const bCancelarAviso = document.getElementById("b_cancelar_aviso");
+
 async function carregarAgendamentos() {
     const tbody = document.getElementById("tb_tbl_produtos");
 
@@ -104,35 +119,49 @@ async function carregarAgendamentos() {
 async function concluirAgendamento(idPedido, checkbox) {
     if (!checkbox.checked) return;
 
-    const confirmar = confirm("Deseja marcar este agendamento como finalizado?");
-    if (!confirmar) {
-        checkbox.checked = false;
-        return;
-    }
+    exibirAviso(
+        "Deseja marcar este agendamento como finalizado?",
+        async () => {
+            try {
+                const resposta = await fetch(`http://localhost:3000/agendamento/${idPedido}/finalizar`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                    }
+                });
 
-    try {
-        const resposta = await fetch(`http://localhost:3000/agendamento/${idPedido}/finalizar`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("token")}`
+                if (!resposta.ok) {
+                    throw new Error(`Erro HTTP: ${resposta.status}`);
+                }
+
+                const linha = checkbox.closest("tr");
+                linha.remove();
+
+                exibirAviso("Agendamento finalizado com sucesso!");
+
+            } catch (erro) {
+                console.error("Erro ao finalizar agendamento:", erro);
+                exibirAviso("Erro ao finalizar agendamento.");
+                checkbox.checked = false;
             }
-        });
+        },
+        true
+    );
+}
+function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
+    msgAviso.innerText = mensagem;
+    bCancelarAviso.style.display = mostrarCancelar ? "inline-block" : "none";
+    aviso.showModal();
 
-        if (!resposta.ok) {
-            throw new Error(`Erro HTTP: ${resposta.status}`);
-        }
+    bConfirmarAviso.onclick = () => {
+        aviso.close();
+        if (callback) callback();
+    };
 
-        const linha = checkbox.closest("tr");
-        linha.remove();
-
-        alert("Agendamento finalizado com sucesso!");
-
-    } catch (erro) {
-        console.error("Erro ao finalizar agendamento:", erro);
-        alert("Erro ao finalizar agendamento.");
-        checkbox.checked = false;
-    }
+    bCancelarAviso.onclick = () => {
+        aviso.close();
+    };
 }
 
 const inputBusca = document.getElementById("inputBusca");

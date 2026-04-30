@@ -54,7 +54,7 @@
                     <th>Quantidade</th>
                     <th>Prioridade</th>
                     <th>Local</th>
-                    <th>Concluído</th>
+                    <th>Concluir</th>
                 </tr>
             </thead>
             <tbody id="tb_tbl_estoque"></tbody>
@@ -166,9 +166,30 @@ b_addf.addEventListener("click", () => {
         exibirAviso("Selecione um produto e uma quantidade válida");
         return;
     }
+
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${nome}</td><td>${qtd}</td><td>Alta</td><td>${local}</td><td><input type="checkbox"></td>`;
+    tr.innerHTML = `
+        <td>${nome}</td>
+        <td>${qtd}</td>
+        <td>Alta</td>
+        <td>${local}</td>
+        <td>
+            <input type="checkbox" class="chk-concluido">
+        </td>
+    `;
+
     corpoTabela.appendChild(tr);
+
+    const checkbox = tr.querySelector(".chk-concluido");
+
+    checkbox.addEventListener("change", function () {
+        if (this.checked) {
+            exibirAviso("Reposição concluída com sucesso!", () => {
+                tr.remove();
+            });
+        }
+    });
+
     modal.close();
     limparModal();
 });
