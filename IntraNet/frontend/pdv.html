@@ -586,6 +586,21 @@ window.addEventListener("beforeunload", (e) => {
         e.returnValue = "Existem itens no carrinho. Deseja realmente sair?";
     }
 });
+// Lógica do botão Agendamento (F8)
+document.getElementById("b_agend").addEventListener("click", () => {
+    
+    // Se houver algo no carrinho, pede confirmação
+    if (carrinho.length > 0) {
+        const confirmar = confirm("Você tem uma venda em aberto. Se sair agora, os itens do carrinho serão perdidos. Deseja continuar?");
+        
+        if (confirmar) {
+            window.location.href = "agendamento.html";
+        }
+    } else {
+        // Se o carrinho estiver vazio, vai direto sem avisar
+        window.location.href = "agendamento.html";
+    }
+});
 </script>
 </body>
 </html>

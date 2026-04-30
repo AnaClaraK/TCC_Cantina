@@ -446,49 +446,29 @@ app.get("/produtos/cod/:codigo", verificarToken, async (req, res) => {
 });
 
 //----Pedidos
-//---- Salvar Pedidos (Protegido e Dinâmico)
-app.post("/pedidos", verificarToken, async (req, res) => {
+app.get("/historico-pedidos", verificarToken, async (req, res) => {
     try {
-        const { itens, total, form_pag } = req.body;
-
-        // 1. Busca o número do último pedido para incrementar
-        const [ultimo] = await conexao.query(`
-            SELECT num_pedido FROM pedidos 
-            ORDER BY id_pedido DESC LIMIT 1
+        const [pedidos] = await conexao.query(`
+            SELECT
+                p.id_pedido,
+                p.num_pedido,
+                p.data,
+                p.valor_total,
+                p.form_pag,
+                p.status,
+                u.nome
+            FROM pedidos p
+            LEFT JOIN users u ON p.id_user = u.id_user
+            WHERE p.status = 'Finalizado'
+            ORDER BY p.data DESC
         `);
 
-        let numero = 1;
-        if (ultimo.length > 0) {
-            numero = parseInt(ultimo[0].num_pedido) + 1;
-        }
-
-        const numeroFormatado = String(numero).padStart(3, "0");
-
-        // 2. Calcula a quantidade total de itens no pedido
-        const qtd_total = itens.reduce((soma, item) => soma + item.qtd, 0);
-        const status = "Finalizado";
-        // 3. INSERT na tabela 'pedidos'
-        const [result] = await conexao.query(`
-            INSERT INTO pedidos (num_pedido, id_user, valor_total, qtd_total, form_pag, status)
-            VALUES (?, ?, ?, ?, ?, ?)
-        `, [numeroFormatado, req.usuarioId, total, qtd_total, form_pag, status]);
-
-        const idPedido = result.insertId;
-
-        // 4. INSERT dos itens do pedido
-        for (let item of itens) {
-            await conexao.query(`
-                INSERT INTO pedidos_itens (id_pedido, id_produto, qtd, preco_unitario)
-                VALUES (?, ?, ?, ?)
-            `, [idPedido, item.id_produto, item.qtd, item.preco]);
-        }
-
-        // Retorna o número do pedido para o frontend mostrar na tela de sucesso
-        res.json({ num_pedido: numeroFormatado });
-
-    } catch (err) {
-        console.error("Erro ao salvar pedido:", err);
-        res.status(500).json({ erro: "Erro ao salvar pedido" });
+        res.json(pedidos);
+    } catch (erro) {
+        console.error("Erro ao buscar histórico:", erro);
+        res.status(500).json({
+            erro: "Erro ao buscar histórico de pedidos"
+        });
     }
 });
 //-------------------------------- ESTOQUE
