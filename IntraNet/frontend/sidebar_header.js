@@ -130,8 +130,8 @@ const sidebarHTML = `
             <span class="nav-text">Editar Produtos</span>
         </a>
         <a href="reposicao.html" class="nav-link">
-            <img class="i_img" data-name="compras" id="icon_comp" src="imagens/compras_p.png"/> 
-            <span class="nav-text">Compras</span>
+            <img class="i_img" data-name="reposicao" id="icon_comp" src="imagens/reposicao_p.png"/> 
+            <span class="nav-text">Reposição</span>
         </a>
         <a href="cadastrop.html" class="nav-link">
             <img class="i_img" data-name="cadastrop" src="imagens/cadastrop_p.png"/> 

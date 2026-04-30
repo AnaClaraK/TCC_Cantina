@@ -6,15 +6,16 @@
     <script src="sidebar_header.js"></script>
     <link rel="stylesheet" href="styleag_es.css">
     <link rel="stylesheet" href="layout.css">
+    <title>Agendamento</title>
     <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
     <script>
         // Verifica se existe um token no localStorage
         const token = localStorage.getItem("token");
-    
+
         if (!token) {
             // Se não tem token, nem carrega o resto da página
             alert("Acesso restrito! Redirecionando para o login...");
-            window.location.href = "login.html"; 
+            window.location.href = "login.html";
         }
     </script>
 </head>
@@ -30,45 +31,123 @@
     </div>
 
     <section id="sc_tabela" class="container mt-5">
-        
         <table class="tabela table-striped table-hover border">
             <thead class="table-dark">
                 <tr>
                     <th scope="col">Nome</th>
                     <th scope="col">Produto</th>
                     <th scope="col">Preço</th>
-                    <th scope="col">Quantidade</th>
+                    <th scope="col">Quantidade Total</th>
+                    <th scope="col">Concluir</th>
                 </tr>
             </thead>
-            <tbody id="tb_tbl_produtos">
-            </tbody>
+            <tbody id="tb_tbl_produtos"></tbody>
         </table>
-    </section>     
+    </section>
 
 <script>
-   
-const inputBusca = document.getElementById('inputBusca');
+async function carregarAgendamentos() {
+    const tbody = document.getElementById("tb_tbl_produtos");
 
-inputBusca.addEventListener('keyup', function() {
-    const termoBusca = inputBusca.value.toLowerCase().trim();
-    const linhas = document.querySelectorAll('#tb_tbl_produtos tr');
+    try {
+        const resposta = await fetch("http://localhost:3000/agendamento", {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+
+        if (!resposta.ok) {
+            throw new Error(`Erro HTTP: ${resposta.status}`);
+        }
+
+        const dados = await resposta.json();
+
+        tbody.innerHTML = "";
+
+        if (!dados || dados.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5">Nenhum agendamento encontrado.</td>
+                </tr>
+            `;
+            return;
+        }
+
+        dados.forEach(item => {
+            tbody.innerHTML += `
+                <tr data-id="${item.id_pedido}">
+                    <td>${item.nome || "Cliente"}</td>
+                    <td>${item.produto || "-"}</td>
+                    <td>R$ ${Number(item.valor_total).toFixed(2).replace(".", ",")}</td>
+                    <td>${item.qtd_total}</td>
+                    <td>
+                        <input 
+                            type="checkbox" 
+                            class="checkbox-concluir"
+                            onchange="concluirAgendamento(${item.id_pedido}, this)"
+                        >
+                    </td>
+                </tr>
+            `;
+        });
+
+    } catch (erro) {
+        console.error("Erro ao carregar agendamentos:", erro);
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5">Erro ao carregar agendamentos.</td>
+            </tr>
+        `;
+    }
+}
+
+async function concluirAgendamento(idPedido, checkbox) {
+    if (!checkbox.checked) return;
+
+    const confirmar = confirm("Deseja marcar este agendamento como finalizado?");
+    if (!confirmar) {
+        checkbox.checked = false;
+        return;
+    }
+
+    try {
+        const resposta = await fetch(`http://localhost:3000/agendamento/${idPedido}/finalizar`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+
+        if (!resposta.ok) {
+            throw new Error(`Erro HTTP: ${resposta.status}`);
+        }
+
+        const linha = checkbox.closest("tr");
+        linha.remove();
+
+        alert("Agendamento finalizado com sucesso!");
+
+    } catch (erro) {
+        console.error("Erro ao finalizar agendamento:", erro);
+        alert("Erro ao finalizar agendamento.");
+        checkbox.checked = false;
+    }
+}
+
+const inputBusca = document.getElementById("inputBusca");
+
+inputBusca.addEventListener("keyup", function () {
+    const termo = this.value.toLowerCase().trim();
+    const linhas = document.querySelectorAll("#tb_tbl_produtos tr");
 
     linhas.forEach(linha => {
-        const celulaCodigo = linha.getElementsByTagName('td')[1];
-        
-        if (celulaCodigo) {
-            const textoCodigo = celulaCodigo.textContent.toLowerCase().trim();
-
-            if (termoBusca === "" || textoCodigo === termoBusca) {
-                linha.style.display = "";
-            } else {
-                linha.style.display = "none";
-            }
-        }
+        const textoLinha = linha.textContent.toLowerCase();
+        linha.style.display = textoLinha.includes(termo) ? "" : "none";
     });
 });
 
-document.addEventListener('DOMContentLoaded', buscarProdutosEstoque)
+window.addEventListener("load", carregarAgendamentos);
 </script>
 </body>
 </html>

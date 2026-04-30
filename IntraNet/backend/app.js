@@ -394,8 +394,6 @@ app.put("/perfil/atualizar", verificarToken, uploadPerfil.single("imagem"), asyn
 });
 //---buscar produto removida daqui
 //--------- PRODUTOS (PDV e Cadastro)
-
-//-------- Cadastro de Produtos (Protegido)
 app.post("/produtos", verificarToken, uploadProdutos.single("imagem"), async (req, res) => {
   try {
       const { nome, preco, codigo_barras } = req.body;
@@ -412,8 +410,6 @@ app.post("/produtos", verificarToken, uploadProdutos.single("imagem"), async (re
 });
 
 //-----Busca
-// Substitua o bloco da app.get("/produtos/busca", ...) por este:
-//----- Busca por Nome ou Código (Protegido)
 app.get("/produtos/busca", verificarToken, async (req, res) => {
   try {
     const q = req.query.q;
@@ -431,7 +427,7 @@ app.get("/produtos/busca", verificarToken, async (req, res) => {
   }
 });
 
-//--- Buscar por Código de Barras específico (Protegido)
+//--- Buscar por Código de Barras específico 
 app.get("/produtos/cod/:codigo", verificarToken, async (req, res) => {
   try {
     const codigo = req.params.codigo;
@@ -470,13 +466,12 @@ app.post("/pedidos", verificarToken, async (req, res) => {
 
         // 2. Calcula a quantidade total de itens no pedido
         const qtd_total = itens.reduce((soma, item) => soma + item.qtd, 0);
-
+        const status = "Finalizado";
         // 3. INSERT na tabela 'pedidos'
-        // Trocamos o '1' por 'req.usuarioId' que vem do verificarToken
         const [result] = await conexao.query(`
-            INSERT INTO pedidos (num_pedido, id_user, valor_total, qtd_total, form_pag)
-            VALUES (?, ?, ?, ?, ?)
-        `, [numeroFormatado, req.usuarioId, total, qtd_total, form_pag]);
+            INSERT INTO pedidos (num_pedido, id_user, valor_total, qtd_total, form_pag, status)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `, [numeroFormatado, req.usuarioId, total, qtd_total, form_pag, status]);
 
         const idPedido = result.insertId;
 
@@ -612,25 +607,144 @@ app.get("/reposicao/produtos", verificarToken, async (req, res) => {
         });
     }
 });
-
-//---pedidos9sla se funciona, já q elele é pra vir doapp
-app.get("/agendamentos", verificarToken, async (req, res) => {
+// Fazer agendamento(ele deve ser feito pelo app, ams é só pra teste)
+app.post("/agendamento", verificarToken, async (req, res) => {
     try {
-        const [pedidos] = await conexao.query(`
-            SELECT 
-                num_pedido,
-                data,
-                status
+        const {
+            id_user,
+            data,
+            valor_total,
+            qtd_total,
+            forma_pag,
+            itens // [{ id_produto, qtd, preco_unitario }]
+        } = req.body;
+
+        const status = "Agendado";
+
+        const [ultimoPedido] = await conexao.query(`
+            SELECT MAX(num_pedido) AS ultimoNumero
             FROM pedidos
-            ORDER BY data ASC
-            LIMIT 8
         `);
 
-        res.json(pedidos);
+        const num_pedido = (ultimoPedido[0].ultimoNumero || 0) + 1;
+
+        const [resultadoPedido] = await conexao.query(`
+            INSERT INTO pedidos (
+                id_user,
+                num_pedido,
+                data,
+                status,
+                valor_total,
+                qtd_total,
+                forma_pag
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        `, [
+            id_user,
+            num_pedido,
+            data,
+            status,
+            valor_total,
+            qtd_total,
+            forma_pag
+        ]);
+
+        const id_pedido = resultadoPedido.insertId;
+
+        // Inserir os itens do pedido
+        if (itens && itens.length > 0) {
+            for (const item of itens) {
+                await conexao.query(`
+                    INSERT INTO pedidos_itens (
+                        id_pedido,
+                        id_produto,
+                        qtd,
+                        preco_unitario
+                    ) VALUES (?, ?, ?, ?)
+                `, [
+                    id_pedido,
+                    item.id_produto,
+                    item.qtd,
+                    item.preco_unitario
+                ]);
+            }
+        }
+
+        res.status(201).json({
+            resposta: "Agendamento criado com sucesso!",
+            id_pedido,
+            num_pedido
+        });
+
+    } catch (erro) {
+        console.error("Erro ao criar agendamento:", erro);
+        res.status(500).json({
+            resposta: "Erro ao criar agendamento."
+        });
+    }
+});
+
+//- buscar agendamento
+app.get("/agendamento", verificarToken, async (req, res) => {
+    try {
+        const [agendamentos] = await conexao.query(`
+            SELECT
+                p.id_pedido,
+                p.id_user,
+                p.num_pedido,
+                p.data,
+                p.status,
+                p.valor_total,
+                p.qtd_total,
+                p.form_pag,
+                u.nome,
+                GROUP_CONCAT(pr.nome SEPARATOR ', ') AS produto
+            FROM pedidos p
+            JOIN users u
+                ON p.id_user = u.id_user
+            LEFT JOIN pedidos_itens pi
+                ON p.id_pedido = pi.id_pedido
+            LEFT JOIN produtos pr
+                ON pi.id_produto = pr.id_produto
+            WHERE p.status = 'Agendado'
+            GROUP BY
+                p.id_pedido,
+                p.id_user,
+                p.num_pedido,
+                p.data,
+                p.status,
+                p.valor_total,
+                p.qtd_total,
+                p.form_pag,
+                u.nome
+            ORDER BY p.data ASC
+        `);
+
+        res.json(agendamentos);
     } catch (erro) {
         console.error("Erro ao buscar agendamentos:", erro);
         res.status(500).json({
             resposta: "Erro ao buscar agendamentos."
+        });
+    }
+});
+//- Fianlziar o Agendamento
+app.put("/agendamento/:id/finalizar", verificarToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        await conexao.query(`
+            UPDATE pedidos
+            SET status = 'Finalizado'
+            WHERE id_pedido = ?
+        `, [id]);
+
+        res.json({
+            resposta: "Agendamento finalizado com sucesso!"
+        });
+    } catch (erro) {
+        console.error("Erro ao finalizar agendamento:", erro);
+        res.status(500).json({
+            resposta: "Erro ao finalizar agendamento."
         });
     }
 });
