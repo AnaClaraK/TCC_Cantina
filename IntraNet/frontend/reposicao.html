@@ -183,15 +183,22 @@ function adicionarLinhaTabela(nome, qtd, local, prioridade = "Alta") {
 function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
     msgAviso.innerText = mensagem;
     bCancelarAviso.style.display = mostrarCancelar ? "block" : "none";
+
     aviso.showModal();
 
     bConfirmarAviso.onclick = () => {
         aviso.close();
         if (callback) callback();
     };
-    
+
     bCancelarAviso.onclick = () => {
         aviso.close();
+
+        if (window.checkboxAtual) {
+            window.checkboxAtual.checked = false;
+            window.checkboxAtual.blur();
+            window.checkboxAtual = null;
+        }
     };
 }
 
@@ -216,8 +223,33 @@ b_addf.addEventListener("click", () => {
         return;
     }
 
+<<<<<<< HEAD
     adicionarLinhaTabela(nome, qtd, local);
     salvarTabela(); // Salva após adicionar novo
+=======
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td>${nome}</td>
+        <td>${qtd}</td>
+        <td>Alta</td>
+        <td>${local}</td>
+        <td>
+            <input type="checkbox" class="chk-concluido" onchange="concluirAgendamento(...)">
+        </td>
+    `;
+
+    corpoTabela.appendChild(tr);
+
+    const checkbox = tr.querySelector(".chk-concluido");
+
+    checkbox.addEventListener("change", function () {
+        if (this.checked) {
+            exibirAviso("Reposição concluída com sucesso!", () => {
+                tr.remove();
+            });
+        }
+    });
+>>>>>>> 961a3c705e1ea5a91123e3369827f7f1b88695ce
 
     modal.close();
     limparModal();
