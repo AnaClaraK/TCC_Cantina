@@ -159,10 +159,14 @@ function carregarTabela() {
 function adicionarLinhaTabela(nome, qtd, local, prioridade = "Alta", codigo = "", valorComprado = "") {
     const tr = document.createElement('tr');
     tr.dataset.codigo = codigo; // Guarda o código no elemento da linha
+    
+    // ATUALIZAÇÃO: width reduzido para 50px e border-color para #efac4a
     tr.innerHTML = `
         <td>${nome}</td>
         <td>${qtd}</td>
-        <td><input type="number" class="inp_m" style="width: 80px; margin: 0; border: 1px solid #555;" placeholder="${qtd}" value="${valorComprado}"></td>
+        <td><input type="number" value="${valorComprado}" 
+            style="width: 50px; background: transparent; border: 1px solid #efac4a; border-radius: 4px; color: inherit; font-size: inherit; font-family: inherit; text-align: left; padding-left: 5px; outline: none; margin: 0;">
+        </td>
         <td>${prioridade}</td>
         <td>${local}</td>
         <td>
@@ -411,7 +415,7 @@ inpBuscaModal.addEventListener("keydown", (e) => {
     if (e.key === "ArrowDown") {
         e.preventDefault();
         indexSelecionado = (indexSelecionado + 1) % itens.length;
-        atualuarDestaque(itens);
+        atualizarDestaque(itens);
     } 
     else if (e.key === "ArrowUp") {
         e.preventDefault();
