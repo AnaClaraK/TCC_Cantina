@@ -130,6 +130,55 @@ const bCancelarAviso = document.getElementById("b_cancelar_aviso");
 
 let produtosCache = [];
 
+// --- FUNÇÕES DE PERSISTÊNCIA ADICIONADAS ---
+function salvarTabela() {
+    const dados = [];
+    corpoTabela.querySelectorAll('tr').forEach(tr => {
+        dados.push({
+            nome: tr.cells[0].innerText,
+            qtd: tr.cells[1].innerText,
+            prioridade: tr.cells[2].innerText,
+            local: tr.cells[3].innerText
+        });
+    });
+    localStorage.setItem("dados_reposicao", JSON.stringify(dados));
+}
+
+function carregarTabela() {
+    const salvo = localStorage.getItem("dados_reposicao");
+    if (salvo) {
+        const dados = JSON.parse(salvo);
+        dados.forEach(item => adicionarLinhaTabela(item.nome, item.qtd, item.local, item.prioridade));
+    }
+}
+
+// Criada para evitar repetição de código ao carregar e adicionar
+function adicionarLinhaTabela(nome, qtd, local, prioridade = "Alta") {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td>${nome}</td>
+        <td>${qtd}</td>
+        <td>${prioridade}</td>
+        <td>${local}</td>
+        <td>
+            <input type="checkbox" class="chk-concluido">
+        </td>
+    `;
+
+    corpoTabela.appendChild(tr);
+
+    const checkbox = tr.querySelector(".chk-concluido");
+    checkbox.addEventListener("change", function () {
+        if (this.checked) {
+            exibirAviso("Reposição concluída com sucesso!", () => {
+                tr.remove();
+                salvarTabela(); // Salva após remover concluído
+            });
+        }
+    });
+}
+// ------------------------------------------
+
 // Função para exibir aviso bonitinho
 function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
     msgAviso.innerText = mensagem;
@@ -167,28 +216,8 @@ b_addf.addEventListener("click", () => {
         return;
     }
 
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-        <td>${nome}</td>
-        <td>${qtd}</td>
-        <td>Alta</td>
-        <td>${local}</td>
-        <td>
-            <input type="checkbox" class="chk-concluido">
-        </td>
-    `;
-
-    corpoTabela.appendChild(tr);
-
-    const checkbox = tr.querySelector(".chk-concluido");
-
-    checkbox.addEventListener("change", function () {
-        if (this.checked) {
-            exibirAviso("Reposição concluída com sucesso!", () => {
-                tr.remove();
-            });
-        }
-    });
+    adicionarLinhaTabela(nome, qtd, local);
+    salvarTabela(); // Salva após adicionar novo
 
     modal.close();
     limparModal();
@@ -221,6 +250,7 @@ b_apagar_prod.addEventListener("click", () => {
             
             exibirAviso(`Deseja realmente apagar o produto: ${nomeProd}?`, () => {
                 linhaClicada.remove();
+                salvarTabela(); // Salva após apagar um item
                 exibirAviso("Produto removido com sucesso!");
             }, true);
 
@@ -242,6 +272,7 @@ b_limpar_lista.addEventListener("click", () => {
 
     exibirAviso("Deseja limpar toda a lista de reposição?", () => {
         corpoTabela.innerHTML = "";
+        salvarTabela(); // Salva após limpar lista
         exibirAviso("Lista apagada!");
     }, true);
 });
@@ -298,7 +329,11 @@ inpBuscaModal.addEventListener("input", () => {
     });
 });
 
-document.addEventListener("DOMContentLoaded", carregarProdutos);
+// Chamada inicial para carregar produtos da API e a tabela salva
+document.addEventListener("DOMContentLoaded", () => {
+    carregarProdutos();
+    carregarTabela();
+});
 
 inputBusca.addEventListener('keyup', function() {
     const termoBusca = inputBusca.value.toLowerCase().trim();
