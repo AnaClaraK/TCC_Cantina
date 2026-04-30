@@ -24,7 +24,7 @@
 <div class="d_util">
     <h2 class="h_ag">Estoque</h2>
     <button id="b_addq">
-      <span id="s_addq">Adicionar Quantidade</span>
+      <span id="s_addq">Adicionar quantidade</span>
     </button>
     <div id="d_inp">
     <div class="busca-box">
@@ -35,7 +35,6 @@
 </div>
 
 <section id="sc_tabela" class="container mt-5">
-    <table class="tabela">
 <table class="tabela">
     <thead>
         <tr>
@@ -48,6 +47,7 @@
     </thead>
     <tbody id="tb_tbl_produtos"></tbody>
 </table>
+</section>
 
 <dialog id="d_modal">
     <div class="modal_box">
@@ -73,6 +73,13 @@
 </dialog>
 
 <script>
+// Função utilitária para fetch
+async function apiFetch(url, options) {
+    const response = await fetch(url, options);
+    if (!response.ok) throw new Error('Erro na requisição: ' + response.status);
+    return response;
+}
+
 const modal = document.getElementById("d_modal");
 const b_addq = document.getElementById("b_addq");
 const b_addf = document.getElementById("b_addf");
@@ -130,7 +137,7 @@ b_addq.addEventListener("click", () => {
 
     modal.showModal();
 });
-// 🔥 ÚNICO EVENTO (corrigido)
+
 b_addf.addEventListener("click", async () => {
     const codigo = inpBuscaModal.dataset.codigo;
 
@@ -142,15 +149,22 @@ b_addf.addEventListener("click", async () => {
     const qtdAdd = Number(document.getElementById("inp_add_qtd").value);
     if (qtdAdd <= 0) return alert("Quantidade inválida");
 
-    await apiFetch(`http://localhost:3000/produtos/cod/${codigo}/add`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ quantidade: qtdAdd })
-    });
+    try {
+        await apiFetch(`http://localhost:3000/produtos/cod/${codigo}/add`, {
+            method: "PUT",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify({ quantidade: qtdAdd })
+        });
 
-    modal.close();
-    limparModal();
-    carregarProdutos();
+        modal.close();
+        limparModal();
+        carregarProdutos();
+    } catch (err) {
+        alert("Erro ao atualizar o estoque");
+    }
 });
 
 function limparModal() {
@@ -162,26 +176,32 @@ function limparModal() {
     lista.innerHTML = "";
 }
 
-// carregar tabela
 async function carregarProdutos() {
-    const res = await apiFetch("http://localhost:3000/produtos");
-    const produtos = await res.json();
+    try {
+        const res = await apiFetch("http://localhost:3000/produtos", {
+            headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+        });
+        const produtos = await res.json();
 
-    produtosCache = produtos;
-    tabela.innerHTML = "";
+        produtosCache = produtos;
+        tabela.innerHTML = "";
 
-    produtos.forEach(p => {
-        tabela.innerHTML += `
-            <tr>
-                <td>${p.codigo_barras || ""}</td>
-                <td>${p.nome || ""}</td>
-                <td>${p.categoria_nome || ""}</td>
-                <td>R$ ${parseFloat(p.preco || 0).toFixed(2)}</td>
-                <td>${p.qtd || 0}</td>
-            </tr>
-        `;
-    });
+        produtos.forEach(p => {
+            tabela.innerHTML += `
+                <tr>
+                    <td>${p.codigo_barras || ""}</td>
+                    <td>${p.nome || ""}</td>
+                    <td>${p.categoria_nome || ""}</td>
+                    <td>R$ ${parseFloat(p.preco || 0).toFixed(2)}</td>
+                    <td>${p.qtd || 0}</td>
+                </tr>
+            `;
+        });
+    } catch (err) {
+        console.error("Erro ao carregar produtos:", err);
+    }
 }
+
 function selecionarProdutoModal(produto) {
     inpBuscaModal.value = produto.nome;
     inpBuscaModal.dataset.codigo = produto.codigo_barras;
@@ -205,17 +225,13 @@ function atualizarDestaqueModal(itens) {
         }
     });
 }
+
 modal.addEventListener("keydown", (e) => {
     if (!modal.open) return;
-
     const teclasNavegacao = ["ArrowDown", "ArrowUp", "Enter"];
-
     if (!teclasNavegacao.includes(e.key)) return;
 
     e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-
     const itens = lista.querySelectorAll("li");
     if (itens.length === 0) return;
 
@@ -223,30 +239,25 @@ modal.addEventListener("keydown", (e) => {
         indexSelecionado = (indexSelecionado + 1) % itens.length;
         atualizarDestaqueModal(itens);
     }
-
     else if (e.key === "ArrowUp") {
         indexSelecionado = (indexSelecionado - 1 + itens.length) % itens.length;
         atualizarDestaqueModal(itens);
     }
-
     else if (e.key === "Enter") {
         const termo = inpBuscaModal.value.toLowerCase();
-
         const filtrados = produtosCache.filter(p =>
             (p.nome || "").toLowerCase().includes(termo) ||
             (p.codigo_barras || "").startsWith(termo)
         );
-
         if (indexSelecionado >= 0 && filtrados[indexSelecionado]) {
             selecionarProdutoModal(filtrados[indexSelecionado]);
         }
     }
 }, true);
-// autocomplete
+
 inpBuscaModal.addEventListener("input", () => {
     const termo = inpBuscaModal.value.toLowerCase();
     lista.innerHTML = "";
-
     const filtrados = produtosCache.filter(p =>
         (p.nome || "").toLowerCase().includes(termo) ||
         (p.codigo_barras || "").startsWith(termo)
@@ -255,21 +266,17 @@ inpBuscaModal.addEventListener("input", () => {
     filtrados.forEach(p => {
         const li = document.createElement("li");
         li.textContent = p.nome;
-
         li.onclick = () => selecionarProdutoModal(p);
-
         lista.appendChild(li);
     });
 });
-    const b_close_modal = document.getElementById("b_close_modal");
 
-    b_close_modal.addEventListener("click", () => {
-        modal.close();
-    });
+const b_close_modal_btn = document.getElementById("b_close_modal");
+b_close_modal_btn.addEventListener("click", () => {
+    modal.close();
+});
 
 document.addEventListener("DOMContentLoaded", carregarProdutos);
-
 </script>
-
 </body>
 </html>
