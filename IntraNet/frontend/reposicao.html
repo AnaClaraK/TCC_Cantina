@@ -26,7 +26,7 @@
             <h2 class="h_ag">Reposição</h2>
 
             <button id="b_addq">
-                <span id="s_addq">Adicionar Produto</span>
+                <span id="s_addq">Adicionar produto</span>
             </button>
 
             <button id="b_apagar_prod">
@@ -51,7 +51,8 @@
             <thead>
                 <tr>
                     <th>Produto</th>
-                    <th>Quantidade</th>
+                    <th>Quantidade prevista</th>
+                    <th>Quantidade comprada</th>
                     <th>Prioridade</th>
                     <th>Local</th>
                     <th>Concluir</th>
@@ -64,19 +65,19 @@
     <dialog id="d_modal">
         <div class="modal_box">
             <button id="b_close_modal">x</button>
-           
+            
             <h2 class="modal_titulo">Reposição</h2>
-           
+            
             <div class="autocomplete-box">
                 <input type="text" class="inp_m" id="inp_busca_modal" placeholder="Pesquisar produto" autocomplete="off">
                 <ul id="lista_sugestoes"></ul>
             </div>
-           
+            
             <div style="margin-top: 20px;">
                 <p class="pm">Produto: <span id="s_produto">---</span></p>
                 <p class="pm">Estoque atual: <span id="s_qtda">0</span></p>
-               
-                <label class="pm">Quantidade para repor:</label>
+                
+                <label class="pm">Quantidade prevista:</label>
                 <input type="number" class="inp_m" id="inp_add_qtd" value="0">
 
                 <label class="pm">Local</label>
@@ -137,8 +138,10 @@ function salvarTabela() {
         dados.push({
             nome: tr.cells[0].innerText,
             qtd: tr.cells[1].innerText,
-            prioridade: tr.cells[2].innerText,
-            local: tr.cells[3].innerText
+            qtdComprada: tr.cells[2].querySelector('input').value, // Salva o valor digitado
+            prioridade: tr.cells[3].innerText,
+            local: tr.cells[4].innerText,
+            codigo: tr.dataset.codigo // Salva o código oculto para a API
         });
     });
     localStorage.setItem("dados_reposicao", JSON.stringify(dados));
@@ -148,16 +151,18 @@ function carregarTabela() {
     const salvo = localStorage.getItem("dados_reposicao");
     if (salvo) {
         const dados = JSON.parse(salvo);
-        dados.forEach(item => adicionarLinhaTabela(item.nome, item.qtd, item.local, item.prioridade));
+        dados.forEach(item => adicionarLinhaTabela(item.nome, item.qtd, item.local, item.prioridade, item.codigo, item.qtdComprada));
     }
 }
 
 // Criada para evitar repetição de código ao carregar e adicionar
-function adicionarLinhaTabela(nome, qtd, local, prioridade = "Alta") {
+function adicionarLinhaTabela(nome, qtd, local, prioridade = "Alta", codigo = "", valorComprado = "") {
     const tr = document.createElement('tr');
+    tr.dataset.codigo = codigo; // Guarda o código no elemento da linha
     tr.innerHTML = `
         <td>${nome}</td>
         <td>${qtd}</td>
+        <td><input type="number" class="inp_m" style="width: 80px; margin: 0; border: 1px solid #555;" placeholder="${qtd}" value="${valorComprado}"></td>
         <td>${prioridade}</td>
         <td>${local}</td>
         <td>
@@ -168,12 +173,46 @@ function adicionarLinhaTabela(nome, qtd, local, prioridade = "Alta") {
     corpoTabela.appendChild(tr);
 
     const checkbox = tr.querySelector(".chk-concluido");
-    checkbox.addEventListener("change", function () {
+    const inputComprado = tr.querySelector('td:nth-child(3) input');
+
+    // Ao mudar o input, salva na persistência
+    inputComprado.addEventListener('input', salvarTabela);
+
+    checkbox.addEventListener("change", async function () {
         if (this.checked) {
-            exibirAviso("Reposição concluída com sucesso!", () => {
-                tr.remove();
-                salvarTabela(); // Salva após remover concluído
-            });
+            // Lógica de Reposição -> Estoque
+            let qtdFinal = inputComprado.value;
+            if (!qtdFinal || qtdFinal <= 0) {
+                qtdFinal = qtd; // Se estiver vazio/null, assume a qtd desejada
+            }
+
+            const prodCodigo = tr.dataset.codigo;
+
+            if (prodCodigo) {
+                try {
+                    await apiFetch(`http://localhost:3000/produtos/cod/${prodCodigo}/add`, {
+                        method: "PUT",
+                        headers: { 
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`
+                        },
+                        body: JSON.stringify({ quantidade: Number(qtdFinal) })
+                    });
+                    
+                    exibirAviso(`Reposição de ${qtdFinal} un. adicionada ao estoque!`, () => {
+                        tr.remove();
+                        salvarTabela();
+                    });
+                } catch (err) {
+                    exibirAviso("Erro ao atualizar estoque. Tente novamente.");
+                    this.checked = false;
+                }
+            } else {
+                exibirAviso("Reposição concluída!", () => {
+                    tr.remove();
+                    salvarTabela();
+                });
+            }
         }
     });
 }
@@ -217,39 +256,16 @@ b_addf.addEventListener("click", () => {
     const nome = document.getElementById("s_produto").innerText;
     const qtd = document.getElementById("inp_add_qtd").value;
     const local = document.getElementById("inp_add_local").value || "Geral";
+    const codigo = inpBuscaModal.dataset.codigo;
 
     if (nome === "---" || qtd <= 0) {
         exibirAviso("Selecione um produto e uma quantidade válida");
         return;
     }
-
-<<<<<<< HEAD
-    adicionarLinhaTabela(nome, qtd, local);
-    salvarTabela(); // Salva após adicionar novo
-=======
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-        <td>${nome}</td>
-        <td>${qtd}</td>
-        <td>Alta</td>
-        <td>${local}</td>
-        <td>
-            <input type="checkbox" class="chk-concluido" onchange="concluirAgendamento(...)">
-        </td>
-    `;
-
-    corpoTabela.appendChild(tr);
-
-    const checkbox = tr.querySelector(".chk-concluido");
-
-    checkbox.addEventListener("change", function () {
-        if (this.checked) {
-            exibirAviso("Reposição concluída com sucesso!", () => {
-                tr.remove();
-            });
-        }
-    });
->>>>>>> 961a3c705e1ea5a91123e3369827f7f1b88695ce
+    
+    // Adicionado o parâmetro qtd no final para que a quantidade comprada inicie igual à prevista
+    adicionarLinhaTabela(nome, qtd, local, "Alta", codigo, qtd);
+    salvarTabela(); 
 
     modal.close();
     limparModal();
@@ -395,7 +411,7 @@ inpBuscaModal.addEventListener("keydown", (e) => {
     if (e.key === "ArrowDown") {
         e.preventDefault();
         indexSelecionado = (indexSelecionado + 1) % itens.length;
-        atualizarDestaque(itens);
+        atualuarDestaque(itens);
     } 
     else if (e.key === "ArrowUp") {
         e.preventDefault();
