@@ -51,37 +51,57 @@
 const inputBusca = document.getElementById('inputBusca');
 const corpoTabela = document.getElementById('tb_tbl_produtos');
 
-// 1. Sua lista de pedidos (Vazia para você preencher ou conectar o back depois)
-const pedidosSimulados = [
-    // Exemplo: { nome: "João", id: "001", data: "14/04", total: "10,00", pag: "Pix" }
-];
 
 // 2. Função que busca e desenha os pedidos
 async function buscarProdutosEstoque() {
-    corpoTabela.innerHTML = ""; 
+    corpoTabela.innerHTML = "";
 
-    /* DICA PARA O FUTURO (BACKEND):
-       Quando você criar o PHP, você vai usar estas linhas abaixo:
-       const response = await fetch('buscar_pedidos.php');
-       const dados = await response.json();
-    */
+    try {
+        const response = await fetch("http://localhost:3000/historico-pedidos", {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        });
 
-    // Por enquanto, usamos a lista manual (vazia ou preenchida por você)
-    const dadosParaExibir = pedidosSimulados;
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
 
-    dadosParaExibir.forEach(pedido => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${pedido.nome}</td>
-            <td>${pedido.id}</td>
-            <td>${pedido.data}</td>
-            <td>R$ ${pedido.total}</td>
-            <td>${pedido.pag}</td>
+        const pedidos = await response.json();
+
+        if (pedidos.length === 0) {
+            corpoTabela.innerHTML = `
+                <tr>
+                    <td colspan="5">Nenhum pedido finalizado encontrado.</td>
+                </tr>
+            `;
+            return;
+        }
+
+        pedidos.forEach(pedido => {
+            const dataFormatada = new Date(pedido.data).toLocaleString("pt-BR");
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${pedido.nome || "Cliente"}</td>
+                <td>${pedido.num_pedido}</td>
+                <td>${dataFormatada}</td>
+                <td>R$ ${Number(pedido.valor_total).toFixed(2).replace(".", ",")}</td>
+                <td>${pedido.form_pag}</td>
+            `;
+
+            corpoTabela.appendChild(tr);
+        });
+
+    } catch (erro) {
+        console.error("Erro ao carregar histórico:", erro);
+        corpoTabela.innerHTML = `
+            <tr>
+                <td colspan="5">Erro ao carregar histórico de pedidos.</td>
+            </tr>
         `;
-        corpoTabela.appendChild(tr);
-    });
+    }
 }
-
 // 3. Lógica de busca por Nome ou Código
 inputBusca.addEventListener('keyup', function() {
     const termo = inputBusca.value.toLowerCase().trim();
