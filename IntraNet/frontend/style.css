@@ -42,16 +42,15 @@ body{
 /* 1. O container que segura os botões de estoque */
 .s_btn {
     display: flex;         /* Ativa o Flexbox para alinhar os filhos (<a>) */
-    flex-direction: row;   /* Define o alinhamento como linha (horizontal) */
-    gap: 50px;            /* Cria um espaço de 20px entre cada botão */
+    flex-direction: row;   /* Define o alinhamento como linha (horizontal) */          /* Cria um espaço de 20px entre cada botão */
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;          /* Permite quebrar linha se REALMENTE não couber */
     justify-content: center;  /* Mantém centralizado */
-    gap: 20px;                /* Reduzi o gap de 50px para 20px para ganhar espaço */
+    gap: 40px;                /* Reduzi o gap de 50px para 20px para ganhar espaço */
     padding: 20px;
     justify-content: center; /* Opcional: Centraliza o grupo de botões na tela */
-    
+    margin-top: 50px;
     /* Cálculo mágico: 100% da largura menos a largura da sidebar */
     width: auto; 
     transition: all 0.3s ease; /* Segue o movimento da sidebar suavemente */
@@ -73,6 +72,8 @@ main, .conteudo-principal {
     color: #242628;
     font-family: 'Roca One', serif;
     margin: 0px 60px;
+    margin-top: 40px;
+    margin-left: 90px;
     position: relative; /* FUNDAMENTAL: vira a referência para os botões */
     box-sizing: border-box;
 }
@@ -187,4 +188,91 @@ main, .conteudo-principal {
     background-color: #242628;
     max-width: 150px;
     
+}
+.dashboard-inferior {
+    display: flex;
+    gap: 35px;
+    align-items: flex-start;
+    margin-top: 30px;
+    width: 100%;
+}
+
+.agenda-box {
+    width: 470px;
+    flex-shrink: 0;
+}
+
+.atalho-agendamentos {
+    width: 780px;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.painel-agendamentos {
+    width: 100%;
+    background: #e6b35c;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.painel-agendamentos-header {
+    background: #1f2329;
+    color: #e6b35c;
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tabela-agendamentos-home {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.tabela-agendamentos-home thead tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.tabela-agendamentos-home tbody {
+    display: block;
+    max-height: 350px;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.tabela-agendamentos-home tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.tabela-agendamentos-home th,
+.tabela-agendamentos-home td {
+    padding: 14px 18px;
+    text-align: left;
+    word-wrap: break-word;
+}
+
+.tabela-agendamentos-home thead {
+    background: #111;
+    color: #e6b35c;
+}
+
+.tabela-agendamentos-home tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.tabela-agendamentos-home tbody tr:hover {
+    background: rgba(31, 35, 41, 0.15);
+}
+
+.sem-agendamentos,
+.carregando {
+    text-align: center;
+    padding: 30px;
 }
