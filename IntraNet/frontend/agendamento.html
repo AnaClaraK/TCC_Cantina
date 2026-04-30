@@ -91,8 +91,8 @@ async function carregarAgendamentos() {
         dados.forEach(item => {
             tbody.innerHTML += `
                 <tr data-id="${item.id_pedido}">
-                    <td>${item.nome || "Cliente"}</td>
-                    <td>${item.produto || "-"}</td>
+                    <td>${item.cliente_nome || "Cliente"}</td>
+                    <td>${item.produtos.map(p => p.nome).join(", ")}</td>
                     <td>R$ ${Number(item.valor_total).toFixed(2).replace(".", ",")}</td>
                     <td>${item.qtd_total}</td>
                     <td>

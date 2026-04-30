@@ -44,7 +44,13 @@
     <div class="grupo-input">
         <h2 class="titulo">Quantidade Total</h2>  
         <div id="d_qtd_geral" class="inp_val">0</div>
+        <h2 class="titulo" id="est_til">Estoque Disponível</h2>
+        <div id="d_estoque" class="inp_val">-</div>
+        <small id="aviso_estoque" style="color: red; display: none; font-weight: bold;">
+            Quantidade acima do estoque disponível!
+        </small>
     </div>
+
 
     <img src="images/img_ntf.png" alt="imagem product" id="img_prod">
 
@@ -214,20 +220,35 @@
     }
 }
 
-    function atualizarVisores(item) {
-        document.getElementById("d_qtd").innerText = item.qtd;
-        document.getElementById("d_vl_und").innerText = "R$ " + formatar(item.preco);
-        document.getElementById("d_ttl_i").innerText = "R$ " + formatar(item.preco * item.qtd);
-    }
+function atualizarVisores(item) {
+    document.getElementById("d_qtd").innerText = item.qtd;
+    document.getElementById("d_vl_und").innerText = "R$ " + formatar(item.preco);
+    document.getElementById("d_ttl_i").innerText = "R$ " + formatar(item.preco * item.qtd);
 
-    function verificarBotao() {
-    const botaoFinalizar = document.getElementById("b_final");
-    if (carrinho.length === 0) {
-        botaoFinalizar.disabled = true;
+    const estoqueRestante = item.estoque - item.qtd;
+    document.getElementById("d_estoque").innerText = estoqueRestante;
+
+    const aviso = document.getElementById("aviso_estoque");
+
+    if (estoqueRestante <= 0) {
+        aviso.style.display = "block";
+        aviso.innerText = "Estoque esgotado!";
     } else {
-        botaoFinalizar.disabled = false;
+        aviso.style.display = "none";
     }
 }
+    function verificarEstoqueCarrinho() {
+    return carrinho.some(item => item.qtd > item.estoque);
+}
+    function verificarBotao() {
+        const botaoFinalizar = document.getElementById("b_final");
+
+        if (carrinho.length === 0 || verificarEstoqueCarrinho()) {
+            botaoFinalizar.disabled = true;
+        } else {
+            botaoFinalizar.disabled = false;
+        }
+    }
 
     // Inicializa a tabela vazia
     atualizarTabelaNoTopo();
@@ -275,18 +296,38 @@
             let itemExistente = carrinho.find(p => p.codigo == codigo);
 
             if (itemExistente) {
+                if (itemExistente.qtd >= itemExistente.estoque) {
+                    atualizarVisores(itemExistente);
+                    verificarBotao();
+                    return;
+                }
+
                 itemExistente.qtd++;
-                // Move o item para o topo da lista (destaque no PDV)
+
+                // Move para o topo
                 carrinho = carrinho.filter(p => p.codigo != codigo);
                 carrinho.unshift(itemExistente);
+
             } else {
                 carrinho.unshift({
                     id_produto: produto.id_produto,
                     codigo: produto.codigo_barras,
                     nome: produto.nome,
                     preco: Number(produto.preco),
-                    qtd: 1
+                    qtd: 1,
+                    estoque: Number(produto.qtd)
                 });
+            }
+            if (Number(produto.qtd) <= 0) {
+                alert(`O produto "${produto.nome}" está sem estoque.`);
+                inp_codb.value = produto.codigo_barras;
+                atualizarVisores({
+                    qtd: 0,
+                    preco: Number(produto.preco),
+                    estoque: 0
+                });
+                verificarBotao();
+                return;
             }
 
             // --- ATUALIZAÇÃO DA INTERFACE ---
@@ -295,7 +336,7 @@
             atualizarTotalCompra();
             verificarBotao();
             
-            inp_codb.value = "";
+            inp_codb.value = codigo;
             inp_codb.focus();
         })
         .catch(err => {
@@ -316,14 +357,47 @@
         });
 });
 
-    b_final.addEventListener("click", () => {
-        document.getElementById("s_dt").innerText = new Date().toLocaleString();
-        modal.showModal();
-    });
+b_final.addEventListener("click", () => {
+    if (verificarEstoqueCarrinho()) {
+        const item = carrinho.find(i => i.qtd > i.estoque);
+
+        const ajustar = confirm(
+            `O produto "${item.nome}" possui apenas ${item.estoque} unidade(s) em estoque.\n\n` +
+            `Deseja ajustar automaticamente a quantidade?`
+        );
+
+                if (ajustar) {
+            item.qtd = item.estoque;
+
+            if (item.qtd === 0) {
+                carrinho = carrinho.filter(i => i.codigo !== item.codigo);
+            }
+
+            atualizarTabelaNoTopo();
+            atualizarVisores(carrinho[0] || {
+                qtd: 0,
+                preco: 0,
+                estoque: 0
+            });
+            atualizarTotalCompra();
+            verificarBotao();
+
+            if (!verificarEstoqueCarrinho() && carrinho.length > 0) {
+                document.getElementById("s_dt").innerText = new Date().toLocaleString();
+                modal.showModal();
+            }
+        }
+
+        return;
+    }
+
+    document.getElementById("s_dt").innerText = new Date().toLocaleString();
+    modal.showModal();
+});
 
     b_pesq.addEventListener("click", () => {
         modalp.showModal();
-        inputBusca.focus();
+        setTimeout(() => inputBusca.focus(), 50);
     });
 
 
@@ -343,6 +417,8 @@
         document.getElementById("d_ttl_i").innerText = "R$ 0,00";
         document.getElementById("d_ttl_c").innerText = "R$ 0,00";
         document.getElementById("d_qtd_geral").innerText = "0"; // Zera a contagem total
+        document.getElementById("d_estoque").innerText = "-";
+        document.getElementById("aviso_estoque").style.display = "none";
         inp_codb.value = "";
         img_prod.src = IMG_PADRAO;
         verificarBotao();
@@ -350,20 +426,34 @@
         nova_venda.disabled = true;
         inp_codb.focus();
     }
-    // Procure onde você fecha o modal de busca e adicione o foco:
     function selecionarProduto(prod) {
-        inp_codb.value = prod.codigo_barras;
-        dialogBusca.close();
-        lista.innerHTML = "";
-        inputBusca.value = "";
-        indexSelecionado = -1;
-        
-        // Dispara o processo
-        inp_codb.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-        
-        // Devolve o foco para o leitor
-        inp_codb.focus(); 
+    const itemExistente = carrinho.find(
+        p => p.codigo == prod.codigo_barras
+    );
+
+    if (Number(prod.qtd) <= 0) {
+        alert(`O produto "${prod.nome}" está sem estoque.`);
+        return;
     }
+
+    if (itemExistente && itemExistente.qtd >= itemExistente.estoque) {
+        atualizarVisores(itemExistente);
+        verificarBotao();
+        dialogBusca.close();
+        inp_codb.value = prod.codigo_barras;
+        inp_codb.focus();
+        return;
+    }
+
+    inp_codb.value = prod.codigo_barras;
+    dialogBusca.close();
+    lista.innerHTML = "";
+    inputBusca.value = "";
+    indexSelecionado = -1;
+
+    inp_codb.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    inp_codb.focus();
+}
         nova_venda.addEventListener("click", () => {
     // CALCULA O TOTAL REAL AQUI PARA NÃO IR ZERADO
     const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
@@ -376,9 +466,10 @@
             "Authorization": `Bearer ${localStorage.getItem("token")}`
     },
         body: JSON.stringify({
-            itens: carrinho,
-            total: totalReal,
-            form_pag: formaPagamento
+        itens: carrinho,
+        valor_total: totalReal,
+        qtd_total: carrinho.reduce((soma, item) => soma + item.qtd, 0),
+        form_pag: formaPagamento
     })
     })
     .then(res => res.json())
@@ -399,17 +490,6 @@ const lista = document.getElementById("listaSugestoes");
 let produtosFiltrados = []; // Armazena os dados da busca atual
 let indexSelecionado = -1;  // Rastreia o item focado na lista
 
-// --- FUNÇÃO PARA SELECIONAR O PRODUTO ---
-function selecionarProduto(prod) {
-    inp_codb.value = prod.codigo_barras;
-    dialogBusca.close();
-    lista.innerHTML = "";
-    inputBusca.value = "";
-    indexSelecionado = -1;
-    
-    // Dispara o Enter no input principal para adicionar ao carrinho
-    inp_codb.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-}
 
 // --- CONTROLE DE NAVEGAÇÃO POR TECLADO ---
 inputBusca.addEventListener("keydown", (e) => {
@@ -464,7 +544,20 @@ inputBusca.addEventListener("input", async () => {
              }
         });
         const dados = await resposta.json();
+        const termo = q.toLowerCase();
 
+        dados.sort((a, b) => {
+            const aNome = a.nome.toLowerCase();
+            const bNome = b.nome.toLowerCase();
+
+            const aComeca = aNome.startsWith(termo);
+            const bComeca = bNome.startsWith(termo);
+
+            if (aComeca && !bComeca) return -1;
+            if (!aComeca && bComeca) return 1;
+
+            return aNome.localeCompare(bNome);
+        });
         if (!Array.isArray(dados)) return;
         
         produtosFiltrados = dados; // Salva para uso no Enter
@@ -572,11 +665,12 @@ inputBusca.addEventListener("input", async () => {
             e.preventDefault();
             document.getElementById("b_agend").click();
             break; 
-        case "p":
-        case "P":
-            e.preventDefault();
-            modalp.showModal();
-            break;
+            case "p":
+            case "P":
+                e.preventDefault();
+                modalp.showModal();
+                setTimeout(() => inputBusca.focus(), 50);
+                break;
             }
 });
 // Mostra um aviso do navegador se o usuário tentar fechar a aba com itens no carrinho
