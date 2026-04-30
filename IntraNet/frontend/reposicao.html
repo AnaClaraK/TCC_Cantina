@@ -134,15 +134,22 @@ let produtosCache = [];
 function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
     msgAviso.innerText = mensagem;
     bCancelarAviso.style.display = mostrarCancelar ? "block" : "none";
+
     aviso.showModal();
 
     bConfirmarAviso.onclick = () => {
         aviso.close();
         if (callback) callback();
     };
-    
+
     bCancelarAviso.onclick = () => {
         aviso.close();
+
+        if (window.checkboxAtual) {
+            window.checkboxAtual.checked = false;
+            window.checkboxAtual.blur();
+            window.checkboxAtual = null;
+        }
     };
 }
 
@@ -174,7 +181,7 @@ b_addf.addEventListener("click", () => {
         <td>Alta</td>
         <td>${local}</td>
         <td>
-            <input type="checkbox" class="chk-concluido">
+            <input type="checkbox" class="chk-concluido" onchange="concluirAgendamento(...)">
         </td>
     `;
 

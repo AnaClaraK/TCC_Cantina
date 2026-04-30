@@ -510,3 +510,63 @@ input[type=number]{
 #b_confirmar_aviso:hover {
     filter: brightness(1.2);
 }
+
+
+/* Container do checkbox */
+.chk-concluido {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border: 2px solid #000000;
+    border-radius: 6px;
+    background-color: #efac4a;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.25s ease;
+    vertical-align: middle;
+}
+
+/* Hover */
+.chk-concluido:hover {
+    border-color: #efac4a;
+    box-shadow: 0 0 8px #efac4a;
+}
+
+/* Marcado */
+.chk-concluido:checked {
+    background: linear-gradient(135deg, #efac4a, #fbd076);
+    border-color: #000000;
+}
+
+/* Ícone de check */
+.chk-concluido:checked::after {
+    content: "✓";
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    position: absolute;
+    top: 48%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Foco */
+.chk-concluido:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.chk-concluido:focus-visible {
+    outline: none;
+    box-shadow: 0 0 6px #efac4a;
+}
+td:last-child {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.chk-concluido {
+    display: inline-block;
+    margin: 0 auto;
+}

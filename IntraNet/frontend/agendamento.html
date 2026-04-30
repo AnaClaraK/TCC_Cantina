@@ -97,9 +97,7 @@ async function carregarAgendamentos() {
                     <td>${item.qtd_total}</td>
                     <td>
                         <input 
-                            type="checkbox" 
-                            class="checkbox-concluir"
-                            onchange="concluirAgendamento(${item.id_pedido}, this)"
+                            type="checkbox" class="chk-concluido" onchange="concluirAgendamento(${item.id_pedido}, this)"
                         >
                     </td>
                 </tr>
@@ -118,7 +116,7 @@ async function carregarAgendamentos() {
 
 async function concluirAgendamento(idPedido, checkbox) {
     if (!checkbox.checked) return;
-
+    window.checkboxAtual = checkbox;
     exibirAviso(
         "Deseja marcar este agendamento como finalizado?",
         async () => {
@@ -160,8 +158,13 @@ function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
     };
 
     bCancelarAviso.onclick = () => {
-        aviso.close();
-    };
+    aviso.close();
+    if (window.checkboxAtual) {
+        window.checkboxAtual.checked = false;
+        window.checkboxAtual.blur();
+        window.checkboxAtual = null;
+    }
+};
 }
 
 const inputBusca = document.getElementById("inputBusca");
