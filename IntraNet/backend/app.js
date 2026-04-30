@@ -393,7 +393,7 @@ app.put("/perfil/atualizar", verificarToken, uploadPerfil.single("imagem"), asyn
   }
 });
 //---buscar produto removida daqui
-//--------- PRODUTOS (PDV e Cadastro)
+//--------- PRODUTOS Cadastro
 app.post("/produtos", verificarToken, uploadProdutos.single("imagem"), async (req, res) => {
   try {
       const { nome, preco, codigo_barras } = req.body;
@@ -411,21 +411,37 @@ app.post("/produtos", verificarToken, uploadProdutos.single("imagem"), async (re
 
 //-----Busca
 app.get("/produtos/busca", verificarToken, async (req, res) => {
-  try {
-    const q = req.query.q;
-    const [rows] = await conexao.query(`
-      SELECT id_produto, nome, codigo_barras, preco
-      FROM produtos
-      WHERE nome LIKE ? OR codigo_barras = ?
-      LIMIT 10
-    `, [`%${q}%`, q]); 
-
-    return res.json(rows);
-  } catch (erro) {
-    console.error(erro);
-    return res.status(500).json({ erro: "Erro na busca" });
-  }
-});
+    try {
+      const q = req.query.q?.trim();
+  
+      if (!q) {
+        return res.json([]);
+      }
+  
+      const termo = `%${q}%`;
+  
+      const [rows] = await conexao.query(`
+        SELECT id_produto, nome, codigo_barras, preco, qtd
+        FROM produtos
+        WHERE
+          LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+            nome,
+            'á','a'),'à','a'),'ã','a'),'â','a'),'é','e'),'ê','e'))
+          LIKE
+          LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+            ?,
+            'á','a'),'à','a'),'ã','a'),'â','a'),'é','e'),'ê','e'))
+          OR codigo_barras LIKE ?
+        ORDER BY nome
+        LIMIT 10
+      `, [termo, termo]);
+  
+      res.json(rows);
+    } catch (erro) {
+      console.error("Erro na busca:", erro);
+      res.status(500).json({ erro: "Erro na busca" });
+    }
+  });
 
 //--- Buscar por Código de Barras específico 
 app.get("/produtos/cod/:codigo", verificarToken, async (req, res) => {
@@ -444,8 +460,113 @@ app.get("/produtos/cod/:codigo", verificarToken, async (req, res) => {
     res.status(500).json({ erro: "Erro ao buscar produto" });
   }
 });
+//--PDV rota pedidos
+app.post("/pedidos", verificarToken, async (req, res) => {
+    const conn = await conexao.getConnection();
 
-//----Pedidos
+    try {
+        await conn.beginTransaction();
+
+        const {
+            id_user,
+            valor_total,
+            qtd_total,
+            form_pag,
+            itens
+        } = req.body;
+
+        const idCliente = id_user || 1;
+        const status = "Finalizado";
+        const data = new Date();
+
+        const [ultimoPedido] = await conn.query(`
+            SELECT MAX(num_pedido) AS ultimoNumero
+            FROM pedidos
+        `);
+
+        const num_pedido = (ultimoPedido[0].ultimoNumero || 0) + 1;
+
+        const [resultadoPedido] = await conn.query(`
+            INSERT INTO pedidos (
+                id_user,
+                num_pedido,
+                data,
+                status,
+                valor_total,
+                qtd_total,
+                form_pag
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        `, [
+            idCliente,
+            num_pedido,
+            data,
+            status,
+            valor_total,
+            qtd_total,
+            form_pag
+        ]);
+
+        const id_pedido = resultadoPedido.insertId;
+
+        if (itens && itens.length > 0) {
+            for (const item of itens) {
+
+                // Primeiro verifica e baixa o estoque
+                const [resultadoEstoque] = await conn.query(`
+                    UPDATE produtos
+                    SET qtd = qtd - ?
+                    WHERE id_produto = ?
+                      AND qtd >= ?
+                `, [
+                    item.qtd,
+                    item.id_produto,
+                    item.qtd
+                ]);
+
+                if (resultadoEstoque.affectedRows === 0) {
+                    throw new Error(`Estoque insuficiente para o produto ID ${item.id_produto}`);
+                }
+
+                // Depois salva o item do pedido
+                await conn.query(`
+                    INSERT INTO pedidos_itens (
+                        id_pedido,
+                        id_produto,
+                        qtd,
+                        preco_unitario
+                    ) VALUES (?, ?, ?, ?)
+                `, [
+                    id_pedido,
+                    item.id_produto,
+                    item.qtd,
+                    item.preco_unitario ?? item.preco
+                ]);
+            }
+        }
+
+        await conn.commit();
+
+        res.status(201).json({
+            resposta: "Pedido finalizado com sucesso!",
+            id_pedido,
+            num_pedido,
+            status
+        });
+
+    } catch (erro) {
+        await conn.rollback();
+
+        console.error("Erro ao salvar pedido:", erro);
+
+        res.status(500).json({
+            resposta: erro.message || "Erro ao salvar pedido."
+        });
+    } finally {
+        conn.release();
+    }
+});
+//---- Histórico Pedidos
+
 app.get("/historico-pedidos", verificarToken, async (req, res) => {
     try {
         const [pedidos] = await conexao.query(`
@@ -532,14 +653,14 @@ app.get("/produtos/cod/:id", verificarToken, async (req, res) => {
 // ATUALIZAR DADOS DO PRODUTO (Protegido)
 app.put("/produtos/cod/:id", verificarToken, uploadProduto.single("img"), async (req, res) => {
   const { id } = req.params;
-  const { nome, codigo_barras, preco, qtd, dt_validade, descricao } = req.body;
+  const { nome, codigo_barras, preco, qtd, descricao } = req.body;
   let img = req.file ? req.file.filename : null;
 
   await conexao.query(`
     UPDATE produtos SET
-      nome = ?, codigo_barras = ?, preco = ?, qtd = ?, dt_validade = ?, descricao = ?, img = COALESCE(?, img)
+      nome = ?, codigo_barras = ?, preco = ?, qtd = ?, descricao = ?, img = COALESCE(?, img)
     WHERE id_produto = ?
-  `, [nome, codigo_barras, preco, qtd, dt_validade, descricao, img, id]);
+  `, [nome, codigo_barras, preco, qtd, descricao, img, id]);
 
   res.json({ msg: "ok" });
 });
@@ -589,26 +710,30 @@ app.get("/reposicao/produtos", verificarToken, async (req, res) => {
 });
 // Fazer agendamento(ele deve ser feito pelo app, ams é só pra teste)
 app.post("/agendamento", verificarToken, async (req, res) => {
+    const conn = await conexao.getConnection();
+
     try {
+        await conn.beginTransaction();
+
         const {
             id_user,
             data,
             valor_total,
             qtd_total,
-            forma_pag,
-            itens // [{ id_produto, qtd, preco_unitario }]
+            form_pag,
+            itens
         } = req.body;
 
         const status = "Agendado";
 
-        const [ultimoPedido] = await conexao.query(`
+        const [ultimoPedido] = await conn.query(`
             SELECT MAX(num_pedido) AS ultimoNumero
             FROM pedidos
         `);
 
         const num_pedido = (ultimoPedido[0].ultimoNumero || 0) + 1;
 
-        const [resultadoPedido] = await conexao.query(`
+        const [resultadoPedido] = await conn.query(`
             INSERT INTO pedidos (
                 id_user,
                 num_pedido,
@@ -616,7 +741,7 @@ app.post("/agendamento", verificarToken, async (req, res) => {
                 status,
                 valor_total,
                 qtd_total,
-                forma_pag
+                form_pag
             ) VALUES (?, ?, ?, ?, ?, ?, ?)
         `, [
             id_user,
@@ -625,15 +750,32 @@ app.post("/agendamento", verificarToken, async (req, res) => {
             status,
             valor_total,
             qtd_total,
-            forma_pag
+            form_pag
         ]);
 
         const id_pedido = resultadoPedido.insertId;
 
-        // Inserir os itens do pedido
         if (itens && itens.length > 0) {
             for (const item of itens) {
-                await conexao.query(`
+
+                // BAIXA ESTOQUE PRIMEIRO
+                const [resultadoEstoque] = await conn.query(`
+                    UPDATE produtos
+                    SET qtd = qtd - ?
+                    WHERE id_produto = ?
+                      AND qtd >= ?
+                `, [
+                    item.qtd,
+                    item.id_produto,
+                    item.qtd
+                ]);
+
+                if (resultadoEstoque.affectedRows === 0) {
+                    throw new Error(`Estoque insuficiente para o produto ID ${item.id_produto}`);
+                }
+
+                // SALVA ITEM
+                await conn.query(`
                     INSERT INTO pedidos_itens (
                         id_pedido,
                         id_produto,
@@ -644,10 +786,12 @@ app.post("/agendamento", verificarToken, async (req, res) => {
                     id_pedido,
                     item.id_produto,
                     item.qtd,
-                    item.preco_unitario
+                    item.preco
                 ]);
             }
         }
+
+        await conn.commit();
 
         res.status(201).json({
             resposta: "Agendamento criado com sucesso!",
@@ -656,75 +800,95 @@ app.post("/agendamento", verificarToken, async (req, res) => {
         });
 
     } catch (erro) {
+        await conn.rollback();
         console.error("Erro ao criar agendamento:", erro);
+
         res.status(500).json({
-            resposta: "Erro ao criar agendamento."
+            resposta: erro.message || "Erro ao criar agendamento."
         });
+    } finally {
+        conn.release();
     }
 });
 
-//- buscar agendamento
+//--- Listar agendamentos
 app.get("/agendamento", verificarToken, async (req, res) => {
     try {
-        const [agendamentos] = await conexao.query(`
-            SELECT
+        const [rows] = await conexao.query(`
+            SELECT 
                 p.id_pedido,
-                p.id_user,
                 p.num_pedido,
                 p.data,
-                p.status,
                 p.valor_total,
                 p.qtd_total,
                 p.form_pag,
-                u.nome,
-                GROUP_CONCAT(pr.nome SEPARATOR ', ') AS produto
+                p.status,
+                u.nome AS cliente_nome,
+                i.id_produto,
+                pr.nome AS produto_nome,
+                i.qtd,
+                i.preco_unitario
             FROM pedidos p
-            JOIN users u
-                ON p.id_user = u.id_user
-            LEFT JOIN pedidos_itens pi
-                ON p.id_pedido = pi.id_pedido
-            LEFT JOIN produtos pr
-                ON pi.id_produto = pr.id_produto
+            LEFT JOIN users u ON p.id_user = u.id_user
+            LEFT JOIN pedidos_itens i ON p.id_pedido = i.id_pedido
+            LEFT JOIN produtos pr ON i.id_produto = pr.id_produto
             WHERE p.status = 'Agendado'
-            GROUP BY
-                p.id_pedido,
-                p.id_user,
-                p.num_pedido,
-                p.data,
-                p.status,
-                p.valor_total,
-                p.qtd_total,
-                p.form_pag,
-                u.nome
-            ORDER BY p.data ASC
+            ORDER BY p.data DESC
         `);
 
-        res.json(agendamentos);
-    } catch (erro) {
-        console.error("Erro ao buscar agendamentos:", erro);
-        res.status(500).json({
-            resposta: "Erro ao buscar agendamentos."
+        const pedidosMap = {};
+
+        rows.forEach(r => {
+            if (!pedidosMap[r.id_pedido]) {
+                pedidosMap[r.id_pedido] = {
+                    id_pedido: r.id_pedido,
+                    num_pedido: r.num_pedido,
+                    data: r.data,
+                    valor_total: r.valor_total,
+                    qtd_total: r.qtd_total,
+                    form_pag: r.form_pag,
+                    status: r.status,
+                    cliente_nome: r.cliente_nome,
+                    produtos: []
+                };
+            }
+
+            if (r.id_produto) {
+                pedidosMap[r.id_pedido].produtos.push({
+                    id_produto: r.id_produto,
+                    nome: r.produto_nome,
+                    qtd: r.qtd,
+                    preco: r.preco_unitario
+                });
+            }
         });
+
+        res.json(Object.values(pedidosMap));
+
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro ao buscar agendamentos" });
     }
 });
-//- Fianlziar o Agendamento
+//- finalziar agendamento
 app.put("/agendamento/:id/finalizar", verificarToken, async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id;
 
-        await conexao.query(`
+        const [result] = await conexao.query(`
             UPDATE pedidos
             SET status = 'Finalizado'
             WHERE id_pedido = ?
         `, [id]);
 
-        res.json({
-            resposta: "Agendamento finalizado com sucesso!"
-        });
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ erro: "Agendamento não encontrado" });
+        }
+
+        res.json({ mensagem: "Agendamento finalizado com sucesso" });
+
     } catch (erro) {
-        console.error("Erro ao finalizar agendamento:", erro);
-        res.status(500).json({
-            resposta: "Erro ao finalizar agendamento."
-        });
+        console.error(erro);
+        res.status(500).json({ erro: "Erro ao finalizar agendamento" });
     }
 });

@@ -266,10 +266,40 @@ b_addf.addEventListener("click", () => {
         exibirAviso("Selecione um produto e uma quantidade válida");
         return;
     }
+<<<<<<< HEAD
+
+
+    adicionarLinhaTabela(nome, qtd, local);
+    salvarTabela(); // Salva após adicionar novo
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td>${nome}</td>
+        <td>${qtd}</td>
+        <td>Alta</td>
+        <td>${local}</td>
+        <td>
+            <input type="checkbox" class="chk-concluido" onchange="concluirAgendamento(...)">
+        </td>
+    `;
+
+    corpoTabela.appendChild(tr);
+
+    const checkbox = tr.querySelector(".chk-concluido");
+
+    checkbox.addEventListener("change", function () {
+        if (this.checked) {
+            exibirAviso("Reposição concluída com sucesso!", () => {
+                tr.remove();
+            });
+        }
+    });
+=======
     
     // Adicionado o parâmetro qtd no final para que a quantidade comprada inicie igual à prevista
     adicionarLinhaTabela(nome, qtd, local, "Alta", codigo, qtd);
     salvarTabela(); 
+>>>>>>> 1a881dc0c3ec7fe54422dd32e9ccdd4e004e7cd5
 
     modal.close();
     limparModal();

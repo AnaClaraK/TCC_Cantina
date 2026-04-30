@@ -88,8 +88,8 @@ body.sem-sidebar .sidebar {
 }
 
 #img_prod {
-    grid-column: span 2;
-    grid-row: 3 / span 2;
+    grid-column: 1 / span 2;
+    grid-row: 3;
     width: 500px;
     height: 500px;
     object-fit: contain;
@@ -99,7 +99,25 @@ body.sem-sidebar .sidebar {
     margin-top: 25px;
 }
 
-#d_ttl_c { height: 60px; font-size: 2.2rem; display: flex; align-items: center; }
+#d_ttl_c { 
+    height: 60px; 
+    font-size: 2.2rem; 
+    display: flex; 
+    align-items: center; }
+
+/* Coluna direita */
+#grupo_estoque {
+    grid-column: 3;
+    grid-row: 3;
+}
+
+#total {
+    grid-column: 3;
+    grid-row: 4;
+    margin-top: 0;
+    align-self: start;
+}
+
 
 /* ============================================================
     TABELA (Zebra e Estilo)

@@ -193,14 +193,14 @@ async function carregarAgendamentosHome() {
         }
 
         dados.slice(0, 8).forEach(item => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${item.nome_cliente || item.nome}</td>
-                    <td>${item.produto}</td>
-                </tr>
-            `;
-        });
-
+        tbody.innerHTML += `
+            <tr>
+                <td>${item.cliente_nome}</td>
+                <td>${item.produtos.map(p => p.nome).join(", ")}</td>
+            </tr>
+        `;
+    });
+    console.log(dados);
     } catch (erro) {
         console.error("Erro ao carregar agendamentos:", erro);
         tbody.innerHTML = `
