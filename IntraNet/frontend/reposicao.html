@@ -80,7 +80,7 @@
                 <input type="number" class="inp_m" id="inp_add_qtd" value="0">
 
                 <label class="pm">Local</label>
-                <input type="text" class="inp_m" id="inp_add_qtd">
+                <input type="text" class="inp_m" id="inp_add_local" placeholder="">
 
 
             </div>
@@ -89,6 +89,16 @@
         
             <div class="modal_footer_instrucao">
                 <p>Use as setas ↑ ↓ e Enter para selecionar</p>
+            </div>
+        </div>
+    </dialog>
+
+    <dialog id="d_aviso">
+        <div class="aviso_box">
+            <p id="msg_aviso"></p>
+            <div class="aviso_botoes">
+                <button id="b_confirmar_aviso">OK</button>
+                <button id="b_cancelar_aviso" style="display:none;">Cancelar</button>
             </div>
         </div>
     </dialog>
@@ -112,7 +122,29 @@ const inpBuscaModal = document.getElementById("inp_busca_modal");
 const lista = document.getElementById("lista_sugestoes");
 const inputBusca = document.getElementById('inputBusca');
 
+// Variáveis para o novo aviso
+const aviso = document.getElementById("d_aviso");
+const msgAviso = document.getElementById("msg_aviso");
+const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
+const bCancelarAviso = document.getElementById("b_cancelar_aviso");
+
 let produtosCache = [];
+
+// Função para exibir aviso bonitinho
+function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
+    msgAviso.innerText = mensagem;
+    bCancelarAviso.style.display = mostrarCancelar ? "block" : "none";
+    aviso.showModal();
+
+    bConfirmarAviso.onclick = () => {
+        aviso.close();
+        if (callback) callback();
+    };
+    
+    bCancelarAviso.onclick = () => {
+        aviso.close();
+    };
+}
 
 // Lógica de abrir/fechar
 b_addq.addEventListener("click", () => {
@@ -128,12 +160,14 @@ b_close_modal.addEventListener("click", () => {
 b_addf.addEventListener("click", () => {
     const nome = document.getElementById("s_produto").innerText;
     const qtd = document.getElementById("inp_add_qtd").value;
+    const local = document.getElementById("inp_add_local").value || "Geral";
+
     if (nome === "---" || qtd <= 0) {
-        alert("Selecione um produto e uma quantidade válida");
+        exibirAviso("Selecione um produto e uma quantidade válida");
         return;
     }
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${nome}</td><td>${qtd}</td><td>Alta</td><td>Geral</td><td><input type="checkbox"></td>`;
+    tr.innerHTML = `<td>${nome}</td><td>${qtd}</td><td>Alta</td><td>${local}</td><td><input type="checkbox"></td>`;
     corpoTabela.appendChild(tr);
     modal.close();
     limparModal();
@@ -145,20 +179,50 @@ function limparModal() {
     document.getElementById("s_produto").innerText = "---";
     document.getElementById("s_qtda").innerText = "0";
     document.getElementById("inp_add_qtd").value = 0;
+    document.getElementById("inp_add_local").value = "";
     lista.innerHTML = "";
 }
 
-// Apagar funções de botões do topo
+// Apagar funções de botões do topo - ATUALIZADO PARA MODAL BONITINHO
 b_apagar_prod.addEventListener("click", () => {
-    if (corpoTabela.lastElementChild) {
-        corpoTabela.removeChild(corpoTabela.lastElementChild);
+    const linhas = corpoTabela.querySelectorAll('tr');
+    if (linhas.length === 0) {
+        exibirAviso("A lista está vazia.");
+        return;
     }
+
+    exibirAviso("Clique na linha do produto que deseja apagar.");
+
+    const selecionarParaApagar = (e) => {
+        const linhaClicada = e.target.closest('tr');
+        if (linhaClicada && corpoTabela.contains(linhaClicada)) {
+            const nomeProd = linhaClicada.cells[0].innerText;
+            
+            exibirAviso(`Deseja realmente apagar o produto: ${nomeProd}?`, () => {
+                linhaClicada.remove();
+                exibirAviso("Produto removido com sucesso!");
+            }, true);
+
+            corpoTabela.removeEventListener('click', selecionarParaApagar);
+            corpoTabela.style.cursor = "default";
+        }
+    };
+
+    corpoTabela.addEventListener('click', selecionarParaApagar);
+    corpoTabela.style.cursor = "pointer";
 });
 
 b_limpar_lista.addEventListener("click", () => {
-    if (confirm("Deseja limpar toda a lista de reposição?")) {
-        corpoTabela.innerHTML = "";
+    const linhas = corpoTabela.querySelectorAll('tr');
+    if (linhas.length === 0) {
+        exibirAviso("A lista já está vazia.");
+        return;
     }
+
+    exibirAviso("Deseja limpar toda a lista de reposição?", () => {
+        corpoTabela.innerHTML = "";
+        exibirAviso("Lista apagada!");
+    }, true);
 });
 
 // --- BUSCA E FILTRO ---
@@ -177,8 +241,9 @@ async function carregarProdutos() {
         console.error("ERRO CRÍTICO AO CARREGAR PRODUTOS:", err);
 
         if (err.message.includes("401")) {
-            alert("Sua sessão expirou. Faça login novamente.");
-            window.location.href = "login.html";
+            exibirAviso("Sua sessão expirou. Faça login novamente.", () => {
+                window.location.href = "login.html";
+            });
         }
     }
 }
@@ -188,7 +253,6 @@ inpBuscaModal.addEventListener("input", () => {
 
     if (termo === "") return;
 
-    // Filtro flexível (ajustado para aceitar variações de nomes vindos do banco)
     const filtrados = produtosCache.filter(p => {
         const nomeProd = (p.nome || p.nome_produto || "").toLowerCase();
         const codProd = String(p.codigo_barras || p.codigo || "").toLowerCase();
@@ -197,7 +261,6 @@ inpBuscaModal.addEventListener("input", () => {
 
     filtrados.forEach(p => {
         const li = document.createElement("li");
-        // Prioriza o nome disponível
         const nomeExibicao = p.nome || p.nome_produto || "Sem nome";
         li.textContent = nomeExibicao;
 
@@ -216,7 +279,6 @@ inpBuscaModal.addEventListener("input", () => {
 
 document.addEventListener("DOMContentLoaded", carregarProdutos);
 
-// Busca na Tabela Principal (Filtro visual)
 inputBusca.addEventListener('keyup', function() {
     const termoBusca = inputBusca.value.toLowerCase().trim();
     const linhas = document.querySelectorAll('#tb_tbl_estoque tr');
@@ -230,7 +292,6 @@ inputBusca.addEventListener('keyup', function() {
 });
 let indexSelecionado = -1;
 
-// Função para destacar o item na lista
 function atualizarDestaque(itens) {
     itens.forEach((li, i) => {
         li.classList.toggle("ativo", i === indexSelecionado);
@@ -240,7 +301,6 @@ function atualizarDestaque(itens) {
     });
 }
 
-// Evento de Teclado no Input do Modal
 inpBuscaModal.addEventListener("keydown", (e) => {
     const itens = lista.querySelectorAll("li");
 
@@ -265,7 +325,7 @@ inpBuscaModal.addEventListener("keydown", (e) => {
 inpBuscaModal.addEventListener("input", () => {
     const termo = inpBuscaModal.value.toLowerCase().trim();
     lista.innerHTML = "";
-    indexSelecionado = -1; // Reseta a seleção ao digitar
+    indexSelecionado = -1; 
 
     if (termo === "") return;
 
@@ -287,7 +347,7 @@ inpBuscaModal.addEventListener("input", () => {
             document.getElementById("s_qtda").innerText = p.qtd || p.quantidade || 0;
             lista.innerHTML = "";
             indexSelecionado = -1;
-            document.getElementById("inp_add_qtd").focus(); // Foca na quantidade após selecionar
+            document.getElementById("inp_add_qtd").focus(); 
         };
         
         lista.appendChild(li);

@@ -42,26 +42,25 @@ body{
 /* ============================================================
    BOTÕES DO TOPO
    ============================================================ */
-#b_addq,
-#b_apagar_prod,
-#b_limpar_lista{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    background-color: #1c1c1c;
-    color: #ffc27a;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    font-weight: bold;
-    transition: 0.2s;
-    width: 250px;
-    height: 45px;
-    font-size: 24px;
-    
-    
-}
+   #b_addq,
+   #b_apagar_prod,
+   #b_limpar_lista{
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       cursor: pointer;
+       background-color: #1c1c1c;
+       color: #ffc27a;
+       border: none;
+       border-radius: 5px;
+       padding: 10px 20px;
+       font-weight: bold;
+       transition: 0.2s;
+       width: 300px;
+       height: 45px;
+       font-size: 24px;
+       white-space: nowrap; /* <--- FOI ESTA LINHA QUE EU ADICIONEI */
+   }
 
 #b_addq:hover,
 #b_apagar_prod:hover,
@@ -73,6 +72,7 @@ body{
     color: #f8c471;
     font-weight: bold;
     font-size: 24px;
+    
 }
 
 /* ============================================================
@@ -446,4 +446,67 @@ input[type=number]{
 #b_close_modal:hover{
     color: #f8c471;
     transform: scale(1.1);
+}
+
+
+/* ============================================================
+   ESTILO DO MODAL DE AVISO (QUADRADO BONITINHO)
+   ============================================================ */
+   #d_aviso {
+    border: 3px solid #efac4a;
+    border-radius: 12px;
+    padding: 0;
+    width: 350px;
+    background: #1c1c1c;
+    color: #f8c471;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    text-align: center;
+}
+
+#d_aviso::backdrop {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.aviso_box {
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#msg_aviso {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.aviso_botoes {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+#b_confirmar_aviso, #b_cancelar_aviso {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    transition: 0.2s;
+}
+
+#b_confirmar_aviso {
+    background-color: #efac4a;
+    color: #1c1c1c;
+}
+
+#b_cancelar_aviso {
+    background-color: #333;
+    color: #f8c471;
+    border: 1px solid #efac4a;
+}
+
+#b_confirmar_aviso:hover {
+    filter: brightness(1.2);
 }
