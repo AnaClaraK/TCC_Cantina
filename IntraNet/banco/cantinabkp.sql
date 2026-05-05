@@ -141,14 +141,14 @@ CREATE TABLE IF NOT EXISTS `produtos` (
 -- Copiando dados para a tabela cantina.produtos: ~68 rows (aproximadamente)
 DELETE FROM `produtos`;
 INSERT INTO `produtos` (`id_produto`, `id_categoria`, `codigo_barras`, `nome`, `descricao`, `preco`, `qtd`, `img`, `disponivel`) VALUES
-	(1, 1, '100', 'Café coado 50ml', '', 2.26, 3, 'cafe_50.jpg', 1),
+	(1, 1, '100', 'Café coado 50ml', '', 2.26, 33, 'cafe_50.jpg', 1),
 	(2, 1, '101', 'Café coado 100ml', '', 3.50, 0, 'cafe_100.png', 1),
-	(3, 1, '102', 'Pingado 150ml', '', 3.80, 0, 'cafe_pingado.png', 1),
+	(3, 1, '102', 'Pingado 150ml', '', 3.80, 70, 'cafe_pingado.png', 1),
 	(4, 1, '103', 'Chocolate quente 200ml', '', 6.94, 0, 'cafe.png', 1),
 	(5, 2, '104', 'Arroz, Strogonoff de frango P', '', 18.60, 0, 'arroz_strog.png', 1),
 	(6, 2, '105', 'Arroz, Strogonoff de frango M', '', 19.50, 0, 'arroz_strog.jpg', 1),
 	(7, 2, '106', 'Arroz, Strogonoff de frango G', '', 20.70, 0, 'arroz_strog.png', 1),
-	(8, 2, '107', 'Arroz, lasanha bolonhesa P', '', 18.60, 0, 'arroz_lasan.png', 1),
+	(8, 2, '107', 'Arroz, lasanha bolonhesa P', '', 18.60, 60, 'arroz_lasan.png', 1),
 	(9, 2, '108', 'Arroz, lasanha bolonhesa M', '', 19.50, 0, 'arroz_lasan.png', 1),
 	(10, 2, '109', 'Arroz, lasanha bolonhesa G', '', 20.70, 0, 'arroz_lasan.png', 1),
 	(11, 2, '110', 'Arroz, feijão, carne de panela P', '', 18.60, 0, 'arroz_carp.jpg', 1),
@@ -209,6 +209,25 @@ INSERT INTO `produtos` (`id_produto`, `id_categoria`, `codigo_barras`, `nome`, `
 	(66, 8, '165', 'Água com gás', '', 2.70, 0, 'agua_gas.jpg', 1),
 	(67, 8, '166', 'Coca-Cola 2L', '', 11.97, 0, 'coca_2l.png', 1),
 	(68, 8, '167', 'Fanta 2L', '', 11.50, 0, 'fanta_2l.png', 1);
+
+-- Copiando estrutura para tabela cantina.reposicao
+DROP TABLE IF EXISTS `reposicao`;
+CREATE TABLE IF NOT EXISTS `reposicao` (
+  `id_compra` int(11) NOT NULL,
+  `id_produto` int(11) NOT NULL,
+  `produto` varchar(50) NOT NULL,
+  `qtd_prevista` int(11) NOT NULL,
+  `qtd_comprada` int(11) DEFAULT NULL,
+  `prioridade` varchar(50) NOT NULL,
+  `local` varchar(50) NOT NULL,
+  `status` varchar(50) NOT NULL,
+  PRIMARY KEY (`id_compra`),
+  KEY `FK` (`id_produto`),
+  CONSTRAINT `FK` FOREIGN KEY (`id_produto`) REFERENCES `produtos` (`id_produto`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+-- Copiando dados para a tabela cantina.reposicao: ~0 rows (aproximadamente)
+DELETE FROM `reposicao`;
 
 -- Copiando estrutura para tabela cantina.users
 DROP TABLE IF EXISTS `users`;
