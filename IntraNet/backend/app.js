@@ -708,6 +708,67 @@ app.get("/reposicao/produtos", verificarToken, async (req, res) => {
         });
     }
 });
+
+// --- ROTA DE REPOSIÇÃO: Atualiza estoque e registra na tabela 'reposicao' ---
+app.put("reposicao", verificarToken, async (req, res) => {
+    const conn = await conexao.getConnection();
+
+    try {
+        await conn.beginTransaction();
+
+        const codigoBarras = req.params.codigo;
+        const { quantidade } = req.body; // Esta é a quantidade comprada/final
+
+        // 1. BUSCAR O ID E NOME DO PRODUTO PELO CÓDIGO DE BARRAS
+        const [produto] = await conn.query(
+            "SELECT id_produto, nome, qtd FROM produtos WHERE codigo_barras = ?", 
+            [codigoBarras]
+        );
+
+        if (produto.length === 0) {
+            await conn.rollback();
+            return res.status(404).json({ erro: "Produto não encontrado." });
+        }
+
+        const { id_produto, nome } = produto[0];
+
+        // 2. INSERIR O REGISTRO NA TABELA 'reposicao'
+        // Baseado na sua imagem: id_produto, produto, qtd_prevista, qtd_comprada, prioridade, local, status
+        const sqlReposicao = `
+            INSERT INTO reposicao (id_produto, produto, qtd_prevista, qtd_comprada, prioridade, local, status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `;
+        
+        // Aqui estou definindo 'Concluído' como status padrão ao finalizar a reposição
+        await conn.query(sqlReposicao, [
+            id_produto, 
+            nome, 
+            quantidade, // qtd_prevista (o que foi solicitado)
+            quantidade, // qtd_comprada (o que foi realmente entregue)
+            "Alta", 
+            "Estoque Central", // Você pode mudar isso ou receber do front
+            "Concluído"
+        ]);
+
+        // 3. ATUALIZAR O SALDO NA TABELA 'produtos'
+        const [resultadoEstoque] = await conn.query(
+            "UPDATE produtos SET qtd = qtd + ? WHERE id_produto = ?", 
+            [Number(quantidade), id_produto]
+        );
+
+        await conn.commit();
+        res.json({ mensagem: "Reposição registrada e estoque atualizado!" });
+
+    } catch (erro) {
+        await conn.rollback();
+        console.error("Erro na rota de reposição:", erro);
+        res.status(500).json({ erro: "Erro ao processar reposição." });
+    } finally {
+        conn.release();
+    }
+});
+
+
 // Fazer agendamento(ele deve ser feito pelo app, ams é só pra teste)
 app.post("/agendamento", verificarToken, async (req, res) => {
     const conn = await conexao.getConnection();

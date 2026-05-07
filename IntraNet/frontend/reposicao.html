@@ -259,10 +259,9 @@ b_close_modal.addEventListener("click", () => {
 b_addf.addEventListener("click", () => {
     const nome = document.getElementById("s_produto").innerText;
     const qtd = document.getElementById("inp_add_qtd").value;
-    const local = document.getElementById("inp_add_local").value.trim(); // Modificado: trim para validar
+    const local = document.getElementById("inp_add_local").value.trim(); 
     const codigo = inpBuscaModal.dataset.codigo;
 
-    // --- BLOCO DE AVISO ADICIONADO ---
     if (nome === "---" || !codigo) {
         exibirAviso("Por favor, selecione um produto na pesquisa.");
         return;
@@ -276,38 +275,13 @@ b_addf.addEventListener("click", () => {
     if (local === "") {
         exibirAviso("Por favor, preencha o campo Local antes de confirmar.");
         document.getElementById("inp_add_local").focus();
-        return; // Impede a continuação do código e não fecha o modal
+        return; 
     }
-    // --- FIM DO BLOCO DE AVISO ---
 
-    adicionarLinhaTabela(nome, qtd, local);
-    salvarTabela(); // Salva após adicionar novo
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-        <td>${nome}</td>
-        <td>${qtd}</td>
-        <td>Alta</td>
-        <td>${local}</td>
-        <td>
-            <input type="checkbox" class="chk-concluido" onchange="concluirAgendamento(...)">
-        </td>
-    `;
-
-    corpoTabela.appendChild(tr);
-
-    const checkbox = tr.querySelector(".chk-concluido");
-
-    checkbox.addEventListener("change", function () {
-        if (this.checked) {
-            exibirAviso("Reposição concluída com sucesso!", () => {
-                tr.remove();
-            });
-        }
-    });
-
-    // Adicionado o parâmetro qtd no final para que a quantidade comprada inicie igual à prevista
+    // Adiciona o produto usando a função correta
     adicionarLinhaTabela(nome, qtd, local, "Alta", codigo, qtd);
+    
+    // Salva e fecha
     salvarTabela(); 
     modal.close();
     limparModal();
