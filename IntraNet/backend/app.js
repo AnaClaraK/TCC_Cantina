@@ -511,21 +511,32 @@ app.post("/pedidos", verificarToken, async (req, res) => {
         if (itens && itens.length > 0) {
             for (const item of itens) {
 
-                // Primeiro verifica e baixa o estoque
-                const [resultadoEstoque] = await conn.query(`
-                    UPDATE produtos
-                    SET qtd = qtd - ?
-                    WHERE id_produto = ?
-                      AND qtd >= ?
-                `, [
-                    item.qtd,
-                    item.id_produto,
-                    item.qtd
-                ]);
+                        // VERIFICA DISPONIBILIDADE REAL
+        const [estoque] = await conn.query(`
+            SELECT 
+                p.qtd,
+                COALESCE(SUM(
+                    CASE 
+                        WHEN pe.status = 'Agendado' THEN pi.qtd
+                        ELSE 0
+                    END
+                ), 0) AS reservado
+            FROM produtos p
+            LEFT JOIN pedidos_itens pi 
+                ON pi.id_produto = p.id_produto
+            LEFT JOIN pedidos pe 
+                ON pe.id_pedido = pi.id_pedido
+            WHERE p.id_produto = ?
+            GROUP BY p.id_produto
+        `, [item.id_produto]);
 
-                if (resultadoEstoque.affectedRows === 0) {
-                    throw new Error(`Estoque insuficiente para o produto ID ${item.id_produto}`);
-                }
+        const produto = estoque[0];
+
+        const disponivel = produto.qtd - produto.reservado;
+
+        if (disponivel < item.qtd) {
+            throw new Error(`Estoque insuficiente para o produto ID ${item.id_produto}`);
+        }
 
                 // Depois salva o item do pedido
                 await conn.query(`
@@ -596,9 +607,38 @@ app.get("/historico-pedidos", verificarToken, async (req, res) => {
 app.get("/produtos", verificarToken, async (req, res) => {
   try {
     const [rows] = await conexao.query(`
-      SELECT p.*, c.nome AS categoria_nome
-      FROM produtos p
-      LEFT JOIN categorias c ON p.id_categoria = c.id_categoria
+      SELECT 
+    p.*,
+    c.nome AS categoria_nome,
+
+    COALESCE(SUM(
+        CASE 
+            WHEN pe.status = 'Agendado' THEN pi.qtd
+            ELSE 0
+        END
+    ), 0) AS reservado,
+
+    (
+        p.qtd - COALESCE(SUM(
+            CASE 
+                WHEN pe.status = 'Agendado' THEN pi.qtd
+                ELSE 0
+            END
+        ), 0)
+    ) AS disponivel
+
+FROM produtos p
+
+LEFT JOIN categorias c 
+    ON p.id_categoria = c.id_categoria
+
+LEFT JOIN pedidos_itens pi 
+    ON pi.id_produto = p.id_produto
+
+LEFT JOIN pedidos pe 
+    ON pe.id_pedido = pi.id_pedido
+
+GROUP BY p.id_produto
     `);
 
     res.json(rows);
@@ -767,9 +807,7 @@ app.put("reposicao", verificarToken, async (req, res) => {
         conn.release();
     }
 });
-
-
-// Fazer agendamento(ele deve ser feito pelo app, ams é só pra teste)
+//-
 app.post("/agendamento", verificarToken, async (req, res) => {
     const conn = await conexao.getConnection();
 
@@ -789,11 +827,11 @@ app.post("/agendamento", verificarToken, async (req, res) => {
         const status = "Agendado";
 
         const [ultimoPedido] = await conn.query(`
-            SELECT MAX(num_pedido) AS ultimoNumero
+            SELECT COALESCE(MAX(num_pedido),0) AS ultimoNumero
             FROM pedidos
         `);
 
-        const num_pedido = (ultimoPedido[0].ultimoNumero || 0) + 1;
+        const num_pedido = ultimoPedido[0].ultimoNumero + 1;
 
         const [resultadoPedido] = await conn.query(`
             INSERT INTO pedidos (
@@ -822,23 +860,26 @@ app.post("/agendamento", verificarToken, async (req, res) => {
         if (itens && itens.length > 0) {
             for (const item of itens) {
 
-                // BAIXA ESTOQUE PRIMEIRO
-                const [resultadoEstoque] = await conn.query(`
-                    UPDATE produtos
-                    SET qtd = qtd - ?
-                    WHERE id_produto = ?
-                      AND qtd >= ?
-                `, [
-                    item.qtd,
-                    item.id_produto,
-                    item.qtd
-                ]);
+                // 🔒 valida estoque disponível (sem baixar)
+                const [produto] = await conn.query(
+                    "SELECT qtd FROM produtos WHERE id_produto = ?",
+                    [item.id_produto]
+                );
 
-                if (resultadoEstoque.affectedRows === 0) {
-                    throw new Error(`Estoque insuficiente para o produto ID ${item.id_produto}`);
+                const [reservado] = await conn.query(`
+                    SELECT COALESCE(SUM(i.qtd),0) AS total
+                    FROM pedidos_itens i
+                    JOIN pedidos p ON p.id_pedido = i.id_pedido
+                    WHERE i.id_produto = ?
+                    AND p.status = 'Agendado'
+                `, [item.id_produto]);
+
+                const disponivel = produto[0].qtd - reservado[0].total;
+
+                if (item.qtd > disponivel) {
+                    throw new Error(`Sem estoque suficiente para agendamento`);
                 }
 
-                // SALVA ITEM
                 await conn.query(`
                     INSERT INTO pedidos_itens (
                         id_pedido,
@@ -857,24 +898,93 @@ app.post("/agendamento", verificarToken, async (req, res) => {
 
         await conn.commit();
 
-        res.status(201).json({
-            resposta: "Agendamento criado com sucesso!",
+        res.json({
+            resposta: "Agendamento criado com sucesso",
             id_pedido,
             num_pedido
         });
 
     } catch (erro) {
         await conn.rollback();
-        console.error("Erro ao criar agendamento:", erro);
+        res.status(500).json({ erro: erro.message });
 
-        res.status(500).json({
-            resposta: erro.message || "Erro ao criar agendamento."
-        });
     } finally {
         conn.release();
     }
 });
 
+//--- agendamento finalizar
+app.put("/agendamento/:id/finalizar", verificarToken, async (req, res) => {
+    const conn = await conexao.getConnection();
+
+    try {
+        await conn.beginTransaction();
+
+        const id = req.params.id;
+
+        // pega itens do pedido
+        const [itens] = await conn.query(`
+            SELECT id_produto, qtd
+            FROM pedidos_itens
+            WHERE id_pedido = ?
+        `, [id]);
+
+        for (const item of itens) {
+            await conn.query(`
+                UPDATE produtos
+                SET qtd = qtd - ?
+                WHERE id_produto = ?
+            `, [item.qtd, item.id_produto]);
+        }
+
+        await conn.query(`
+            UPDATE pedidos
+            SET status = 'Finalizado'
+            WHERE id_pedido = ?
+        `, [id]);
+
+        await conn.commit();
+
+        res.json({ mensagem: "Agendamento finalizado e estoque baixado" });
+
+    } catch (erro) {
+        await conn.rollback();
+        res.status(500).json({ erro: "Erro ao finalizar agendamento" });
+    } finally {
+        conn.release();
+    }
+});
+//-- cancelar agendamento
+app.put("/agendamento/:id/cancelar", verificarToken, async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        const [result] = await conexao.query(`
+            UPDATE pedidos
+            SET status = 'Cancelado'
+            WHERE id_pedido = ?
+        `, [id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                erro: "Agendamento não encontrado"
+            });
+        }
+
+        res.json({
+            mensagem: "Agendamento cancelado com sucesso"
+        });
+
+    } catch (erro) {
+        console.error(erro);
+
+        res.status(500).json({
+            erro: "Erro ao cancelar agendamento"
+        });
+    }
+});
+
+//---
 //--- Listar agendamentos
 app.get("/agendamento", verificarToken, async (req, res) => {
     try {

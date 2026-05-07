@@ -43,6 +43,7 @@
             <th>Categoria</th>
             <th>Preço</th>
             <th>Quantidade</th>
+            <th>Disponível</th>
         </tr>
     </thead>
     <tbody id="tb_tbl_produtos"></tbody>
@@ -192,8 +193,9 @@ async function carregarProdutos() {
                     <td>${p.codigo_barras || ""}</td>
                     <td>${p.nome || ""}</td>
                     <td>${p.categoria_nome || ""}</td>
-                    <td>R$ ${parseFloat(p.preco || 0).toFixed(2)}</td>
+                    <td>R$ ${parseFloat(p.preco || 0).toFixed(2).replace(".", ",")}</td>
                     <td>${p.qtd || 0}</td>
+                    <td>${p.disponivel || 0}</td>
                 </tr>
             `;
         });
