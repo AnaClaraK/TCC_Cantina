@@ -259,13 +259,26 @@ b_close_modal.addEventListener("click", () => {
 b_addf.addEventListener("click", () => {
     const nome = document.getElementById("s_produto").innerText;
     const qtd = document.getElementById("inp_add_qtd").value;
-    const local = document.getElementById("inp_add_local").value || "Geral";
+    const local = document.getElementById("inp_add_local").value.trim(); // Modificado: trim para validar
     const codigo = inpBuscaModal.dataset.codigo;
 
-    if (nome === "---" || qtd <= 0) {
-        exibirAviso("Selecione um produto e uma quantidade válida");
+    // --- BLOCO DE AVISO ADICIONADO ---
+    if (nome === "---" || !codigo) {
+        exibirAviso("Por favor, selecione um produto na pesquisa.");
         return;
     }
+
+    if (qtd <= 0) {
+        exibirAviso("Coloque uma quantidade válida.");
+        return;
+    }
+
+    if (local === "") {
+        exibirAviso("Por favor, preencha o campo Local antes de confirmar.");
+        document.getElementById("inp_add_local").focus();
+        return; // Impede a continuação do código e não fecha o modal
+    }
+    // --- FIM DO BLOCO DE AVISO ---
 
     adicionarLinhaTabela(nome, qtd, local);
     salvarTabela(); // Salva após adicionar novo
