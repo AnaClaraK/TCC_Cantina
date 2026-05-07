@@ -274,7 +274,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   PRIMARY KEY (`id_user`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.users: ~1 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.users: ~2 rows (aproximadamente)
 DELETE FROM `users`;
 INSERT INTO `users` (`id_user`, `nome`, `cpf`, `email`, `senha`, `data_criacao`) VALUES
 	(1, 'Consumidor Final', '00000000000', 'granovita@gmail.com', 'granovita', '2026-04-30 16:29:04'),
