@@ -131,30 +131,6 @@ const bCancelarAviso = document.getElementById("b_cancelar_aviso");
 
 let produtosCache = [];
 
-// --- FUNÇÕES DE PERSISTÊNCIA ADICIONADAS ---
-function salvarTabela() {
-    const dados = [];
-    corpoTabela.querySelectorAll('tr').forEach(tr => {
-        dados.push({
-            nome: tr.cells[0].innerText,
-            qtd: tr.cells[1].innerText,
-            qtdComprada: tr.cells[2].querySelector('input').value, // Salva o valor digitado
-            prioridade: tr.cells[3].innerText,
-            local: tr.cells[4].innerText,
-            codigo: tr.dataset.codigo // Salva o código oculto para a API
-        });
-    });
-    localStorage.setItem("dados_reposicao", JSON.stringify(dados));
-}
-
-function carregarTabela() {
-    const salvo = localStorage.getItem("dados_reposicao");
-    if (salvo) {
-        const dados = JSON.parse(salvo);
-        dados.forEach(item => adicionarLinhaTabela(item.nome, item.qtd, item.local, item.prioridade, item.codigo, item.qtdComprada));
-    }
-}
-
 // Criada para evitar repetição de código ao carregar e adicionar
 function adicionarLinhaTabela(nome, qtd, local, prioridade = "Alta", codigo = "", valorComprado = "") {
     const tr = document.createElement('tr');
@@ -205,7 +181,7 @@ function adicionarLinhaTabela(nome, qtd, local, prioridade = "Alta", codigo = ""
                     
                     exibirAviso(`Reposição de ${qtdFinal} un. adicionada ao estoque!`, () => {
                         tr.remove();
-                        salvarTabela();
+                        
                     });
                 } catch (err) {
                     exibirAviso("Erro ao atualizar estoque. Tente novamente.");
@@ -214,7 +190,7 @@ function adicionarLinhaTabela(nome, qtd, local, prioridade = "Alta", codigo = ""
             } else {
                 exibirAviso("Reposição concluída!", () => {
                     tr.remove();
-                    salvarTabela();
+                    
                 });
             }
         }
@@ -278,11 +254,7 @@ b_addf.addEventListener("click", () => {
         return; 
     }
 
-    // Adiciona o produto usando a função correta
-    adicionarLinhaTabela(nome, qtd, local, "Alta", codigo, qtd);
-    
-    // Salva e fecha
-    salvarTabela(); 
+
     modal.close();
     limparModal();
 });
@@ -314,7 +286,7 @@ b_apagar_prod.addEventListener("click", () => {
             
             exibirAviso(`Deseja realmente apagar o produto: ${nomeProd}?`, () => {
                 linhaClicada.remove();
-                salvarTabela(); // Salva após apagar um item
+                 // Salva após apagar um item
                 exibirAviso("Produto removido com sucesso!");
             }, true);
 
@@ -336,7 +308,7 @@ b_limpar_lista.addEventListener("click", () => {
 
     exibirAviso("Deseja limpar toda a lista de reposição?", () => {
         corpoTabela.innerHTML = "";
-        salvarTabela(); // Salva após limpar lista
+         // Salva após limpar lista
         exibirAviso("Lista apagada!");
     }, true);
 });
@@ -396,7 +368,7 @@ inpBuscaModal.addEventListener("input", () => {
 // Chamada inicial para carregar produtos da API e a tabela salva
 document.addEventListener("DOMContentLoaded", () => {
     carregarProdutos();
-    carregarTabela();
+    
 });
 
 inputBusca.addEventListener('keyup', function() {
@@ -473,10 +445,29 @@ inpBuscaModal.addEventListener("input", () => {
         lista.appendChild(li);
     });
 });
-window.addEventListener("focus", () => {
+async function carregarReposicao() {
+    const res = await apiFetch("http://localhost:3000/reposicao", {
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+        }
+    });
+
+    const dados = await res.json();
+
     corpoTabela.innerHTML = "";
-    carregarTabela();
-});
+
+    dados.forEach(item => {
+        adicionarLinhaTabela(
+            item.nome,
+            item.quantidade_prevista,
+            item.local,
+            item.prioridade,
+            item.codigo,
+            item.quantidade_comprada
+        );
+    });
+}
+document.addEventListener("DOMContentLoaded", carregarReposicao);
 </script>
 </body>
 </html>

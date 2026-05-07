@@ -67,23 +67,38 @@ function logout(){
 async function apiFetch(url, options = {}) {
     const token = localStorage.getItem("token");
 
-    const headers = {
-        ...(options.headers || {}),
-        "Authorization": `Bearer ${token}`
-    };
+    if (!token) {
+        window.location.replace("login.html");
+        return;
+    }
 
     const res = await fetch(url, {
         ...options,
-        headers
+        headers: {
+            ...(options.headers || {}),
+            "Authorization": `Bearer ${token}`
+        }
     });
 
     if (res.status === 401 || res.status === 403) {
-        logout();
+        localStorage.clear();
+        window.location.replace("login.html");
         return;
     }
 
     return res;
 }
+function validarSessao() {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        localStorage.clear();
+        window.location.replace("login.html");
+    }
+}
+
+validarSessao();
+setInterval(validarSessao, 3000);
 
 const headerHTML = `
 <header class="custom-header">

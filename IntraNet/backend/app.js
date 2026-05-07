@@ -13,6 +13,7 @@ const jwt = require('jsonwebtoken');
 const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3"; // Troque por algo difícil
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/fonts', express.static(path.join(__dirname, 'fonts')));
 
 // Middleware: Verifica se o usuário está logado
 function verificarToken(req, res, next) {

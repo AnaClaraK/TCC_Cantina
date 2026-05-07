@@ -1,13 +1,16 @@
-
-/* ============================================================
-   FUNDO
-   ============================================================ */
-body{
-    background-color: #efac4a;
+@font-face {
+    font-family: 'Roca One';
+    /* Certifique-se de que os arquivos estejam na pasta 'fonts' ao lado do seu CSS */
+    src: url('./fonts/roca-one-regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap; /* Melhora o carregamento da página */
+  }
+   body{
+    background-color: #efac4a !important ;
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Roca One', Arial, sans-serif;
 }
-
 /* ============================================================
    TOPO / UTILIDADES
    ============================================================ */
@@ -36,7 +39,7 @@ body{
     color: #f8c471;
     padding: 10px 20px;
     margin: 0;
-    font-size: 24px;
+    font-size: 32px;
 }
 
 /* ============================================================
@@ -71,7 +74,8 @@ body{
 #s_addq{
     color: #f8c471;
     font-weight: bold;
-    font-size: 24px;
+    font-size: 26px;
+    font-family: 'Roca One', Arial, sans-serif;
     
 }
 
@@ -104,7 +108,10 @@ body{
     background-color: #efac4a;
     padding: 12px 80px 12px 90px;
 }
-
+#inputBusca::placeholder{
+    font-family: 'Roca One', Arial, sans-serif;
+    color: #7a5a2a; /* opcional */
+}
 /* ============================================================
    TABELA
    ============================================================ */
@@ -114,6 +121,7 @@ body{
     margin-top: 0 !important;
     padding-top: 0 !important;
 }
+
 
 .tabela{
     width: 100%;
@@ -128,11 +136,14 @@ body{
     color: #f8c471;
     padding: 12px;
     text-align: left;
+    font-size: 20px;
+    
 }
 
 /* LINHAS */
 .tabela tbody td{
     padding: 10px;
+    font-family: Arial, sans-serif;
 }
 
 /* ZEBRA */
@@ -347,6 +358,7 @@ input[type=number]{
     margin-top: 5px;
     padding: 0;
     list-style: none;
+    font-family: Arial, sans-serif;
 }
 
 #lista_sugestoes li{
