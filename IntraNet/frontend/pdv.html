@@ -45,14 +45,17 @@
     <div class="grupo-input">
         <h2 class="titulo">Quantidade Total</h2>  
         <div id="d_qtd_geral" class="inp_val">0</div>
+    
         <h2 class="titulo" id="est_til">Estoque Disponível</h2>
         <div id="d_estoque" class="inp_val">-</div>
+    
         <small id="aviso_estoque" style="color: red; display: none; font-weight: bold;">
             Quantidade acima do estoque disponível!
         </small>
     </div>
 
     <img src="images/img_ntf.png" alt="imagem product" id="img_prod">
+    <div id="relogio_pdv"></div>
 
     <div class="grupo-input" id="total">
         <h2 id="h_ttl_c" class="titulo">Total da Compra</h2>
@@ -227,22 +230,32 @@ function voltarFoco() {
     }
 
     function atualizarVisores(item) {
-        document.getElementById("d_qtd").innerText = item.qtd;
-        document.getElementById("d_vl_und").innerText = "R$ " + formatar(item.preco);
-        document.getElementById("d_ttl_i").innerText = "R$ " + formatar(item.preco * item.qtd);
+    document.getElementById("d_qtd").innerText = item.qtd;
+    document.getElementById("d_vl_und").innerText = "R$ " + formatar(item.preco);
+    document.getElementById("d_ttl_i").innerText = "R$ " + formatar(item.preco * item.qtd);
 
-        const estoqueRestante = item.estoque - item.qtd;
-        document.getElementById("d_estoque").innerText = estoqueRestante;
+    const estoqueRestante = item.estoque - item.qtd;
+    document.getElementById("d_estoque").innerText = estoqueRestante;
 
-        const aviso = document.getElementById("aviso_estoque");
+    const aviso = document.getElementById("aviso_estoque");
 
-        if (estoqueRestante <= 0) {
-            aviso.style.display = "block";
-            aviso.innerText = "Estoque esgotado!";
-        } else {
-            aviso.style.display = "none";
-        }
+    // estoque baixo
+    if (estoqueRestante > 0 && estoqueRestante < 5) {
+        aviso.style.display = "block";
+        aviso.innerText = `Estoque baixo! Restam ${estoqueRestante} unidade(s).`;
     }
+
+    // sem estoque
+    else if (estoqueRestante <= 0) {
+        aviso.style.display = "block";
+        aviso.innerText = "Estoque esgotado!";
+    }
+
+    // estoque normal
+    else {
+        aviso.style.display = "none";
+    }
+}
 
     function verificarEstoqueCarrinho() {
         return carrinho.some(item => item.qtd > item.estoque);
@@ -279,27 +292,38 @@ inp_codb.addEventListener("keypress", (e) => {
 // --- FUNÇÃO DE FINALIZAÇÃO ---
 function finalizarLeitura(valorFinal) {
     inp_codb.value = valorFinal;
-    inp_codb.select();
-    
+
     setTimeout(() => {
         estaProcessando = false;
-        inp_codb.value = ""; // Limpa o campo para o próximo produto
-        inp_codb.focus();    // Garante o foco para o próximo bipe
-    }, 400); // Janela de segurança contra bipes duplicados
+
+        inp_codb.focus();
+
+        // coloca cursor no final sem selecionar
+        inp_codb.selectionStart = inp_codb.selectionEnd = inp_codb.value.length;
+
+    }, 400);
 }
+
+inp_codb.addEventListener("select", () => {
+    inp_codb.selectionStart = inp_codb.selectionEnd = inp_codb.value.length;
+});
 
 function finalituraLimpaEReseta() {
     estaProcessando = false;
-    inp_codb.value = "";
     inp_codb.focus();
 }
 
     let ultimaTeclaTempo = Date.now();
-
-    // MODIFICADO: Evento keydown adaptado com trava anti-duplicação
     inp_codb.addEventListener("keydown", (event) => {
-    // Se o input estiver totalmente vazio, é o PRIMEIRO caractere sendo inserido.
-    // Não podemos aplicar a trava de 40ms aqui, senão o leitor perde o primeiro dígito.
+    if (
+    event.key === "F11" ||
+    event.key === "F12" ||
+    event.key === "F5" ||
+    ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "r") ||
+    (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "i")
+) {
+    return;
+}
     if (inp_codb.value.length > 0) {
         const tempoAtual = Date.now();
         const intervalo = tempoAtual - ultimaTeclaTempo;
@@ -392,7 +416,7 @@ function finalituraLimpaEReseta() {
         atualizarTotalCompra();
         verificarBotao();
         
-        finalizarLeitura(""); 
+        finalizarLeitura(codigo); 
     })
     .catch(err => {
         console.error("Erro na requisição:", err);
@@ -521,9 +545,19 @@ function finalituraLimpaEReseta() {
         })
         .then(res => res.json())
         .then(data => {
-            document.getElementById("s_pedido").innerText = data.num_pedido;
-            resetarPDV();
-        })
+
+document.getElementById("s_pedido").innerText = data.num_pedido;
+
+const qtdAdicionados = verificarReposicaoAutomatica();
+
+if (qtdAdicionados > 0) {
+    alert(
+        `${qtdAdicionados} produto(s) foram adicionados automaticamente à lista de reposição.`
+    );
+}
+
+resetarPDV();
+})
         .catch(err => {
             console.error("Erro ao salvar pedido:", err);
         });
@@ -540,6 +574,7 @@ function finalituraLimpaEReseta() {
 
     inputBusca.addEventListener("keydown", (event) => {
         const itens = lista.querySelectorAll("li");
+        // libera teclas do navegador
         
         if (event.key === "ArrowDown") {
             event.preventDefault();
@@ -637,96 +672,107 @@ function finalituraLimpaEReseta() {
             console.error("Erro na busca:", erro);
         }
     });
+    function atualizarRelogio() {
+    const agora = new Date();
 
-    window.addEventListener("keydown", (event) => {
-        const teclasRecarregar = (event.key === "F5" || ((event.ctrlKey || event.metaKey) && event.key === "r"));
-        
-        if (carrinho.length > 0 && teclasRecarregar) {
+    const data = agora.toLocaleDateString("pt-BR");
+    const hora = agora.toLocaleTimeString("pt-BR");
+
+    document.getElementById("relogio_pdv").innerText =
+        `${data} - ${hora}`;
+}
+
+// atualiza imediatamente
+atualizarRelogio();
+
+// atualiza a cada 1 segundo
+setInterval(atualizarRelogio, 1000);
+window.addEventListener("keydown", (event) => {
+
+// LIBERA TECLAS DO NAVEGADOR
+if (
+    event.key === "F11" ||
+    event.key === "F12" ||
+    event.key === "F5" ||
+    (event.ctrlKey && event.key.toLowerCase() === "r") ||
+    (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "i")
+) {
+    return;
+}
+
+// atalhos PDV
+switch(event.key) {
+
+    case "Escape":
+        resetarPDV();
+        break;
+
+    case "ArrowDown":
+        if (!dialogBusca.open) {
             event.preventDefault();
-            alert("Finalize ou cancele a venda antes de atualizar a página!");
-            voltarFoco();
-            return;
+            document.getElementById("sc_tabela").scrollTop += 50;
         }
+        break;
 
-        if(event.key === "Escape") resetarPDV();
-
-        switch(event.key){
-            case "ArrowDown":
-                // Só move a tabela se a busca por produto não estiver aberta
-                if (!dialogBusca.open) {
-                    event.preventDefault();
-                    document.getElementById("sc_tabela").scrollTop += 50; 
-                }
-                break;
-            case "ArrowUp":
-                if (!dialogBusca.open) {
-                    event.preventDefault();
-                    document.getElementById("sc_tabela").scrollTop -= 50;
-                }
-                break;
-            case "PageDown":
-                event.preventDefault();
-                document.getElementById("sc_tabela").scrollTop += 250;
-                break;
-            case "PageUp":
-                event.preventDefault();
-                document.getElementById("sc_tabela").scrollTop -= 250;
-                break;
-            case "F1":
-                event.preventDefault();
-                if(!b_final.disabled) b_final.click();
-                break;
-            case "F2":
-                event.preventDefault();
-                if(modal.open) document.getElementById("pg_dinheiro").click();
-                break;
-            case "F3":
-                event.preventDefault();
-                if(modal.open) document.getElementById("pg_credito").click();
-                break;
-            case "F4":
-                event.preventDefault();
-                if(modal.open) document.getElementById("pg_debito").click();
-                break;
-            case "F6": 
-                event.preventDefault();
-                if(modal.open) document.getElementById("pg_pix").click();
-                break;
-            case "F7":
-                event.preventDefault();
-                if(!nova_venda.disabled) nova_venda.click();
-                break;
-            case "F8":
-                event.preventDefault();
-                document.getElementById("b_agend").click();
-                break; 
-            case "p":
-            case "P":
-                event.preventDefault();
-                modalp.showModal();
-                setTimeout(() => inputBusca.focus(), 50);
-                break;
-        }
-    });
-
-    window.addEventListener("beforeunload", (event) => {
-        if (carrinho.length > 0) {
+    case "ArrowUp":
+        if (!dialogBusca.open) {
             event.preventDefault();
-            event.returnValue = "Existem itens no carrinho. Deseja realmente sair?";
+            document.getElementById("sc_tabela").scrollTop -= 50;
         }
-    });
+        break;
 
-    document.getElementById("b_agend").addEventListener("click", () => {
-        if (carrinho.length > 0) {
-            const confirmar = confirm("Você tem uma venda em aberto. Se sair agora, os itens do carrinho serão perdidos. Deseja continuar?");
-            if (confirmar) {
-                window.location.href = "agendamento.html";
-            }
-            voltarFoco();
-        } else {
-            window.location.href = "agendamento.html";
-        }
-    });
+    case "F1":
+        event.preventDefault();
+        if(!b_final.disabled) b_final.click();
+        break;
+
+    case "F2":
+        event.preventDefault();
+        if(modal.open) document.getElementById("pg_dinheiro").click();
+        break;
+
+    case "F3":
+        event.preventDefault();
+        if(modal.open) document.getElementById("pg_credito").click();
+        break;
+
+    case "F4":
+        event.preventDefault();
+        if(modal.open) document.getElementById("pg_debito").click();
+        break;
+
+    case "F6":
+        event.preventDefault();
+        if(modal.open) document.getElementById("pg_pix").click();
+        break;
+
+    case "F7":
+        event.preventDefault();
+        if(!nova_venda.disabled) nova_venda.click();
+        break;
+
+    case "F8":
+        event.preventDefault();
+        document.getElementById("b_agend").click();
+        break;
+
+        case "p":
+case "P":
+
+    // só bloqueia se estiver digitando na busca
+    if (dialogBusca.open) return;
+
+    event.preventDefault();
+
+    modalp.showModal();
+
+    setTimeout(() => {
+        inputBusca.focus();
+    }, 50);
+
+    break;
+}
+});
 </script>
 </body>
 </html>

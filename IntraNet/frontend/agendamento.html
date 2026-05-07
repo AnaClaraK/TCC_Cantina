@@ -25,7 +25,7 @@
         <div id="d_inp">
             <div class="busca-box">
                 <img src="../backend/imagens/lupa.png" class="icone-busca">
-                <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
+                <input type="text" id="inputBusca" placeholder="Buscar por nome ou data...">
             </div>
         </div>
     </div>
@@ -38,6 +38,7 @@
                     <th scope="col">Produto</th>
                     <th scope="col">Preço</th>
                     <th scope="col">Quantidade Total</th>
+                    <th scope="col">Data</th>
                     <th scope="col">Concluir</th>
                 </tr>
             </thead>
@@ -77,6 +78,16 @@ async function carregarAgendamentos() {
 
         const dados = await resposta.json();
 
+
+dados.sort((a, b) => {
+    const dataA = new Date(a.data_ag || a.data);
+    const dataB = new Date(b.data_ag || b.data);
+    return dataA - dataB; // Ordem crescente (mais antigo/próximo para o mais distante)
+});
+
+tbody.innerHTML = "";
+        console.log("Dados recebidos da API:", dados);
+
         tbody.innerHTML = "";
 
         if (!dados || dados.length === 0) {
@@ -89,20 +100,40 @@ async function carregarAgendamentos() {
         }
 
         dados.forEach(item => {
-            tbody.innerHTML += `
-                <tr data-id="${item.id_pedido}">
-                    <td>${item.cliente_nome || "Cliente"}</td>
-                    <td>${item.produtos.map(p => p.nome).join(", ")}</td>
-                    <td>R$ ${Number(item.valor_total).toFixed(2).replace(".", ",")}</td>
-                    <td>${item.qtd_total}</td>
-                    <td>
-                        <input 
-                            type="checkbox" class="chk-concluido" onchange="concluirAgendamento(${item.id_pedido}, this)"
-                        >
-                    </td>
-                </tr>
-            `;
+   // Tenta pegar o campo de data. Se item.data_ag for nulo, tenta item.data ou outros nomes comuns.
+const dataRaw = item.data_ag
+
+let dataFormatada = "Horário não definido";
+
+if (dataRaw) {
+    const dataObjeto = new Date(dataRaw);
+
+    // Verifica se a data é válida
+    if (!isNaN(dataObjeto)) {
+        dataFormatada = dataObjeto.toLocaleString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
         });
+    }
+}
+
+tbody.innerHTML += `
+    <tr data-id="${item.id_pedido}">
+        <td>${item.cliente_nome || "Cliente"}</td>
+        <td>${item.produtos.map(p => p.nome).join(", ")}</td>
+        <td>R$ ${Number(item.valor_total).toFixed(2).replace(".", ",")}</td>
+        <td>${item.qtd_total}</td>
+        <td>${dataFormatada}</td> <td>
+            <input 
+                type="checkbox" class="chk-concluido" onchange="concluirAgendamento(${item.id_pedido}, this)"
+            >
+        </td>
+    </tr>
+`;
+});
 
     } catch (erro) {
         console.error("Erro ao carregar agendamentos:", erro);
@@ -166,7 +197,6 @@ function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
     }
 };
 }
-
 const inputBusca = document.getElementById("inputBusca");
 
 inputBusca.addEventListener("keyup", function () {
@@ -174,11 +204,23 @@ inputBusca.addEventListener("keyup", function () {
     const linhas = document.querySelectorAll("#tb_tbl_produtos tr");
 
     linhas.forEach(linha => {
-        const textoLinha = linha.textContent.toLowerCase();
-        linha.style.display = textoLinha.includes(termo) ? "" : "none";
+        // Pegamos o texto da coluna Nome (índice 0) e da coluna Data (índice 4)
+        const colunas = linha.getElementsByTagName("td");
+        
+        // Se a linha for a de "Nenhum agendamento encontrado", ela não terá 6 colunas
+        if (colunas.length >= 5) {
+            const nomeCliente = colunas[0].textContent.toLowerCase();
+            const dataAgendamento = colunas[4].textContent.toLowerCase();
+
+            // Verifica se o termo pesquisado está no nome OU na data
+            if (nomeCliente.includes(termo) || dataAgendamento.includes(termo)) {
+                linha.style.display = "";
+            } else {
+                linha.style.display = "none";
+            }
+        }
     });
 });
-
 window.addEventListener("load", carregarAgendamentos);
 </script>
 </body>

@@ -220,59 +220,56 @@ main, .conteudo-principal {
 .painel-agendamentos-header {
     background: #1f2329;
     color: #e6b35c;
-    padding: 18px 24px;
+    padding: 12px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-
+/* Ajuste de largura das colunas da home */
 .tabela-agendamentos-home {
     width: 100%;
+    table-layout: fixed; /* Isso força a tabela a respeitar as larguras definidas */
     border-collapse: collapse;
-    table-layout: fixed;
 }
 
-.tabela-agendamentos-home thead tr {
-    display: table;
-    width: 100%;
-    table-layout: fixed;
-}
-
-.tabela-agendamentos-home tbody {
-    display: block;
-    max-height: 350px;
-    overflow-y: auto;
-    width: 100%;
-}
-
-.tabela-agendamentos-home tbody tr {
-    display: table;
-    width: 100%;
-    table-layout: fixed;
-}
-
-.tabela-agendamentos-home th,
+.tabela-agendamentos-home th, 
 .tabela-agendamentos-home td {
-    padding: 14px 18px;
+    padding: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Se o nome for muito grande, coloca "..." */
+    white-space: nowrap;
+    /* A LINHA LARANJA ESCURO AQUI: */
+    border-bottom: 1px solid #c08b3a; 
+    color: #1f2329; /* Garante que o texto fique legível sobre o laranja */
+    font-family: 'Roca One', serif;
+}
+
+/* Coluna Nome: Tamanho médio */
+.tabela-agendamentos-home th:nth-child(1),
+.tabela-agendamentos-home td:nth-child(1) {
+    width: 25%;
+}
+
+/* Coluna Produto: A maior de todas */
+.tabela-agendamentos-home th:nth-child(2),
+.tabela-agendamentos-home td:nth-child(2) {
+    width: 55%; 
     text-align: left;
-    word-wrap: break-word;
 }
 
-.tabela-agendamentos-home thead {
-    background: #111;
-    color: #e6b35c;
+/* Coluna Data: A menor */
+.tabela-agendamentos-home th:nth-child(3),
+.tabela-agendamentos-home td:nth-child(3) {
+    width: 20%;
+    text-align: center;
+   
 }
-
-.tabela-agendamentos-home tbody tr:nth-child(even) {
-    background: rgba(255, 255, 255, 0.12);
-}
-
-.tabela-agendamentos-home tbody tr:hover {
-    background: rgba(31, 35, 41, 0.15);
-}
-
 .sem-agendamentos,
 .carregando {
     text-align: center;
     padding: 30px;
+}
+/* Remove a linha da última célula para não ficar sobrando no fundo do card */
+.tabela-agendamentos-home tr:last-child td {
+    border-bottom: none;
 }

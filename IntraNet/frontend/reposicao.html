@@ -266,8 +266,6 @@ b_addf.addEventListener("click", () => {
         exibirAviso("Selecione um produto e uma quantidade válida");
         return;
     }
-<<<<<<< HEAD
-
 
     adicionarLinhaTabela(nome, qtd, local);
     salvarTabela(); // Salva após adicionar novo
@@ -294,13 +292,10 @@ b_addf.addEventListener("click", () => {
             });
         }
     });
-=======
-    
+
     // Adicionado o parâmetro qtd no final para que a quantidade comprada inicie igual à prevista
     adicionarLinhaTabela(nome, qtd, local, "Alta", codigo, qtd);
     salvarTabela(); 
->>>>>>> 1a881dc0c3ec7fe54422dd32e9ccdd4e004e7cd5
-
     modal.close();
     limparModal();
 });
@@ -490,6 +485,10 @@ inpBuscaModal.addEventListener("input", () => {
         
         lista.appendChild(li);
     });
+});
+window.addEventListener("focus", () => {
+    corpoTabela.innerHTML = "";
+    carregarTabela();
 });
 </script>
 </body>

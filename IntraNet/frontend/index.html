@@ -95,6 +95,7 @@
                     <tr>
                         <th>Nome do cliente</th>
                         <th>Produto</th>
+                        <th>Data</th>
                     </tr>
                 </thead>
                 <tbody id="tb_agendamentos_home">
@@ -163,6 +164,7 @@ function mudarMes(direcao) {
 }
 
 // Iniciar ao carregar a página
+// Iniciar ao carregar a página
 async function carregarAgendamentosHome() {
     const tbody = document.getElementById("tb_agendamentos_home");
 
@@ -176,15 +178,29 @@ async function carregarAgendamentosHome() {
         if (!resposta.ok) {
             throw new Error(`Erro HTTP: ${resposta.status}`);
         }
+            // ... dentro de carregarAgendamentosHome ...
+const dados = await resposta.json();
 
-        const dados = await resposta.json();
+// ORDENAÇÃO: Data mais próxima primeiro
+dados.sort((a, b) => {
+    const dataA = new Date(a.data_ag || a.data);
+    const dataB = new Date(b.data_ag || b.data);
+    return dataA - dataB;
+});
 
+tbody.innerHTML = "";
+
+// O .slice(0, 8) agora pegará os 8 agendamentos mais próximos cronologicamente
+dados.slice(0, 8).forEach(item => {
+    // ... seu código de formatação e montagem da tabela
+});
+        
         tbody.innerHTML = "";
 
         if (!dados || dados.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="2" class="sem-agendamentos">
+                    <td colspan="3" class="sem-agendamentos">
                         Nenhum agendamento encontrado.
                     </td>
                 </tr>
@@ -193,25 +209,43 @@ async function carregarAgendamentosHome() {
         }
 
         dados.slice(0, 8).forEach(item => {
-        tbody.innerHTML += `
-            <tr>
-                <td>${item.cliente_nome}</td>
-                <td>${item.produtos.map(p => p.nome).join(", ")}</td>
-            </tr>
-        `;
-    });
-    console.log(dados);
+            // LÓGICA DE FORMATAÇÃO DE DATA E HORA
+            const dataRaw = item.data_ag
+            let dataFormatada = "---";
+
+            if (dataRaw) {
+                const dataObjeto = new Date(dataRaw);
+                if (!isNaN(dataObjeto)) {
+                    dataFormatada = dataObjeto.toLocaleString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+            }
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.cliente_nome || "Cliente"}</td>
+                    <td>${item.produtos.map(p => p.nome).join(", ")}</td>
+                    <td>${dataFormatada}</td>
+                </tr>
+            `;
+        });
+
     } catch (erro) {
         console.error("Erro ao carregar agendamentos:", erro);
         tbody.innerHTML = `
             <tr>
-                <td colspan="2" class="sem-agendamentos">
+                <td colspan="3" class="sem-agendamentos">
                     Erro ao carregar agendamentos.
                 </td>
             </tr>
         `;
     }
 }
+
 window.addEventListener("load", () => {
     atualizarCalendario();
     carregarAgendamentosHome();

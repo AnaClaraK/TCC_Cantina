@@ -718,6 +718,7 @@ app.post("/agendamento", verificarToken, async (req, res) => {
         const {
             id_user,
             data,
+            data_ag,
             valor_total,
             qtd_total,
             form_pag,
@@ -738,15 +739,17 @@ app.post("/agendamento", verificarToken, async (req, res) => {
                 id_user,
                 num_pedido,
                 data,
+                data_ag,
                 status,
                 valor_total,
                 qtd_total,
                 form_pag
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `, [
             id_user,
             num_pedido,
             data,
+            data_ag,
             status,
             valor_total,
             qtd_total,
@@ -819,6 +822,7 @@ app.get("/agendamento", verificarToken, async (req, res) => {
                 p.id_pedido,
                 p.num_pedido,
                 p.data,
+                p.data_ag,
                 p.valor_total,
                 p.qtd_total,
                 p.form_pag,
@@ -844,6 +848,7 @@ app.get("/agendamento", verificarToken, async (req, res) => {
                     id_pedido: r.id_pedido,
                     num_pedido: r.num_pedido,
                     data: r.data,
+                    data_ag: r.data_ag,
                     valor_total: r.valor_total,
                     qtd_total: r.qtd_total,
                     form_pag: r.form_pag,

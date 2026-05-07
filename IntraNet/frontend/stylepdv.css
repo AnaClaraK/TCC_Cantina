@@ -744,27 +744,15 @@ dialog::backdrop { background: rgba(0,0,0,0.8); }
     font-weight: 500;
 }
 
-#relogio {
-    position: fixed;
-    top: 15px;
-    right: 20px;
-
-    background: #1e1e1e;
-    color: #fff;
-
-    padding: 10px 15px;
+#relogio_pdv{
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+    margin-left: 120px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffeed5;
+    padding: 10px;
     border-radius: 10px;
-
-    font-size: 14px;
-    font-weight: 500;
-
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-
-    z-index: 999;
-}
-
-/* se quiser destacar hora */
-#relogio strong {
-    font-size: 16px;
-    color: #ffa500; /* laranja */
+    box-sizing: border-box;
 }
