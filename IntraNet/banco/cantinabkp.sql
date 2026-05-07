@@ -16,12 +16,10 @@
 
 
 -- Copiando estrutura do banco de dados para cantina
-DROP DATABASE IF EXISTS `cantina`;
 CREATE DATABASE IF NOT EXISTS `cantina` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin */;
 USE `cantina`;
 
 -- Copiando estrutura para tabela cantina.cadastro
-DROP TABLE IF EXISTS `cadastro`;
 CREATE TABLE IF NOT EXISTS `cadastro` (
   `id_cadastro` int(11) NOT NULL AUTO_INCREMENT,
   `nome` varchar(255) NOT NULL,
@@ -31,13 +29,13 @@ CREATE TABLE IF NOT EXISTS `cadastro` (
   PRIMARY KEY (`id_cadastro`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.cadastro: ~1 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.cadastro: ~2 rows (aproximadamente)
 DELETE FROM `cadastro`;
 INSERT INTO `cadastro` (`id_cadastro`, `nome`, `email`, `senha`, `img`) VALUES
-	(1, 'Ana Banana', 'anabanana@gmail.com', 'b2e7e03ede85560977685add00fa3276ea7aa1c780fc87b870d7b027dc277007', '/imagens/1777572726880.jpg');
+	(1, 'Ana Banana', 'anabanana@gmail.com', 'b2e7e03ede85560977685add00fa3276ea7aa1c780fc87b870d7b027dc277007', '/imagens/1777572726880.jpg'),
+	(3, 'Kemilly', 'kemillyregina@gmail.com', '581623e8e02c55c847d25bff880b7d03a449e0990855d2b6b131c858bafc4b5f', '/imagens/def_avt.jpg');
 
 -- Copiando estrutura para tabela cantina.categorias
-DROP TABLE IF EXISTS `categorias`;
 CREATE TABLE IF NOT EXISTS `categorias` (
   `id_categoria` int(11) NOT NULL AUTO_INCREMENT,
   `nome` varchar(255) NOT NULL,
@@ -57,7 +55,6 @@ INSERT INTO `categorias` (`id_categoria`, `nome`) VALUES
 	(8, 'Bebidas');
 
 -- Copiando estrutura para tabela cantina.disponibilidade
-DROP TABLE IF EXISTS `disponibilidade`;
 CREATE TABLE IF NOT EXISTS `disponibilidade` (
   `id_disponib` int(11) NOT NULL AUTO_INCREMENT,
   `id_produto` int(11) NOT NULL,
@@ -72,7 +69,6 @@ CREATE TABLE IF NOT EXISTS `disponibilidade` (
 DELETE FROM `disponibilidade`;
 
 -- Copiando estrutura para tabela cantina.pedidos
-DROP TABLE IF EXISTS `pedidos`;
 CREATE TABLE IF NOT EXISTS `pedidos` (
   `id_pedido` int(11) NOT NULL AUTO_INCREMENT,
   `id_user` int(11) NOT NULL,
@@ -111,7 +107,6 @@ INSERT INTO `pedidos` (`id_pedido`, `id_user`, `num_pedido`, `data`, `data_ag`, 
 	(27, 1, 20, '2026-05-07 13:37:16', NULL, 'Finalizado', 3.50, 1, 'DINHEIRO (F2)');
 
 -- Copiando estrutura para tabela cantina.pedidos_itens
-DROP TABLE IF EXISTS `pedidos_itens`;
 CREATE TABLE IF NOT EXISTS `pedidos_itens` (
   `id_itens` int(11) NOT NULL AUTO_INCREMENT,
   `id_pedido` int(11) NOT NULL,
@@ -155,7 +150,6 @@ INSERT INTO `pedidos_itens` (`id_itens`, `id_pedido`, `id_produto`, `qtd`, `prec
 	(36, 27, 2, 1, 3.500000);
 
 -- Copiando estrutura para tabela cantina.produtos
-DROP TABLE IF EXISTS `produtos`;
 CREATE TABLE IF NOT EXISTS `produtos` (
   `id_produto` int(11) NOT NULL AUTO_INCREMENT,
   `id_categoria` int(11) NOT NULL,
@@ -244,7 +238,6 @@ INSERT INTO `produtos` (`id_produto`, `id_categoria`, `codigo_barras`, `nome`, `
 	(68, 8, '167', 'Fanta 2L', '', 11.50, 0, 'fanta_2l.png', 1);
 
 -- Copiando estrutura para tabela cantina.reposicao
-DROP TABLE IF EXISTS `reposicao`;
 CREATE TABLE IF NOT EXISTS `reposicao` (
   `id_compra` int(11) NOT NULL,
   `id_produto` int(11) NOT NULL,
@@ -263,7 +256,6 @@ CREATE TABLE IF NOT EXISTS `reposicao` (
 DELETE FROM `reposicao`;
 
 -- Copiando estrutura para tabela cantina.users
-DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
   `id_user` int(11) NOT NULL AUTO_INCREMENT,
   `nome` varchar(255) NOT NULL DEFAULT '',
