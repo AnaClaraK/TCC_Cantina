@@ -402,13 +402,35 @@ function finalituraLimpaEReseta() {
         }
 
         if (Number(produto.qtd) <= 0) {
-            alert(`O produto "${produto.nome}" está sem estoque.`);
-            voltarFoco();
-            atualizarVisores({ qtd: 0, preco: Number(produto.preco), estoque: 0 });
-            verificarBotao();
-            finalizarLeitura(produto.codigo_barras); 
-            return;
-        }
+
+alert(`O produto "${produto.nome}" está sem estoque.`);
+
+// remove do carrinho
+carrinho = carrinho.filter(p => p.codigo != codigo);
+
+// limpa código
+inp_codb.value = "";
+
+// limpa visores
+document.getElementById("d_qtd").innerText = "0";
+document.getElementById("d_vl_und").innerText = "R$ 0,00";
+document.getElementById("d_ttl_i").innerText = "R$ 0,00";
+document.getElementById("d_estoque").innerText = "-";
+
+// remove aviso
+document.getElementById("aviso_estoque").style.display = "none";
+
+// imagem padrão
+img_prod.src = IMG_PADRAO;
+
+atualizarTabelaNoTopo();
+atualizarTotalCompra();
+verificarBotao();
+
+finalizarLeitura("");
+
+return;
+}
 
         // --- ATUALIZAÇÃO DA INTERFACE ---
         atualizarTabelaNoTopo();
@@ -475,33 +497,52 @@ function finalituraLimpaEReseta() {
     });
 
     function resetarPDV() {
-        carrinho = [];
-        atualizarTabelaNoTopo();
-        totalCompra = 0;
-        document.getElementById("d_qtd").innerText = "0";
-        document.getElementById("d_vl_und").innerText = "R$ 0,00";
-        document.getElementById("d_ttl_i").innerText = "R$ 0,00";
-        document.getElementById("d_ttl_c").innerText = "R$ 0,00";
-        document.getElementById("d_qtd_geral").innerText = "0"; 
-        document.getElementById("d_estoque").innerText = "-";
-        document.getElementById("aviso_estoque").style.display = "none";
-        inp_codb.value = "";
-        img_prod.src = IMG_PADRAO;
-        verificarBotao();
-        if(modal.open) modal.close();
-        nova_venda.disabled = true;
-        estaProcessando = false; // Garante o reset da trava
-        inp_codb.focus();
-    }
+
+carrinho = [];
+totalCompra = 0;
+formaPagamento = "";
+
+atualizarTabelaNoTopo();
+
+document.getElementById("d_qtd").innerText = "0";
+document.getElementById("d_vl_und").innerText = "R$ 0,00";
+document.getElementById("d_ttl_i").innerText = "R$ 0,00";
+document.getElementById("d_ttl_c").innerText = "R$ 0,00";
+document.getElementById("d_qtd_geral").innerText = "0";
+document.getElementById("d_estoque").innerText = "-";
+
+document.getElementById("aviso_estoque").style.display = "none";
+
+inp_codb.value = "";
+
+img_prod.src = IMG_PADRAO;
+
+b_final.disabled = true;
+nova_venda.disabled = true;
+
+estaProcessando = false;
+
+// FECHA MODAIS
+modal.close();
+
+if (dialogBusca.open) {
+    dialogBusca.close();
+}
+
+// limpa busca
+lista.innerHTML = "";
+inputBusca.value = "";
+produtosFiltrados = [];
+indexSelecionado = -1;
+
+// devolve foco
+setTimeout(() => {
+    inp_codb.focus();
+}, 50);
+}
 
     function selecionarProduto(prod) {
     const itemExistente = carrinho.find(p => p.codigo == prod.codigo_barras);
-
-    if (Number(prod.qtd) <= 0) {
-        alert(`O produto "${prod.nome}" está sem estoque.`);
-        voltarFoco();
-        return;
-    }
 
     if (itemExistente && itemExistente.qtd >= itemExistente.estoque) {
         atualizarVisores(itemExistente);
@@ -526,6 +567,42 @@ function finalituraLimpaEReseta() {
     inp_codb.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     inp_codb.focus();
 }
+async function verificarReposicaoAutomatica() {
+
+let qtdAdicionados = 0;
+
+for (const item of carrinho) {
+
+    const estoqueRestante = item.estoque - item.qtd;
+
+    // se estoque ficou baixo
+    if (estoqueRestante <= 3) {
+
+        try {
+
+            await apiFetch(`${URL_BACKEND_CAD}/reposicao`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                },
+                body: JSON.stringify({
+                    id_produto: item.id_produto,
+                    nome: item.nome,
+                    estoque_restante: estoqueRestante
+                })
+            });
+
+            qtdAdicionados++;
+
+        } catch (erro) {
+            console.error("Erro ao adicionar reposição:", erro);
+        }
+    }
+}
+
+return qtdAdicionados;
+}
 
     nova_venda.addEventListener("click", () => {
         const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
@@ -544,13 +621,14 @@ function finalituraLimpaEReseta() {
             })
         })
         .then(res => res.json())
-        .then(data => {
+        .then(async data => {
 
 document.getElementById("s_pedido").innerText = data.num_pedido;
 
-const qtdAdicionados = verificarReposicaoAutomatica();
+const qtdAdicionados = await verificarReposicaoAutomatica();
 
 if (qtdAdicionados > 0) {
+
     alert(
         `${qtdAdicionados} produto(s) foram adicionados automaticamente à lista de reposição.`
     );
@@ -558,6 +636,7 @@ if (qtdAdicionados > 0) {
 
 resetarPDV();
 })
+
         .catch(err => {
             console.error("Erro ao salvar pedido:", err);
         });
