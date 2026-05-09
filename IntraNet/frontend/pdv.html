@@ -580,17 +580,20 @@ for (const item of carrinho) {
 
         try {
 
-            await apiFetch(`${URL_BACKEND_CAD}/reposicao`, {
-                method: "POST",
+            await apiFetch(`http://localhost:3000/reposicao/${item.codigo}`, {
+                method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${localStorage.getItem("token")}`
                 },
                 body: JSON.stringify({
-                    id_produto: item.id_produto,
-                    nome: item.nome,
-                    estoque_restante: estoqueRestante
-                })
+                id_produto: item.id_produto,
+                nome: item.nome,
+                estoque_restante: estoqueRestante,
+                quantidade: 5,
+                prioridade: "Média",
+                local: "Fornecedor Padrão"
+            })
             });
 
             qtdAdicionados++;

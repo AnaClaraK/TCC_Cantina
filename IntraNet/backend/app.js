@@ -751,64 +751,231 @@ app.get("/reposicao/produtos", verificarToken, async (req, res) => {
 });
 
 // --- ROTA DE REPOSIÇÃO: Atualiza estoque e registra na tabela 'reposicao' ---
-app.put("reposicao", verificarToken, async (req, res) => {
+app.put("/reposicao/:codigo", verificarToken, async (req, res) => {
     const conn = await conexao.getConnection();
 
     try {
         await conn.beginTransaction();
 
         const codigoBarras = req.params.codigo;
-        const { quantidade } = req.body; // Esta é a quantidade comprada/final
+        const { quantidade, local, prioridade } = req.body;
 
-        // 1. BUSCAR O ID E NOME DO PRODUTO PELO CÓDIGO DE BARRAS
         const [produto] = await conn.query(
-            "SELECT id_produto, nome, qtd FROM produtos WHERE codigo_barras = ?", 
+            "SELECT id_produto, nome FROM produtos WHERE codigo_barras = ?",
             [codigoBarras]
         );
 
         if (produto.length === 0) {
             await conn.rollback();
-            return res.status(404).json({ erro: "Produto não encontrado." });
+            return res.status(404).json({
+                erro: "Produto não encontrado."
+            });
         }
 
         const { id_produto, nome } = produto[0];
 
-        // 2. INSERIR O REGISTRO NA TABELA 'reposicao'
-        // Baseado na sua imagem: id_produto, produto, qtd_prevista, qtd_comprada, prioridade, local, status
-        const sqlReposicao = `
-            INSERT INTO reposicao (id_produto, produto, qtd_prevista, qtd_comprada, prioridade, local, status) 
+        await conn.query(`
+            INSERT INTO reposicao (
+                id_produto,
+                produto,
+                qtd_prevista,
+                qtd_comprada,
+                prioridade,
+                local,
+                status
+            )
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        `;
-        
-        // Aqui estou definindo 'Concluído' como status padrão ao finalizar a reposição
-        await conn.query(sqlReposicao, [
-            id_produto, 
-            nome, 
-            quantidade, // qtd_prevista (o que foi solicitado)
-            quantidade, // qtd_comprada (o que foi realmente entregue)
-            "Alta", 
-            "Estoque Central", // Você pode mudar isso ou receber do front
-            "Concluído"
+        `, [
+            id_produto,
+            nome,
+            quantidade,
+            0,
+            prioridade,
+            local,
+            "Pendente"
         ]);
 
-        // 3. ATUALIZAR O SALDO NA TABELA 'produtos'
-        const [resultadoEstoque] = await conn.query(
-            "UPDATE produtos SET qtd = qtd + ? WHERE id_produto = ?", 
-            [Number(quantidade), id_produto]
-        );
-
         await conn.commit();
-        res.json({ mensagem: "Reposição registrada e estoque atualizado!" });
+
+        res.json({
+            mensagem: "Reposição adicionada!"
+        });
 
     } catch (erro) {
+
         await conn.rollback();
-        console.error("Erro na rota de reposição:", erro);
-        res.status(500).json({ erro: "Erro ao processar reposição." });
+
+        console.error(erro);
+
+        res.status(500).json({
+            erro: "Erro ao criar reposição."
+        });
+
     } finally {
         conn.release();
     }
 });
-//-
+
+//--- get reposição
+app.get("/reposicao", verificarToken, async (req, res) => {
+    try {
+
+        const [rows] = await conexao.query(`
+            SELECT
+                r.produto AS nome,
+                r.qtd_prevista AS quantidade_prevista,
+                r.qtd_comprada AS quantidade_comprada,
+                r.prioridade,
+                r.local,
+                p.codigo_barras AS codigo,
+                r.status
+            FROM reposicao r
+            JOIN produtos p
+                ON p.id_produto = r.id_produto
+            WHERE r.status = 'Pendente'
+            ORDER BY r.id_produto DESC
+        `);
+
+        res.json(rows);
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        res.status(500).json({
+            erro: "Erro ao buscar reposição"
+        });
+
+    }
+});
+//------Reposição concluir
+app.put("/reposicao/:codigo/concluir", verificarToken, async (req, res) => {
+
+    try {
+
+        const codigo = req.params.codigo;
+
+        const {
+            quantidade_comprada,
+            local
+        } = req.body;
+
+        const [produto] = await conexao.query(
+            "SELECT id_produto FROM produtos WHERE codigo_barras = ?",
+            [codigo]
+        );
+
+        if (produto.length === 0) {
+            return res.status(404).json({
+                erro: "Produto não encontrado"
+            });
+        }
+
+        const id_produto = produto[0].id_produto;
+
+        await conexao.query(
+            `
+            UPDATE produtos
+            SET qtd = qtd + ?
+            WHERE id_produto = ?
+            `,
+            [quantidade_comprada, id_produto]
+        );
+
+        await conexao.query(
+            `
+            UPDATE reposicao
+            SET
+                qtd_comprada = ?,
+                local = ?,
+                status = 'Concluído'
+            WHERE
+                id_produto = ?
+                AND status = 'Pendente'
+            `,
+            [
+                quantidade_comprada,
+                local,
+                id_produto
+            ]
+        );
+
+        res.json({
+            mensagem: "Reposição concluída"
+        });
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        res.status(500).json({
+            erro: "Erro ao concluir reposição"
+        });
+    }
+});
+//----Reposição Cancelar
+app.put("/reposicao/:codigo/cancelar", verificarToken, async (req, res) => {
+
+    try {
+
+        const codigo = req.params.codigo;
+
+        const [produto] = await conexao.query(
+            "SELECT id_produto FROM produtos WHERE codigo_barras = ?",
+            [codigo]
+        );
+
+        if (produto.length === 0) {
+            return res.status(404).json({
+                erro: "Produto não encontrado"
+            });
+        }
+
+        await conexao.query(`
+            UPDATE reposicao
+            SET status = 'Cancelado'
+            WHERE id_produto = ?
+            AND status = 'Pendente'
+        `, [produto[0].id_produto]);
+
+        res.json({
+            mensagem: "Reposição cancelada"
+        });
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        res.status(500).json({
+            erro: "Erro ao cancelar reposição"
+        });
+    }
+});
+//-- Limpar lista reposição 
+app.put("/reposicao/cancelar/todos", verificarToken, async (req, res) => {
+
+    try {
+
+        await conexao.query(`
+            UPDATE reposicao
+            SET status = 'Cancelado'
+            WHERE status = 'Pendente'
+        `);
+
+        res.json({
+            mensagem: "Lista cancelada"
+        });
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        res.status(500).json({
+            erro: "Erro ao limpar lista"
+        });
+    }
+});
+//--- agendamento
 app.post("/agendamento", verificarToken, async (req, res) => {
     const conn = await conexao.getConnection();
 

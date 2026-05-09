@@ -78,11 +78,18 @@
                 <p class="pm">Estoque atual: <span id="s_qtda">0</span></p>
                 
                 <label class="pm">Quantidade prevista:</label>
-                <input type="number" class="inp_m" id="inp_add_qtd" value="0">
+                <input type="number" class="inp_m" id="inp_add_qtd" placeholder="">
 
                 <label class="pm">Local</label>
                 <input type="text" class="inp_m" id="inp_add_local" placeholder="">
 
+                <label class="pm">Prioridade</label>
+
+                <select class="inp_m select-prioridade" id="inp_add_prioridade">
+                    <option value="Baixa">Baixa</option>
+                    <option value="Média">Média</option>
+                    <option value="Alta">Alta</option>
+                </select>
 
             </div>
         
@@ -132,7 +139,15 @@ const bCancelarAviso = document.getElementById("b_cancelar_aviso");
 let produtosCache = [];
 
 // Criada para evitar repetição de código ao carregar e adicionar
-function adicionarLinhaTabela(nome, qtd, local, prioridade = "Alta", codigo = "", valorComprado = "") {
+function adicionarLinhaTabela(
+    nome,
+    qtd,
+    local,
+    prioridade = "Média",
+    codigo = "",
+    valorComprado = "",
+    status = "Pendente"
+) {
     const tr = document.createElement('tr');
     tr.dataset.codigo = codigo; // Guarda o código no elemento da linha
     
@@ -140,11 +155,14 @@ function adicionarLinhaTabela(nome, qtd, local, prioridade = "Alta", codigo = ""
     tr.innerHTML = `
         <td>${nome}</td>
         <td>${qtd}</td>
-        <td><input type="number" value="${valorComprado}" 
-            style="width: 50px; background: transparent; border: 1px solid #efac4a; border-radius: 4px; color: inherit; font-size: inherit; font-family: inherit; text-align: left; padding-left: 5px; outline: none; margin: 0;">
+        <td><input type="number" value="${valorComprado}"  class="input-reposicao input-qtd">
         </td>
         <td>${prioridade}</td>
-        <td>${local}</td>
+        <td><input 
+            type="text"
+            value="${local}"
+            class="input-reposicao input-local">
+        </td>
         <td>
             <input type="checkbox" class="chk-concluido">
         </td>
@@ -155,8 +173,6 @@ function adicionarLinhaTabela(nome, qtd, local, prioridade = "Alta", codigo = ""
     const checkbox = tr.querySelector(".chk-concluido");
     const inputComprado = tr.querySelector('td:nth-child(3) input');
 
-    // Ao mudar o input, salva na persistência
-    inputComprado.addEventListener('input', salvarTabela);
 
     checkbox.addEventListener("change", async function () {
         if (this.checked) {
@@ -170,14 +186,17 @@ function adicionarLinhaTabela(nome, qtd, local, prioridade = "Alta", codigo = ""
 
             if (prodCodigo) {
                 try {
-                    await apiFetch(`http://localhost:3000/produtos/cod/${prodCodigo}/add`, {
-                        method: "PUT",
-                        headers: { 
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${localStorage.getItem("token")}`
-                        },
-                        body: JSON.stringify({ quantidade: Number(qtdFinal) })
-                    });
+                    await apiFetch(`http://localhost:3000/reposicao/${prodCodigo}/concluir`, {
+                    method: "PUT",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    },
+                    body: JSON.stringify({
+                        quantidade_comprada: Number(qtdFinal),
+                        local: tr.querySelector(".input-local").value
+                    })
+                });
                     
                     exibirAviso(`Reposição de ${qtdFinal} un. adicionada ao estoque!`, () => {
                         tr.remove();
@@ -232,31 +251,65 @@ b_close_modal.addEventListener("click", () => {
 });
 
 // Confirmar Adição na tabela de reposição
-b_addf.addEventListener("click", () => {
+b_addf.addEventListener("click", async () => {
     const nome = document.getElementById("s_produto").innerText;
-    const qtd = document.getElementById("inp_add_qtd").value;
-    const local = document.getElementById("inp_add_local").value.trim(); 
+    const qtd = Number(document.getElementById("inp_add_qtd").value);
+    const local = document.getElementById("inp_add_local").value.trim();
     const codigo = inpBuscaModal.dataset.codigo;
+    const prioridade = document.getElementById("inp_add_prioridade").value;
 
     if (nome === "---" || !codigo) {
-        exibirAviso("Por favor, selecione um produto na pesquisa.");
+        exibirAviso("Por favor, selecione um produto.");
         return;
     }
 
-    if (qtd <= 0) {
-        exibirAviso("Coloque uma quantidade válida.");
+    if (!qtd || qtd <= 0) {
+        exibirAviso("Digite uma quantidade válida.");
         return;
     }
 
     if (local === "") {
-        exibirAviso("Por favor, preencha o campo Local antes de confirmar.");
-        document.getElementById("inp_add_local").focus();
-        return; 
+        exibirAviso("Preencha o local.");
+        return;
     }
 
+    try {
 
-    modal.close();
-    limparModal();
+        // SALVA NO BACKEND
+        await apiFetch(`http://localhost:3000/reposicao/${codigo}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify({
+            quantidade: qtd,
+            local: local,
+            prioridade: prioridade
+        })
+        });
+
+        // ADICIONA NA TABELA IMEDIATAMENTE
+        adicionarLinhaTabela(
+        nome,
+        qtd,
+        local,
+        prioridade,
+        codigo,
+        0,
+        "Pendente"
+);
+
+        exibirAviso("Reposição adicionada com sucesso!");
+
+        modal.close();
+        limparModal();
+
+    } catch (err) {
+        console.error("Erro na rota de reposição:");
+        console.error(err);
+        console.error(err?.sqlMessage);
+    }
 });
 
 function limparModal() {
@@ -264,7 +317,7 @@ function limparModal() {
     if(inpBuscaModal.dataset) inpBuscaModal.dataset.codigo = "";
     document.getElementById("s_produto").innerText = "---";
     document.getElementById("s_qtda").innerText = "0";
-    document.getElementById("inp_add_qtd").value = 0;
+    document.getElementById("inp_add_qtd").value = "";
     document.getElementById("inp_add_local").value = "";
     lista.innerHTML = "";
 }
@@ -284,11 +337,34 @@ b_apagar_prod.addEventListener("click", () => {
         if (linhaClicada && corpoTabela.contains(linhaClicada)) {
             const nomeProd = linhaClicada.cells[0].innerText;
             
-            exibirAviso(`Deseja realmente apagar o produto: ${nomeProd}?`, () => {
-                linhaClicada.remove();
-                 // Salva após apagar um item
-                exibirAviso("Produto removido com sucesso!");
-            }, true);
+            exibirAviso(`Deseja realmente remover o produto: ${nomeProd}?`, async () => {
+
+const codigo = linhaClicada.dataset.codigo;
+
+try {
+
+    await apiFetch(
+        `http://localhost:3000/reposicao/${codigo}/cancelar`,
+        {
+            method: "PUT",
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        }
+    );
+
+    linhaClicada.remove();
+
+    exibirAviso("Produto removido com sucesso!");
+
+} catch (erro) {
+
+    console.error(erro);
+
+    exibirAviso("Erro ao remover produto.");
+}
+
+}, true);
 
             corpoTabela.removeEventListener('click', selecionarParaApagar);
             corpoTabela.style.cursor = "default";
@@ -306,11 +382,32 @@ b_limpar_lista.addEventListener("click", () => {
         return;
     }
 
-    exibirAviso("Deseja limpar toda a lista de reposição?", () => {
-        corpoTabela.innerHTML = "";
-         // Salva após limpar lista
-        exibirAviso("Lista apagada!");
-    }, true);
+    exibirAviso("Deseja limpar toda a lista de reposição?", async () => {
+
+try {
+
+    await apiFetch(
+        "http://localhost:3000/reposicao/cancelar/todos",
+        {
+            method: "PUT",
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        }
+    );
+
+    corpoTabela.innerHTML = "";
+
+    exibirAviso("Lista apagada!");
+
+} catch (erro) {
+
+    console.error(erro);
+
+    exibirAviso("Erro ao limpar lista.");
+}
+
+}, true);
 });
 
 // --- BUSCA E FILTRO ---
@@ -393,6 +490,7 @@ function atualizarDestaque(itens) {
     });
 }
 
+
 inpBuscaModal.addEventListener("keydown", (e) => {
     const itens = lista.querySelectorAll("li");
 
@@ -457,15 +555,16 @@ async function carregarReposicao() {
     corpoTabela.innerHTML = "";
 
     dados.forEach(item => {
-        adicionarLinhaTabela(
-            item.nome,
-            item.quantidade_prevista,
-            item.local,
-            item.prioridade,
-            item.codigo,
-            item.quantidade_comprada
-        );
-    });
+    adicionarLinhaTabela(
+        item.nome,
+        item.quantidade_prevista,
+        item.local,
+        item.prioridade,
+        item.codigo,
+        item.quantidade_comprada,
+        item.status
+    );
+});
 }
 document.addEventListener("DOMContentLoaded", carregarReposicao);
 </script>

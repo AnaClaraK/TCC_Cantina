@@ -582,3 +582,45 @@ td:last-child {
     display: inline-block;
     margin: 0 auto;
 }
+.input-reposicao {
+    background: transparent;
+    border: 1px solid #efac4a;
+    border-radius: 4px;
+    color: inherit;
+    font-size: inherit;
+    font-family: inherit;
+    outline: none;
+    padding-left: 5px;
+}
+
+.input-qtd {
+    width: 50px;
+}
+
+.input-local {
+    width: 120px;
+}
+
+.select-prioridade {
+    width: 100%;
+}
+.select-tabela-prioridade {
+    width: 100px;
+    cursor: pointer;
+}
+
+.select-tabela-prioridade,
+.select-prioridade {
+    background: #1f1f1f;
+    color: white;
+    border: 1px solid #efac4a;
+    border-radius: 6px;
+    padding: 5px;
+}
+
+.select-tabela-prioridade option,
+.select-prioridade option {
+    background: #1f1f1f;
+    color: white;
+}
+

@@ -87,29 +87,10 @@ CREATE TABLE IF NOT EXISTS `pedidos` (
   PRIMARY KEY (`id_pedido`),
   KEY `Index 2` (`id_user`),
   CONSTRAINT `FK_pedidos_users` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE NO ACTION ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.pedidos: ~18 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.pedidos: ~0 rows (aproximadamente)
 DELETE FROM `pedidos`;
-INSERT INTO `pedidos` (`id_pedido`, `id_user`, `num_pedido`, `data`, `data_ag`, `status`, `valor_total`, `qtd_total`, `form_pag`) VALUES
-	(7, 2, 1, '2026-04-16 17:08:06', '0000-00-00 00:00:00', 'Finalizado', 10.00, 1, 'DINHEIRO (F2)'),
-	(8, 2, 2, '2026-04-16 17:08:19', '0000-00-00 00:00:00', 'Finalizado', 2.00, 2, 'CARTÃO DE CRÉDITO (F3)'),
-	(9, 2, 3, '2026-04-16 17:09:23', '2026-05-08 11:40:00', 'Agendado', 30.00, 2, 'DINHEIRO (F2)'),
-	(10, 2, 4, '2026-04-16 17:10:44', '0000-00-00 00:00:00', 'Finalizado', 21.76, 3, 'DINHEIRO (F2)'),
-	(13, 1, 7, '2026-04-30 13:37:22', '0000-00-00 00:00:00', 'Finalizado', 8.02, 3, 'PIX (F6)'),
-	(15, 1, 8, '2026-04-30 13:49:05', '2026-06-17 09:30:00', 'Agendado', 2.26, 1, 'PIX (F6)'),
-	(16, 1, 9, '2026-04-30 14:05:23', '0000-00-00 00:00:00', 'Finalizado', 2.26, 1, 'PIX (F6)'),
-	(17, 1, 10, '2026-04-30 14:27:16', '2026-05-08 12:00:00', 'Agendado', 3.50, 1, 'DINHEIRO (F2)'),
-	(18, 1, 11, '2026-05-05 16:46:52', '0000-00-00 00:00:00', 'Finalizado', 13.05, 3, 'CARTÃO DE CRÉDITO (F3)'),
-	(19, 1, 12, '2026-05-05 16:48:57', '0000-00-00 00:00:00', 'Finalizado', 10.79, 2, 'PIX (F6)'),
-	(20, 1, 13, '2026-05-07 10:41:49', NULL, 'Finalizado', 7.00, 2, 'DINHEIRO (F2)'),
-	(21, 1, 14, '2026-05-07 10:42:09', NULL, 'Finalizado', 3.50, 1, 'DINHEIRO (F2)'),
-	(22, 1, 15, '2026-05-07 10:44:48', NULL, 'Finalizado', 7.00, 2, 'PIX (F6)'),
-	(23, 1, 16, '2026-05-07 13:27:49', NULL, 'Finalizado', 3.50, 1, 'DINHEIRO (F2)'),
-	(24, 1, 17, '2026-05-07 13:27:51', NULL, 'Finalizado', 3.50, 1, 'DINHEIRO (F2)'),
-	(25, 1, 18, '2026-05-07 13:30:26', NULL, 'Finalizado', 3.50, 1, 'DINHEIRO (F2)'),
-	(26, 1, 19, '2026-05-07 13:32:37', NULL, 'Finalizado', 3.50, 1, 'DINHEIRO (F2)'),
-	(27, 1, 20, '2026-05-07 13:37:16', NULL, 'Finalizado', 3.50, 1, 'DINHEIRO (F2)');
 
 -- Copiando estrutura para tabela cantina.pedidos_itens
 DROP TABLE IF EXISTS `pedidos_itens`;
@@ -124,36 +105,10 @@ CREATE TABLE IF NOT EXISTS `pedidos_itens` (
   KEY `Index 3` (`id_produto`),
   CONSTRAINT `FK_pedidos_itens_pedidos` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `FK_pedidos_itens_produtos` FOREIGN KEY (`id_produto`) REFERENCES `produtos` (`id_produto`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.pedidos_itens: ~25 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.pedidos_itens: ~0 rows (aproximadamente)
 DELETE FROM `pedidos_itens`;
-INSERT INTO `pedidos_itens` (`id_itens`, `id_pedido`, `id_produto`, `qtd`, `preco_unitario`) VALUES
-	(12, 7, 1, 1, 2.260000),
-	(13, 8, 14, 1, 18.600000),
-	(14, 8, 1, 1, 2.260000),
-	(15, 9, 14, 1, 18.600000),
-	(16, 9, 1, 1, 2.260000),
-	(17, 10, 6, 1, 19.500000),
-	(18, 10, 1, 1, 2.260000),
-	(19, 13, 1, 2, 2.260000),
-	(20, 13, 2, 1, 3.500000),
-	(21, 15, 1, 1, 2.260000),
-	(22, 16, 1, 1, 2.260000),
-	(23, 17, 2, 1, 3.500000),
-	(24, 18, 1, 1, 2.260000),
-	(25, 18, 32, 1, 7.290000),
-	(26, 18, 2, 1, 3.500000),
-	(27, 19, 2, 1, 3.500000),
-	(28, 19, 32, 1, 7.290000),
-	(29, 20, 2, 2, 3.500000),
-	(30, 21, 2, 1, 3.500000),
-	(31, 22, 2, 2, 3.500000),
-	(32, 23, 2, 1, 3.500000),
-	(33, 24, 2, 1, 3.500000),
-	(34, 25, 2, 1, 3.500000),
-	(35, 26, 2, 1, 3.500000),
-	(36, 27, 2, 1, 3.500000);
 
 -- Copiando estrutura para tabela cantina.produtos
 DROP TABLE IF EXISTS `produtos`;
@@ -174,11 +129,11 @@ CREATE TABLE IF NOT EXISTS `produtos` (
 -- Copiando dados para a tabela cantina.produtos: ~68 rows (aproximadamente)
 DELETE FROM `produtos`;
 INSERT INTO `produtos` (`id_produto`, `id_categoria`, `codigo_barras`, `nome`, `descricao`, `preco`, `qtd`, `img`) VALUES
-	(1, 1, '100', 'Café coado 50ml', '', 2.26, 5, 'cafe_50.jpg'),
-	(2, 1, '4006381492355', 'Café coado 100ml', '', 3.50, 9, 'cafe_100.png'),
-	(3, 1, '102', 'Pingado 150ml', '', 3.80, 10, 'cafe_pingado.png'),
-	(4, 1, '103', 'Chocolate quente 200ml', '', 6.94, 10, 'cafe.png'),
-	(5, 2, '104', 'Arroz, Strogonoff de frango P', '', 18.60, 10, 'arroz_strog.png'),
+	(1, 1, '100', 'Café coado 50ml', '', 2.26, 0, 'cafe_50.jpg'),
+	(2, 1, '4006381492355', 'Café coado 100ml', '', 3.50, 5, 'cafe_100.png'),
+	(3, 1, '102', 'Pingado 150ml', '', 3.80, 0, 'cafe_pingado.png'),
+	(4, 1, '103', 'Chocolate quente 200ml', '', 6.94, 0, 'cafe.png'),
+	(5, 2, '104', 'Arroz, Strogonoff de frango P', '', 18.60, 0, 'arroz_strog.png'),
 	(6, 2, '105', 'Arroz, Strogonoff de frango M', '', 19.50, 0, 'arroz_strog.jpg'),
 	(7, 2, '106', 'Arroz, Strogonoff de frango G', '', 20.70, 0, 'arroz_strog.png'),
 	(8, 2, '107', 'Arroz, lasanha bolonhesa P', '', 18.60, 0, 'arroz_lasan.png'),
@@ -187,7 +142,7 @@ INSERT INTO `produtos` (`id_produto`, `id_categoria`, `codigo_barras`, `nome`, `
 	(11, 2, '110', 'Arroz, feijão, carne de panela P', '', 18.60, 0, 'arroz_carp.jpg'),
 	(12, 2, '111', 'Arroz, feijão, carne de panela M', '', 19.50, 0, 'arroz_carp.jpg'),
 	(13, 2, '112', 'Arroz, feijão, carne de panela G', '', 20.70, 0, 'arroz_carp.jpg'),
-	(14, 2, '113', 'Macarrão bolonhesa P', '', 18.60, 4, 'macarr_bolon.jpg'),
+	(14, 2, '113', 'Macarrão bolonhesa P', '', 18.60, 0, 'macarr_bolon.jpg'),
 	(15, 2, '114', 'Macarrão bolonhesa M', '', 19.50, 0, 'macarr_bolon.jpg'),
 	(16, 2, '115', 'Macarrão bolonhesa G', '', 20.70, 0, 'macarr_bolon.jpg'),
 	(17, 3, '116', 'Picolé de água', '', 3.06, 0, 'picole_agua.jpg'),
@@ -246,7 +201,7 @@ INSERT INTO `produtos` (`id_produto`, `id_categoria`, `codigo_barras`, `nome`, `
 -- Copiando estrutura para tabela cantina.reposicao
 DROP TABLE IF EXISTS `reposicao`;
 CREATE TABLE IF NOT EXISTS `reposicao` (
-  `id_compra` int(11) NOT NULL,
+  `id_compra` int(11) NOT NULL AUTO_INCREMENT,
   `id_produto` int(11) NOT NULL,
   `produto` varchar(255) NOT NULL DEFAULT '',
   `qtd_prevista` int(11) NOT NULL,
@@ -274,7 +229,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   PRIMARY KEY (`id_user`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.users: ~1 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.users: ~2 rows (aproximadamente)
 DELETE FROM `users`;
 INSERT INTO `users` (`id_user`, `nome`, `cpf`, `email`, `senha`, `data_criacao`) VALUES
 	(1, 'Consumidor Final', '00000000000', 'granovita@gmail.com', 'granovita', '2026-04-30 16:29:04'),
