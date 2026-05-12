@@ -23,7 +23,7 @@ export default function LoginScreen() {
             
             const resultado = await resposta.json();
             if (resultado.resposta === "true" || resultado.resposta === true) {
-                navigation.replace("MainApp");
+                navigation.navigate("CardapioScreen");
             } else {
                 Alert.alert("Erro", resultado.mensagem || "Credenciais inválidas");
             }

@@ -1,18 +1,19 @@
 import 'react-native-gesture-handler';
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useFonts } from 'expo-font';
-import Feather from '@expo/vector-icons/Feather';
 
-// Suas Telas
+// FORMA CORRETA DE IMPORTAR ÍCONES (Tudo junto para evitar erros)
+import { Ionicons, Feather } from '@expo/vector-icons'; 
+
+// Importação das suas Telas
 import HomeScreen from './src/Screens/HomeScreen';
 import CadastroScreen from './src/Screens/CadastroScreen';
 import LoginScreen from './src/Screens/LoginScreen';
 import CardapioScreen from './src/Screens/CardapioScreen';
-import PerfilScreen from './src/Screens/CardapioScreen'; 
+import PerfilScreen from './src/Screens/CardapioScreen'; // Ajuste aqui quando criar o PerfilScreen real
 import ComprasScreen from './src/Screens/ComprasScreen';
 import BuscarScreen from './src/Screens/BuscarScreen';
 import PedidosScreen from './src/Screens/PedidosScreen'; 
@@ -20,51 +21,73 @@ import PedidosScreen from './src/Screens/PedidosScreen';
 const PilhasTelas = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-
-// --- 1. CONFIGURAÇÃO DAS ABAS (BOTTOM TABS) ---
+// --- 1. CONFIGURAÇÃO DO MENU DE ABAS (BOTTOM TABS) ---
 function TabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-          let IconComponent = Ionicons; // Padroniza o uso de Ionicons
+          let IconComponent = Ionicons;
+          let customSize = size;
 
           if (route.name === 'Cardapio') {
-
-            iconName = focused ? 'restaurant' : 'restaurant-outline';
-
-          } else if (route.name === 'Perfil') {
-
-            iconName = focused ? 'person' : 'person-outline';
-
-          }else if (route.name === 'Buscar') {
-
+            iconName = focused ? 'fast-food' : 'fast-food-outline';
+          } else if (route.name === 'Buscar') {
             iconName = focused ? 'search' : 'search-outline';
-
-          }else if (route.name === 'Pedidos') {
-
+          } else if (route.name === 'Pedidos') {
             iconName = focused ? 'receipt' : 'receipt-outline';
-
+          } else if (route.name === 'Perfil') {
+            iconName = focused ? 'person' : 'person-outline';
+          } else if (route.name === 'Compras') {
+            // Carrinho intocado, conforme você pediu
+            return (
+              <Feather 
+                name="shopping-cart" 
+                size={35} 
+                color={color} 
+                style={{
+                  width: 50,
+                  height: 50,
+                  textAlign: 'center',
+                  textAlignVertical: 'center',
+                  marginTop: 15, 
+                }} 
+              />
+            );
           }
-          else if (route.name === 'Compras') {
-            IconComponent = Feather; // Muda para Feather apenas nesta aba
-            iconName = 'shopping-cart';
-          } 
-          
-    
 
-          // Retorna apenas UM componente de ícone
-          return <IconComponent name={iconName} size={size} color={color} />;
+          return <IconComponent name={iconName} size={customSize} color={color} />;
         },
-        tabBarActiveTintColor: '#3E2723', // Marrom escuro da sua foto
-        tabBarInactiveTintColor: '#5D4037', // Marrom médio
+
+        tabBarActiveTintColor: '#3E2723',
+        tabBarInactiveTintColor: '#5D4037',
+        
         tabBarStyle: {
-          backgroundColor: '#efac4a', // Laranja de fundo do seu menu
-          height: 70,
-          paddingBottom: 10,
+          backgroundColor: '#efac4a',
+          height: 65,
           borderTopWidth: 0,
+          paddingTop: 8, // Ajusta o alinhamento vertical dos ícones superiores
         },
+        
+        // AJUSTE DOS ÍCONES LATERAIS
+        tabBarIconStyle: {
+          marginBottom: -5, // Puxa o ícone um pouco para baixo para centralizar com o texto
+        },
+
+        // AJUSTE DO TEXTO (LABEL)
+        tabBarLabelStyle: {
+          fontFamily: 'Montserrat',
+          fontSize: 10,
+          fontWeight: '600',
+          marginTop: 2, // Espaço entre ícone e texto
+          marginBottom: 5, // Espaço final da barra
+        },
+
+        tabBarItemStyle: {
+          overflow: 'visible',
+        },
+
         headerStyle: { backgroundColor: '#242628' },
         headerTintColor: '#efac4a',
         headerTitleAlign: 'center',
@@ -76,7 +99,15 @@ function TabNavigator() {
     > 
       <Tab.Screen name="Cardapio" component={CardapioScreen} options={{ title: 'Início' }} />
       <Tab.Screen name="Buscar" component={BuscarScreen} options={{ title: 'Buscar' }} />
-      <Tab.Screen name="Compras" component={ComprasScreen} options={{ title: 'Carrinho' }} />
+      
+      <Tab.Screen 
+        name="Compras" 
+        component={ComprasScreen} 
+        options={{ 
+          tabBarLabel: () => null, 
+        }} 
+      />
+
       <Tab.Screen name="Pedidos" component={PedidosScreen} options={{ title: 'Pedidos' }} />
       <Tab.Screen name="Perfil" component={PerfilScreen} options={{ title: 'Perfil' }} />
     </Tab.Navigator>
@@ -91,20 +122,18 @@ export default function App() {
   });
 
   if (!fontsLoaded) {
-    return null; // Ou uma tela de carregamento
+    return null; // Tela de carregamento enquanto as fontes não chegam
   }
 
   return (
     <NavigationContainer>
       <PilhasTelas.Navigator screenOptions={{ headerShown: false }}>
-        {/* Telas de Autenticação */}
+        {/* Telas que NÃO têm o menu de baixo (Login/Home/Cadastro) */}
         <PilhasTelas.Screen name="HomeScreen" component={HomeScreen} />
         <PilhasTelas.Screen name="CadastroScreen" component={CadastroScreen} />
         <PilhasTelas.Screen name="LoginScreen" component={LoginScreen} />
 
-        {/* IMPORTANTE: Em vez de chamar CardapioScreen direto, 
-            chamamos o TabNavigator que criamos acima.
-        */}
+        {/* Tela que CONTÉM as abas e o menu de baixo */}
         <PilhasTelas.Screen name="MainApp" component={TabNavigator} />
       </PilhasTelas.Navigator>
     </NavigationContainer>
