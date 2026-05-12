@@ -1,15 +1,7 @@
-@font-face {
-    font-family: 'Roca One';
-    /* Certifique-se de que os arquivos estejam na pasta 'fonts' ao lado do seu CSS */
-    src: url('./fonts/roca-one-regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap; /* Melhora o carregamento da página */
-  }
+
    body{
     background-color: #efac4a !important ;
     margin: 0;
-    font-family: 'Roca One', Arial, sans-serif;
 }
 /* ============================================================
    TOPO / UTILIDADES
@@ -74,8 +66,7 @@
 #s_addq{
     color: #f8c471;
     font-weight: bold;
-    font-size: 26px;
-    font-family: 'Roca One', Arial, sans-serif;
+    font-size: 24px;
     
 }
 
@@ -109,7 +100,6 @@
     padding: 12px 80px 12px 90px;
 }
 #inputBusca::placeholder{
-    font-family: 'Roca One', Arial, sans-serif;
     color: #7a5a2a; /* opcional */
 }
 /* ============================================================
