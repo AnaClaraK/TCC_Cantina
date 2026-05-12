@@ -3,10 +3,22 @@ import { useFonts } from 'expo-font';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 import { Botao } from '../Components/Botoes';
-
+import React, { useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function HomeScreen(){
-    const navigation = useNavigation()
+  const navigation = useNavigation();
+
+  useEffect(() => {
+      const verificarSessao = async () => {
+          const logado = await AsyncStorage.getItem('@usuario_logado');
+          if (logado === 'true') {
+              // Se já estiver logado, pula direto para o Cardápio
+              navigation.replace("CardapioScreen"); 
+          }
+      };
+      verificarSessao();
+  }, []);
 
     function navegarc(){
         navigation.navigate("CadastroScreen")

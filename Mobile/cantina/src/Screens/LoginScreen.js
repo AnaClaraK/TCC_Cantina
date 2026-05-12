@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Image, TouchableOpacity, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Importe no topo
+
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from '@expo/vector-icons'; 
 import { Botao } from '../Components/Botoes';
@@ -21,13 +23,17 @@ export default function LoginScreen() {
             
             const resultado = await resposta.json();
             if (resultado.resposta === "true" || resultado.resposta === true) {
-                Alert.alert("Sucesso", resultado.mensagem);
-                navigation.navigate("HomeScreen");
+                navigation.replace("MainApp");
             } else {
                 Alert.alert("Erro", resultado.mensagem || "Credenciais inválidas");
             }
         } catch (error) {
             Alert.alert("Erro de Conexão", "Não foi possível falar com o servidor.");
+        }
+        if (resultado.resposta === "true" || resultado.resposta === true) {
+            // SALVAR que o usuário está logado
+            await AsyncStorage.setItem('@usuario_logado', 'true');
+            navigation.replace("MainApp");
         }
     }
 
