@@ -51,8 +51,9 @@ app.listen(porta, () => {
 // MULTER PARA PRODUTOS (frontend - comidas)
 const storageProdutos = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "images/");
+    cb(null, path.join(__dirname, "../frontend/images"));
   },
+
   filename: function (req, file, cb) {
     const nomeUnico = Date.now() + path.extname(file.originalname);
     cb(null, nomeUnico);
@@ -394,22 +395,87 @@ app.put("/perfil/atualizar", verificarToken, uploadPerfil.single("imagem"), asyn
   }
 });
 //---buscar produto removida daqui
-//--------- PRODUTOS Cadastro
+//--------- Cadastro produtos add
 app.post("/produtos", verificarToken, uploadProdutos.single("imagem"), async (req, res) => {
-  try {
-      const { nome, preco, codigo_barras } = req.body;
-      const precoFormatado = preco.replace(",", ".");
-      const imagem = req.file ? "/images/" + req.file.filename : null;
-
-      await conexao.query("INSERT INTO produtos (nome, preco, codigo_barras, img) VALUES (?, ?, ?, ?)", 
-      [nome, precoFormatado, codigo_barras, imagem]);
-
-      res.json({ mensagem: "Produto cadastrado com sucesso" });
-  } catch (erro) {
-      res.status(500).json({ erro: "Erro ao cadastrar" });
-  }
-});
-
+    try {
+  
+        const {
+          nome,
+          preco,
+          codigo,
+          quantidade,
+          descricao,
+          id_categoria
+        } = req.body;
+  
+        if (!nome || !preco || !codigo || !id_categoria) {
+          return res.status(400).json({
+            erro: "Preencha todos os campos obrigatórios"
+          });
+        }
+  
+        const precoFormatado = String(preco).replace(",", ".");
+  
+        const imagem = req.file
+          ? req.file.filename
+          : null;
+  
+        await conexao.query(`
+          INSERT INTO produtos
+          (
+            nome,
+            preco,
+            codigo_barras,
+            qtd,
+            descricao,
+            img,
+            id_categoria
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        `, [
+          nome,
+          precoFormatado,
+          codigo,
+          quantidade || 0,
+          descricao || "",
+          imagem,
+          id_categoria
+        ]);
+  
+        res.status(201).json({
+          mensagem: "Produto cadastrado com sucesso"
+        });
+  
+    } catch (erro) {
+  
+        console.error("Erro ao cadastrar produto:", erro);
+  
+        res.status(500).json({
+          erro: "Erro ao cadastrar produto"
+        });
+    }
+  });
+  // LISTAR CATEGORIAS
+app.get("/categorias", verificarToken, async (req, res) => {
+    try {
+  
+      const [rows] = await conexao.query(`
+        SELECT id_categoria, nome
+        FROM categorias
+        ORDER BY nome
+      `);
+  
+      res.json(rows);
+  
+    } catch (erro) {
+  
+      console.error("Erro ao buscar categorias:", erro);
+  
+      res.status(500).json({
+        erro: "Erro ao buscar categorias"
+      });
+    }
+  });
 //-----Busca
 app.get("/produtos/busca", verificarToken, async (req, res) => {
     try {

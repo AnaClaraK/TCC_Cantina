@@ -35,7 +35,9 @@
             <input type="text" name="descricao" class="inp_p" placeholder="Descrição">
             <input type="number" name="preco" class="inp_p" placeholder="Preço" step="0.01" required>
             <input type="number" name="quantidade" class="inp_p" placeholder="Quantidade" required>
-
+            <select name="id_categoria" id="categoria" class="inp_p" required>
+                <option value="">Selecione a categoria</option>
+            </select>
             <label class="file-label">
                 Escolher imagem do produto
                 <input type="file" name="imagem" id="inputImagem" accept="image/*">
@@ -68,12 +70,48 @@
                     method: "POST",
                     body: formData
                 });
-                if(res.ok) alert("Produto cadastrado!");
-                else alert("Erro ao cadastrar.");
+                const data = await res.json();
+
+                if(res.ok){
+                    alert(data.mensagem);
+                    e.target.reset();
+                    preview.style.display = "none";
+                }
+                else{
+                    alert(data.erro || "Erro ao cadastrar.");
+                }
             } catch (err) {
                 alert("Erro de servidor.");
             }
         });
+async function carregarCategorias() {
+
+    try {
+
+        const res = await apiFetch("http://localhost:3000/categorias");
+
+        const categorias = await res.json();
+
+        const select = document.getElementById("categoria");
+
+        categorias.forEach(cat => {
+
+            select.innerHTML += `
+                <option value="${cat.id_categoria}">
+                    ${cat.nome}
+                </option>
+            `;
+        });
+
+    } catch (err) {
+
+        console.error(err);
+        alert("Erro ao carregar categorias");
+    }
+}
+
+carregarCategorias();
+
     </script>
 </body>
 </html>
