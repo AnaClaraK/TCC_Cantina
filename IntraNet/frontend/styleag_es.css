@@ -38,6 +38,7 @@
    BOTÕES DO TOPO
    ============================================================ */
    #b_addq,
+   #b_nova_compra,
    #b_apagar_prod,
    #b_limpar_lista{
        display: flex;
@@ -58,6 +59,7 @@
    }
 
 #b_addq:hover,
+#b_nova_compra:hover,
 #b_apagar_prod:hover,
 #b_limpar_lista:hover{
     filter: brightness(1.2);
@@ -149,11 +151,13 @@
 .tabela th,
 .tabela td{
     border-right: 3px solid #1c1c1c;
+    text-align: left;
 }
 
 .tabela th:last-child,
 .tabela td:last-child{
     border-right: none;
+    text-align: left;
 }
 
 /* HOVER */
@@ -329,10 +333,23 @@ input[type=number]{
     margin-bottom: 35px;
     margin-top: 50px;
 }
-
-#s_produto{
-   
+.b_addf{
+    display: block;
+    width: 300px;
+    margin: 100px auto;
+    padding: 16px;
+    border: none;
+    border-radius: 10px;
+    background: #efac4a;
+    color: #f0e0e0;
+    font-weight: bold;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-bottom: 35px;
+    margin-top: 50px;
 }
+
+
 
 /* ============================================================
    LISTA DE SUGESTÕES
@@ -613,4 +630,523 @@ td:last-child {
     background: #1f1f1f;
     color: white;
 }
+/* =========================================================
+MODAL NOVO CLIENTE AJUSTADO
+========================================================= */
 
+#modal_cliente{
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    padding: 0;
+    width: 500px;
+    max-width: 95%;
+    background: #1c1c1c;
+    overflow: hidden;
+}
+
+#modal_cliente::backdrop{
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(4px);
+}
+
+#modal_cliente .modal_box{
+    width: 100%;
+    box-sizing: border-box;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    overflow-x: hidden;
+}
+
+/* =========================================================
+MODAL FIADO
+========================================================= */
+
+#d_modal_fiado,
+#d_modal_produtos{
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    padding: 0;
+    background: #1c1c1c;
+    overflow: hidden;
+}
+
+#d_modal_fiado{
+    width: 650px;
+    max-width: 95%;
+}
+
+#d_modal_produtos{
+    width: 700px;
+    max-width: 95%;
+}
+
+#d_modal_fiado::backdrop,
+#d_modal_produtos::backdrop{
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(4px);
+}
+
+#d_modal_fiado .modal_box,
+#d_modal_produtos .modal_box{
+    overflow-x: hidden;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* =========================================================
+INPUTS MENORES
+========================================================= */
+
+#inp_busca_cliente,
+#inp_busca_produto,
+#inp_data_fiado{
+    width: 92%;
+    margin: 0 auto;
+    display: block;
+}
+
+/* =========================================================
+LISTA CLIENTES
+========================================================= */
+
+#lista_clientes{
+    position: absolute;
+    top: 165px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92%;
+    z-index: 9999;
+
+    background: #1c1c1c;
+    border: 2px solid #efac4a;
+    border-radius: 10px;
+
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    max-height: 155px;
+}
+
+/* mostra 2 clientes + pontinha do 3 */
+#lista_clientes li{
+    min-height: 58px;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+
+    border-bottom: 1px solid #333;
+
+    cursor: pointer;
+    color: #f8c471;
+}
+
+#lista_clientes li:hover{
+    background: #efac4a;
+    color: #1c1c1c;
+}
+
+/* =========================================================
+LISTA PRODUTOS
+========================================================= */
+
+
+#lista_produtos li:hover{
+    background: #efac4a;
+    color: #1c1c1c;
+}
+
+/* =========================================================
+ÁREA PRODUTOS FIXA
+========================================================= */
+
+#area_produtos_modal,
+#produtos_selecionados{
+    width: 92%;
+    margin: 0 auto;
+
+    border: 2px solid #efac4a;
+    border-radius: 10px;
+
+    background: #151515;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 10px;
+
+    box-sizing: border-box;
+}
+
+/* espaço fixo */
+#area_produtos_modal{
+    height: 255px;
+}
+
+/* mostra 3 produtos e pontinha do 4 */
+#produtos_selecionados{
+    height: 210px;
+}
+
+/* =========================================================
+ITEM PRODUTO
+========================================================= */
+
+.produto_item_modal{
+    width: 100%;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: #232323;
+
+    border: 1px solid #efac4a;
+    border-radius: 10px;
+
+        min-height: 50px;
+        padding: 8px 10px;
+
+    margin-bottom: 10px;
+
+    box-sizing: border-box;
+
+    color: #f8c471;
+}
+
+/* =========================================================
+QTD
+========================================================= */
+
+.controles_qtd{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn_qtd{
+    width: 38px;
+    height: 38px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #efac4a;
+    color: #1c1c1c;
+
+    font-size: 24px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.inp_qtd_modal{
+    width: 55px;
+    height: 38px;
+
+    border-radius: 8px;
+    border: 2px solid #efac4a;
+
+    background: #1c1c1c;
+    color: #f8c471;
+
+    text-align: center;
+    font-size: 18px;
+}
+
+/* =========================================================
+BOTÕES
+========================================================= */
+
+#b_abrir_produtos,
+#b_salvar_fiado,
+#b_salvar_produtos{
+    width: 300px;
+    height: 50px;
+
+    margin: 10px auto;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #efac4a;
+    color: #1c1c1c;
+
+    font-size: 20px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* =========================================================
+REMOVE BARRA HORIZONTAL
+========================================================= */
+
+.modal_box,
+#d_modal_fiado,
+#d_modal_produtos,
+#modal_cliente{
+    overflow-x: hidden !important;
+}
+
+/* =========================================================
+SCROLL MAIS FINO
+========================================================= */
+
+#lista_clientes::-webkit-scrollbar,
+#lista_produtos::-webkit-scrollbar,
+#area_produtos_modal::-webkit-scrollbar,
+#produtos_selecionados::-webkit-scrollbar{
+    width: 7px;
+}
+
+#lista_clientes::-webkit-scrollbar-track,
+#lista_produtos::-webkit-scrollbar-track,
+#area_produtos_modal::-webkit-scrollbar-track,
+#produtos_selecionados::-webkit-scrollbar-track{
+    background: transparent;
+}
+
+#lista_clientes::-webkit-scrollbar-thumb,
+#lista_produtos::-webkit-scrollbar-thumb,
+#area_produtos_modal::-webkit-scrollbar-thumb,
+#produtos_selecionados::-webkit-scrollbar-thumb{
+    background: #efac4a;
+    border-radius: 20px;
+}
+
+/* =========================================================
+X FECHAR MODAIS
+========================================================= */
+
+#b_close_modal,
+#b_close_produtos,
+#b_close_modal_cliente{
+    position: absolute;
+    top: 12px;
+    right: 15px;
+
+    width: 38px;
+    height: 38px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #efac4a;
+    color: #1c1c1c;
+
+    font-size: 22px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: .2s;
+}
+
+#b_close_modal:hover,
+#b_close_produtos:hover,
+#b_close_modal_cliente:hover{
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* =========================================================
+NOVO CLIENTE CENTRALIZADO
+========================================================= */
+
+#modal_cliente{
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    background: #1c1c1c;
+    padding: 0;
+    width: 520px;
+    max-width: 95%;
+    overflow: hidden;
+}
+
+#modal_cliente .modal_box{
+    width: 100%;
+    min-height: unset !important;
+
+    padding: 30px;
+
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    overflow-x: hidden;
+}
+
+/* =========================================================
+INPUTS MAIS PROPORCIONAIS
+========================================================= */
+
+#inp_busca_cliente,
+#inp_busca_produto,
+#inp_data_fiado,
+#modal_cliente .inp_m{
+    width: 88%;
+    margin: 0 auto;
+    display: block;
+}
+
+/* =========================================================
+LISTA CLIENTES ESCONDIDA
+========================================================= */
+
+#lista_clientes{
+    display: none;
+
+    position: absolute;
+    top: 165px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: 88%;
+
+    z-index: 99999;
+
+    background: #1c1c1c;
+
+    border: 2px solid #efac4a;
+    border-radius: 10px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 0;
+    margin: 0;
+
+    list-style: none;
+
+    max-height: 145px;
+}
+
+/* =========================================================
+LISTA PRODUTOS
+========================================================= */
+
+#lista_produtos{
+    width: 88%;
+
+    margin: 0 auto;
+
+    background: #1c1c1c;
+
+    border: 2px solid #efac4a;
+    border-radius: 10px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 0;
+
+    list-style: none;
+
+    max-height: 150px;
+}
+
+#lista_produtos li{
+    min-height: 42px;
+    font-size: 15px;
+    padding: 12px 15px;
+
+    border-bottom: 1px solid #333;
+
+    color: #f8c471;
+
+    cursor: pointer;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+}
+
+#lista_produtos li:hover{
+    background: #efac4a;
+    color: #1c1c1c;
+}
+
+/* =========================================================
+ÁREA PRODUTOS
+========================================================= */
+
+#area_produtos_modal,
+#produtos_selecionados{
+    width: 88%;
+
+    margin: 0 auto;
+
+    border: 2px solid #efac4a;
+    border-radius: 10px;
+
+    background: #151515;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 10px;
+
+    box-sizing: border-box;
+}
+
+/* maior */
+#area_produtos_modal{
+    height: 310px;
+}
+
+/* 3 produtos + pontinha do 4 */
+#produtos_selecionados{
+    height: 255px;
+}
+
+/* =========================================================
+BOTÕES
+========================================================= */
+
+#b_abrir_produtos,
+#b_salvar_fiado,
+#b_salvar_produtos,
+#b_addf{
+    width: 280px;
+    height: 50px;
+
+    margin: 10px auto;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #efac4a;
+    color: #1c1c1c;
+
+    font-size: 19px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#b_addf{
+    margin-top: 20px;
+    margin-bottom: 10px;
+}

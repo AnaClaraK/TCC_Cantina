@@ -140,6 +140,10 @@ const sidebarHTML = `
             <img class="i_img" data-name="pedidos" src="imagens/pedidos_p.png"/> 
             <span class="nav-text">Pedidos</span>
         </a>
+        <a href="conta_fiado.html" class="nav-link">
+            <img class="i_img" data-name="pedidos" src="imagens/pedidos_p.png"/> 
+            <span class="nav-text">Contas</span>
+        </a>
         <a href="editarprod.html" class="nav-link">
             <img class="i_img" data-name="editarprod" id="icon_edp" src="imagens/editarprod_p.png"/> 
             <span class="nav-text">Editar Produtos</span>
@@ -156,6 +160,10 @@ const sidebarHTML = `
         <a href="cadastrof.html" class="nav-link">
             <img class="i_img" data-name="cadastrof" id="icon_cadp" src="imagens/cadastrof_p.png"/> 
             <span class="nav-text">Cadastro de <br> Funcionários</span>
+        </a>
+        <a href="cadastro_clientef.html" class="nav-link">
+            <img class="i_img" data-name="cadastrof" id="icon_cadp" src="imagens/cadastrof_p.png"/> 
+            <span class="nav-text">Cadastro de <br>Contas</span>
         </a>
         
 </aside>

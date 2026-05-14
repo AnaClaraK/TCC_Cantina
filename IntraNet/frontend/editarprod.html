@@ -59,6 +59,10 @@
             <label class="label-amarela">Quantidade em Estoque</label>
             <input type="number" name="qtd" id="qtd" class="inp_p">
 
+                <label class="label-amarela">Qtd. Mínima</label>
+                <input type="number" name="qtd_min" id="qtd_min" class="inp_p">
+
+
             <label class="label-amarela">Descrição</label>
             <textarea name="descricao" id="descricao" class="inp_p" style="height: 60px; resize: none;"></textarea>
         </div>
@@ -78,7 +82,7 @@ const descricao = document.getElementById("descricao");
 const previewImg = document.getElementById("preview-img");
 const inputImagem = document.getElementById("inputImagem");
 const formProduto = document.getElementById("formProduto");
-
+const qtdMin = document.getElementById("qtd_min"); // Adicione esta linha
 const inpBusca = document.getElementById("inp_busca_editar");
 const lista = document.getElementById("lista_sugestoes");
 
@@ -152,35 +156,27 @@ function atualizarSelecao(itens){
 function selecionarProduto(p){
     produtoSelecionado = p;
 
-    // Atualiza o texto visual e o campo de busca
     inpBusca.value = p.nome;
     document.getElementById("s_produto").innerText = p.nome;
 
-    // Preenche os campos básicos (Verificando se existem)
     if(nome) nome.value = p.nome || "";
     if(codigo) codigo.value = p.codigo_barras || "";
     if(preco) preco.value = p.preco || 0;
     if(qtd) qtd.value = p.qtd || 0;
     if(descricao) descricao.value = p.descricao || "";
-
+    
+    // --- LINHA ADICIONADA ABAIXO ---
+    if(qtdMin) qtdMin.value = p.qtd_min || 0; 
 
     if(p.img){
-        // Certifique-se que o caminho 'http://localhost:3000/imagens/' está correto no seu backend
         previewImg.src = `http://localhost:3000/images/${p.img}`;
         previewImg.style.display = "block"; 
     } else {
-        previewImg.src = "images/img_ntf.png"; // Imagem padrão caso não tenha
+        previewImg.src = "images/img_ntf.png";
     }
 
-    lista.innerHTML = ""; // Fecha a lista de sugestões
+    lista.innerHTML = "";
 }
-
-// fechar lista ao clicar fora
-document.addEventListener("click", (e) => {
-    if(!inpBusca.contains(e.target) && !lista.contains(e.target)){
-        lista.innerHTML = "";
-    }
-});
 
 // preview imagem
 inputImagem.addEventListener("change", () => {
@@ -201,12 +197,31 @@ formProduto.addEventListener("submit", async (e)=>{
 
     const formData = new FormData(formProduto);
 
-    await apiFetch(`http://localhost:3000/produtos/cod/${produtoSelecionado.id_produto}`, {
-        method: "PUT",
-        body: formData
-    });
+    try {
+        const res = await apiFetch(`http://localhost:3000/produtos/cod/${produtoSelecionado.id_produto}`, {
+            method: "PUT",
+            body: formData
+        });
 
-    alert("Produto atualizado");
+        if (res.ok) {
+            alert("Produto atualizado com sucesso!");
+            
+            // --- LIMPAR TUDO APÓS SALVAR ---
+            formProduto.reset(); // Limpa todos os inputs do formulário
+            produtoSelecionado = null; // Remove a referência do produto selecionado
+            document.getElementById("s_produto").innerText = "---"; // Reseta o texto visual
+            previewImg.src = "images/img_ntf.png"; // Reseta a imagem para o padrão
+            inpBusca.value = ""; // Limpa o campo de busca
+            
+            // Recarrega a lista de produtos global para que a próxima busca tenha os dados novos
+            carregarProdutos(); 
+        } else {
+            alert("Erro ao atualizar produto.");
+        }
+    } catch (erro) {
+        console.error("Erro:", erro);
+        alert("Erro de conexão com o servidor.");
+    }
 });
 </script>
 

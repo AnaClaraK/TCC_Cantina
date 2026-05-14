@@ -530,95 +530,54 @@ app.get("/produtos/cod/:codigo", verificarToken, async (req, res) => {
 //--PDV rota pedidos
 app.post("/pedidos", verificarToken, async (req, res) => {
     const conn = await conexao.getConnection();
-
     try {
         await conn.beginTransaction();
 
-        const {
-            id_user,
-            valor_total,
-            qtd_total,
-            form_pag,
-            itens
-        } = req.body;
-
+        const { id_user, valor_total, qtd_total, form_pag, itens } = req.body;
         const idCliente = id_user || 1;
         const status = "Finalizado";
         const data = new Date();
+        const alertas = []; // Array para armazenar os avisos de estoque baixo
 
-        const [ultimoPedido] = await conn.query(`
-            SELECT MAX(num_pedido) AS ultimoNumero
-            FROM pedidos
-        `);
-
+        const [ultimoPedido] = await conn.query(`SELECT MAX(num_pedido) AS ultimoNumero FROM pedidos`);
         const num_pedido = (ultimoPedido[0].ultimoNumero || 0) + 1;
 
         const [resultadoPedido] = await conn.query(`
-            INSERT INTO pedidos (
-                id_user,
-                num_pedido,
-                data,
-                status,
-                valor_total,
-                qtd_total,
-                form_pag
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
-        `, [
-            idCliente,
-            num_pedido,
-            data,
-            status,
-            valor_total,
-            qtd_total,
-            form_pag
-        ]);
+            INSERT INTO pedidos (id_user, num_pedido, data, status, valor_total, qtd_total, form_pag) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `, [idCliente, num_pedido, data, status, valor_total, qtd_total, form_pag]);
 
         const id_pedido = resultadoPedido.insertId;
 
         if (itens && itens.length > 0) {
             for (const item of itens) {
+                // BUSCA ESTOQUE ATUAL E QTD MÍNIMA
+                const [estoque] = await conn.query(
+                    "SELECT nome, qtd, qtd_min FROM produtos WHERE id_produto = ?", 
+                    [item.id_produto]
+                );
 
-                        // VERIFICA DISPONIBILIDADE REAL
-        const [estoque] = await conn.query(`
-            SELECT 
-                p.qtd,
-                COALESCE(SUM(
-                    CASE 
-                        WHEN pe.status = 'Agendado' THEN pi.qtd
-                        ELSE 0
-                    END
-                ), 0) AS reservado
-            FROM produtos p
-            LEFT JOIN pedidos_itens pi 
-                ON pi.id_produto = p.id_produto
-            LEFT JOIN pedidos pe 
-                ON pe.id_pedido = pi.id_pedido
-            WHERE p.id_produto = ?
-            GROUP BY p.id_produto
-        `, [item.id_produto]);
+                const produtoDB = estoque[0];
+                const novaQtd = produtoDB.qtd - item.qtd;
 
-        const produto = estoque[0];
+                // 1. Bloqueio de segurança (Não deixa vender o que não tem)
+                if (novaQtd < 0) {
+                    throw new Error(`Estoque insuficiente para: ${produtoDB.nome}`);
+                }
 
-        const disponivel = produto.qtd - produto.reservado;
+                // 2. VERIFICAÇÃO DE ESTOQUE MÍNIMO (O AVISO)
+                if (novaQtd <= produtoDB.qtd_min) {
+                    alertas.push(`O produto "${produtoDB.nome}" atingiu o estoque mínimo (${novaQtd} restantes).`);
+                }
 
-        if (disponivel < item.qtd) {
-            throw new Error(`Estoque insuficiente para o produto ID ${item.id_produto}`);
-        }
+                // Atualiza o estoque no banco
+                await conn.query("UPDATE produtos SET qtd = ? WHERE id_produto = ?", [novaQtd, item.id_produto]);
 
-                // Depois salva o item do pedido
+                // Salva o item do pedido
                 await conn.query(`
-                    INSERT INTO pedidos_itens (
-                        id_pedido,
-                        id_produto,
-                        qtd,
-                        preco_unitario
-                    ) VALUES (?, ?, ?, ?)
-                `, [
-                    id_pedido,
-                    item.id_produto,
-                    item.qtd,
-                    item.preco_unitario ?? item.preco
-                ]);
+                    INSERT INTO pedidos_itens (id_pedido, id_produto, qtd, preco_unitario) 
+                    VALUES (?, ?, ?, ?)
+                `, [id_pedido, item.id_produto, item.qtd, item.preco_unitario ?? item.preco]);
             }
         }
 
@@ -628,17 +587,13 @@ app.post("/pedidos", verificarToken, async (req, res) => {
             resposta: "Pedido finalizado com sucesso!",
             id_pedido,
             num_pedido,
-            status
+            alertas: alertas // Envia a lista de avisos para o frontend
         });
 
     } catch (erro) {
         await conn.rollback();
-
         console.error("Erro ao salvar pedido:", erro);
-
-        res.status(500).json({
-            resposta: erro.message || "Erro ao salvar pedido."
-        });
+        res.status(500).json({ resposta: erro.message || "Erro ao salvar pedido." });
     } finally {
         conn.release();
     }
@@ -757,21 +712,32 @@ app.get("/produtos/cod/:id", verificarToken, async (req, res) => {
   res.json(rows[0]);
 });
 
-// ATUALIZAR DADOS DO PRODUTO (Protegido)
+// Editar PRODUTO
 app.put("/produtos/cod/:id", verificarToken, uploadProduto.single("img"), async (req, res) => {
-  const { id } = req.params;
-  const { nome, codigo_barras, preco, qtd, descricao } = req.body;
-  let img = req.file ? req.file.filename : null;
-
-  await conexao.query(`
-    UPDATE produtos SET
-      nome = ?, codigo_barras = ?, preco = ?, qtd = ?, descricao = ?, img = COALESCE(?, img)
-    WHERE id_produto = ?
-  `, [nome, codigo_barras, preco, qtd, descricao, img, id]);
-
-  res.json({ msg: "ok" });
-});
-
+    try {
+      const { id } = req.params;
+      // Adicionamos 'qtd_min' aqui na desestruturação do corpo
+      const { nome, codigo_barras, preco, qtd, qtd_min, descricao } = req.body; 
+      let img = req.file ? req.file.filename : null;
+  
+      await conexao.query(`
+        UPDATE produtos SET
+          nome = ?, 
+          codigo_barras = ?, 
+          preco = ?, 
+          qtd = ?, 
+          qtd_min = ?, 
+          descricao = ?, 
+          img = COALESCE(?, img)
+        WHERE id_produto = ?
+      `, [nome, codigo_barras, preco, qtd, qtd_min || 0, descricao, img, id]);
+  
+      res.json({ msg: "ok" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ erro: "Erro ao atualizar produto" });
+    }
+  });
 //--Reposição(compra)
 // LISTAR PRODUTOS PARA REPOSIÇÃO (Protegido)
 app.get("/reposicao/produtos", verificarToken, async (req, res) => {
@@ -1301,4 +1267,219 @@ app.put("/agendamento/:id/finalizar", verificarToken, async (req, res) => {
         console.error(erro);
         res.status(500).json({ erro: "Erro ao finalizar agendamento" });
     }
+});
+
+//----------------------Clientes Fiado (Conta)
+//----Cadastrar
+app.post("/clientes-fiado", async (req, res) => {
+
+    try{
+
+        const {
+            nome_completo,
+            cpf,
+            telefone,
+            endereco
+        } = req.body;
+
+        await conexao.query(`
+            INSERT INTO clientes_fiado
+            (
+                nome_completo,
+                cpf,
+                telefone,
+                endereco
+            )
+            VALUES (?, ?, ?, ?)
+        `, [
+            nome_completo,
+            cpf,
+            telefone,
+            endereco
+        ]);
+
+        res.json({
+            sucesso: true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.status(500).json({
+            erro: err.message
+        });
+    }
+});
+//---Listar
+app.get("/clientes-fiado", async (req, res) => {
+
+    const [dados] = await conexao.query(`
+        SELECT * FROM clientes_fiado
+        ORDER BY nome_completo
+    `);
+
+    res.json(dados);
+});
+//---- Contas Fiado
+//-----Cadastrar
+app.post("/contas-fiado", async (req, res) => {
+
+    const {
+        id_cliente,
+        valor,
+        vencimento,
+        produtos
+    } = req.body;
+
+    const conn = await conexao.getConnection();
+
+    try{
+
+        await conn.beginTransaction();
+
+        const [conta] = await conn.query(`
+            INSERT INTO contas_fiado
+            (
+                id_cliente,
+                valor_original,
+                valor_final,
+                data_vencimento,
+                status,
+                juros_aplicado
+            )
+            VALUES (?, ?, ?, ?, 'Pendente', FALSE)
+        `, [
+            id_cliente,
+            valor,
+            valor,
+            vencimento
+        ]);
+
+        const idConta = conta.insertId;
+
+        for(const produto of produtos){
+
+            const [estoqueAtual] = await conn.query(`
+                SELECT qtd
+                FROM produtos
+                WHERE id_produto = ?
+            `, [produto.id_produto]);
+
+            if(estoqueAtual.length <= 0){
+
+                throw new Error("Produto não encontrado");
+            }
+
+            const estoque =
+            Number(estoqueAtual[0].quantidade);
+
+            if(produto.quantidade > estoque){
+
+                throw new Error(
+                    `Estoque insuficiente para ${produto.nome}`
+                );
+            }
+
+            await conn.query(`
+                INSERT INTO conta_fiado_prod
+                (
+                    id_conta,
+                    id_produto,
+                    qtd,
+                    valor_unit
+                )
+                VALUES (?, ?, ?, ?)
+            `, [
+                idConta,
+                produto.id_produto,
+                produto.quantidade,
+                produto.preco
+            ]);
+
+            await conn.query(`
+                UPDATE produtos
+                SET quantidade = quantidade - ?
+                WHERE id_produto = ?
+            `, [
+                produto.quantidade,
+                produto.id_produto
+            ]);
+        }
+
+        await conn.commit();
+
+        res.json({
+            ok:true
+        });
+
+    }catch(err){
+
+        await conn.rollback();
+
+        console.log(err);
+
+        res.status(500).json({
+            erro: err.message
+        });
+
+    }finally{
+
+        conn.release();
+    }
+});
+//------ Listar
+app.get("/contas-fiado", async (req, res) => {
+
+    await conexao.query(`
+        UPDATE contas_fiado
+        SET
+            valor_final = valor_original * 1.10,
+            juros_aplicado = TRUE,
+            status = 'Atrasado'
+        WHERE
+            CURDATE() > data_vencimento
+            AND status = 'Pendente'
+            AND juros_aplicado = FALSE
+    `);
+
+    const [dados] = await conexao.query(`
+        SELECT
+            c.id_conta,
+            cl.nome_completo,
+            cl.telefone,
+            cl.cpf,
+
+            c.valor_original,
+            c.valor_final,
+
+            c.data_vencimento,
+            c.status
+
+        FROM contas_fiado c
+
+        JOIN clientes_fiado cl
+        ON cl.id_cliente = c.id_cliente
+
+        ORDER BY c.data_vencimento ASC
+    `);
+
+    res.json(dados);
+});
+//------Concluir pagamento
+app.put("/contas-fiado/:id/pagar", async (req, res) => {
+
+    const { id } = req.params;
+
+    await conexao.query(`
+        UPDATE contas_fiado
+        SET
+            status = 'Pago',
+            data_pagamento = NOW()
+        WHERE id_conta = ?
+    `, [id]);
+
+    res.json({
+        sucesso: true
+    });
 });

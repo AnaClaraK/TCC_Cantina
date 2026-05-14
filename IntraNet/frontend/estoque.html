@@ -45,6 +45,7 @@
             <th>Preço</th>
             <th>Quantidade</th>
             <th>Disponível</th>
+            <th>Qtd Mínima</th>
         </tr>
     </thead>
     <tbody id="tb_tbl_produtos"></tbody>
@@ -65,7 +66,7 @@
 
         <input type="number" class="inp_m" id="inp_add_qtd" value="0">
 
-        <button id="b_addf" type="button">Adicionar</button>
+        <button class="b_addf" type="button">Adicionar</button>
 
         <div class="modal_footer">
             <p class="pmf">Use as setas ↑ ↓ e Enter para selecionar</p>
@@ -197,6 +198,7 @@ async function carregarProdutos() {
                     <td>R$ ${parseFloat(p.preco || 0).toFixed(2).replace(".", ",")}</td>
                     <td>${p.qtd || 0}</td>
                     <td>${p.disponivel || 0}</td>
+                    <td>${p.qtd_min || 0}</td>
                 </tr>
             `;
         });
