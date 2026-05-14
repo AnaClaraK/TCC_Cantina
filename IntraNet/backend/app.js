@@ -1360,21 +1360,26 @@ app.post("/contas-fiado", async (req, res) => {
 
         for(const produto of produtos){
 
-            const [estoqueAtual] = await conn.query(`
-                SELECT qtd
+            const [dadosProduto] = await conn.query(`
+                SELECT
+                    qtd,
+                    preco
                 FROM produtos
                 WHERE id_produto = ?
             `, [produto.id_produto]);
 
-            if(estoqueAtual.length <= 0){
+            if(dadosProduto.length <= 0){
 
                 throw new Error("Produto não encontrado");
             }
 
             const estoque =
-            Number(estoqueAtual[0].quantidade);
+            Number(dadosProduto[0].qtd);
 
-            if(produto.quantidade > estoque){
+            const precoBanco =
+            Number(dadosProduto[0].preco);
+
+            if(produto.qtdSelecionada > estoque){
 
                 throw new Error(
                     `Estoque insuficiente para ${produto.nome}`
@@ -1393,16 +1398,16 @@ app.post("/contas-fiado", async (req, res) => {
             `, [
                 idConta,
                 produto.id_produto,
-                produto.quantidade,
-                produto.preco
+                produto.qtdSelecionada,
+                precoBanco
             ]);
 
             await conn.query(`
                 UPDATE produtos
-                SET quantidade = quantidade - ?
+                SET qtd = qtd - ?
                 WHERE id_produto = ?
             `, [
-                produto.quantidade,
+                produto.qtdSelecionada,
                 produto.id_produto
             ]);
         }
@@ -1410,7 +1415,7 @@ app.post("/contas-fiado", async (req, res) => {
         await conn.commit();
 
         res.json({
-            ok:true
+            ok: true
         });
 
     }catch(err){
@@ -1447,20 +1452,30 @@ app.get("/contas-fiado", async (req, res) => {
         SELECT
             c.id_conta,
             cl.nome_completo,
-            cl.telefone,
-            cl.cpf,
-
+    
             c.valor_original,
             c.valor_final,
-
+    
             c.data_vencimento,
-            c.status
-
+            c.status,
+    
+            GROUP_CONCAT(p.nome SEPARATOR ', ') AS produtos,
+    
+            SUM(cf.qtd) AS quantidade_total
+    
         FROM contas_fiado c
-
+    
         JOIN clientes_fiado cl
         ON cl.id_cliente = c.id_cliente
-
+    
+        LEFT JOIN conta_fiado_prod cf
+        ON cf.id_conta = c.id_conta
+    
+        LEFT JOIN produtos p
+        ON p.id_produto = cf.id_produto
+    
+        GROUP BY c.id_conta
+    
         ORDER BY c.data_vencimento ASC
     `);
 
@@ -1471,13 +1486,18 @@ app.put("/contas-fiado/:id/pagar", async (req, res) => {
 
     const { id } = req.params;
 
+    const { data_pagamento } = req.body;
+
     await conexao.query(`
         UPDATE contas_fiado
         SET
             status = 'Pago',
-            data_pagamento = NOW()
+            data_pagamento = ?
         WHERE id_conta = ?
-    `, [id]);
+    `, [
+        data_pagamento,
+        id
+    ]);
 
     res.json({
         sucesso: true

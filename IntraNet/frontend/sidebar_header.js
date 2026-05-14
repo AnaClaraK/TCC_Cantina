@@ -161,10 +161,6 @@ const sidebarHTML = `
             <img class="i_img" data-name="cadastrof" id="icon_cadp" src="imagens/cadastrof_p.png"/> 
             <span class="nav-text">Cadastro de <br> Funcionários</span>
         </a>
-        <a href="cadastro_clientef.html" class="nav-link">
-            <img class="i_img" data-name="cadastrof" id="icon_cadp" src="imagens/cadastrof_p.png"/> 
-            <span class="nav-text">Cadastro de <br>Contas</span>
-        </a>
         
 </aside>
 `;
