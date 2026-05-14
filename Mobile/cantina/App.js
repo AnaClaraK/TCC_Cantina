@@ -5,18 +5,19 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useFonts } from 'expo-font';
 
-// FORMA CORRETA DE IMPORTAR ÍCONES (Tudo junto para evitar erros)
+// ÍCONES
 import { Ionicons, Feather } from '@expo/vector-icons'; 
 
-// Importação das suas Telas
+// IMPORTAÇÃO DAS TELAS
 import HomeScreen from './src/Screens/HomeScreen';
 import CadastroScreen from './src/Screens/CadastroScreen';
 import LoginScreen from './src/Screens/LoginScreen';
 import CardapioScreen from './src/Screens/CardapioScreen';
-import PerfilScreen from './src/Screens/CardapioScreen'; // Ajuste aqui quando criar o PerfilScreen real
+import PerfilScreen from './src/Screens/CardapioScreen'; // Ajuste quando criar o PerfilScreen real
 import ComprasScreen from './src/Screens/ComprasScreen';
 import BuscarScreen from './src/Screens/BuscarScreen';
 import PedidosScreen from './src/Screens/PedidosScreen'; 
+import SplashScreen from './src/Screens/SplashScreen'; 
 
 const PilhasTelas = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -29,7 +30,6 @@ function TabNavigator() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
           let IconComponent = Ionicons;
-          let customSize = size;
 
           if (route.name === 'Cardapio') {
             iconName = focused ? 'fast-food' : 'fast-food-outline';
@@ -40,7 +40,7 @@ function TabNavigator() {
           } else if (route.name === 'Perfil') {
             iconName = focused ? 'person' : 'person-outline';
           } else if (route.name === 'Compras') {
-            // Carrinho intocado, conforme você pediu
+            // Seu carrinho personalizado conforme solicitado
             return (
               <Feather 
                 name="shopping-cart" 
@@ -57,7 +57,7 @@ function TabNavigator() {
             );
           }
 
-          return <IconComponent name={iconName} size={customSize} color={color} />;
+          return <IconComponent name={iconName} size={size} color={color} />;
         },
 
         tabBarActiveTintColor: '#3E2723',
@@ -67,21 +67,19 @@ function TabNavigator() {
           backgroundColor: '#efac4a',
           height: 65,
           borderTopWidth: 0,
-          paddingTop: 8, // Ajusta o alinhamento vertical dos ícones superiores
+          paddingTop: 8,
         },
         
-        // AJUSTE DOS ÍCONES LATERAIS
         tabBarIconStyle: {
-          marginBottom: -5, // Puxa o ícone um pouco para baixo para centralizar com o texto
+          marginBottom: -5,
         },
 
-        // AJUSTE DO TEXTO (LABEL)
         tabBarLabelStyle: {
           fontFamily: 'Montserrat',
           fontSize: 10,
           fontWeight: '600',
-          marginTop: 2, // Espaço entre ícone e texto
-          marginBottom: 5, // Espaço final da barra
+          marginTop: 2,
+          marginBottom: 5,
         },
 
         tabBarItemStyle: {
@@ -122,18 +120,25 @@ export default function App() {
   });
 
   if (!fontsLoaded) {
-    return null; // Tela de carregamento enquanto as fontes não chegam
+    return null; 
   }
 
   return (
     <NavigationContainer>
-      <PilhasTelas.Navigator screenOptions={{ headerShown: false }}>
-        {/* Telas que NÃO têm o menu de baixo (Login/Home/Cadastro) */}
+      {/* O Navigator de Pilha começa pela SplashScreen */}
+      <PilhasTelas.Navigator 
+        initialRouteName="SplashScreen" 
+        screenOptions={{ headerShown: false }}
+      >
+        {/* 1ª Tela: Intro/Splash (Sem ícones embaixo) */}
+        <PilhasTelas.Screen name="SplashScreen" component={SplashScreen} />
+
+        {/* Telas de Autenticação (Sem ícones embaixo) */}
         <PilhasTelas.Screen name="HomeScreen" component={HomeScreen} />
         <PilhasTelas.Screen name="CadastroScreen" component={CadastroScreen} />
         <PilhasTelas.Screen name="LoginScreen" component={LoginScreen} />
 
-        {/* Tela que CONTÉM as abas e o menu de baixo */}
+        {/* Tela Principal (Aqui os ícones de baixo aparecem) */}
         <PilhasTelas.Screen name="MainApp" component={TabNavigator} />
       </PilhasTelas.Navigator>
     </NavigationContainer>
