@@ -57,8 +57,6 @@ STYLE CLIENTES FIADO
 #modal_compra,
 #modal_produtos{
 
-    border:none;
-
     border-radius:16px;
 
     padding:0;
@@ -209,4 +207,30 @@ STYLE CLIENTES FIADO
     border-radius:20px;
 
     font-weight:bold;
+}
+
+/* Modal concluir pagamento */
+#d_aviso{
+    border-radius: 12px;
+    padding: 0;
+    width: 500px;
+    border-width: 2px;
+
+}
+
+.aviso_box{
+    min-width: 350px;
+    max-width: 90vw;
+    padding: 25px;
+    border-radius: 12px;
+    overflow-x: hidden;
+}
+
+#msg_aviso{
+    width: 93%;
+}
+
+#msg_aviso input{
+    width: 100%;
+    margin-top: 10px;
 }

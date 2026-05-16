@@ -1172,3 +1172,106 @@ BOTÕES
     width: 45px;
     font-size: 15px;
 }
+/*Histórico de Pedidos*/
+.filtros_origem{
+    display:flex;
+    gap:10px;
+    margin-top:12px;
+    flex-wrap:wrap;
+}
+
+.btn_filtro{
+    border:none;
+    padding:8px 14px;
+    border-radius:12px;
+    background:#2a2a2a;
+    color:#fff;
+    cursor:pointer;
+    transition:.2s;
+    font-size:14px;
+}
+
+.btn_filtro:hover{
+    background:#3a3a3a;
+}
+
+.btn_filtro.ativo{
+    background:#ffffff;
+    color:#000;
+    font-weight:bold;
+}
+.busca-box{
+    position:relative;
+    display:flex;
+    align-items:center;
+    width:100%;
+    max-width:500px;
+}
+
+#inputBusca{
+    width:100%;
+    padding-right:50px;
+}
+
+#btnFiltro{
+    position:absolute;
+    right:12px;
+    top:50%;
+    transform:translateY(-50%);
+    background:none;
+    border:none;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+}
+
+#img_funil{
+    width:18px;
+    height:18px;
+    opacity:.8;
+    transition:.2s;
+}
+
+#btnFiltro:hover #img_funil{
+    opacity:1;
+    transform:scale(1.08);
+}
+
+#menuFiltro{
+    position:absolute;
+    top:55px;
+    right:0;
+    width:190px;
+    background:#1b1b1b;
+    border:2px solid #efac4a;
+    border-radius:16px;
+    display:none;
+    overflow:hidden;
+    z-index:999;
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.45);
+    padding:8px;
+    backdrop-filter:blur(8px);
+}
+
+.itemFiltro{
+    padding:12px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    color:#f1f1f1;
+    font-size:14px;
+    transition:.2s;
+    user-select:none;
+}
+
+.itemFiltro:hover{
+    background:#efac4a;
+}
+
+.itemFiltro.ativo{
+    background:#efac4a;
+    color:#000;
+    font-weight:600;
+}

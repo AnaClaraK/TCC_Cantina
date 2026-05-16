@@ -141,7 +141,7 @@ const sidebarHTML = `
             <span class="nav-text">Pedidos</span>
         </a>
         <a href="conta_fiado.html" class="nav-link">
-            <img class="i_img" data-name="pedidos" src="imagens/pedidos_p.png"/> 
+            <img class="i_img" data-name="contas" src="imagens/contas_p.png"/> 
             <span class="nav-text">Contas</span>
         </a>
         <a href="editarprod.html" class="nav-link">

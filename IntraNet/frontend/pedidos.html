@@ -21,13 +21,61 @@
 </head>
 <body class="fundo-escuro">
     <div class="d_util">
-        <h2 class="h_ag">Histórico de pedido</h2>
+
+        <h2 class="h_ag">
+            Histórico de pedido
+        </h2>
+    
         <div id="d_inp">
+    
             <div class="busca-box">
-                <img src="../backend/imagens/lupa.png" class="icone-busca">
-                <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
+
+                <img
+                    src="../backend/imagens/lupa.png"
+                    class="icone-busca"
+                >
+            
+                <input
+                    type="text"
+                    id="inputBusca"
+                    placeholder="Buscar por nome ou código..."
+                >
+            
+                <button id="btnFiltro">
+            
+                    <img
+                        src="../backend/imagens/filtro.png"
+                        id="img_funil"
+                    >
+            
+                </button>
+            
+                <div id="menuFiltro">
+            
+                    <div class="itemFiltro ativo" data-origem="todos">
+                        Todos
+                    </div>
+            
+                    <div class="itemFiltro" data-origem="PDV">
+                        PDV
+                    </div>
+            
+                    <div class="itemFiltro" data-origem="Agendamento">
+                        Agendamento
+                    </div>
+            
+                    <div class="itemFiltro" data-origem="Fiado">
+                        Fiado
+                    </div>
+            
+                </div>
+            
             </div>
+    
+            
+    
         </div>
+    
     </div>
 
     <section id="sc_tabela" class="container mt-5">
@@ -37,6 +85,7 @@
                 <tr>
                     <th scope="col">Nome do cliente</th>
                     <th scope="col">Pedido n°</th>
+                    <th scope="col">Origem</th>
                     <th scope="col">Data e hora</th>
                     <th scope="col">Total da compra</th>
                     <th scope="col">Forma de pagamento</th>
@@ -50,7 +99,7 @@
 <script>
 const inputBusca = document.getElementById('inputBusca');
 const corpoTabela = document.getElementById('tb_tbl_produtos');
-
+let origemSelecionada = "todos";
 
 // 2. Função que busca e desenha os pedidos
 async function buscarProdutosEstoque() {
@@ -84,9 +133,21 @@ async function buscarProdutosEstoque() {
             const tr = document.createElement("tr");
             tr.innerHTML = `
                 <td>${pedido.nome || "Cliente"}</td>
+
                 <td>${pedido.num_pedido}</td>
+
+                <td>
+                    ${pedido.origem || "-"}
+                </td>
+
                 <td>${dataFormatada}</td>
-                <td>R$ ${Number(pedido.valor_total).toFixed(2).replace(".", ",")}</td>
+
+                <td>
+                    R$ ${Number(pedido.valor_total)
+                        .toFixed(2)
+                        .replace(".", ",")}
+                </td>
+
                 <td>${pedido.form_pag}</td>
             `;
 
@@ -120,6 +181,104 @@ inputBusca.addEventListener('keyup', function() {
             }
         }
     }
+});
+inputBusca.addEventListener("keyup", aplicarFiltros);
+
+function aplicarFiltros(){
+
+const termo =
+inputBusca.value
+.toLowerCase()
+.trim();
+
+const linhas =
+corpoTabela.getElementsByTagName("tr");
+
+for(let i = 0; i < linhas.length; i++){
+
+    const colunas =
+    linhas[i].getElementsByTagName("td");
+
+    if(colunas.length > 0){
+
+        const nome =
+        colunas[0]
+        .textContent
+        .toLowerCase();
+
+        const pedido =
+        colunas[1]
+        .textContent
+        .toLowerCase();
+
+        const origem =
+        colunas[2]
+        .textContent
+        .trim();
+
+        const buscaOk =
+        nome.includes(termo)
+        ||
+        pedido.includes(termo);
+
+        const origemOk =
+        origemSelecionada === "todos"
+        ||
+        origem === origemSelecionada;
+
+        linhas[i].style.display =
+        buscaOk && origemOk
+        ? ""
+        : "none";
+    }
+}
+}
+const btnFiltro =
+document.getElementById("btnFiltro");
+
+const menuFiltro =
+document.getElementById("menuFiltro");
+
+const itensFiltro =
+document.querySelectorAll(".itemFiltro");
+
+btnFiltro.onclick = (e) => {
+
+    e.stopPropagation();
+
+    menuFiltro.style.display =
+    menuFiltro.style.display === "block"
+    ? "none"
+    : "block";
+};
+
+document.addEventListener("click", (e) => {
+    if(
+        !menuFiltro.contains(e.target)
+        &&
+        !btnFiltro.contains(e.target)
+    ){
+        menuFiltro.style.display = "none";
+    }
+});
+
+itensFiltro.forEach(item => {
+
+    item.onclick = () => {
+
+        itensFiltro.forEach(i => {
+            i.classList.remove("ativo");
+        });
+
+        item.classList.add("ativo");
+
+        origemSelecionada =
+        item.dataset.origem;
+
+        menuFiltro.style.display = "none";
+
+        aplicarFiltros();
+    };
 });
 
 document.addEventListener('DOMContentLoaded', buscarProdutosEstoque);

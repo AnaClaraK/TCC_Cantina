@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS `contas_fiado` (
 -- Copiando dados para a tabela cantina.contas_fiado: ~1 rows (aproximadamente)
 DELETE FROM `contas_fiado`;
 INSERT INTO `contas_fiado` (`id_conta`, `id_cliente`, `valor_original`, `valor_final`, `juros_aplicado`, `data_criacao`, `data_vencimento`, `data_pagamento`, `status`) VALUES
-	(9, 1, 103.50, 103.50, 0, '2026-05-14 16:56:18', '2026-05-30', NULL, 'Pendente');
+	(9, 1, 103.50, 103.50, 0, '2026-05-14 16:56:18', '2026-05-30', '2026-05-23 00:00:00', 'Pago');
 
 -- Copiando estrutura para tabela cantina.conta_fiado_prod
 DROP TABLE IF EXISTS `conta_fiado_prod`;
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `conta_fiado_prod` (
   CONSTRAINT `FK__produtos_fiado` FOREIGN KEY (`id_produto`) REFERENCES `produtos` (`id_produto`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.conta_fiado_prod: ~1 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.conta_fiado_prod: ~0 rows (aproximadamente)
 DELETE FROM `conta_fiado_prod`;
 INSERT INTO `conta_fiado_prod` (`id_conta`, `id_produto`, `qtd`, `valor_unit`) VALUES
 	(9, 10, 5, 21);
@@ -127,6 +127,7 @@ CREATE TABLE IF NOT EXISTS `pedidos` (
   `data` datetime DEFAULT current_timestamp(),
   `data_ag` datetime DEFAULT NULL,
   `status` varchar(30) NOT NULL DEFAULT '',
+  `origem` varchar(30) NOT NULL DEFAULT '',
   `valor_total` decimal(10,2) NOT NULL DEFAULT 0.00,
   `qtd_total` int(11) DEFAULT NULL,
   `form_pag` varchar(50) DEFAULT NULL,
@@ -135,29 +136,29 @@ CREATE TABLE IF NOT EXISTS `pedidos` (
   CONSTRAINT `FK_pedidos_users` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.pedidos: ~18 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.pedidos: ~20 rows (aproximadamente)
 DELETE FROM `pedidos`;
-INSERT INTO `pedidos` (`id_pedido`, `id_user`, `num_pedido`, `data`, `data_ag`, `status`, `valor_total`, `qtd_total`, `form_pag`) VALUES
-	(7, 2, 1, '2026-04-16 17:08:06', '0000-00-00 00:00:00', 'Finalizado', 10.00, 1, 'DINHEIRO (F2)'),
-	(8, 2, 2, '2026-04-16 17:08:19', '0000-00-00 00:00:00', 'Finalizado', 2.00, 2, 'CARTÃO DE CRÉDITO (F3)'),
-	(9, 2, 3, '2026-04-16 17:09:23', '2026-05-08 11:40:00', 'Finalizado', 30.00, 2, 'DINHEIRO (F2)'),
-	(10, 2, 4, '2026-04-16 17:10:44', '0000-00-00 00:00:00', 'Finalizado', 21.76, 3, 'DINHEIRO (F2)'),
-	(13, 1, 7, '2026-04-30 13:37:22', '0000-00-00 00:00:00', 'Finalizado', 8.02, 3, 'PIX (F6)'),
-	(15, 1, 8, '2026-04-30 13:49:05', '2026-06-17 09:30:00', 'Agendado', 2.26, 1, 'PIX (F6)'),
-	(16, 1, 9, '2026-04-30 14:05:23', '0000-00-00 00:00:00', 'Finalizado', 2.26, 1, 'PIX (F6)'),
-	(17, 1, 10, '2026-04-30 14:27:16', '2026-05-08 12:00:00', 'Agendado', 3.50, 1, 'DINHEIRO (F2)'),
-	(18, 1, 11, '2026-05-05 16:46:52', '0000-00-00 00:00:00', 'Finalizado', 13.05, 3, 'CARTÃO DE CRÉDITO (F3)'),
-	(19, 1, 12, '2026-05-05 16:48:57', '0000-00-00 00:00:00', 'Finalizado', 10.79, 2, 'PIX (F6)'),
-	(20, 1, 13, '2026-05-07 10:41:49', NULL, 'Finalizado', 7.00, 2, 'DINHEIRO (F2)'),
-	(21, 1, 14, '2026-05-07 10:42:09', NULL, 'Finalizado', 3.50, 1, 'DINHEIRO (F2)'),
-	(22, 1, 15, '2026-05-07 10:44:48', NULL, 'Finalizado', 7.00, 2, 'PIX (F6)'),
-	(23, 1, 16, '2026-05-07 13:27:49', NULL, 'Finalizado', 3.50, 1, 'DINHEIRO (F2)'),
-	(24, 1, 17, '2026-05-07 13:27:51', NULL, 'Finalizado', 3.50, 1, 'DINHEIRO (F2)'),
-	(25, 1, 18, '2026-05-07 13:30:26', NULL, 'Finalizado', 3.50, 1, 'DINHEIRO (F2)'),
-	(26, 1, 19, '2026-05-07 13:32:37', NULL, 'Finalizado', 3.50, 1, 'DINHEIRO (F2)'),
-	(27, 1, 20, '2026-05-07 13:37:16', NULL, 'Finalizado', 3.50, 1, 'DINHEIRO (F2)'),
-	(28, 1, 21, '2026-05-12 11:07:03', NULL, 'Finalizado', 3.50, 1, 'CARTÃO DE DÉBITO (F4)'),
-	(29, 1, 22, '2026-05-12 11:10:35', NULL, 'Finalizado', 39.30, 2, 'DINHEIRO (F2)');
+INSERT INTO `pedidos` (`id_pedido`, `id_user`, `num_pedido`, `data`, `data_ag`, `status`, `origem`, `valor_total`, `qtd_total`, `form_pag`) VALUES
+	(7, 2, 1, '2026-04-16 17:08:06', '0000-00-00 00:00:00', 'Finalizado', 'PDV', 10.00, 1, 'DINHEIRO (F2)'),
+	(8, 2, 2, '2026-04-16 17:08:19', '0000-00-00 00:00:00', 'Finalizado', '', 2.00, 2, 'CARTÃO DE CRÉDITO (F3)'),
+	(9, 2, 3, '2026-04-16 17:09:23', '2026-05-08 11:40:00', 'Finalizado', 'Agendamento', 30.00, 2, 'DINHEIRO (F2)'),
+	(10, 2, 4, '2026-04-16 17:10:44', '0000-00-00 00:00:00', 'Finalizado', '', 21.76, 3, 'DINHEIRO (F2)'),
+	(13, 1, 7, '2026-04-30 13:37:22', '0000-00-00 00:00:00', 'Finalizado', 'Fiado', 8.02, 3, 'PIX (F6)'),
+	(15, 1, 8, '2026-04-30 13:49:05', '2026-06-17 09:30:00', 'Agendado', '', 2.26, 1, 'PIX (F6)'),
+	(16, 1, 9, '2026-04-30 14:05:23', '0000-00-00 00:00:00', 'Finalizado', '', 2.26, 1, 'PIX (F6)'),
+	(17, 1, 10, '2026-04-30 14:27:16', '2026-05-08 12:00:00', 'Agendado', '', 3.50, 1, 'DINHEIRO (F2)'),
+	(18, 1, 11, '2026-05-05 16:46:52', '0000-00-00 00:00:00', 'Finalizado', '', 13.05, 3, 'CARTÃO DE CRÉDITO (F3)'),
+	(19, 1, 12, '2026-05-05 16:48:57', '0000-00-00 00:00:00', 'Finalizado', '', 10.79, 2, 'PIX (F6)'),
+	(20, 1, 13, '2026-05-07 10:41:49', NULL, 'Finalizado', '', 7.00, 2, 'DINHEIRO (F2)'),
+	(21, 1, 14, '2026-05-07 10:42:09', NULL, 'Finalizado', '', 3.50, 1, 'DINHEIRO (F2)'),
+	(22, 1, 15, '2026-05-07 10:44:48', NULL, 'Finalizado', '', 7.00, 2, 'PIX (F6)'),
+	(23, 1, 16, '2026-05-07 13:27:49', NULL, 'Finalizado', '', 3.50, 1, 'DINHEIRO (F2)'),
+	(24, 1, 17, '2026-05-07 13:27:51', NULL, 'Finalizado', '', 3.50, 1, 'DINHEIRO (F2)'),
+	(25, 1, 18, '2026-05-07 13:30:26', NULL, 'Finalizado', '', 3.50, 1, 'DINHEIRO (F2)'),
+	(26, 1, 19, '2026-05-07 13:32:37', NULL, 'Finalizado', '', 3.50, 1, 'DINHEIRO (F2)'),
+	(27, 1, 20, '2026-05-07 13:37:16', NULL, 'Finalizado', '', 3.50, 1, 'DINHEIRO (F2)'),
+	(28, 1, 21, '2026-05-12 11:07:03', NULL, 'Finalizado', '', 3.50, 1, 'CARTÃO DE DÉBITO (F4)'),
+	(29, 1, 22, '2026-05-12 11:10:35', NULL, 'Finalizado', 'PDV', 39.30, 2, 'DINHEIRO (F2)');
 
 -- Copiando estrutura para tabela cantina.pedidos_itens
 DROP TABLE IF EXISTS `pedidos_itens`;
@@ -223,7 +224,7 @@ CREATE TABLE IF NOT EXISTS `produtos` (
   CONSTRAINT `FK_produtos_categorias` FOREIGN KEY (`id_categoria`) REFERENCES `categorias` (`id_categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.produtos: ~70 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.produtos: ~68 rows (aproximadamente)
 DELETE FROM `produtos`;
 INSERT INTO `produtos` (`id_produto`, `id_categoria`, `codigo_barras`, `nome`, `descricao`, `preco`, `qtd`, `img`, `qtd_min`) VALUES
 	(1, 1, '100', 'Café coado 50ml', '', 2.26, 5, 'cafe_50.jpg', 3),

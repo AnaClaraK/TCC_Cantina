@@ -533,7 +533,7 @@ app.post("/pedidos", verificarToken, async (req, res) => {
     try {
         await conn.beginTransaction();
 
-        const { id_user, valor_total, qtd_total, form_pag, itens } = req.body;
+        const { id_user, valor_total, qtd_total, form_pag, origem, itens } = req.body;
         const idCliente = id_user || 1;
         const status = "Finalizado";
         const data = new Date();
@@ -543,9 +543,9 @@ app.post("/pedidos", verificarToken, async (req, res) => {
         const num_pedido = (ultimoPedido[0].ultimoNumero || 0) + 1;
 
         const [resultadoPedido] = await conn.query(`
-            INSERT INTO pedidos (id_user, num_pedido, data, status, valor_total, qtd_total, form_pag) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `, [idCliente, num_pedido, data, status, valor_total, qtd_total, form_pag]);
+            INSERT INTO pedidos (id_user, num_pedido, data, status, origem, valor_total, qtd_total, form_pag) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `, [idCliente, num_pedido, data, status, origem, valor_total, qtd_total, form_pag]);
 
         const id_pedido = resultadoPedido.insertId;
 
@@ -575,9 +575,9 @@ app.post("/pedidos", verificarToken, async (req, res) => {
 
                 // Salva o item do pedido
                 await conn.query(`
-                    INSERT INTO pedidos_itens (id_pedido, id_produto, qtd, preco_unitario) 
-                    VALUES (?, ?, ?, ?)
-                `, [id_pedido, item.id_produto, item.qtd, item.preco_unitario ?? item.preco]);
+                    INSERT INTO pedidos_itens (id_pedido, id_produto, qtd, preco_unitario, origem) 
+                    VALUES (?, ?, ?, ?, ?)
+                `, [id_pedido, item.id_produto, item.qtd, item.origem, item.preco_unitario ?? item.preco]);
             }
         }
 
@@ -610,6 +610,7 @@ app.get("/historico-pedidos", verificarToken, async (req, res) => {
                 p.valor_total,
                 p.form_pag,
                 p.status,
+                p.origem,
                 u.nome
             FROM pedidos p
             LEFT JOIN users u ON p.id_user = u.id_user
@@ -1198,6 +1199,7 @@ app.get("/agendamento", verificarToken, async (req, res) => {
                 p.qtd_total,
                 p.form_pag,
                 p.status,
+                p.origem
                 u.nome AS cliente_nome,
                 i.id_produto,
                 pr.nome AS produto_nome,
@@ -1224,6 +1226,7 @@ app.get("/agendamento", verificarToken, async (req, res) => {
                     qtd_total: r.qtd_total,
                     form_pag: r.form_pag,
                     status: r.status,
+                    origem: r.origem,
                     cliente_nome: r.cliente_nome,
                     produtos: []
                 };
@@ -1244,28 +1247,6 @@ app.get("/agendamento", verificarToken, async (req, res) => {
     } catch (erro) {
         console.error(erro);
         res.status(500).json({ erro: "Erro ao buscar agendamentos" });
-    }
-});
-//- finalziar agendamento
-app.put("/agendamento/:id/finalizar", verificarToken, async (req, res) => {
-    try {
-        const id = req.params.id;
-
-        const [result] = await conexao.query(`
-            UPDATE pedidos
-            SET status = 'Finalizado'
-            WHERE id_pedido = ?
-        `, [id]);
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ erro: "Agendamento não encontrado" });
-        }
-
-        res.json({ mensagem: "Agendamento finalizado com sucesso" });
-
-    } catch (erro) {
-        console.error(erro);
-        res.status(500).json({ erro: "Erro ao finalizar agendamento" });
     }
 });
 
@@ -1329,7 +1310,8 @@ app.post("/contas-fiado", async (req, res) => {
         id_cliente,
         valor,
         vencimento,
-        produtos
+        produtos,
+        origem
     } = req.body;
 
     const conn = await conexao.getConnection();
@@ -1345,15 +1327,17 @@ app.post("/contas-fiado", async (req, res) => {
                 valor_original,
                 valor_final,
                 data_vencimento,
+                origem,
                 status,
                 juros_aplicado
             )
-            VALUES (?, ?, ?, ?, 'Pendente', FALSE)
+            VALUES (?, ?, ?, ?, ?, 'Pendente', FALSE)
         `, [
             id_cliente,
             valor,
             valor,
-            vencimento
+            vencimento,
+            origem
         ]);
 
         const idConta = conta.insertId;
@@ -1458,6 +1442,7 @@ app.get("/contas-fiado", async (req, res) => {
     
             c.data_vencimento,
             c.status,
+            c.origem,
     
             GROUP_CONCAT(p.nome SEPARATOR ', ') AS produtos,
     

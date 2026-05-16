@@ -81,6 +81,7 @@
                 <th>Produtos</th>
                 <th>Total</th>
                 <th>Quantidade</th>
+                <th>Origem</th>
                 <th>Data</th>
                 <th>Concluir</th>
             </tr>
@@ -237,7 +238,7 @@ MODAL PRODUTOS
 
     <div class="aviso_box">
 
-        <p id="msg_aviso"></p>
+        <div id="msg_aviso"></div>
 
         <div class="aviso_botoes">
 
@@ -1043,25 +1044,29 @@ dados.forEach(conta => {
             </td>
 
             <td>
+                ${conta.origem || "-"}
+            </td>
+
+            <td>
                 ${conta.data_vencimento
                     .split("T")[0]}
             </td>
 
             <td>
-                ${
-                    conta.status === "Pago"
-                    ?
-                    "✅"
-                    :
-                    `
-                    <button
-                        onclick="abrirModalPagamento(${conta.id_conta})"
-                    >
-                        ✔
-                    </button>
-                    `
-                }
-            </td>
+                    ${
+                        conta.status === "Pago"
+                        ?
+                        "✅"
+                        :
+                        `
+                        <input
+                            type="checkbox"
+                            class="chk-concluido"
+                            onchange="abrirModalPagamento(${conta.id_conta}, this)"
+                        >
+                        `
+                    }
+                </td>
 
         </tr>
     `;
@@ -1069,18 +1074,33 @@ dados.forEach(conta => {
 }
 let contaSelecionada = null;
 
-function abrirModalPagamento(idConta){
+let checkboxAtual = null;
+
+function abrirModalPagamento(idConta, checkbox){
+
+    if(!checkbox.checked) return;
+
+    checkboxAtual = checkbox;
 
     contaSelecionada = idConta;
 
-    abrirAviso(`
-Escolha a data do pagamento:
+    msgAviso.innerHTML = `
+        Deseja concluir o pagamento?
 
-<input
-    type="date"
-    id="inp_data_pagamento"
->
-    `, async () => {
+        <br><br>
+
+        <input
+            type="date"
+            id="inp_data_pagamento"
+            class="inp_m"
+        >
+    `;
+
+    modalAviso.showModal();
+
+    bCancelarAviso.style.display = "inline-block";
+
+    bConfirmarAviso.onclick = async () => {
 
         const data =
         document.getElementById("inp_data_pagamento").value;
@@ -1091,8 +1111,61 @@ Escolha a data do pagamento:
             return;
         }
 
-        await pagarConta(contaSelecionada, data);
-    });
+        modalAviso.close();
+
+        await pagarConta(
+            contaSelecionada,
+            data
+        );
+    };
+
+    bCancelarAviso.onclick = () => {
+
+        modalAviso.close();
+
+        checkbox.checked = false;
+
+        checkbox.blur();
+    };
+}
+async function pagarConta(idConta, dataPagamento){
+
+try{
+
+    const res = await fetch(
+        `http://localhost:3000/contas-fiado/${idConta}/pagar`,
+        {
+            method:"PUT",
+
+            headers:{
+                "Content-Type":"application/json",
+
+                Authorization:
+                `Bearer ${localStorage.getItem("token")}`
+            },
+
+            body: JSON.stringify({
+                data_pagamento: dataPagamento
+            })
+        }
+    );
+
+    if(!res.ok){
+
+        throw new Error();
+    }
+
+    carregarContasFiado();
+
+}catch(err){
+
+    alert("Erro ao concluir pagamento");
+
+    if(checkboxAtual){
+
+        checkboxAtual.checked = false;
+    }
+}
 }
 
 async function pagarConta(idConta, dataPagamento){

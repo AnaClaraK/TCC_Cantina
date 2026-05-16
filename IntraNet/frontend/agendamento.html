@@ -38,6 +38,7 @@
                     <th scope="col">Produto</th>
                     <th scope="col">Preço</th>
                     <th scope="col">Quantidade Total</th>
+                    <th scope="col">origem</th>
                     <th scope="col">Data</th>
                     <th scope="col">Concluir</th>
                 </tr>
@@ -125,7 +126,9 @@ tbody.innerHTML += `
         <td>${item.produtos.map(p => p.nome).join(", ")}</td>
         <td>R$ ${Number(item.valor_total).toFixed(2).replace(".", ",")}</td>
         <td>${item.qtd_total}</td>
-        <td>${dataFormatada}</td> <td>
+        <td>${item.origem || "-"}</td>
+        <td>${dataFormatada}</td>
+    <td>
             <input 
                 type="checkbox" class="chk-concluido" onchange="concluirAgendamento(${item.id_pedido}, this)"
             >

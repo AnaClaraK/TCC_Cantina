@@ -664,7 +664,8 @@ nova_venda.addEventListener("click", () => {
             itens: carrinho,
             valor_total: totalReal,
             qtd_total: carrinho.reduce((soma, item) => soma + item.qtd, 0),
-            form_pag: formaPagamento
+            form_pag: formaPagamento,
+            origem: "PDV"
         })
     })
     .then(res => res.json())
