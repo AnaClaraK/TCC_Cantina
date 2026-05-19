@@ -17,39 +17,6 @@
             alert("Acesso restrito! Redirecionando para o login...");
             window.location.href = "login.html"; 
         }
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-function beep(freq = 800, duration = 120, type = "ok") {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-
-    // tipos de som
-    if (type === "ok") freq = 700;        // produto adicionado
-    if (type === "error") freq = 180;     // erro
-    if (type === "warn") freq = 450;      // estoque baixo
-    if (type === "success") freq = 900;   // venda finalizada
-
-    osc.frequency.value = freq;
-    osc.type = "square";
-
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-
-    osc.start();
-    osc.stop(audioCtx.currentTime + duration / 1000);
-}
-function feedbackVisual(tipo) {
-    const el = document.body;
-
-    el.style.filter = "brightness(1.5)";
-    setTimeout(() => {
-        el.style.filter = "brightness(1)";
-    }, 120);
-
-    console.log("FEEDBACK:", tipo);
-}
     </script>
 </head>
 <body class="sem-sidebar fundo-marrom">
@@ -220,6 +187,25 @@ function feedbackVisual(tipo) {
     
     // NOVO: Controle de trava contra dupla leitura acidental
     let estaProcessando = false;
+    // ===== SONS DO PDV =====
+const beepSucesso = new Audio("sounds/success.mp3");
+const beepErro = new Audio("sounds/error.mp3");
+const beepBeep = new Audio("sounds/beep.mp3");
+
+function tocarSucesso() {
+    beepSucesso.currentTime = 0;
+    beepSucesso.play();
+}
+
+function tocarErro() {
+    beepErro.currentTime = 0;
+    beepErro.play();
+}
+
+function tocarBeep() {
+    beepBeep.currentTime = 0;
+    beepBeep.play();
+}
 
     window.addEventListener("load", () => {
     setTimeout(() => {
@@ -432,6 +418,7 @@ inp_codb.addEventListener("keydown", (event) => {
         return res.json();
     })
     .then(data => {
+        tocarBeep();
         const produto = Array.isArray(data) ? data[0] : data;
         if (!produto) throw new Error("Dados do produto inválidos");
 
@@ -467,11 +454,8 @@ inp_codb.addEventListener("keydown", (event) => {
             qtd_min: Number(produto.qtd_min || 0)
         });
         }
-        beep(0, 0, "ok");
-        feedbackVisual("ok");
 
         if (Number(produto.qtd) <= 0) {
-            beep(0, 0, "warn");
 
 alert(`O produto "${produto.nome}" está sem estoque.`);
 
@@ -511,14 +495,15 @@ return;
         finalizarLeitura(codigo); 
     })
     .catch(err => {
+        tocarErro();
         console.error("Erro na requisição:", err);
         
         const overlay = document.getElementById("erro_overlay");
         if (overlay) {
+            tocarErro();
             overlay.style.display = "flex";
             setTimeout(() => { overlay.style.display = "none"; }, 1500);
         }
-        beep(0, 0, "error");
         
         img_prod.src = IMG_PADRAO;
         finalizarLeitura(""); 
@@ -690,7 +675,7 @@ return qtdAdicionados;
 
 nova_venda.addEventListener("click", () => {
     const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
-
+    tocarSucesso();
     apiFetch(`${URL_BACKEND_CAD}/pedidos`, {
         method: "POST",
         headers: {
@@ -723,7 +708,6 @@ nova_venda.addEventListener("click", () => {
         if (qtdAdicionados > 0) {
             alert(`${qtdAdicionados} produto(s) foram adicionados automaticamente à lista de reposição.`);
         }
-        beep(0, 0, "success");
 
         // 4. Limpa o PDV para a próxima venda
         resetarPDV();
@@ -731,13 +715,14 @@ nova_venda.addEventListener("click", () => {
         // --------------------------------
     })
     .catch(err => {
+        tocarErro();
         console.error("Erro ao salvar pedido:", err);
         alert("Erro ao salvar o pedido. Verifique o console.");
     });
 });
 
     document.getElementById("b_canc").addEventListener("click", resetarPDV);
-
+    
     const dialogBusca = document.getElementById("dialogBusca");
     const inputBusca = document.getElementById("inputBusca");
     const lista = document.getElementById("listaSugestoes");
