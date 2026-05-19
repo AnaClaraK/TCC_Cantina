@@ -91,32 +91,42 @@ CREATE TABLE IF NOT EXISTS `contas_fiado` (
   `data_vencimento` date NOT NULL,
   `data_pagamento` datetime DEFAULT NULL,
   `status` enum('Pendente','Pago','Atrasado') DEFAULT 'Pendente',
+  `origem` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id_conta`),
   KEY `id_cliente` (`id_cliente`),
   CONSTRAINT `contas_fiado_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `clientes_fiado` (`id_cliente`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.contas_fiado: ~1 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.contas_fiado: ~2 rows (aproximadamente)
 DELETE FROM `contas_fiado`;
-INSERT INTO `contas_fiado` (`id_conta`, `id_cliente`, `valor_original`, `valor_final`, `juros_aplicado`, `data_criacao`, `data_vencimento`, `data_pagamento`, `status`) VALUES
-	(9, 1, 103.50, 103.50, 0, '2026-05-14 16:56:18', '2026-05-30', '2026-05-23 00:00:00', 'Pago');
+INSERT INTO `contas_fiado` (`id_conta`, `id_cliente`, `valor_original`, `valor_final`, `juros_aplicado`, `data_criacao`, `data_vencimento`, `data_pagamento`, `status`, `origem`) VALUES
+	(9, 1, 103.50, 103.50, 0, '2026-05-14 16:56:18', '2026-05-30', '2026-05-23 00:00:00', 'Pendente', ''),
+	(13, 1, 9.56, 9.56, 0, '2026-05-19 08:38:50', '2026-05-28', '2026-05-29 00:00:00', 'Pago', NULL),
+	(14, 1, 3.80, 3.80, 0, '2026-05-19 08:49:53', '2026-06-04', NULL, 'Pendente', 'loja');
 
 -- Copiando estrutura para tabela cantina.conta_fiado_prod
 DROP TABLE IF EXISTS `conta_fiado_prod`;
 CREATE TABLE IF NOT EXISTS `conta_fiado_prod` (
-  `id_conta` int(11) NOT NULL AUTO_INCREMENT,
+  `id_contprod` int(11) NOT NULL AUTO_INCREMENT,
+  `id_conta` int(11) NOT NULL,
   `id_produto` int(11) DEFAULT NULL,
   `qtd` int(11) DEFAULT NULL,
-  `valor_unit` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id_conta`),
+  `valor_unit` decimal(10,2) DEFAULT NULL,
+  PRIMARY KEY (`id_contprod`),
   KEY `Index 2` (`id_produto`),
-  CONSTRAINT `FK__produtos_fiado` FOREIGN KEY (`id_produto`) REFERENCES `produtos` (`id_produto`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+  KEY `Index 3` (`id_conta`),
+  CONSTRAINT `FK__produtos_fiado` FOREIGN KEY (`id_produto`) REFERENCES `produtos` (`id_produto`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `FK_conta_fiado_prod_contas_fiado` FOREIGN KEY (`id_conta`) REFERENCES `contas_fiado` (`id_conta`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.conta_fiado_prod: ~0 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.conta_fiado_prod: ~4 rows (aproximadamente)
 DELETE FROM `conta_fiado_prod`;
-INSERT INTO `conta_fiado_prod` (`id_conta`, `id_produto`, `qtd`, `valor_unit`) VALUES
-	(9, 10, 5, 21);
+INSERT INTO `conta_fiado_prod` (`id_contprod`, `id_conta`, `id_produto`, `qtd`, `valor_unit`) VALUES
+	(13, 9, 10, 5, 21.00),
+	(14, 13, 3, 1, 4.00),
+	(15, 13, 2, 1, 4.00),
+	(16, 13, 1, 1, 2.00),
+	(17, 14, 3, 1, 3.80);
 
 -- Copiando estrutura para tabela cantina.pedidos
 DROP TABLE IF EXISTS `pedidos`;
@@ -134,7 +144,7 @@ CREATE TABLE IF NOT EXISTS `pedidos` (
   PRIMARY KEY (`id_pedido`),
   KEY `Index 2` (`id_user`),
   CONSTRAINT `FK_pedidos_users` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE NO ACTION ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 -- Copiando dados para a tabela cantina.pedidos: ~20 rows (aproximadamente)
 DELETE FROM `pedidos`;
@@ -224,12 +234,12 @@ CREATE TABLE IF NOT EXISTS `produtos` (
   CONSTRAINT `FK_produtos_categorias` FOREIGN KEY (`id_categoria`) REFERENCES `categorias` (`id_categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.produtos: ~68 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.produtos: ~70 rows (aproximadamente)
 DELETE FROM `produtos`;
 INSERT INTO `produtos` (`id_produto`, `id_categoria`, `codigo_barras`, `nome`, `descricao`, `preco`, `qtd`, `img`, `qtd_min`) VALUES
-	(1, 1, '100', 'Café coado 50ml', '', 2.26, 5, 'cafe_50.jpg', 3),
-	(2, 1, '4006381492355', 'Café coado 100ml', '', 3.50, 9, 'cafe_100.png', 1),
-	(3, 1, '102', 'Pingado 150ml', '', 3.80, 10, 'cafe_pingado.png', 1),
+	(1, 1, '100', 'Café coado 50ml', '', 2.26, 4, 'cafe_50.jpg', 3),
+	(2, 1, '4006381492355', 'Café coado 100ml', '', 3.50, 8, 'cafe_100.png', 1),
+	(3, 1, '102', 'Pingado 150ml', '', 3.80, 8, 'cafe_pingado.png', 1),
 	(4, 1, '103', 'Chocolate quente 200ml', '', 6.94, 15, 'cafe.png', 1),
 	(5, 2, '104', 'Arroz, Strogonoff de frango P', '', 18.60, 20, 'arroz_strog.png', 1),
 	(6, 2, '105', 'Arroz, Strogonoff de frango M', '', 19.50, 0, 'arroz_strog.jpg', 1),
