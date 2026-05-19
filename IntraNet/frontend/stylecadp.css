@@ -393,3 +393,66 @@ h2 { margin: 5px 0; font-size: 22px; }
         width: 350px;
     }
 }
+
+/* ============================================================
+   ESTILO DO MODAL DE AVISO 
+   ============================================================ */
+   #d_aviso {
+    border: 3px solid #efac4a;
+    border-radius: 12px;
+    padding: 0;
+    width: 350px;
+    background: #1c1c1c;
+    color: #f8c471;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    text-align: center;
+}
+
+#d_aviso::backdrop {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.aviso_box {
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#msg_aviso {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.aviso_botoes {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+#b_confirmar_aviso, 
+#b_cancelar_aviso {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    transition: 0.2s;
+}
+
+#b_confirmar_aviso {
+    background-color: #efac4a;
+    color: #1c1c1c;
+}
+
+#b_cancelar_aviso {
+    background-color: #333;
+    color: #f8c471;
+    border: 1px solid #efac4a;
+}
+
+#b_confirmar_aviso:hover {
+    filter: brightness(1.2);
+}

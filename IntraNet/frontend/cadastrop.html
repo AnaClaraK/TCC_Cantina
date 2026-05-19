@@ -13,13 +13,9 @@
             const token = localStorage.getItem("token");
     
             if (!token) {
-                // 1. Exibe a mensagem primeiro
+                // Como o diálogo ainda não carregou aqui no head, mantemos a estratégia de segurança
                 alert("Acesso restrito! Redirecionando para o login...");
-                
-                // 2. Só então redireciona
                 window.location.replace("login.html"); 
-                
-                // 3. Força a interrupção da leitura do resto do HTML
                 throw new Error("Acesso negado: Redirecionando...");
             }
         })();
@@ -27,15 +23,15 @@
 </head>
 <body class="fundo-escuro">
     <main class="main-cadastro">
-        <form id="formProduto" enctype="multipart/form-data">
+        <form id="formProduto" enctype="multipart/form-data" novalidate>
             <h2>Cadastro de Produto</h2>
 
-            <input type="text" name="codigo" class="inp_p" placeholder="Código" required>
-            <input type="text" name="nome" class="inp_p" placeholder="Nome" required>
-            <input type="text" name="descricao" class="inp_p" placeholder="Descrição">
-            <input type="number" name="preco" class="inp_p" placeholder="Preço" step="0.01" required>
-            <input type="number" name="quantidade" class="inp_p" placeholder="Quantidade" required>
-            <select name="id_categoria" id="categoria" class="inp_p" required>
+            <input type="text" name="codigo" id="codigo" class="inp_p" placeholder="Código">
+            <input type="text" name="nome" id="nome" class="inp_p" placeholder="Nome">
+            <input type="text" name="descricao" id="descricao" class="inp_p" placeholder="Descrição">
+            <input type="number" name="preco" id="preco" class="inp_p" placeholder="Preço" step="0.01">
+            <input type="number" name="quantidade" id="quantidade" class="inp_p" placeholder="Quantidade">
+            <select name="id_categoria" id="categoria" class="inp_p">
                 <option value="">Selecione a categoria</option>
             </select>
             <label class="file-label">
@@ -49,7 +45,46 @@
         </form>
     </main>
 
+    <dialog id="d_aviso">
+        <div class="aviso_box">
+            <p id="msg_aviso"></p>
+            <div class="aviso_botoes">
+                <button id="b_confirmar_aviso">OK</button>
+                <button id="b_cancelar_aviso" style="display:none;">Cancelar</button>
+            </div>
+        </div>
+    </dialog>
+
     <script>
+        // Variáveis para o novo aviso
+        const aviso = document.getElementById("d_aviso");
+        const msgAviso = document.getElementById("msg_aviso");
+        const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
+        const bCancelarAviso = document.getElementById("b_cancelar_aviso");
+
+        // Função para exibir aviso bonitinho
+        function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
+            msgAviso.innerText = mensagem;
+            bCancelarAviso.style.display = mostrarCancelar ? "block" : "none";
+
+            aviso.showModal();
+
+            bConfirmarAviso.onclick = () => {
+                aviso.close();
+                if (callback) callback();
+            };
+
+            bCancelarAviso.onclick = () => {
+                aviso.close();
+
+                if (window.checkboxAtual) {
+                    window.checkboxAtual.checked = false;
+                    window.checkboxAtual.blur();
+                    window.checkboxAtual = null;
+                }
+            };
+        }
+
         const inputImagem = document.getElementById("inputImagem");
         const preview = document.getElementById("preview");
 
@@ -63,6 +98,35 @@
 
         document.getElementById("formProduto").addEventListener("submit", async (e) => {
             e.preventDefault();
+
+            // Pega os valores dos campos para validação manual
+            const codigo = document.getElementById("codigo").value.trim();
+            const nome = document.getElementById("nome").value.trim();
+            const preco = document.getElementById("preco").value;
+            const qtd = document.getElementById("quantidade").value;
+            const categoria = document.getElementById("categoria").value;
+
+            // Validações que disparam o seu Modal Customizado
+            if (nome === "---" || !codigo || !nome) {
+                exibirAviso("Por favor, preencha o código e o nome do produto corretamente.");
+                return;
+            }
+
+            if (!preco || preco <= 0) {
+                exibirAviso("Digite um preço válido.");
+                return;
+            }
+
+            if (!qtd || qtd <= 0) {
+                exibirAviso("Digite uma quantidade válida.");
+                return;
+            }
+
+            if (!categoria) {
+                exibirAviso("Selecione uma categoria para o produto.");
+                return;
+            }
+
             const formData = new FormData(e.target);
 
             try {
@@ -73,45 +137,38 @@
                 const data = await res.json();
 
                 if(res.ok){
-                    alert(data.mensagem);
+                    exibirAviso(data.mensagem || "Produto cadastrado com sucesso!");
                     e.target.reset();
                     preview.style.display = "none";
                 }
                 else{
-                    alert(data.erro || "Erro ao cadastrar.");
+                    exibirAviso(data.erro || "Erro ao cadastrar.");
                 }
             } catch (err) {
-                alert("Erro de servidor.");
+                exibirAviso("Erro de servidor.");
             }
         });
-async function carregarCategorias() {
 
-    try {
+        async function carregarCategorias() {
+            try {
+                const res = await apiFetch("http://localhost:3000/categorias");
+                const categorias = await res.json();
+                const select = document.getElementById("categoria");
 
-        const res = await apiFetch("http://localhost:3000/categorias");
+                categorias.forEach(cat => {
+                    select.innerHTML += `
+                        <option value="${cat.id_categoria}">
+                            ${cat.nome}
+                        </option>
+                    `;
+                });
+            } catch (err) {
+                console.error(err);
+                exibirAviso("Erro ao carregar categorias");
+            }
+        }
 
-        const categorias = await res.json();
-
-        const select = document.getElementById("categoria");
-
-        categorias.forEach(cat => {
-
-            select.innerHTML += `
-                <option value="${cat.id_categoria}">
-                    ${cat.nome}
-                </option>
-            `;
-        });
-
-    } catch (err) {
-
-        console.error(err);
-        alert("Erro ao carregar categorias");
-    }
-}
-
-carregarCategorias();
-
+        carregarCategorias();
     </script>
 </body>
 </html>

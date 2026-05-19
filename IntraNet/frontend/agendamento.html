@@ -11,12 +11,6 @@
     <script>
         // Verifica se existe um token no localStorage
         const token = localStorage.getItem("token");
-
-        if (!token) {
-            // Se não tem token, nem carrega o resto da página
-            alert("Acesso restrito! Redirecionando para o login...");
-            window.location.href = "login.html";
-        }
     </script>
 </head>
 <body class="fundo-escuro">
@@ -181,7 +175,7 @@ async function concluirAgendamento(idPedido, checkbox) {
     );
 }
 function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
-    msgAviso.innerText = mensagem;
+    msgAviso.innerText = message = mensagem;
     bCancelarAviso.style.display = mostrarCancelar ? "inline-block" : "none";
     aviso.showModal();
 
@@ -207,7 +201,7 @@ inputBusca.addEventListener("keyup", function () {
 
     linhas.forEach(linha => {
         // Pegamos o texto da coluna Nome (índice 0) e da coluna Data (índice 4)
-        const colunas = linha.getElementsByTagName("td");
+        const colunas = line = linha.getElementsByTagName("td");
         
         // Se a linha for a de "Nenhum agendamento encontrado", ela não terá 6 colunas
         if (colunas.length >= 5) {
@@ -223,6 +217,18 @@ inputBusca.addEventListener("keyup", function () {
         }
     });
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (!token) {
+        exibirAviso(
+            "Acesso restrito! Redirecionando para o login...",
+            () => {
+                window.location.href = "login.html";
+            }
+        );
+    }
+});
+
 window.addEventListener("load", carregarAgendamentos);
 </script>
 </body>
