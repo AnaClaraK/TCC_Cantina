@@ -13,9 +13,8 @@
         const token = localStorage.getItem("token");
     
         if (!token) {
-            // Se não tem token, nem carrega o resto da página
-            alert("Acesso restrito! Redirecionando para o login...");
-            window.location.href = "login.html"; 
+            // Se não tem token, impede o carregamento visual e joga para o login limpo
+            window.location.replace("login.html"); 
         }
     </script>
 </head>
@@ -107,9 +106,43 @@
         </section>
     </a>
 </section>
+
+<dialog id="d_aviso">
+    <div class="aviso_box">
+        <div id="msg_aviso"></div>
+        <div class="aviso_botoes">
+            <button id="b_confirmar_aviso">OK</button>
+            <button id="b_cancelar_aviso">Cancelar</button>
+        </div>
+    </div>
+</dialog>
+
     <script>
         // Variáveis para controlar qual mês estamos vendo
 let dataExibicao = new Date();
+
+const modalAviso = document.getElementById("d_aviso");
+const msgAviso = document.getElementById("msg_aviso");
+const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
+const bCancelarAviso = document.getElementById("b_cancelar_aviso");
+
+// Função genérica de aviso estruturada com o seu layout CSS
+function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
+    msgAviso.innerHTML = mensagem;
+    
+    bCancelarAviso.style.display = mostrarCancelar ? "inline-block" : "none";
+
+    modalAviso.showModal();
+
+    bConfirmarAviso.onclick = () => {
+        modalAviso.close();
+        if (callback) callback();
+    };
+
+    bCancelarAviso.onclick = () => {
+        modalAviso.close();
+    };
+}
 
 function atualizarCalendario() {
     const listaDias = document.getElementById("calendario-numeros");
@@ -164,7 +197,6 @@ function mudarMes(direcao) {
 }
 
 // Iniciar ao carregar a página
-// Iniciar ao carregar a página
 async function carregarAgendamentosHome() {
     const tbody = document.getElementById("tb_agendamentos_home");
 
@@ -178,23 +210,16 @@ async function carregarAgendamentosHome() {
         if (!resposta.ok) {
             throw new Error(`Erro HTTP: ${resposta.status}`);
         }
-            // ... dentro de carregarAgendamentosHome ...
-const dados = await resposta.json();
+            
+        const dados = await resposta.json();
 
-// ORDENAÇÃO: Data mais próxima primeiro
-dados.sort((a, b) => {
-    const dataA = new Date(a.data_ag || a.data);
-    const dataB = new Date(b.data_ag || b.data);
-    return dataA - dataB;
-});
+        // ORDENAÇÃO: Data mais próxima primeiro
+        dados.sort((a, b) => {
+            const dataA = new Date(a.data_ag || a.data);
+            const dataB = new Date(b.data_ag || b.data);
+            return dataA - dataB;
+        });
 
-tbody.innerHTML = "";
-
-// O .slice(0, 8) agora pegará os 8 agendamentos mais próximos cronologicamente
-dados.slice(0, 8).forEach(item => {
-    // ... seu código de formatação e montagem da tabela
-});
-        
         tbody.innerHTML = "";
 
         if (!dados || dados.length === 0) {
@@ -210,7 +235,7 @@ dados.slice(0, 8).forEach(item => {
 
         dados.slice(0, 8).forEach(item => {
             // LÓGICA DE FORMATAÇÃO DE DATA E HORA
-            const dataRaw = item.data_ag
+            const dataRaw = item.data_ag;
             let dataFormatada = "---";
 
             if (dataRaw) {
@@ -228,7 +253,7 @@ dados.slice(0, 8).forEach(item => {
             tbody.innerHTML += `
                 <tr>
                     <td>${item.cliente_nome || "Cliente"}</td>
-                    <td>${item.produtos.map(p => p.nome).join(", ")}</td>
+                    <td>${item.produtos ? item.produtos.map(p => p.nome).join(", ") : "---"}</td>
                     <td>${dataFormatada}</td>
                 </tr>
             `;
@@ -236,6 +261,7 @@ dados.slice(0, 8).forEach(item => {
 
     } catch (erro) {
         console.error("Erro ao carregar agendamentos:", erro);
+        exibirAviso("Não foi possível carregar a lista de próximos agendamentos.");
         tbody.innerHTML = `
             <tr>
                 <td colspan="3" class="sem-agendamentos">

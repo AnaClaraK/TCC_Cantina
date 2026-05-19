@@ -29,7 +29,7 @@
     
             if (!token) {
                 // 1. Exibe a mensagem primeiro
-                alert("Acesso restrito! Redirecionando para o login...");
+                exibirAviso("Acesso restrito! Redirecionando para o login...");
                 
                 // 2. Só então redireciona
                 window.location.replace("login.html"); 
@@ -422,18 +422,15 @@ function tentarSelecionarCliente(cliente){
 
         clientePendente = cliente;
 
-        abrirAviso(
+        exibirAviso(
             "Trocar cliente removerá os produtos atuais. Continuar?",
             () => {
-
                 produtosSelecionados = [];
-
                 renderProdutosSelecionados();
-
                 selecionarCliente(clientePendente);
-
                 clientePendente = null;
-            }
+            },
+            true // Ativa o botão cancelar
         );
 
         return;
@@ -508,7 +505,7 @@ document
 
     if(!clienteSelecionado){
 
-        alert("Selecione um cliente primeiro");
+        exibirAviso("Selecione um cliente primeiro");
         return;
     }
 
@@ -541,7 +538,7 @@ document
 
             console.log(erro);
 
-            alert("Erro ao carregar produtos");
+            exibirAviso("Erro ao carregar produtos");
             return;
         }
 
@@ -552,7 +549,7 @@ document
 
             console.log(produtosCache);
 
-            alert("Resposta inválida do servidor");
+            exibirAviso("Resposta inválida do servidor");
             return;
         }
 
@@ -562,7 +559,7 @@ document
 
         console.log(err);
 
-        alert("Erro de conexão");
+        exibirAviso("Erro de conexão");
     }
 };
 
@@ -633,7 +630,7 @@ if(existe){
 
     if(existe.qtdSelecionada >= estoque){
 
-        alert("Estoque máximo atingido");
+        exibirAviso("Estoque máximo atingido");
         return;
     }
 
@@ -643,7 +640,7 @@ if(existe){
 
     if(estoque <= 0){
 
-        alert("Produto sem estoque");
+        exibirAviso("Produto sem estoque");
         return;
     }
 
@@ -675,7 +672,7 @@ if(
     &&
     produto.qtdSelecionada >= produto.estoque
 ){
-    alert("Limite do estoque");
+    exibirAviso("Limite do estoque");
     return;
 }
 
@@ -709,7 +706,7 @@ if(valor > produto.estoque){
 
     valor = produto.estoque;
 
-    alert("Quantidade ajustada ao estoque");
+    exibirAviso("Quantidade ajustada ao estoque");
 }
 
 if(valor <= 0){
@@ -827,19 +824,19 @@ document
 
     if(!clienteSelecionado){
 
-        alert("Selecione um cliente");
+        exibirAviso("Selecione um cliente");
         return;
     }
 
     if(produtosSelecionados.length <= 0){
 
-        alert("Adicione produtos");
+        exibirAviso("Adicione produtos");
         return;
     }
 
     if(!data){
 
-        alert("Selecione uma data");
+        exibirAviso("Selecione uma data");
         return;
     }
 
@@ -890,7 +887,7 @@ document
 
     if(res.ok){
 
-        alert("Compra salva");
+        exibirAviso("Compra salva");
 
         modalFiado.close();
 
@@ -900,7 +897,7 @@ document
 
     }else{
 
-        alert("Erro ao salvar");
+        exibirAviso("Erro ao salvar");
     }
 };
 
@@ -908,67 +905,72 @@ document
 NOVO CLIENTE
 ====================================================== */
 
-document
-.getElementById("b_addf")
-.onclick = async () => {
+document.getElementById("b_addf").onclick = async () => {
+    // Captura os valores removendo espaços vazios extras com .trim()
+    const nome = document.getElementById("nome").value.trim();
+    const cpf = document.getElementById("cpf").value.trim();
+    const telefone = document.getElementById("telefone").value.trim();
+    const endereco = document.getElementById("endereco").value.trim();
 
-    const nome =
-    document.getElementById("nome").value;
-
-    const cpf =
-    document.getElementById("cpf").value;
-
-    const telefone =
-    document.getElementById("telefone").value;
-
-    const endereco =
-    document.getElementById("endereco").value;
-
-    if(!nome){
-
-        alert("Digite o nome");
-        return;
+    // VALIDAÇÃO: Exige que absolutamente TODOS os campos possuam conteúdo
+    if (!nome || !cpf || !telefone || !endereco) {
+        exibirAviso("Por favor, preencha todas as informações (Nome, CPF, Telefone e Endereço) para realizar o cadastro.");
+        return; 
     }
 
-    const res = await fetch(
-        "http://localhost:3000/clientes-fiado",
-        {
-            method:"POST",
-
-            headers:{
-                "Content-Type":
-                "application/json",
-
-                Authorization:
-                `Bearer ${localStorage.getItem("token")}`
-            },
-
-            body: JSON.stringify({
-
-                nome_completo: nome,
-                cpf,
-                telefone,
-                endereco
-            })
+    try {
+        const token = localStorage.getItem("token");
+        
+        // Verifica localmente se o usuário tem um token antes de gastar rede
+        if (!token) {
+            exibirAviso("Sua sessão expirou ou você não está autenticado. Redirecionando para a página de login...", () => {
+                window.location.replace("login.html");
+            });
+            return;
         }
-    );
 
-    if(res.ok){
+        const res = await fetch("http://localhost:3000/clientes-fiado", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                nome_completo: nome,
+                cpf: cpf,
+                telefone: telefone,
+                endereco: endereco
+            })
+        });
 
-        alert("Cliente cadastrado");
+        // AUTENTICAÇÃO: Captura respostas de erro do servidor de sessão inválida/expirada (401 ou 403)
+        if (res.status === 401 || res.status === 403) {
+            exibirAviso("Erro de autenticação! Você precisa refazer o login.", () => {
+                window.location.replace("login.html");
+            });
+            return;
+        }
 
-        modalCliente.close();
+        if (res.ok) {
+            exibirAviso("Cliente cadastrado com sucesso!");
+            
+            modalCliente.close();
 
-        document.getElementById("nome").value = "";
-        document.getElementById("cpf").value = "";
-        document.getElementById("telefone").value = "";
-        document.getElementById("endereco").value = "";
+            // Reseta o formulário
+            document.getElementById("nome").value = "";
+            document.getElementById("cpf").value = "";
+            document.getElementById("telefone").value = "";
+            document.getElementById("endereco").value = "";
 
-        carregarClientesModal();
+            carregarClientesModal();
+        } else {
+            // Trata outros erros do servidor (como CPF já cadastrado)
+            exibirAviso("Erro ao cadastrar. Verifique se os dados estão corretos ou se o cliente já existe.");
+        }
 
-    }else{
-
-        alert("Erro ao cadastrar");
+    } catch (err) {
+        console.error(err);
+        exibirAviso("Não foi possível conectar ao servidor. Verifique sua conexão de rede.");
     }
 };
 
@@ -976,22 +978,28 @@ document
 MODAL AVISO
 ====================================================== */
 
-function abrirAviso(msg, callback){
-
-    msgAviso.innerText = msg;
+function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
+    msgAviso.innerHTML = mensagem;
+    
+    // Controla se o botão cancelar aparece (para perguntas) ou some (para exibirAvisoas comuns)
+    bCancelarAviso.style.display = mostrarCancelar ? "inline-block" : "none";
 
     modalAviso.showModal();
 
     bConfirmarAviso.onclick = () => {
-
         modalAviso.close();
-
-        callback();
+        if (callback) callback();
     };
 
     bCancelarAviso.onclick = () => {
-
         modalAviso.close();
+
+        // Se o aviso veio de um checkbox de tabela, desmarca ele ao cancelar
+        if (checkboxAtual) {
+            checkboxAtual.checked = false;
+            checkboxAtual.blur();
+            checkboxAtual = null;
+        }
     };
 }
 
@@ -1111,56 +1119,28 @@ let contaSelecionada = null;
 let checkboxAtual = null;
 
 function abrirModalPagamento(idConta, checkbox){
-
     if(!checkbox.checked) return;
 
     checkboxAtual = checkbox;
-
     contaSelecionada = idConta;
 
-    msgAviso.innerHTML = `
+    const modalConteudo = `
         Deseja concluir o pagamento?
-
         <br><br>
-
-        <input
-            type="date"
-            id="inp_data_pagamento"
-            class="inp_m"
-        >
+        <input type="date" id="inp_data_pagamento" class="inp_m">
     `;
 
-    modalAviso.showModal();
-
-    bCancelarAviso.style.display = "inline-block";
-
-    bConfirmarAviso.onclick = async () => {
-
-        const data =
-        document.getElementById("inp_data_pagamento").value;
+    exibirAviso(modalConteudo, async () => {
+        const data = document.getElementById("inp_data_pagamento").value;
 
         if(!data){
-
-            alert("Selecione a data");
+            exibirAviso("Selecione a data para prosseguir.", () => {
+                abrirModalPagamento(idConta, checkbox);
+            });
             return;
         }
-
-        modalAviso.close();
-
-        await pagarConta(
-            contaSelecionada,
-            data
-        );
-    };
-
-    bCancelarAviso.onclick = () => {
-
-        modalAviso.close();
-
-        checkbox.checked = false;
-
-        checkbox.blur();
-    };
+        await pagarConta(contaSelecionada, data);
+    }, true);
 }
 async function pagarConta(idConta, dataPagamento){
 
@@ -1193,7 +1173,7 @@ try{
 
 }catch(err){
 
-    alert("Erro ao concluir pagamento");
+    exibirAviso("Erro ao concluir pagamento");
 
     if(checkboxAtual){
 
@@ -1228,7 +1208,7 @@ async function pagarConta(idConta, dataPagamento){
 
     }else{
 
-        alert("Erro ao pagar");
+        exibirAviso("Erro ao pagar");
     }
 }
 carregarContasFiado();

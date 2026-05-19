@@ -9,13 +9,12 @@
     <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
     <title>Editar Perfil</title>
     <script>
-        // Verifica se existe um token no localStorage
+        // Verifica se existe um token no localStorage antes de renderizar a página
         const token = localStorage.getItem("token");
     
         if (!token) {
-            // Se não tem token, nem carrega o resto da página
-            alert("Acesso restrito! Redirecionando para o login...");
-            window.location.href = "login.html"; 
+            // Se não tem token, joga direto para o login de forma limpa
+            window.location.replace("login.html");
         }
     </script>
 </head>
@@ -63,7 +62,41 @@
         </div>
     </form>
 
+    <dialog id="d_aviso">
+        <div class="aviso_box">
+            <div id="msg_aviso"></div>
+            <div class="aviso_botoes">
+                <button id="b_confirmar_aviso">OK</button>
+                <button id="b_cancelar_aviso">Cancelar</button>
+            </div>
+        </div>
+    </dialog>
+
     <script>
+        const modalAviso = document.getElementById("d_aviso");
+        const msgAviso = document.getElementById("msg_aviso");
+        const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
+        const bCancelarAviso = document.getElementById("b_cancelar_aviso");
+
+        // Função idêntica à do outro arquivo, respeitando as classes CSS do seu layout
+        function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
+            msgAviso.innerHTML = mensagem;
+            
+            // Controla se o botão cancelar aparece ou não
+            bCancelarAviso.style.display = mostrarCancelar ? "inline-block" : "none";
+
+            modalAviso.showModal();
+
+            bConfirmarAviso.onclick = () => {
+                modalAviso.close();
+                if (callback) callback();
+            };
+
+            bCancelarAviso.onclick = () => {
+                modalAviso.close();
+            };
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const nome = localStorage.getItem("usuarioNome");
             const email = localStorage.getItem("usuarioEmail");
@@ -113,13 +146,14 @@
                     localStorage.setItem("usuarioEmail", dados.novoEmail);
                     if(dados.novaFoto) localStorage.setItem("usuarioFoto", dados.novaFoto);
                     
-                    alert("Perfil atualizado!");
-                    window.location.reload(); 
+                    exibirAviso("Perfil updated!", () => {
+                        window.location.reload(); 
+                    });
                 } else {
-                    alert(dados.resposta || "Erro ao salvar.");
+                    exibirAviso(dados.resposta || "Erro ao salvar.");
                 }
             } catch (error) {
-                alert("Erro de conexão.");
+                exibirAviso("Erro de conexão.");
             }
         });
     </script>
