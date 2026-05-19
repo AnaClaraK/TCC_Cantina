@@ -1199,7 +1199,7 @@ app.get("/agendamento", verificarToken, async (req, res) => {
                 p.qtd_total,
                 p.form_pag,
                 p.status,
-                p.origem
+                p.origem,
                 u.nome AS cliente_nome,
                 i.id_produto,
                 pr.nome AS produto_nome,

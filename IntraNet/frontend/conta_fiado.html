@@ -189,6 +189,13 @@ MODAL COMPRA
         </p>
 
         <input
+            type="text"
+            class="inp_m"
+            id="inp_origem_fiado"
+            placeholder="Origem (ex: Loja, WhatsApp, Instagram...)"
+        >
+
+        <input
             type="date"
             class="inp_m"
             id="inp_data_fiado"
@@ -793,10 +800,16 @@ document
 .getElementById("b_salvar_fiado")
 .onclick = async () => {
 
-    const data =
+        const data =
     document
     .getElementById("inp_data_fiado")
     .value;
+
+    const origem =
+    document
+    .getElementById("inp_origem_fiado")
+    .value
+    .trim();
 
     if(!clienteSelecionado){
 
@@ -851,6 +864,9 @@ document
 
                 vencimento:
                 data,
+
+                origem:
+                origem,
 
                 produtos:
                 produtosSelecionados
@@ -990,6 +1006,10 @@ function limparCompra(){
     document
     .getElementById("s_total_fiado")
     .innerText = "R$ 0,00";
+    
+    document
+    .getElementById("inp_origem_fiado")
+    .value = "";
 
     areaProdutosModal.innerHTML = "";
 
