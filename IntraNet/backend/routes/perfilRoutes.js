@@ -17,6 +17,7 @@ const {
   uploadPerfil
 } =
 require('../config/multer');
+const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
 
 // ----- Atualizar perfil (Protegido)
 router.put("/perfil/atualizar", verificarToken, uploadPerfil.single("imagem"), async (req, res) => {

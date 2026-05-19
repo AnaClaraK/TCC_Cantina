@@ -18,7 +18,7 @@ const {
 }
 =
 require('../config/multer');
-
+const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
 
 //--------- Cadastro produtos add
 router.post("/produtos", verificarToken, uploadProdutos.single("imagem"), async (req, res) => {

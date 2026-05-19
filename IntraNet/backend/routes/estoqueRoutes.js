@@ -10,6 +10,7 @@ require('../db');
 
 const verificarToken =
 require('../middlewares/auth');
+const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
 //-------------------------------- ESTOQUE
 router.get("/produtos", verificarToken, async (req, res) => {
     try {

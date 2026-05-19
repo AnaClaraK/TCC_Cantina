@@ -10,6 +10,7 @@ require('../db');
 
 const verificarToken =
 require('../middlewares/auth');
+const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
 //--PDV rota pedidos
 router.post("/pedidos", verificarToken, async (req, res) => {
     const conn = await conexao.getConnection();

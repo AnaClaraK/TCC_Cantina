@@ -11,11 +11,15 @@ require('crypto');
 const conexao =
 require('../db');
 
+const jwt = require('jsonwebtoken');
+
 const {
     uploadPerfil
   } = require('../config/multer');
+
   const verificarToken =
 require('../middlewares/auth');
+const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
 //-------- Cadastro Funcionários
 router.post("/cadastro", uploadPerfil.single("imagem"), async (req, res) => {
     try {
