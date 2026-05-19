@@ -121,7 +121,7 @@ async function apiFetch(url, options) {
 
 const modal = document.getElementById("d_modal");
 const b_addq = document.getElementById("b_addq");
-const b_addf = document.getElementById("b_addf");
+const b_addf = document.querySelector(".b_addf");
 const b_close_modal = document.getElementById("b_close_modal");
 const b_apagar_prod = document.getElementById("b_apagar_prod");
 const b_limpar_lista = document.getElementById("b_limpar_lista");
@@ -432,35 +432,6 @@ async function carregarProdutos() {
         }
     }
 }
-inpBuscaModal.addEventListener("input", () => {
-    const termo = inpBuscaModal.value.toLowerCase().trim();
-    lista.innerHTML = "";
-
-    if (termo === "") return;
-
-    const filtrados = produtosCache.filter(p => {
-        const nomeProd = (p.nome || p.nome_produto || "").toLowerCase();
-        const codProd = String(p.codigo_barras || p.codigo || "").toLowerCase();
-        return nomeProd.includes(termo) || codProd.startsWith(termo);
-    }).slice(0, 5);
-
-    filtrados.forEach(p => {
-        const li = document.createElement("li");
-        const nomeExibicao = p.nome || p.nome_produto || "Sem nome";
-        li.textContent = nomeExibicao;
-
-        li.onclick = () => {
-            inpBuscaModal.value = nomeExibicao;
-            inpBuscaModal.dataset.codigo = p.codigo_barras || p.codigo;
-
-            document.getElementById("s_produto").innerText = nomeExibicao;
-            document.getElementById("s_qtda").innerText = p.qtd || p.quantidade || 0;
-
-            lista.innerHTML = "";
-        };
-        lista.appendChild(li);
-    });
-});
 
 // Chamada inicial para carregar produtos da API e a tabela salva
 document.addEventListener("DOMContentLoaded", () => {

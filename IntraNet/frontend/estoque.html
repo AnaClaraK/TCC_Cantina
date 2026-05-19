@@ -12,11 +12,9 @@
         const token = localStorage.getItem("token");
     
         if (!token) {
-            // Se não tem token, nem carrega o resto da página
-            alert("Acesso restrito! Redirecionando para o login...");
-            window.location.href = "login.html"; 
+            // Se não tem token, impede o carregamento e joga para o login de forma limpa
+            window.location.replace("login.html"); 
         }
-
     </script>
 </head>
 
@@ -75,6 +73,16 @@
     </div>
 </dialog>
 
+<dialog id="d_aviso">
+    <div class="aviso_box">
+        <div id="msg_aviso"></div>
+        <div class="aviso_botoes">
+            <button id="b_confirmar_aviso">OK</button>
+            <button id="b_cancelar_aviso">Cancelar</button>
+        </div>
+    </div>
+</dialog>
+
 <script>
 // Função utilitária para fetch
 async function apiFetch(url, options) {
@@ -91,9 +99,32 @@ const tabela = document.getElementById("tb_tbl_produtos");
 const inpBuscaModal = document.getElementById("inp_busca_modal");
 const lista = document.getElementById("lista_sugestoes");
 
+const modalAviso = document.getElementById("d_aviso");
+const msgAviso = document.getElementById("msg_aviso");
+const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
+const bCancelarAviso = document.getElementById("b_cancelar_aviso");
+
 let produtosCache = [];
 let indexSelecionado = -1;
 const inputBusca = document.getElementById("inputBusca");
+
+// Função genérica de aviso estruturada com o seu layout CSS
+function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
+    msgAviso.innerHTML = message = mensagem;
+    
+    bCancelarAviso.style.display = mostrarCancelar ? "inline-block" : "none";
+
+    modalAviso.showModal();
+
+    bConfirmarAviso.onclick = () => {
+        modalAviso.close();
+        if (callback) callback();
+    };
+
+    bCancelarAviso.onclick = () => {
+        modalAviso.close();
+    };
+}
 
 inputBusca.addEventListener("input", () => {
     const termo = inputBusca.value.toLowerCase();
@@ -145,12 +176,15 @@ b_addf.addEventListener("click", async () => {
     const codigo = inpBuscaModal.dataset.codigo;
 
     if (!codigo) {
-        alert("Selecione um produto");
+        exibirAviso("Selecione um produto primeiro.");
         return;
     }
 
     const qtdAdd = Number(document.getElementById("inp_add_qtd").value);
-    if (qtdAdd <= 0) return alert("Quantidade inválida");
+    if (qtdAdd <= 0) {
+        exibirAviso("Quantidade inválida.");
+        return;
+    }
 
     try {
         await apiFetch(`http://localhost:3000/produtos/cod/${codigo}/add`, {
@@ -166,7 +200,7 @@ b_addf.addEventListener("click", async () => {
         limparModal();
         carregarProdutos();
     } catch (err) {
-        alert("Erro ao atualizar o estoque");
+        exibirAviso("Erro ao atualizar o estoque.");
     }
 });
 

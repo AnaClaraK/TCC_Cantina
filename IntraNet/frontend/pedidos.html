@@ -4,84 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="sidebar_header.js"></script>
+
     <link rel="stylesheet" href="styleag_es.css">
     <link rel="stylesheet" href="layout.css">
-    <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="../backend/imagens/logo_insta.png"
+    >
+
     <title>Histórico de pedido</title>
-    <script>
-        // Verifica se existe um token no localStorage
-        const token = localStorage.getItem("token");
-    
-        if (!token) {
-            // Se não tem token, nem carrega o resto da página
-            alert("Acesso restrito! Redirecionando para o login...");
-            window.location.href = "login.html"; 
-        }
-    </script>
+
 </head>
+
 <body class="fundo-escuro">
+
     <div class="d_util">
 
         <h2 class="h_ag">
             Histórico de pedido
         </h2>
-    
+
         <div id="d_inp">
-    
+
             <div class="busca-box">
 
                 <img
                     src="../backend/imagens/lupa.png"
                     class="icone-busca"
                 >
-            
+
                 <input
                     type="text"
                     id="inputBusca"
                     placeholder="Buscar por nome ou código..."
                 >
-            
+
                 <button id="btnFiltro">
-            
+
                     <img
                         src="../backend/imagens/filtro.png"
                         id="img_funil"
                     >
-            
+
                 </button>
-            
+
                 <div id="menuFiltro">
-            
-                    <div class="itemFiltro ativo" data-origem="todos">
+
+                    <div
+                        class="itemFiltro ativo"
+                        data-origem="todos"
+                    >
                         Todos
                     </div>
-            
-                    <div class="itemFiltro" data-origem="PDV">
+
+                    <div
+                        class="itemFiltro"
+                        data-origem="PDV"
+                    >
                         PDV
                     </div>
-            
-                    <div class="itemFiltro" data-origem="Agendamento">
+
+                    <div
+                        class="itemFiltro"
+                        data-origem="Agendamento"
+                    >
                         Agendamento
                     </div>
-            
-                    <div class="itemFiltro" data-origem="Fiado">
+
+                    <div
+                        class="itemFiltro"
+                        data-origem="Fiado"
+                    >
                         Fiado
                     </div>
-            
+
                 </div>
-            
+
             </div>
-    
-            
-    
+
         </div>
-    
+
     </div>
 
     <section id="sc_tabela" class="container mt-5">
-        
+
         <table class="tabela table-striped table-hover border">
+
             <thead class="table-dark">
+
                 <tr>
                     <th scope="col">Nome do cliente</th>
                     <th scope="col">Pedido n°</th>
@@ -90,57 +102,187 @@
                     <th scope="col">Total da compra</th>
                     <th scope="col">Forma de pagamento</th>
                 </tr>
+
             </thead>
+
             <tbody id="tb_tbl_produtos">
             </tbody>
+
         </table>
-    </section>     
+
+    </section>
+
+    <!-- MODAL -->
+
+    <dialog id="d_aviso">
+
+        <div class="aviso_box">
+
+            <p id="msg_aviso"></p>
+
+            <div class="aviso_botoes">
+
+                <button id="b_confirmar_aviso">
+                    OK
+                </button>
+
+                <button
+                    id="b_cancelar_aviso"
+                    style="display:none;"
+                >
+                    Cancelar
+                </button>
+
+            </div>
+
+        </div>
+
+    </dialog>
 
 <script>
-const inputBusca = document.getElementById('inputBusca');
-const corpoTabela = document.getElementById('tb_tbl_produtos');
+
+
+// ===============================
+// VARIÁVEIS DO MODAL
+// ===============================
+
+const aviso =
+document.getElementById("d_aviso");
+
+const msgAviso =
+document.getElementById("msg_aviso");
+
+const bConfirmarAviso =
+document.getElementById("b_confirmar_aviso");
+
+const bCancelarAviso =
+document.getElementById("b_cancelar_aviso");
+
+
+// ===============================
+// FUNÇÃO DO MODAL
+// ===============================
+
+function exibirAviso(
+    mensagem,
+    callback = null,
+    mostrarCancelar = false
+){
+
+    msgAviso.innerText = mensagem;
+
+    bCancelarAviso.style.display =
+    mostrarCancelar
+    ? "block"
+    : "none";
+
+    aviso.showModal();
+
+    bConfirmarAviso.onclick = () => {
+
+        aviso.close();
+
+        if(callback){
+            callback();
+        }
+    };
+
+    bCancelarAviso.onclick = () => {
+
+        aviso.close();
+
+        if(window.checkboxAtual){
+
+            window.checkboxAtual.checked = false;
+
+            window.checkboxAtual.blur();
+
+            window.checkboxAtual = null;
+        }
+    };
+}
+
+
+// ===============================
+// ELEMENTOS
+// ===============================
+
+const inputBusca =
+document.getElementById('inputBusca');
+
+const corpoTabela =
+document.getElementById('tb_tbl_produtos');
+
 let origemSelecionada = "todos";
 
-// 2. Função que busca e desenha os pedidos
+
+// ===============================
+// BUSCAR PEDIDOS
+// ===============================
+
 async function buscarProdutosEstoque() {
+
     corpoTabela.innerHTML = "";
 
     try {
-        const response = await fetch("http://localhost:3000/historico-pedidos", {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`
+
+        const response =
+        await fetch(
+            "http://localhost:3000/historico-pedidos",
+            {
+                headers: {
+                    Authorization:
+                    `Bearer ${localStorage.getItem("token")}`
+                }
             }
-        });
+        );
 
         if (!response.ok) {
             throw new Error(`Erro HTTP: ${response.status}`);
         }
 
-        const pedidos = await response.json();
+        const pedidos =
+        await response.json();
 
         if (pedidos.length === 0) {
+
             corpoTabela.innerHTML = `
                 <tr>
-                    <td colspan="5">Nenhum pedido finalizado encontrado.</td>
+                    <td colspan="5">
+                        Nenhum pedido finalizado encontrado.
+                    </td>
                 </tr>
             `;
+
             return;
         }
 
         pedidos.forEach(pedido => {
-            const dataFormatada = new Date(pedido.data).toLocaleString("pt-BR");
 
-            const tr = document.createElement("tr");
+            const dataFormatada =
+            new Date(pedido.data)
+            .toLocaleString("pt-BR");
+
+            const tr =
+            document.createElement("tr");
+
             tr.innerHTML = `
-                <td>${pedido.nome || "Cliente"}</td>
 
-                <td>${pedido.num_pedido}</td>
+                <td>
+                    ${pedido.nome || "Cliente"}
+                </td>
+
+                <td>
+                    ${pedido.num_pedido}
+                </td>
 
                 <td>
                     ${pedido.origem || "-"}
                 </td>
 
-                <td>${dataFormatada}</td>
+                <td>
+                    ${dataFormatada}
+                </td>
 
                 <td>
                     R$ ${Number(pedido.valor_total)
@@ -148,91 +290,149 @@ async function buscarProdutosEstoque() {
                         .replace(".", ",")}
                 </td>
 
-                <td>${pedido.form_pag}</td>
+                <td>
+                    ${pedido.form_pag}
+                </td>
+
             `;
 
             corpoTabela.appendChild(tr);
+
         });
 
     } catch (erro) {
-        console.error("Erro ao carregar histórico:", erro);
+
+        console.error(
+            "Erro ao carregar histórico:",
+            erro
+        );
+
         corpoTabela.innerHTML = `
             <tr>
-                <td colspan="5">Erro ao carregar histórico de pedidos.</td>
+                <td colspan="5">
+                    Erro ao carregar histórico de pedidos.
+                </td>
             </tr>
         `;
     }
 }
-// 3. Lógica de busca por Nome ou Código
-inputBusca.addEventListener('keyup', function() {
-    const termo = inputBusca.value.toLowerCase().trim();
-    const linhas = corpoTabela.getElementsByTagName('tr');
 
-    for (let i = 0; i < linhas.length; i++) {
-        const colunas = linhas[i].getElementsByTagName('td');
-        if (colunas.length > 0) {
-            const nomeCliente = colunas[0].textContent.toLowerCase();
-            const numPedido = colunas[1].textContent.toLowerCase();
 
-            if (nomeCliente.includes(termo) || numPedido.includes(termo)) {
-                linhas[i].style.display = ""; 
-            } else {
-                linhas[i].style.display = "none"; 
+// ===============================
+// BUSCA
+// ===============================
+
+inputBusca.addEventListener(
+    'keyup',
+    function() {
+
+        const termo =
+        inputBusca.value
+        .toLowerCase()
+        .trim();
+
+        const linhas =
+        corpoTabela.getElementsByTagName('tr');
+
+        for (let i = 0; i < linhas.length; i++) {
+
+            const colunas =
+            linhas[i].getElementsByTagName('td');
+
+            if (colunas.length > 0) {
+
+                const nomeCliente =
+                colunas[0]
+                .textContent
+                .toLowerCase();
+
+                const numPedido =
+                colunas[1]
+                .textContent
+                .toLowerCase();
+
+                if (
+                    nomeCliente.includes(termo)
+                    ||
+                    numPedido.includes(termo)
+                ) {
+
+                    linhas[i].style.display = "";
+
+                } else {
+
+                    linhas[i].style.display = "none";
+                }
             }
         }
     }
-});
-inputBusca.addEventListener("keyup", aplicarFiltros);
+);
+
+inputBusca.addEventListener(
+    "keyup",
+    aplicarFiltros
+);
+
+
+// ===============================
+// FILTROS
+// ===============================
 
 function aplicarFiltros(){
 
-const termo =
-inputBusca.value
-.toLowerCase()
-.trim();
+    const termo =
+    inputBusca.value
+    .toLowerCase()
+    .trim();
 
-const linhas =
-corpoTabela.getElementsByTagName("tr");
+    const linhas =
+    corpoTabela.getElementsByTagName("tr");
 
-for(let i = 0; i < linhas.length; i++){
+    for(let i = 0; i < linhas.length; i++){
 
-    const colunas =
-    linhas[i].getElementsByTagName("td");
+        const colunas =
+        linhas[i].getElementsByTagName("td");
 
-    if(colunas.length > 0){
+        if(colunas.length > 0){
 
-        const nome =
-        colunas[0]
-        .textContent
-        .toLowerCase();
+            const nome =
+            colunas[0]
+            .textContent
+            .toLowerCase();
 
-        const pedido =
-        colunas[1]
-        .textContent
-        .toLowerCase();
+            const pedido =
+            colunas[1]
+            .textContent
+            .toLowerCase();
 
-        const origem =
-        colunas[2]
-        .textContent
-        .trim();
+            const origem =
+            colunas[2]
+            .textContent
+            .trim();
 
-        const buscaOk =
-        nome.includes(termo)
-        ||
-        pedido.includes(termo);
+            const buscaOk =
+            nome.includes(termo)
+            ||
+            pedido.includes(termo);
 
-        const origemOk =
-        origemSelecionada === "todos"
-        ||
-        origem === origemSelecionada;
+            const origemOk =
+            origemSelecionada === "todos"
+            ||
+            origem === origemSelecionada;
 
-        linhas[i].style.display =
-        buscaOk && origemOk
-        ? ""
-        : "none";
+            linhas[i].style.display =
+            buscaOk && origemOk
+            ? ""
+            : "none";
+        }
     }
 }
-}
+
+
+// ===============================
+// MENU FILTRO
+// ===============================
+
 const btnFiltro =
 document.getElementById("btnFiltro");
 
@@ -253,6 +453,7 @@ btnFiltro.onclick = (e) => {
 };
 
 document.addEventListener("click", (e) => {
+
     if(
         !menuFiltro.contains(e.target)
         &&
@@ -281,7 +482,35 @@ itensFiltro.forEach(item => {
     };
 });
 
-document.addEventListener('DOMContentLoaded', buscarProdutosEstoque);
+
+// ===============================
+// VERIFICA LOGIN
+// ===============================
+
+const token =
+localStorage.getItem("token");
+
+if (!token) {
+
+    exibirAviso(
+        "Acesso restrito! Redirecionando para o login...",
+        () => {
+            window.location.href = "login.html";
+        }
+    );
+}
+
+
+// ===============================
+// CARREGA TABELA
+// ===============================
+
+document.addEventListener(
+    'DOMContentLoaded',
+    buscarProdutosEstoque
+);
+
 </script>
+
 </body>
 </html>

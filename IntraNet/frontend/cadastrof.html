@@ -22,10 +22,10 @@
                     <label class="lb_" for="email">E-mail</label>
                     <input type="email" id="email" class="inp_p input-field" placeholder="Digite o email para cadastro" required>
                     
-                    <label for="senha">Senha</label>
+                    <label class="lb_" for="senha">Senha</label>
                     <input type="password" id="senha" class="inp_p input-field" placeholder="Digite a senha da conta" required>
                     
-                    <label for="confsenha">Confirmar Senha</label>
+                    <label class="lb_" for="confsenha">Confirmar Senha</label>
                     <input type="password" id="confsenha" class="inp_p input-field" placeholder="Confirme a senha" required>
                 </div>
 
@@ -38,11 +38,49 @@
         </div>
     </main>
 
+    <dialog id="d_aviso">
+        <div class="aviso_box">
+            <p id="msg_aviso"></p>
+            <div class="aviso_botoes">
+                <button id="b_confirmar_aviso">OK</button>
+                <button id="b_cancelar_aviso" style="display:none;">Cancelar</button>
+            </div>
+        </div>
+    </dialog>
+
     <script>
+    // Variáveis para o novo aviso globais (acessíveis em todo o script)
+    const aviso = document.getElementById("d_aviso");
+    const msgAviso = document.getElementById("msg_aviso");
+    const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
+    const bCancelarAviso = document.getElementById("b_cancelar_aviso");
+
+    // Função para exibir aviso bonitinho
+    function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
+        msgAviso.innerText = mensagem;
+        bCancelarAviso.style.display = mostrarCancelar ? "block" : "none";
+
+        aviso.showModal();
+
+        bConfirmarAviso.onclick = () => {
+            aviso.close();
+            if (callback) callback();
+        };
+
+        bCancelarAviso.onclick = () => {
+            aviso.close();
+
+            if (window.checkboxAtual) {
+                window.checkboxAtual.checked = false;
+                window.checkboxAtual.blur();
+                window.checkboxAtual = null;
+            }
+        };
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         const formFunc = document.getElementById("formFuncionario");
         const pMessageEl = document.getElementById("respostas");
-        const containerFimEl = document.querySelector(".container-fim");
         const inputs = document.querySelectorAll(".input-field");
 
         // --- FUNÇÃO DE CADASTRO REUTILIZÁVEL ---
@@ -52,17 +90,19 @@
             const senha = document.getElementById("senha").value;
             const confsenha = document.getElementById("confsenha").value;
 
-            // Validação básica de preenchimento
+            // Validação básica de preenchimento usando o modal de aviso
             if (!nome || !email || !senha || !confsenha) {
                 pMessageEl.innerText = "Por favor, preencha todos os campos.";
                 pMessageEl.style.color = "yellow";
+                exibirAviso("Por favor, preencha todos os campos.");
                 return;
             }
 
-            // Validação local de senha
+            // Validação local de senha usando o modal de aviso
             if (senha !== confsenha) {
                 pMessageEl.innerText = "As senhas não coincidem!";
                 pMessageEl.style.color = "red";
+                exibirAviso("As senhas não coincidem!");
                 return;
             }
 
@@ -91,16 +131,23 @@
                 if (resposta.ok) {
                     pMessageEl.innerText = "Cadastro realizado com sucesso! Redirecionando...";
                     pMessageEl.style.color = "green";
-                    setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+                    
+                    // Exibe o modal de sucesso antes de fazer o redirecionamento
+                    exibirAviso("Cadastro realizado com sucesso!", () => {
+                        window.location.href = 'login.html';
+                    });
                 } else {
-                    pMessageEl.innerText = dados.resposta || "Erro ao cadastrar funcionário.";
+                    const msgErro = dados.resposta || "Erro ao cadastrar funcionário.";
+                    pMessageEl.innerText = msgErro;
                     pMessageEl.style.color = "red";
+                    exibirAviso(msgErro);
                 }
 
             } catch (error) {
                 pMessageEl.innerText = "Erro de conexão com o servidor.";
                 pMessageEl.style.color = "red";
                 console.error("Erro de rede:", error);
+                exibirAviso("Erro de conexão com o servidor.");
             }
         };
 
