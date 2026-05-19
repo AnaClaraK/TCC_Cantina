@@ -39,6 +39,44 @@
     }
 })();
 
+function parseJwt(token) {
+    try {
+        return JSON.parse(atob(token.split(".")[1]));
+    } catch {
+        return null;
+    }
+}
+
+function tokenExpirado() {
+    const token = localStorage.getItem("token");
+    if (!token) return true;
+
+    const payload = parseJwt(token);
+    if (!payload || !payload.exp) return true;
+
+    const agora = Date.now() / 1000;
+    return payload.exp < agora;
+}
+
+function logoutForcado() {
+    localStorage.removeItem("token");
+    window.location.replace("login.html");
+}
+
+function checarSessao() {
+    if (tokenExpirado()) {
+        logoutForcado();
+    }
+}
+setInterval(checarSessao, 5000);
+function interceptarEventos() {
+    if (tokenExpirado()) logoutForcado();
+}
+
+["click", "keydown", "input"].forEach(evt => {
+    document.addEventListener(evt, interceptarEventos, true);
+});
+
 
 // 👁️ MOSTRAR TELA (evita piscada)
 document.addEventListener("DOMContentLoaded", () => {
@@ -67,11 +105,6 @@ function logout(){
 async function apiFetch(url, options = {}) {
     const token = localStorage.getItem("token");
 
-    if (!token) {
-        window.location.replace("login.html");
-        return;
-    }
-
     const res = await fetch(url, {
         ...options,
         headers: {
@@ -81,9 +114,7 @@ async function apiFetch(url, options = {}) {
     });
 
     if (res.status === 401 || res.status === 403) {
-        localStorage.clear();
-        window.location.replace("login.html");
-        return;
+        logoutForcado();
     }
 
     return res;

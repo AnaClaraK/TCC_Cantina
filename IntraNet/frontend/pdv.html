@@ -17,6 +17,39 @@
             alert("Acesso restrito! Redirecionando para o login...");
             window.location.href = "login.html"; 
         }
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function beep(freq = 800, duration = 120, type = "ok") {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    // tipos de som
+    if (type === "ok") freq = 700;        // produto adicionado
+    if (type === "error") freq = 180;     // erro
+    if (type === "warn") freq = 450;      // estoque baixo
+    if (type === "success") freq = 900;   // venda finalizada
+
+    osc.frequency.value = freq;
+    osc.type = "square";
+
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration / 1000);
+}
+function feedbackVisual(tipo) {
+    const el = document.body;
+
+    el.style.filter = "brightness(1.5)";
+    setTimeout(() => {
+        el.style.filter = "brightness(1)";
+    }, 120);
+
+    console.log("FEEDBACK:", tipo);
+}
     </script>
 </head>
 <body class="sem-sidebar fundo-marrom">
@@ -434,8 +467,11 @@ inp_codb.addEventListener("keydown", (event) => {
             qtd_min: Number(produto.qtd_min || 0)
         });
         }
+        beep(0, 0, "ok");
+        feedbackVisual("ok");
 
         if (Number(produto.qtd) <= 0) {
+            beep(0, 0, "warn");
 
 alert(`O produto "${produto.nome}" está sem estoque.`);
 
@@ -482,6 +518,7 @@ return;
             overlay.style.display = "flex";
             setTimeout(() => { overlay.style.display = "none"; }, 1500);
         }
+        beep(0, 0, "error");
         
         img_prod.src = IMG_PADRAO;
         finalizarLeitura(""); 
@@ -686,6 +723,7 @@ nova_venda.addEventListener("click", () => {
         if (qtdAdicionados > 0) {
             alert(`${qtdAdicionados} produto(s) foram adicionados automaticamente à lista de reposição.`);
         }
+        beep(0, 0, "success");
 
         // 4. Limpa o PDV para a próxima venda
         resetarPDV();
