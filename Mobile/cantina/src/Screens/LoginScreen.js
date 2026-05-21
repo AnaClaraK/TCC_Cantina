@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, Image, TouchableOpacity, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Importe no topo
-
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from '@expo/vector-icons'; 
 import { Botao } from '../Components/Botoes';
+
+// 🛠️ TRAVA DE DESENVOLVIMENTO:
+// Deixe 'true' para pular o login direto para o app. Mude para 'false' no dia do TCC!
+const MODO_DEV = true; 
 
 export default function LoginScreen() {
     const [email, setEmail] = useState("");
@@ -13,33 +16,78 @@ export default function LoginScreen() {
 
     const navigation = useNavigation();
 
-    async function FazerLogin() {
+    // 🛠️ REDIRECIONAMENTO AUTOMÁTICO PARA DEV
+    useEffect(() => {
+        if (MODO_DEV) {
+            console.log("⚙️ [DEV] MODO_DEV ativo: Pulando tela de login...");
+            // Mude para "MainApp" ou "CardapioScreen" dependendo de como está seu arquivo de rotas
+            navigation.replace("MainApp"); 
+        }
+    }, []);
+
+    const FazerLogin = async () => {
+        const urlAPI = "http://10.111.9.96:3000/login";
+        
+        console.log("\n========================================");
+        console.log("🚀 [LOGIN] Botão clicado!");
+        console.log(`📡 Tentando conectar em: ${urlAPI}`);
+        console.log(`📧 Dados enviados -> Email: "${email}" | Senha: "${senha ? '******' : 'VAZIA'}"`);
+        console.log("========================================");
+
+        if (!email.trim() || !senha.trim()) {
+            console.warn("⚠️ [AVISO] Usuário tentou logar com campos em branco.");
+            Alert.alert("Campos Obrigatórios", "Por favor, preencha o e-mail e a senha.");
+            return;
+        }
+
         try {
-            const resposta = await fetch(`http://10.111.9.96:3001/login`, {
+            console.log("⏳ Aguardando resposta do servidor...");
+            const resposta = await fetch(urlAPI, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: email, senha: senha })
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: email,
+                    senha: senha,
+                }),
             });
+
+            console.log(`📥 Resposta HTTP recebida! Status: ${resposta.status} (${resposta.statusText})`);
             
-            const resultado = await resposta.json();
-            if (resultado.resposta === "true" || resultado.resposta === true) {
-                navigation.navigate("CardapioScreen");
+            const dados = await resposta.json();
+            console.log("📦 Corpo da resposta da API:", dados);
+        
+            if (dados.resposta === "true") {
+                console.log("✅ [SUCESSO] Login validado pelo servidor! Gravando Token...");
+                await AsyncStorage.setItem("token", dados.token); 
+                
+                console.log("🔀 Redirecionando para a tela MainApp.");
+                navigation.replace("MainApp"); 
             } else {
-                Alert.alert("Erro", resultado.mensagem || "Credenciais inválidas");
+                console.log(`❌ [NEGADO] Servidor recusou as credenciais. Motivo: ${dados.mensagem}`);
+                Alert.alert("Erro de Autenticação", dados.mensagem || "Usuário ou senha inválidos.");
             }
-        } catch (error) {
-            Alert.alert("Erro de Conexão", "Não foi possível falar com o servidor.");
+        
+        } catch (erro) {
+            console.log("\n🛑====== ERRO CRÍTICO DE CONEXÃO ======");
+            console.error(" Detalhes técnicos do erro:", erro.message);
+            console.log("\n💡 O QUE FAZER AGORA?");
+            console.log("1. Seu computador e celular estão no MESMO Wi-Fi?");
+            console.log(`2. Teste no navegador do celular se abre: http://10.111.9.96:3000/`);
+            console.log("3. O back-end está ligado no terminal do seu PC?");
+            console.log("4. Adicionou '0.0.0.0' no app.listen do seu Back-end?");
+            console.log("=========================================\n");
+
+            Alert.alert(
+                "Falha na Rede", 
+                "Não foi possível conectar ao servidor.\n\nVerifique se o servidor está ligado e configurado na rede local."
+            );
         }
-        if (resultado.resposta === "true" || resultado.resposta === true) {
-            // SALVAR que o usuário está logado
-            await AsyncStorage.setItem('@usuario_logado', 'true');
-            navigation.replace("MainApp");
-        }
-    }
+    };
 
     return (
         <View style={styles.container}>
-            {/* Agrupamento do topo para garantir centralização vertical em relação ao fundo */}
             <View style={styles.header}>
                 <Image source={require('../../assets/images/logo.png')} style={styles.imagemLogo} />
                 <Text style={styles.texto}>CANTINA</Text>
@@ -55,6 +103,8 @@ export default function LoginScreen() {
                         placeholderTextColor="#888"
                         onChangeText={setEmail}
                         value={email}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
                     />
                 </View>
 
@@ -101,24 +151,24 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#242628',
         alignItems: 'center',
-        justifyContent: 'center', // Centraliza o conteúdo na tela inteira
+        justifyContent: 'center', 
     },
     header: {
         alignItems: 'center',
-        marginBottom: 20, // Espaço entre o texto "Grano Vita" e o quadrado cinza
+        marginBottom: 20, 
     },
     texto: {
         color: '#efac4a',
         fontFamily: 'BebasNeue-Regular',
         fontSize: 80,
-        lineHeight: 85, // Ajuste para a fonte não cortar
-        marginTop: -10, // Aproxima o texto do ícone de cima
+        lineHeight: 85, 
+        marginTop: -10, 
     },
     imagemTopo: { 
         height: 80, 
         width: 300, 
         resizeMode: 'contain',
-        marginTop: -10 // Aproxima o "Grano Vita" do nome "CANTINA"
+        marginTop: -10 
     },
     imagemLogo: { 
         height: 120, 
@@ -128,17 +178,17 @@ const styles = StyleSheet.create({
     quadrado: {
         backgroundColor: '#b0aead',
         width: '90%',
-        paddingVertical: 30, // Espaço interno em cima e embaixo
+        paddingVertical: 30, 
         paddingHorizontal: 20,
         borderRadius: 25,
         alignItems: 'center',
-        justifyContent: 'center', // Centraliza os inputs e botões dentro do quadrado
+        justifyContent: 'center', 
     },
     inputArea: {
         flexDirection: 'row',
         backgroundColor: '#FFFFFF',
         width: '100%',
-        height: 55, // Aumentei um pouco para caber melhor o texto 18
+        height: 55, 
         borderRadius: 15,
         alignItems: 'center',
         paddingHorizontal: 12,
@@ -158,7 +208,7 @@ const styles = StyleSheet.create({
     esqueceuTexto: { 
         color: '#3b5998', 
         textDecorationLine: 'underline',
-        fontSize: 16 // Diminuí um pouco para não brigar com os inputs
+        fontSize: 16 
     },
     ouTexto: { 
         marginVertical: 10, 

@@ -1,23 +1,21 @@
-const express = require('express')
-const cors = require('cors')
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-const conexao = require('./db');
+const express = require('express');
+const router = express.Router();
 
-const app = express()
+const bcrypt = require('bcrypt');
+const conexao = require('../db');
+const jwt = require('jsonwebtoken');
 
-app.use(cors())
-app.use(express.json())
+const {
+    uploadPerfil
+} = require('../config/multer');
 
-const porta = 3001
+const verificarToken =
+require('../middlewares/auth');
 
-const api_chave = process.env.API_SEGREDO
+const SECRET =
+"C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
 
-app.listen(porta, () => { 
-    console.log(`Servidor rodando em: http://localhost:${porta}`)
-  })
-  
-  app.post("/cadastrar", async (req, res) => {
+router.post("/cadastrar", async (req, res) => {
     const { nome, cpf, email, senha } = req.body;
 
     if(email.length <= 3){
@@ -38,7 +36,7 @@ app.listen(porta, () => {
 
     try {
         const novaSenha = await bcrypt.hash(senha, 10);
-        const [resultado] = await conexao.execute(
+        await conexao.execute(
             "INSERT INTO users (nome, cpf, email, senha) values (?,?,?,?)", 
             [nome, cpf, email, novaSenha]
         );
@@ -57,7 +55,7 @@ app.listen(porta, () => {
     }
 });
 
-app.post("/login", async (req, res) => {
+router.post("/logar", async (req, res) => {
     const { email, senha } = req.body;
     try {
         const [usuarios] = await conexao.execute(`SELECT * FROM users WHERE email = ?`, [email]);
@@ -72,10 +70,9 @@ app.post("/login", async (req, res) => {
 
             const token = jwt.sign(
                 { email: email },
-                api_chave || 'fallback_chave',
+                SECRET,
                 { expiresIn: '1h' }
             );
-
             return res.json({
                 "resposta": "true",
                 "token": token,
@@ -90,4 +87,6 @@ app.post("/login", async (req, res) => {
         console.error(error);
         res.status(500).json({ "resposta": "false", "mensagem": "Erro no servidor" });
     }
+    console.log(req.headers.authorization);
 });
+module.exports = router;

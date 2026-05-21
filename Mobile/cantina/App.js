@@ -4,6 +4,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useFonts } from 'expo-font';
+import { LogBox, StatusBar } from 'react-native'; 
+
+// Silencia o aviso do InteractionManager
+LogBox.ignoreLogs(['InteractionManager']);
 
 // ÍCONES
 import { Ionicons, Feather } from '@expo/vector-icons'; 
@@ -13,7 +17,7 @@ import HomeScreen from './src/Screens/HomeScreen';
 import CadastroScreen from './src/Screens/CadastroScreen';
 import LoginScreen from './src/Screens/LoginScreen';
 import CardapioScreen from './src/Screens/CardapioScreen';
-import PerfilScreen from './src/Screens/CardapioScreen'; // Ajuste quando criar o PerfilScreen real
+import PerfilScreen from './src/Screens/PerfilScreen'; 
 import ComprasScreen from './src/Screens/ComprasScreen';
 import BuscarScreen from './src/Screens/BuscarScreen';
 import PedidosScreen from './src/Screens/PedidosScreen'; 
@@ -27,10 +31,11 @@ function TabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        // 🛠️ MUDANÇA AQUI: Remove a faixa preta superior das abas
+        headerShown: false, 
+
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-          let IconComponent = Ionicons;
-
           if (route.name === 'Cardapio') {
             iconName = focused ? 'fast-food' : 'fast-food-outline';
           } else if (route.name === 'Buscar') {
@@ -40,7 +45,6 @@ function TabNavigator() {
           } else if (route.name === 'Perfil') {
             iconName = focused ? 'person' : 'person-outline';
           } else if (route.name === 'Compras') {
-            // Seu carrinho personalizado conforme solicitado
             return (
               <Feather 
                 name="shopping-cart" 
@@ -57,7 +61,7 @@ function TabNavigator() {
             );
           }
 
-          return <IconComponent name={iconName} size={size} color={color} />;
+          return <Ionicons name={iconName} size={size} color={color} />;
         },
 
         tabBarActiveTintColor: '#3E2723',
@@ -86,6 +90,8 @@ function TabNavigator() {
           overflow: 'visible',
         },
 
+        // Nota: As configurações de estilo de cabeçalho abaixo se tornam obsoletas
+        // agora que definimos 'headerShown: false' acima.
         headerStyle: { backgroundColor: '#242628' },
         headerTintColor: '#efac4a',
         headerTitleAlign: 'center',
@@ -125,20 +131,15 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      {/* O Navigator de Pilha começa pela SplashScreen */}
+      <StatusBar hidden={true} />
       <PilhasTelas.Navigator 
         initialRouteName="SplashScreen" 
         screenOptions={{ headerShown: false }}
       >
-        {/* 1ª Tela: Intro/Splash (Sem ícones embaixo) */}
         <PilhasTelas.Screen name="SplashScreen" component={SplashScreen} />
-
-        {/* Telas de Autenticação (Sem ícones embaixo) */}
         <PilhasTelas.Screen name="HomeScreen" component={HomeScreen} />
         <PilhasTelas.Screen name="CadastroScreen" component={CadastroScreen} />
         <PilhasTelas.Screen name="LoginScreen" component={LoginScreen} />
-
-        {/* Tela Principal (Aqui os ícones de baixo aparecem) */}
         <PilhasTelas.Screen name="MainApp" component={TabNavigator} />
       </PilhasTelas.Navigator>
     </NavigationContainer>

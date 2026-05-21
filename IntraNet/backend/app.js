@@ -4,16 +4,15 @@ const crypto = require('crypto');
 const path = require("path");
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
-
+const bcrypt = require('bcrypt');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
-
+require('dotenv').config();
 const conexao = require('./db.js');
 
 const app = express();
 const porta = 3000;
-
-const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
+const SECRET = process.env.API_SEGREDO;
 
 // Swagger
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -53,6 +52,7 @@ const agendamentoRoutes = require('./routes/agendamentoRoutes');
 const fiadoRoutes = require('./routes/fiadoRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const pdfRoutes = require('./routes/pdfRoutes');
+const authAppRoutes = require('./routes/authAppRoutes');
 
 
 // ======================
@@ -69,3 +69,4 @@ app.use(agendamentoRoutes);
 app.use(fiadoRoutes);
 app.use(dashboardRoutes);
 app.use(pdfRoutes);
+app.use(authAppRoutes);
