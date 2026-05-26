@@ -5,9 +5,6 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from '@expo/vector-icons'; 
 import { Botao } from '../Components/Botoes';
 
-// 🛠️ TRAVA DE DESENVOLVIMENTO:
-// Deixe 'true' para pular o login direto para o app. Mude para 'false' no dia do TCC!
-const MODO_DEV = true; 
 
 export default function LoginScreen() {
     const [email, setEmail] = useState("");
@@ -16,17 +13,10 @@ export default function LoginScreen() {
 
     const navigation = useNavigation();
 
-    // 🛠️ REDIRECIONAMENTO AUTOMÁTICO PARA DEV
-    useEffect(() => {
-        if (MODO_DEV) {
-            console.log("⚙️ [DEV] MODO_DEV ativo: Pulando tela de login...");
-            // Mude para "MainApp" ou "CardapioScreen" dependendo de como está seu arquivo de rotas
-            navigation.replace("MainApp"); 
-        }
-    }, []);
+   
 
     const FazerLogin = async () => {
-        const urlAPI = "http://10.111.9.96:3000/login";
+        const urlAPI = "http://10.111.9.96:3000/logar";
         
         console.log("\n========================================");
         console.log("🚀 [LOGIN] Botão clicado!");
@@ -59,10 +49,16 @@ export default function LoginScreen() {
             console.log("📦 Corpo da resposta da API:", dados);
         
             if (dados.resposta === "true") {
-                console.log("✅ [SUCESSO] Login validado pelo servidor! Gravando Token...");
-                await AsyncStorage.setItem("token", dados.token); 
+                console.log("✅ [SUCESSO] Login validado pelo servidor! Gravando dados de sessão...");
                 
+                // Grava todas as informações necessárias retornadas pelo back corrigido
+                await AsyncStorage.setItem("token", dados.token); 
+                await AsyncStorage.setItem("id_user", String(dados.id_user));
+                await AsyncStorage.setItem("nome_user", dados.nome);
+
+                console.log(`💾 Armazenado com Sucesso -> ID: ${dados.id_user} | Nome: ${dados.nome}`);
                 console.log("🔀 Redirecionando para a tela MainApp.");
+                
                 navigation.replace("MainApp"); 
             } else {
                 console.log(`❌ [NEGADO] Servidor recusou as credenciais. Motivo: ${dados.mensagem}`);
@@ -72,11 +68,6 @@ export default function LoginScreen() {
         } catch (erro) {
             console.log("\n🛑====== ERRO CRÍTICO DE CONEXÃO ======");
             console.error(" Detalhes técnicos do erro:", erro.message);
-            console.log("\n💡 O QUE FAZER AGORA?");
-            console.log("1. Seu computador e celular estão no MESMO Wi-Fi?");
-            console.log(`2. Teste no navegador do celular se abre: http://10.111.9.96:3000/`);
-            console.log("3. O back-end está ligado no terminal do seu PC?");
-            console.log("4. Adicionou '0.0.0.0' no app.listen do seu Back-end?");
             console.log("=========================================\n");
 
             Alert.alert(

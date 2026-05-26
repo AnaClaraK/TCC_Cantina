@@ -68,14 +68,19 @@ router.post("/logar", async (req, res) => {
                 return res.status(401).json({ "mensagem": "Usuário ou senha inválido!" });
             }
 
+            // Opcional: Incluir o id dentro do token para maior segurança
             const token = jwt.sign(
-                { email: email },
+                { email: email, id_user: usuario.id_user || usuario.id },
                 SECRET,
-                { expiresIn: '1h' }
+                { expiresIn: '8h' }
             );
+
+            // MUDANÇA AQUI: Agora devolvemos o id_user e o nome junto com o token!
             return res.json({
                 "resposta": "true",
                 "token": token,
+                "id_user": usuario.id_user || usuario.id, // Garante o nome correto da coluna do seu banco
+                "nome": usuario.nome,
                 "mensagem": "Bem-vindo!"
             });
 
@@ -87,6 +92,27 @@ router.post("/logar", async (req, res) => {
         console.error(error);
         res.status(500).json({ "resposta": "false", "mensagem": "Erro no servidor" });
     }
-    console.log(req.headers.authorization);
+});
+
+const fs = require('fs');
+const path = require('path');
+
+const IMAGE_DIR = path.join(__dirname, '../../frontend/images');
+
+router.get('/images/:nome', async (req, res) => {
+  const base = req.params.nome.replace(/\.(png|jpg|jpeg|webp)$/i, '');
+
+  const exts = ['.png', '.jpg', '.jpeg', '.webp'];
+
+  for (const ext of exts) {
+    const filePath = path.join(IMAGE_DIR, base + ext);
+
+    try {
+      await fs.promises.access(filePath);
+      return res.sendFile(filePath);
+    } catch {}
+  }
+
+  return res.status(404).send('Imagem não encontrada');
 });
 module.exports = router;
