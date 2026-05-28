@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `cadastro` (
 -- Copiando dados para a tabela cantina.cadastro: ~3 rows (aproximadamente)
 DELETE FROM `cadastro`;
 INSERT INTO `cadastro` (`id_cadastro`, `nome`, `email`, `senha`, `img`) VALUES
-	(1, 'Ana Banana', 'anabanana@gmail.com', 'b2e7e03ede85560977685add00fa3276ea7aa1c780fc87b870d7b027dc277007', '/imagens/1777572726880.jpg'),
+	(1, 'Ana Banana', 'anabanana@gmail.com', '$2b$10$3NKKQb/fQsf9lPg6CF1hV.BXPtaDQFNQOev9qMzdXiRQgUc4i3LJ.', '/imagens/1777572726880.jpg'),
 	(2, 'Kemilly', 'kemillyregina@gmail.com', '5b41d889f9fa1c2d51448a8e009e16b7189030ce6cb637fba913ae33b231f702', '/imagens/1778585396841.jpg'),
 	(4, 'Teste', 't@t.com', 'a2ca37fe6fdc490b8f7ce841e1701a169d2b1697c6b5b5c63f94abb8f9b6d6dd', '/imagens/def_avt.jpg');
 
@@ -202,7 +202,7 @@ CREATE TABLE IF NOT EXISTS `pedidos_itens` (
   CONSTRAINT `FK_pedidos_itens_produtos` FOREIGN KEY (`id_produto`) REFERENCES `produtos` (`id_produto`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.pedidos_itens: ~47 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.pedidos_itens: ~53 rows (aproximadamente)
 DELETE FROM `pedidos_itens`;
 INSERT INTO `pedidos_itens` (`id_itens`, `id_pedido`, `id_produto`, `qtd`, `preco_unitario`) VALUES
 	(12, 7, 1, 1, 2.260000),
@@ -366,7 +366,7 @@ CREATE TABLE IF NOT EXISTS `reposicao` (
   CONSTRAINT `FK__produtos` FOREIGN KEY (`id_produto`) REFERENCES `produtos` (`id_produto`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.reposicao: ~5 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.reposicao: ~6 rows (aproximadamente)
 DELETE FROM `reposicao`;
 INSERT INTO `reposicao` (`id_compra`, `id_produto`, `produto`, `qtd_prevista`, `qtd_comprada`, `prioridade`, `local`, `status`) VALUES
 	(1, 22, 'Picolé Maxxi Black', 36, 36, 'Alta', 'l', 'Concluído'),
@@ -388,7 +388,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   PRIMARY KEY (`id_user`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.users: ~2 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.users: ~3 rows (aproximadamente)
 DELETE FROM `users`;
 INSERT INTO `users` (`id_user`, `nome`, `cpf`, `email`, `senha`, `data_criacao`) VALUES
 	(1, 'Consumidor Final', '00000000000', 'granovita@gmail.com', 'granovita', '2026-04-30 16:29:04'),

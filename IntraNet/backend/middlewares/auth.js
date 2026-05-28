@@ -1,8 +1,9 @@
 const jwt =
 require('jsonwebtoken');
 
-const SECRET =
-"C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
+
+require('dotenv').config(); 
+const SECRET = process.env.API_SEGREDO;
 
 function verificarToken(
     req,
