@@ -1551,3 +1551,88 @@ body {
         font-size: 1.2rem;
     }
 }
+
+/* ==========================================
+   ESTILIZAÇÃO DO MODAL DE AVISO (D_AVISO)
+   ========================================== */
+
+/* Container principal do Dialog */
+#d_aviso {
+    background-color: #202020;         /* Fundo escuro idêntico ao da foto */
+    border: 3px solid #f1b256;          /* Borda amarela/laranja destacada */
+    border-radius: 18px;                /* Cantos arredondados do modal */
+    padding: 30px;                      /* Espaçamento interno */
+    width: 420px;                       /* Largura ideal da caixa */
+    max-width: 90%;                     /* Garante responsividade em telas menores */
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.5); /* Sombra suave ao fundo */
+}
+
+/* Escurecimento do fundo da tela quando o modal abre */
+#d_aviso::backdrop {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+/* Caixa interna que organiza o texto e os botões */
+.aviso_box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;                          /* Espaço entre o texto e o botão */
+    font-family: sans-serif;
+}
+
+/* Texto da mensagem (ex: "Quantidade inválida.") */
+#msg_aviso {
+    color: #f1b256;                    /* Cor amarela/laranja idêntica à foto */
+    font-size: 22px;
+    font-weight: bold;
+    text-align: center;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+/* Área que envolve os botões */
+.aviso_botoes {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    width: 100%;
+    margin-top: 5px;
+}
+
+/* Botão OK (e Confirmar) */
+#b_confirmar_aviso, 
+#b_cancelar_aviso {
+    background-color: #f1b256;         /* Fundo do botão preenchido */
+    color: #202020;                    /* Cor do texto "OK" escura */
+    border: none;
+    border-radius: 8px;                /* Cantos levemente arredondados do botão */
+    padding: 10px 30px;                /* Tamanho interno do botão */
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    min-width: 100px;
+}
+
+/* Efeito ao passar o mouse por cima do botão OK */
+#b_confirmar_aviso:hover {
+    background-color: #df9e3f;         /* Tom levemente mais escuro ao passar o mouse */
+}
+
+/* Efeito de clique físico no botão */
+#b_confirmar_aviso:active, 
+#b_cancelar_aviso:active {
+    transform: scale(0.96);
+}
+
+/* Estilização secundária caso você use o botão "Cancelar" no futuro */
+#b_cancelar_aviso {
+    background-color: #555;
+    color: #fff;
+}
+
+#b_cancelar_aviso:hover {
+    background-color: #444;
+}

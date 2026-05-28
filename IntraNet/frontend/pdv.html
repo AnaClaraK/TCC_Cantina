@@ -11,32 +11,30 @@
     <script>
         // Verifica se existe um token no localStorage
         const token = localStorage.getItem("token");
-    
         if (!token) {
-            // Se não tem token, nem carrega o resto da página
-            alert("Acesso restrito! Redirecionando para o login...");
-            window.location.href = "login.html"; 
+            // Se não tem token, espera carregar o DOM para disparar o modal e depois redirecionar
+            document.addEventListener("DOMContentLoaded", () => {
+                exibirAviso("Acesso restrito! Redirecionando para o login...", () => {
+                    window.location.href = "login.html"; 
+                });
+            });
         }
     </script>
 </head>
 <body class="sem-sidebar fundo-marrom">
-
 <section id="sc_inputs">
     <div class="grupo-input" style="grid-column: 1 / span 3;">
         <h2 class="titulo">Código do Produto</h2> 
         <input type="text" id="inp_codb" autofocus inputmode="none" autocomplete="off" placeholder="Aguardando Leitor...">
     </div>
-
     <div class="grupo-input">
         <h2 id="h_qtd" class="titulo">Quantidade</h2>
         <div id="d_qtd" class="inp_val">0</div>
     </div>
-
     <div class="grupo-input">
         <h2 id="h_vl_und" class="titulo">Valor Unitário</h2>
         <div id="d_vl_und" class="inp_val">R$ 0,00</div>
     </div>
-
     <div class="grupo-input">
         <h2 id="h_ttl_i" class="titulo">Total do Item</h2>  
         <div id="d_ttl_i" class="inp_val">R$ 0,00</div>
@@ -45,7 +43,6 @@
     <div class="grupo-input">
         <h2 class="titulo">Quantidade Total</h2>  
         <div id="d_qtd_geral" class="inp_val">0</div>
-    
         <h2 class="titulo" id="est_til">Estoque Disponível</h2>
         <div id="d_estoque" class="inp_val">-</div>
     
@@ -53,16 +50,13 @@
             Quantidade acima do estoque disponível!
         </small>
     </div>
-
     <img src="images/img_ntf.png" alt="imagem product" id="img_prod">
     <div id="relogio_pdv"></div>
-
     <div class="grupo-input" id="total">
         <h2 id="h_ttl_c" class="titulo">Total da Compra</h2>
         <div id="d_ttl_c" class="inp_val">R$ 0,00</div>
     </div>
 </section>
-
 <section id="sc_modalp">
     <dialog id="dialogBusca">
         <div class="modal_box">
@@ -79,7 +73,6 @@
         </div>
     </dialog>
 </section>
-
 <section id="sc_tabela">
     <table>
         <thead>
@@ -93,7 +86,6 @@
         <tbody id="tb_tbl_produtos"></tbody>
     </table>
 </section>
-
 <section id="sc_modal">
   <dialog id="d_modal">
     <article>
@@ -105,7 +97,6 @@
                         <h2 class="info-label">Pedido n°</h2>
                         <span id="s_pedido" class="info-valor">001</span>
                     </div>
-                
                     <div class="info-item">
                         <h2 class="info-label">Data e Hora</h2>
                         <span id="s_dt" class="info-valor">16/04/2026, 17:00:14</span>
@@ -140,32 +131,64 @@
      <button id="b_final" disabled>Finalizar Compra (F1)</button>
     </div>
 </section>
-
 <div id="erro_overlay">
     <div id="erro_box">PRODUTO NÃO CADASTRADO</div>
 </div>
 <dialog id="d_fiado">
-
     <div class="modal_box">
-    
         <h2>Venda Fiado</h2>
-    
         <select id="sl_cliente" class="inp_m"></select>
-    
         <input
             type="date"
             id="inp_vencimento"
             class="inp_m"
         >
-    
         <button id="b_confirmar_fiado">
             Confirmar
-        </button>
-    
+        </button> 
+    </div>   
+</dialog>
+
+<dialog id="d_aviso">
+    <div class="aviso_box">
+        <p id="msg_aviso"></p>
+        <div class="aviso_botoes">
+            <button id="b_confirmar_aviso">OK</button>
+            <button id="b_cancelar_aviso" style="display:none;">Cancelar</button>
+        </div>
     </div>
-    
-    </dialog>
+</dialog>
+
 <script>
+    // Seletores do novo aviso customizado
+    const aviso = document.getElementById("d_aviso");
+    const msgAviso = document.getElementById("msg_aviso");
+    const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
+    const bCancelarAviso = document.getElementById("b_cancelar_aviso");
+
+    // Função para exibir aviso customizado no lugar do alert/confirm nativo
+    function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
+        msgAviso.innerText = mensagem;
+        bCancelarAviso.style.display = mostrarCancelar ? "block" : "none";
+
+        aviso.showModal();
+
+        bConfirmarAviso.onclick = () => {
+            aviso.close();
+            if (callback) callback();
+        };
+
+        bCancelarAviso.onclick = () => {
+            aviso.close();
+
+            if (window.checkboxAtual) {
+                window.checkboxAtual.checked = false;
+                window.checkboxAtual.blur();
+                window.checkboxAtual = null;
+            }
+        };
+    }
+
     // Seletores
     const inp_codb = document.getElementById("inp_codb");
     const tbody = document.getElementById("tb_tbl_produtos");
@@ -175,61 +198,50 @@
     const modalp = document.querySelector("#sc_modalp dialog");
     const nova_venda = document.getElementById("b_nv_venda");
     const sl_cliente = document.getElementById("sl_cliente");
-
     // Configurações
     const URL_BACKEND_CAD = "http://localhost:3000";
     const IMG_PADRAO = "http://localhost:3000/images/img_ntf.png";
-
     let carrinho = []; 
     let totalCompra = 0; 
     let formaPagamento = "";
-    
-    
     // NOVO: Controle de trava contra dupla leitura acidental
     let estaProcessando = false;
     // ===== SONS DO PDV =====
-const beepSucesso = new Audio("sounds/success.mp3");
-const beepErro = new Audio("sounds/error.mp3");
-const beepBeep = new Audio("sounds/beep.mp3");
-
-function tocarSucesso() {
-    beepSucesso.currentTime = 0;
-    beepSucesso.play();
-}
-
-function tocarErro() {
-    beepErro.currentTime = 0;
-    beepErro.play();
-}
-
-function tocarBeep() {
-    beepBeep.currentTime = 0;
-    beepBeep.play();
-}
-
-    window.addEventListener("load", () => {
-    setTimeout(() => {
-        inp_codb.focus();
-    }, 100);
-});
-
-function voltarFoco() {
-    setTimeout(() => inp_codb.focus(), 0);
-}
-    // Impede que o input perca o foco (essencial para o leitor de código de barras)
-    // Impede que o input perca o foco, exceto se alguma modal estiver aberta
-inp_codb.addEventListener("blur", () => {
-    const fiadoModal = document.getElementById("d_fiado");
-    
-    const algumaModalAberta = 
-        (modal && modal.open) || 
-        (dialogBusca && dialogBusca.open) || 
-        (fiadoModal && fiadoModal.open);
-
-    if (!algumaModalAberta) {
-        setTimeout(() => inp_codb.focus(), 10);
+    const beepSucesso = new Audio("sounds/success.mp3");
+    const beepErro = new Audio("sounds/error.mp3");
+    const beepBeep = new Audio("sounds/beep.mp3");
+    function tocarSucesso() {
+        beepSucesso.currentTime = 0;
+        beepSucesso.play();
     }
-});
+    function tocarErro() {
+        beepErro.currentTime = 0;
+        beepErro.play();
+    }
+    function tocarBeep() {
+        beepBeep.currentTime = 0;
+        beepBeep.play();
+    }
+    window.addEventListener("load", () => {
+        setTimeout(() => {
+            inp_codb.focus();
+        }, 100);
+    });
+    function voltarFoco() {
+        setTimeout(() => inp_codb.focus(), 0);
+    }
+    // Impede que o input perca o foco, exceto se alguma modal estiver aberta
+    inp_codb.addEventListener("blur", () => {
+        const fiadoModal = document.getElementById("d_fiado");
+        const algumaModalAberta = 
+            (modal && modal.open) || 
+            (dialogBusca && dialogBusca.open) || 
+            (fiadoModal && fiadoModal.open) ||
+            (aviso && aviso.open);
+        if (!algumaModalAberta) {
+            setTimeout(() => inp_codb.focus(), 10);
+        }
+    });
 
     function formatar(valor) {
         return Number(valor).toFixed(2).replace(".", ",");
@@ -271,45 +283,35 @@ inp_codb.addEventListener("blur", () => {
         
         document.getElementById("d_ttl_c").innerText = totalFormatado;
         document.getElementById("s_tot").innerText = totalFormatado;
-
         const visorQtdGeral = document.getElementById("d_qtd_geral");
         if (visorQtdGeral) {
             visorQtdGeral.innerText = totalUnidades;
         }
     }
-
     function atualizarVisores(item) {
-    document.getElementById("d_qtd").innerText = item.qtd;
-    document.getElementById("d_vl_und").innerText = "R$ " + formatar(item.preco);
-    document.getElementById("d_ttl_i").innerText = "R$ " + formatar(item.preco * item.qtd);
-
-    const estoqueRestante = item.estoque - item.qtd;
-    document.getElementById("d_estoque").innerText = estoqueRestante;
-
-    const aviso = document.getElementById("aviso_estoque");
-
-    // estoque baixo
-    if (estoqueRestante > 0 && estoqueRestante <= item.qtd_min){
-        aviso.style.display = "block";
-        aviso.innerText = `Estoque baixo! Restam ${estoqueRestante} unidade(s).`;
+        document.getElementById("d_qtd").innerText = item.qtd;
+        document.getElementById("d_vl_und").innerText = "R$ " + formatar(item.preco);
+        document.getElementById("d_ttl_i").innerText = "R$ " + formatar(item.preco * item.qtd);
+        const estoqueRestante = item.estoque - item.qtd;
+        document.getElementById("d_estoque").innerText = estoqueRestante;
+        const avisoEl = document.getElementById("aviso_estoque");
+        // estoque baixo
+        if (estoqueRestante > 0 && estoqueRestante <= item.qtd_min){
+            avisoEl.style.display = "block";
+            avisoEl.innerText = `Estoque baixo! Restam ${estoqueRestante} unidade(s).`;
+        }
+        else if (estoqueRestante <= 0) {
+            avisoEl.style.display = "block";
+            avisoEl.innerText = "Estoque esgotado!";
+        }
+        // estoque normal
+        else {
+            avisoEl.style.display = "none";
+        }
     }
-
-    // sem estoque
-    else if (estoqueRestante <= 0) {
-        aviso.style.display = "block";
-        aviso.innerText = "Estoque esgotado!";
-    }
-
-    // estoque normal
-    else {
-        aviso.style.display = "none";
-    }
-}
-
     function verificarEstoqueCarrinho() {
         return carrinho.some(item => item.qtd > item.estoque);
     }
-
     function verificarBotao() {
         const botaoFinalizar = document.getElementById("b_final");
         if (carrinho.length === 0 || verificarEstoqueCarrinho()) {
@@ -318,222 +320,197 @@ inp_codb.addEventListener("blur", () => {
             botaoFinalizar.disabled = false;
         }
     }
-
     // Inicializa a tabela vazia
     atualizarTabelaNoTopo();
 
-    // Garante o bloqueio completo no keypress também para segurança
-// Garante o bloqueio completo no keypress também para segurança
-inp_codb.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") return;
-    
-    // Só valida o tempo se já tiver algum texto digitado no campo
-    if (inp_codb.value.length > 0) {
-        const tempoAtual = Date.now();
-        const intervalo = tempoAtual - ultimaTeclaTempo;
-        
-        if (intervalo > 40) {
-            e.preventDefault();
+    inp_codb.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") return;
+        if (inp_codb.value.length > 0) {
+            const tempoAtual = Date.now();
+            const intervalo = tempoAtual - ultimaTeclaTempo;
+            if (intervalo > 40) {
+                e.preventDefault();
+            }
         }
+    });
+
+    function finalizarLeitura(valorFinal) {
+        inp_codb.value = valorFinal;
+
+        setTimeout(() => {
+            estaProcessando = false;
+            inp_codb.focus();
+            inp_codb.selectionStart = inp_codb.selectionEnd = inp_codb.value.length;
+        }, 400);
     }
-});
 
-// --- FUNÇÃO DE FINALIZAÇÃO ---
-function finalizarLeitura(valorFinal) {
-    inp_codb.value = valorFinal;
-
-    setTimeout(() => {
-        estaProcessando = false;
-
-        inp_codb.focus();
-
-        // coloca cursor no final sem selecionar
+    inp_codb.addEventListener("select", () => {
         inp_codb.selectionStart = inp_codb.selectionEnd = inp_codb.value.length;
+    });
 
-    }, 400);
-}
-
-inp_codb.addEventListener("select", () => {
-    inp_codb.selectionStart = inp_codb.selectionEnd = inp_codb.value.length;
-});
-
-function finalituraLimpaEReseta() {
-    estaProcessando = false;
-    inp_codb.focus();
-}
-
-let ultimaTeclaTempo = Date.now();
-inp_codb.addEventListener("keydown", (event) => {
-    if (
-        event.key === "F11" ||
-        event.key === "F12" ||
-        event.key === "F5" ||
-        ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "r") ||
-        (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "i")
-    ) {
-        return;
+    function finalituraLimpaEReseta() {
+        estaProcessando = false;
+        inp_codb.focus();
     }
 
-    // --- CORREÇÃO AQUI: Se algum modal estiver aberto, não bloqueia nada ---
-    const fiadoModal = document.getElementById("d_fiado");
-    if (modal.open || dialogBusca.open || (fiadoModal && fiadoModal.open)) {
-        return; 
-    }
-
-    if (inp_codb.value.length > 0) {
-        const tempoAtual = Date.now();
-        const intervalo = tempoAtual - ultimaTeclaTempo;
-        
-        if (intervalo > 40 && event.key !== "Enter") {
-            event.preventDefault(); 
+    let ultimaTeclaTempo = Date.now();
+    inp_codb.addEventListener("keydown", (event) => {
+        if (
+            event.key === "F11" ||
+            event.key === "F12" ||
+            event.key === "F5" ||
+            ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "r") ||
+            (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "i")
+        ) {
             return;
         }
-    }
-    
-    ultimaTeclaTempo = Date.now();
-        
-    if (event.key !== "Enter") return;
-        
-    event.preventDefault(); 
-    if (estaProcessando) return;
 
-    const codigo = inp_codb.value.trim();
-    if (!codigo) return;
-
-    // Ativa a trava de processamento
-    estaProcessando = true;
-
-    apiFetch(`${URL_BACKEND_CAD}/produtos/cod/${codigo}`, {
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
-    })
-    .then(res => {
-        if (res.status === 401 || res.status === 403) {
-            alert("Sua sessão expirou. Faça login novamente.");
-            window.location.href = "login.html";
-        }
-        if (!res.ok) throw new Error("Produto não encontrado");
-        return res.json();
-    })
-    .then(data => {
-        tocarBeep();
-        const produto = Array.isArray(data) ? data[0] : data;
-        if (!produto) throw new Error("Dados do produto inválidos");
-
-        // --- TRATAMENTO DA IMAGEM ---
-        if (produto.img) {
-            const nomeArquivo = produto.img.replace('/images/', '').replace(/^\//, '');
-            img_prod.src = `${URL_BACKEND_CAD}/images/${nomeArquivo}`;
-        } else {
-            img_prod.src = IMG_PADRAO;
+        const fiadoModal = document.getElementById("d_fiado");
+        if (modal.open || dialogBusca.open || (fiadoModal && fiadoModal.open) || aviso.open) {
+            return; 
         }
 
-        // --- LÓGICA DO CARRINHO ---
-        let itemExistente = carrinho.find(p => p.codigo == codigo);
-
-        if (itemExistente) {
-            if (itemExistente.qtd >= itemExistente.estoque) {
-                atualizarVisores(itemExistente);
-                verificarBotao();
-                finalizarLeitura(codigo); 
+        if (inp_codb.value.length > 0) {
+            const tempoAtual = Date.now();
+            const intervalo = tempoAtual - ultimaTeclaTempo;
+            
+            if (intervalo > 40 && event.key !== "Enter") {
+                event.preventDefault(); 
                 return;
             }
-            itemExistente.qtd++;
-            carrinho = carrinho.filter(p => p.codigo != codigo);
-            carrinho.unshift(itemExistente);
-        } else {
-            carrinho.unshift({
-            id_produto: produto.id_produto,
-            codigo: produto.codigo_barras,
-            nome: produto.nome,
-            preco: Number(produto.preco),
-            qtd: 1,
-            estoque: Number(produto.qtd),
-            qtd_min: Number(produto.qtd_min || 0)
-        });
         }
-
-        if (Number(produto.qtd) <= 0) {
-
-alert(`O produto "${produto.nome}" está sem estoque.`);
-
-// remove do carrinho
-carrinho = carrinho.filter(p => p.codigo != codigo);
-
-// limpa código
-inp_codb.value = "";
-
-// limpa visores
-document.getElementById("d_qtd").innerText = "0";
-document.getElementById("d_vl_und").innerText = "R$ 0,00";
-document.getElementById("d_ttl_i").innerText = "R$ 0,00";
-document.getElementById("d_estoque").innerText = "-";
-
-// remove aviso
-document.getElementById("aviso_estoque").style.display = "none";
-
-// imagem padrão
-img_prod.src = IMG_PADRAO;
-
-atualizarTabelaNoTopo();
-atualizarTotalCompra();
-verificarBotao();
-
-finalizarLeitura("");
-
-return;
-}
-
-        // --- ATUALIZAÇÃO DA INTERFACE ---
-        atualizarTabelaNoTopo();
-        atualizarVisores(carrinho[0]); 
-        atualizarTotalCompra();
-        verificarBotao();
         
-        finalizarLeitura(codigo); 
-    })
-    .catch(err => {
-        tocarErro();
-        console.error("Erro na requisição:", err);
-        
-        const overlay = document.getElementById("erro_overlay");
-        if (overlay) {
+        ultimaTeclaTempo = Date.now();
+            
+        if (event.key !== "Enter") return;
+            
+        event.preventDefault(); 
+        if (estaProcessando) return;
+
+        const codigo = inp_codb.value.trim();
+        if (!codigo) return;
+
+        estaProcessando = true;
+
+        apiFetch(`${URL_BACKEND_CAD}/produtos/cod/${codigo}`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        })
+        .then(res => {
+            if (res.status === 401 || res.status === 403) {
+                exibirAviso("Sua sessão expirou. Faça login novamente.", () => {
+                    window.location.href = "login.html";
+                });
+            }
+            if (!res.ok) throw new Error("Produto não encontrado");
+            return res.json();
+        })
+        .then(data => {
+            tocarBeep();
+            const produto = Array.isArray(data) ? data[0] : data;
+            if (!produto) throw new Error("Dados do produto inválidos");
+
+            if (produto.img) {
+                const nomeArquivo = produto.img.replace('/images/', '').replace(/^\//, '');
+                img_prod.src = `${URL_BACKEND_CAD}/images/${nomeArquivo}`;
+            } else {
+                img_prod.src = IMG_PADRAO;
+            }
+
+            let itemExistente = carrinho.find(p => p.codigo == codigo);
+
+            if (itemExistente) {
+                if (itemExistente.qtd >= itemExistente.estoque) {
+                    atualizarVisores(itemExistente);
+                    verificarBotao();
+                    finalizarLeitura(codigo); 
+                    return;
+                }
+                itemExistente.qtd++;
+                carrinho = carrinho.filter(p => p.codigo != codigo);
+                carrinho.unshift(itemExistente);
+            } else {
+                carrinho.unshift({
+                    id_produto: produto.id_produto,
+                    codigo: produto.codigo_barras,
+                    nome: produto.nome,
+                    preco: Number(produto.preco),
+                    qtd: 1,
+                    estoque: Number(produto.qtd),
+                    qtd_min: Number(produto.qtd_min || 0)
+                });
+            }
+
+            if (Number(produto.qtd) <= 0) {
+                exibirAviso(`O produto "${produto.nome}" está sem estoque.`);
+
+                carrinho = carrinho.filter(p => p.codigo != codigo);
+                inp_codb.value = "";
+
+                document.getElementById("d_qtd").innerText = "0";
+                document.getElementById("d_vl_und").innerText = "R$ 0,00";
+                document.getElementById("d_ttl_i").innerText = "R$ 0,00";
+                document.getElementById("d_estoque").innerText = "-";
+                document.getElementById("aviso_estoque").style.display = "none";
+                img_prod.src = IMG_PADRAO;
+
+                atualizarTabelaNoTopo();
+                atualizarTotalCompra();
+                verificarBotao();
+                finalizarLeitura("");
+                return;
+            }
+
+            atualizarTabelaNoTopo();
+            atualizarVisores(carrinho[0]); 
+            atualizarTotalCompra();
+            verificarBotao();
+            finalizarLeitura(codigo); 
+        })
+        .catch(err => {
             tocarErro();
-            overlay.style.display = "flex";
-            setTimeout(() => { overlay.style.display = "none"; }, 1500);
-        }
-        
-        img_prod.src = IMG_PADRAO;
-        finalizarLeitura(""); 
+            console.error("Erro na requisição:", err);
+            
+            const overlay = document.getElementById("erro_overlay");
+            if (overlay) {
+                tocarErro();
+                overlay.style.display = "flex";
+                setTimeout(() => { overlay.style.display = "none"; }, 1500);
+            }
+            
+            img_prod.src = IMG_PADRAO;
+            finalizarLeitura(""); 
+        });
     });
-});
 
     b_final.addEventListener("click", () => {
         if (verificarEstoqueCarrinho()) {
             const item = carrinho.find(i => i.qtd > i.estoque);
-            const ajustar = confirm(
-                `O produto "${item.nome}" possui apenas ${item.estoque} unidade(s) em estoque.\n\n` +
-                `Deseja ajustar automaticamente a quantidade?`
+            
+            // Substituído o confirm nativo por exibirAviso estruturado com callback de confirmação
+            exibirAviso(
+                `O produto "${item.nome}" possui apenas ${item.estoque} unidade(s) em estoque.\n\nDeseja ajustar automaticamente a quantidade?`,
+                () => {
+                    item.qtd = item.estoque;
+                    if (item.qtd === 0) {
+                        carrinho = carrinho.filter(i => i.codigo !== item.codigo);
+                    }
+                    atualizarTabelaNoTopo();
+                    atualizarVisores(carrinho[0] || { qtd: 0, preco: 0, estoque: 0 });
+                    atualizarTotalCompra();
+                    verificarBotao();
+
+                    if (!verificarEstoqueCarrinho() && carrinho.length > 0) {
+                        document.getElementById("s_dt").innerText = new Date().toLocaleString();
+                        modal.showModal();
+                    }
+                },
+                true // ativa o botão "Cancelar" para simular a resposta "Não" do confirm nativo
             );
+            
             voltarFoco();
-
-            if (ajustar) {
-                item.qtd = item.estoque;
-                if (item.qtd === 0) {
-                    carrinho = carrinho.filter(i => i.codigo !== item.codigo);
-                }
-                atualizarTabelaNoTopo();
-                atualizarVisores(carrinho[0] || { qtd: 0, preco: 0, estoque: 0 });
-                atualizarTotalCompra();
-                verificarBotao();
-
-                if (!verificarEstoqueCarrinho() && carrinho.length > 0) {
-                    document.getElementById("s_dt").innerText = new Date().toLocaleString();
-                    modal.showModal();
-                }
-            }
             return;
         }
         document.getElementById("s_dt").innerText = new Date().toLocaleString();
@@ -553,187 +530,157 @@ return;
     });
 
     function resetarPDV() {
+        carrinho = [];
+        totalCompra = 0;
+        formaPagamento = "";
 
-carrinho = [];
-totalCompra = 0;
-formaPagamento = "";
+        atualizarTabelaNoTopo();
 
-atualizarTabelaNoTopo();
+        document.getElementById("d_qtd").innerText = "0";
+        document.getElementById("d_vl_und").innerText = "R$ 0,00";
+        document.getElementById("d_ttl_i").innerText = "R$ 0,00";
+        document.getElementById("d_ttl_c").innerText = "R$ 0,00";
+        document.getElementById("d_qtd_geral").innerText = "0";
+        document.getElementById("d_estoque").innerText = "-";
+        document.getElementById("aviso_estoque").style.display = "none";
 
-document.getElementById("d_qtd").innerText = "0";
-document.getElementById("d_vl_und").innerText = "R$ 0,00";
-document.getElementById("d_ttl_i").innerText = "R$ 0,00";
-document.getElementById("d_ttl_c").innerText = "R$ 0,00";
-document.getElementById("d_qtd_geral").innerText = "0";
-document.getElementById("d_estoque").innerText = "-";
+        inp_codb.value = "";
+        img_prod.src = IMG_PADRAO;
 
-document.getElementById("aviso_estoque").style.display = "none";
+        b_final.disabled = true;
+        nova_venda.disabled = true;
+        estaProcessando = false;
 
-inp_codb.value = "";
+        modal.close();
 
-img_prod.src = IMG_PADRAO;
+        if (dialogBusca.open) {
+            dialogBusca.close();
+        }
+        if (document.getElementById("d_fiado").open) {
+            document.getElementById("d_fiado").close();
+        }
 
-b_final.disabled = true;
-nova_venda.disabled = true;
+        lista.innerHTML = "";
+        inputBusca.value = "";
+        produtosFiltrados = [];
+        indexSelecionado = -1;
 
-estaProcessando = false;
-
-// FECHA MODAIS
-modal.close();
-
-if (dialogBusca.open) {
-    dialogBusca.close();
-}
-// --- DENTRO DA FUNÇÃO resetarPDV() ---
-// FECHA MODAIS
-if (dialogBusca.open) {
-    dialogBusca.close();
-}
-
-// ADICIONE ESTA LINHA ABAIXO:
-if (document.getElementById("d_fiado").open) {
-    document.getElementById("d_fiado").close();
-}
-
-// limpa busca
-lista.innerHTML = "";
-inputBusca.value = "";
-produtosFiltrados = [];
-indexSelecionado = -1;
-
-// devolve foco
-setTimeout(() => {
-    inp_codb.focus();
-}, 50);
-}
+        setTimeout(() => {
+            inp_codb.focus();
+        }, 50);
+    }
 
     function selecionarProduto(prod) {
-    const itemExistente = carrinho.find(p => p.codigo == prod.codigo_barras);
+        const itemExistente = carrinho.find(p => p.codigo == prod.codigo_barras);
 
-    if (itemExistente && itemExistente.qtd >= itemExistente.estoque) {
-        atualizarVisores(itemExistente);
-        verificarBotao();
-        dialogBusca.close();
+        if (itemExistente && itemExistente.qtd >= itemExistente.estoque) {
+            atualizarVisores(itemExistente);
+            verificarBotao();
+            dialogBusca.close();
+            inp_codb.value = prod.codigo_barras;
+            inp_codb.focus();
+            return;
+        }
+
         inp_codb.value = prod.codigo_barras;
+        dialogBusca.close();
+        lista.innerHTML = "";
+        inputBusca.value = "";
+        indexSelecionado = -1;
+        ultimaTeclaTempo = Date.now();
+        inp_codb.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
         inp_codb.focus();
-        return;
     }
 
-    // 1. Alimenta o campo com o código de barras correto
-    inp_codb.value = prod.codigo_barras;
-    dialogBusca.close();
-    lista.innerHTML = "";
-    inputBusca.value = "";
-    indexSelecionado = -1;
+    async function verificarReposicaoAutomatica() {
+        let qtdAdicionados = 0;
+        for (const item of carrinho) {
+            const estoqueRestante = item.estoque - item.qtd;
+            if (estoqueRestante === item.qtd_min){
+                try {
+                    await apiFetch(`http://localhost:3000/reposicao/${item.codigo}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`
+                        },
+                        body: JSON.stringify({
+                            id_produto: item.id_produto,
+                            nome: item.nome,
+                            estoque_restante: estoqueRestante,
+                            quantidade: 5,
+                            prioridade: "Média",
+                            local: "Fornecedor Padrão"
+                        })
+                    });
+                    qtdAdicionados++;
+                } catch (erro) {
+                    console.error("Erro ao adicionar reposição:", erro);
+                }
+            }
+        }
+        return qtdAdicionados;
+    }
 
-    // 2. ZERA A TRAVA DE TEMPO (Isso impede que o primeiro número seja cortado!)
-    ultimaTeclaTempo = Date.now();
-
-    // 3. Dispara o Enter para rodar a busca oficial
-    inp_codb.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-    inp_codb.focus();
-}
-async function verificarReposicaoAutomatica() {
-
-let qtdAdicionados = 0;
-
-for (const item of carrinho) {
-
-    const estoqueRestante = item.estoque - item.qtd;
-
-    // se estoque ficou baixo
-    if (estoqueRestante === item.qtd_min){
-
-        try {
-
-            await apiFetch(`http://localhost:3000/reposicao/${item.codigo}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`
-                },
-                body: JSON.stringify({
-                id_produto: item.id_produto,
-                nome: item.nome,
-                estoque_restante: estoqueRestante,
-                quantidade: 5,
-                prioridade: "Média",
-                local: "Fornecedor Padrão"
+    nova_venda.addEventListener("click", () => {
+        const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
+        tocarSucesso();
+        apiFetch(`${URL_BACKEND_CAD}/pedidos`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify({
+                itens: carrinho,
+                valor_total: totalReal,
+                qtd_total: carrinho.reduce((soma, item) => soma + item.qtd, 0),
+                form_pag: formaPagamento,
+                origem: "PDV"
             })
-            });
-
-            qtdAdicionados++;
-
-        } catch (erro) {
-            console.error("Erro ao adicionar reposição:", erro);
-        }
-    }
-}
-
-return qtdAdicionados;
-}
-
-nova_venda.addEventListener("click", () => {
-    const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
-    tocarSucesso();
-    apiFetch(`${URL_BACKEND_CAD}/pedidos`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify({
-            itens: carrinho,
-            valor_total: totalReal,
-            qtd_total: carrinho.reduce((soma, item) => soma + item.qtd, 0),
-            form_pag: formaPagamento,
-            origem: "PDV"
         })
-    })
-    .then(res => res.json())
-    .then(async data => {
-        // --- PARTE QUE VOCÊ DEVE MUDAR ---
-        
-        // 1. Atualiza o número do pedido no modal
-        document.getElementById("s_pedido").innerText = data.num_pedido;
-
-        // 2. VERIFICA SE O BACKEND ENVIOU ALERTAS DE ESTOQUE MÍNIMO
-        if (data.alertas && data.alertas.length > 0) {
-            // Exibe um alerta visual com todos os produtos que atingiram o mínimo
-            alert("⚠️ AVISO DE ESTOQUE:\n\n" + data.alertas.join("\n"));
-        }
-
-        // 3. Sua lógica de reposição automática que já existia
-        const qtdAdicionados = await verificarReposicaoAutomatica();
-        if (qtdAdicionados > 0) {
-            alert(`${qtdAdicionados} produto(s) foram adicionados automaticamente à lista de reposição.`);
-        }
-
-        // 4. Limpa o PDV para a próxima venda
-        resetarPDV();
-        
-        // --------------------------------
-    })
-    .catch(err => {
-        tocarErro();
-        console.error("Erro ao salvar pedido:", err);
-        alert("Erro ao salvar o pedido. Verifique o console.");
+        .then(res => res.json())
+        .then(async data => {
+            document.getElementById("s_pedido").innerText = data.num_pedido;
+            
+            // Tratamento em sequência encadeada dos alertas via modal customizado
+            if (data.alertas && data.alertas.length > 0) {
+                exibirAviso("⚠️ AVISO DE ESTOQUE:\n\n" + data.alertas.join("\n"), async () => {
+                    const qtdAdicionados = await verificarReposicaoAutomatica();
+                    if (qtdAdicionados > 0) {
+                        exibirAviso(`${qtdAdicionados} produto(s) foram adicionados automaticamente à lista de reposição.`, () => {
+                            resetarPDV();
+                        });
+                    } else {
+                        resetarPDV();
+                    }
+                });
+            } else {
+                const qtdAdicionados = await verificarReposicaoAutomatica();
+                if (qtdAdicionados > 0) {
+                    exibirAviso(`${qtdAdicionados} produto(s) foram adicionados automaticamente à lista de reposição.`, () => {
+                        resetarPDV();
+                    });
+                } else {
+                    resetarPDV();
+                }
+            }
+        })
+        .catch(err => {
+            tocarErro();
+            console.error("Erro ao salvar pedido:", err);
+            exibirAviso("Erro ao salvar o pedido. Verifique o console.");
+        });
     });
-});
 
-    document.getElementById("b_canc").addEventListener("click", resetarPDV);
-    
+    document.getElementById("b_canc").addEventListener("click", resetarPDV);   
     const dialogBusca = document.getElementById("dialogBusca");
     const inputBusca = document.getElementById("inputBusca");
     const lista = document.getElementById("listaSugestoes");
-
     let produtosFiltrados = []; 
     let indexSelecionado = -1;  
-
     inputBusca.addEventListener("keydown", (event) => {
         const itens = lista.querySelectorAll("li");
-        // libera teclas do navegador
-        
         if (event.key === "ArrowDown") {
             event.preventDefault();
             indexSelecionado = (indexSelecionado + 1) % itens.length;
@@ -768,36 +715,29 @@ nova_venda.addEventListener("click", () => {
     inputBusca.addEventListener("input", async () => {
         const q = inputBusca.value.trim();
         indexSelecionado = -1; 
-
         if (!q) {
             lista.innerHTML = "";
             produtosFiltrados = [];
             return;
         }
-
         try {
             const resposta = await apiFetch(`${URL_BACKEND_CAD}/produtos/busca?q=${q}`, {
                 headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
             });
             const dados = await resposta.json();
             const termo = q.toLowerCase();
-
             dados.sort((a, b) => {
                 const aNome = a.nome.toLowerCase();
                 const bNome = b.nome.toLowerCase();
                 const aComeca = aNome.startsWith(termo);
                 const bComeca = bNome.startsWith(termo);
-
                 if (aComeca && !bComeca) return -1;
                 if (!aComeca && bComeca) return 1;
                 return aNome.localeCompare(bNome);
             });
-
             if (!Array.isArray(dados)) return;
-            
             produtosFiltrados = dados; 
             lista.innerHTML = "";
-
             dados.forEach((prod, index) => {
                 const li = document.createElement("li");
                 li.style.padding = "12px";
@@ -810,262 +750,216 @@ nova_venda.addEventListener("click", () => {
                 li.style.marginBottom = "5px";
                 li.style.borderRadius = "4px";
                 li.style.transition = "background 0.2s";
-
                 li.innerHTML = `
                     <strong>${prod.nome}</strong>
                     <span>R$ ${formatar(prod.preco)}</span>
                 `;
-
                 li.addEventListener("click", () => selecionarProduto(prod));
-
                 li.onmouseover = () => {
                     indexSelecionado = index;
                     atualizarDestaque(lista.querySelectorAll("li"));
                 };
-
                 lista.appendChild(li);
             });
-
         } catch (erro) {
             console.error("Erro na busca:", erro);
         }
     });
+
     function atualizarRelogio() {
-    const agora = new Date();
-
-    const data = agora.toLocaleDateString("pt-BR");
-    const hora = agora.toLocaleTimeString("pt-BR");
-
-    document.getElementById("relogio_pdv").innerText =
-        `${data} - ${hora}`;
-}
-
-// atualiza imediatamente
-atualizarRelogio();
-
-// atualiza a cada 1 segundo
-setInterval(atualizarRelogio, 1000);
-window.addEventListener("keydown", (event) => {
-
-// LIBERA TECLAS DO NAVEGADOR
-if (
-    event.key === "F11" ||
-    event.key === "F12" ||
-    event.key === "F5" ||
-    (event.ctrlKey && event.key.toLowerCase() === "r") ||
-    (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "i")
-) {
-    return;
-}
-
-// atalhos PDV
-switch(event.key) {
-
-    case "Escape":
-        resetarPDV();
-        break;
-
-    case "ArrowDown":
-        if (!dialogBusca.open) {
-            event.preventDefault();
-            document.getElementById("sc_tabela").scrollTop += 50;
-        }
-        break;
-
-    case "ArrowUp":
-        if (!dialogBusca.open) {
-            event.preventDefault();
-            document.getElementById("sc_tabela").scrollTop -= 50;
-        }
-        break;
-
-    case "F1":
-        event.preventDefault();
-        if(!b_final.disabled) b_final.click();
-        break;
-
-    case "F2":
-        event.preventDefault();
-        if(modal.open) document.getElementById("pg_dinheiro").click();
-        break;
-
-    case "F3":
-        event.preventDefault();
-        if(modal.open) document.getElementById("pg_credito").click();
-        break;
-
-    case "F4":
-        event.preventDefault();
-        if(modal.open) document.getElementById("pg_debito").click();
-        break;
-
-    case "F6":
-        event.preventDefault();
-        if(modal.open) document.getElementById("pg_pix").click();
-        break;
-
-    case "F7":
-        event.preventDefault();
-        if(!nova_venda.disabled) nova_venda.click();
-        break;
-
-    case "F8":
-        event.preventDefault();
-        document.getElementById("b_agend").click();
-        break;
-
-        case "p":
-case "P":
-
-    // só bloqueia se estiver digitando na busca
-    if (dialogBusca.open) return;
-
-    event.preventDefault();
-
-    modalp.showModal();
-
-    setTimeout(() => {
-        inputBusca.focus();
-    }, 50);
-
-    break;
-
-
-    case "F9":
-    event.preventDefault();
-
-    if (modal.open) {
-        document.getElementById("pg_fiado").click();
+        const agora = new Date();
+        const data = agora.toLocaleDateString("pt-BR");
+        const hora = agora.toLocaleTimeString("pt-BR");
+        document.getElementById("relogio_pdv").innerText = `${data} - ${hora}`;
     }
+    atualizarRelogio();
+    setInterval(atualizarRelogio, 1000);
 
-    break;
-}
-
-
-});
-
-
-
-async function carregarClientesFiado(){
-
-const res = await apiFetch(
-    "http://localhost:3000/clientes-fiado",
-    {
-        headers:{
-            Authorization:
-            `Bearer ${localStorage.getItem("token")}`
+    window.addEventListener("keydown", (event) => {
+        if (
+            event.key === "F11" ||
+            event.key === "F12" ||
+            event.key === "F5" ||
+            (event.ctrlKey && event.key.toLowerCase() === "r") ||
+            (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "i")
+        ) {
+            return;
         }
-    }
-);
-
-const clientes = await res.json();
-
-sl_cliente.innerHTML = "";
-
-clientes.forEach(c => {
-
-    sl_cliente.innerHTML += `
-        <option value="${c.id_cliente}">
-            ${c.nome_completo}
-        </option>
-    `;
-});
-}
-
-carregarClientesFiado();
-document
-.getElementById("pg_fiado")
-.addEventListener("click", () => {
-
-    modal.close();
-
-    document
-    .getElementById("d_fiado")
-    .showModal();
-});
-document.getElementById("b_confirmar_fiado").addEventListener("click", async () => {
-    const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
-    const vencimento = document.getElementById("inp_vencimento").value;
-    const id_cliente = document.getElementById("sl_cliente").value;
-
-    if (!vencimento || !id_cliente) {
-        alert("Por favor, selecione o cliente e a data de vencimento.");
-        return;
-    }
-
-    try {
-        // CORREÇÃO 1: Padronização usando apiFetch (ou garanta que a URL está 100% correta)
-        const respostaFiado = await fetch("http://localhost:3000/contas-fiado", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("token")}`
-            },
-            body: JSON.stringify({
-                id_cliente,
-                valor: totalReal,
-                vencimento
-            })
-        });
-
-        if (!respostaFiado.ok) {
-            throw new Error("Falha ao registrar a conta fiado no servidor.");
+        switch(event.key) {
+            case "Escape":
+                resetarPDV();
+                break;
+            case "ArrowDown":
+                if (!dialogBusca.open) {
+                    event.preventDefault();
+                    document.getElementById("sc_tabela").scrollTop += 50;
+                }
+                break;
+            case "ArrowUp":
+                if (!dialogBusca.open) {
+                    event.preventDefault();
+                    document.getElementById("sc_tabela").scrollTop -= 50;
+                }
+                break;
+            case "F1":
+                event.preventDefault();
+                if(!b_final.disabled) b_final.click();
+                break;
+            case "F2":
+                event.preventDefault();
+                if(modal.open) document.getElementById("pg_dinheiro").click();
+                break;
+            case "F3":
+                event.preventDefault();
+                if(modal.open) document.getElementById("pg_credito").click();
+                break;
+            case "F4":
+                event.preventDefault();
+                if(modal.open) document.getElementById("pg_debito").click();
+                break;
+            case "F6":
+                event.preventDefault();
+                if(modal.open) document.getElementById("pg_pix").click();
+                break;
+            case "F7":
+                event.preventDefault();
+                if(!nova_venda.disabled) nova_venda.click();
+                break;
+            case "F8":
+                event.preventDefault();
+                document.getElementById("b_agend").click();
+                break;
+            case "p":
+            case "P":
+                if (dialogBusca.open) return;
+                event.preventDefault();
+                modalp.showModal();
+                setTimeout(() => { inputBusca.focus(); }, 50);
+                break;
+            case "F9":
+                event.preventDefault();
+                if (modal.open) {
+                    document.getElementById("pg_fiado").click();
+                }
+                break;
         }
+    });
 
-        // Define a forma de pagamento antes de enviar o pedido
-        formaPagamento = "FIADO";
-
-        // CORREÇÃO 2: Em vez de simular um clique físico no botão (nova_venda.click()),
-        // nós chamamos diretamente a rota de salvar o pedido para evitar conflito de concorrência.
-        apiFetch(`${URL_BACKEND_CAD}/pedidos`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
-            body: JSON.stringify({
-                itens: carrinho,
-                valor_total: totalReal,
-                qtd_total: carrinho.reduce((soma, item) => soma + item.qtd, 0),
-                form_pag: formaPagamento
-            })
-        })
-        .then(res => {
-            if (!res.ok) throw new Error("Erro ao salvar o pedido do fiado.");
-            return res.json();
-        })
-        .then(async data => {
-            // Atualiza o número do pedido no modal de finalização de fundo
-            document.getElementById("s_pedido").innerText = data.num_pedido;
-
-            // Alertas de estoque vindos do servidor
-            if (data.alertas && data.alertas.length > 0) {
-                alert("⚠️ AVISO DE ESTOQUE:\n\n" + data.alertas.join("\n"));
+    async function carregarClientesFiado(){
+        const res = await apiFetch(
+            "http://localhost:3000/clientes-fiado",
+            {
+                headers:{
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
             }
-
-            // Verifica reposição automática
-            const qtdAdicionados = await verificarReposicaoAutomatica();
-            if (qtdAdicionados > 0) {
-                alert(`${qtdAdicionados} produto(s) foram adicionados automaticamente à lista de reposição.`);
-            }
-
-            alert("Venda em FIADO registrada com sucesso!");
-
-            // Fecha o modal do fiado e limpa o PDV
-            document.getElementById("d_fiado").close();
-            resetarPDV();
-        })
-        .catch(err => {
-            console.error("Erro ao salvar pedido do fiado:", err);
-            alert("A conta fiado foi criada, mas houve um erro ao fechar o pedido da cantina.");
+        );
+        const clientes = await res.json();
+        sl_cliente.innerHTML = "";
+        clientes.forEach(c => {
+            sl_cliente.innerHTML += `
+                <option value="${c.id_cliente}">
+                    ${c.nome_completo}
+                </option>
+            `;
         });
-
-    } catch (erro) {
-        console.error("Erro ao salvar conta fiado:", erro);
-        alert("Erro ao registrar fiado no banco. Verifique a conexão com o servidor.");
     }
-});
+    carregarClientesFiado();
 
+    document.getElementById("pg_fiado").addEventListener("click", () => {
+        modal.close();
+        document.getElementById("d_fiado").showModal();
+    });
+
+    document.getElementById("b_confirmar_fiado").addEventListener("click", async () => {
+        const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
+        const vencimento = document.getElementById("inp_vencimento").value;
+        const id_cliente = document.getElementById("sl_cliente").value;
+        if (!vencimento || !id_cliente) {
+            exibirAviso("Por favor, selecione o cliente e a data de vencimento.");
+            return;
+        }
+        try {
+            const respostaFiado = await fetch("http://localhost:3000/contas-fiado", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                },
+                body: JSON.stringify({
+                    id_cliente,
+                    valor: totalReal,
+                    vencimento
+                })
+            });
+            if (!respostaFiado.ok) {
+                throw new Error("Falha ao registrar a conta fiado no servidor.");
+            }
+            formaPagamento = "FIADO";
+
+            apiFetch(`${URL_BACKEND_CAD}/pedidos`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                },
+                body: JSON.stringify({
+                    itens: carrinho,
+                    valor_total: totalReal,
+                    qtd_total: carrinho.reduce((soma, item) => soma + item.qtd, 0),
+                    form_pag: formaPagamento
+                })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Erro ao salvar o pedido do fiado.");
+                return res.json();
+            })
+            .then(async data => {
+                document.getElementById("s_pedido").innerText = data.num_pedido;
+                
+                if (data.alertas && data.alertas.length > 0) {
+                    exibirAviso("⚠️ AVISO DE ESTOQUE:\n\n" + data.alertas.join("\n"), async () => {
+                        const qtdAdicionados = await verificarReposicaoAutomatica();
+                        if (qtdAdicionados > 0) {
+                            exibirAviso(`${qtdAdicionados} produto(s) adicionados à reposição.`, () => {
+                                exibirAviso("Venda em FIADO registrada com sucesso!", () => {
+                                    document.getElementById("d_fiado").close();
+                                    resetarPDV();
+                                });
+                            });
+                        } else {
+                            exibirAviso("Venda em FIADO registrada com sucesso!", () => {
+                                document.getElementById("d_fiado").close();
+                                resetarPDV();
+                            });
+                        }
+                    });
+                } else {
+                    const qtdAdicionados = await verificarReposicaoAutomatica();
+                    if (qtdAdicionados > 0) {
+                        exibirAviso(`${qtdAdicionados} produto(s) adicionados à reposição.`, () => {
+                            exibirAviso("Venda em FIADO registrada com sucesso!", () => {
+                                document.getElementById("d_fiado").close();
+                                resetarPDV();
+                            });
+                        });
+                    } else {
+                        exibirAviso("Venda em FIADO registrada com sucesso!", () => {
+                            document.getElementById("d_fiado").close();
+                            resetarPDV();
+                        });
+                    }
+                }
+            })
+            .catch(err => {
+                console.error("Erro ao salvar pedido do fiado:", err);
+                exibirAviso("A conta fiado foi criada, mas houve um erro ao fechar o pedido da cantina."); 
+            });
+        } catch (erro) {
+            console.error("Erro ao salvar conta fiado:", erro);
+            exibirAviso("Erro ao registrar fiado no banco. Verifique a conexão com o servidor.");
+        }
+    });
 </script>
 </body>
 </html>
