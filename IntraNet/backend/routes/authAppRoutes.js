@@ -1,23 +1,21 @@
-const express = require('express')
-const cors = require('cors')
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-const conexao = require('./db');
+const express = require('express');
+const router = express.Router();
 
-const app = express()
+const bcrypt = require('bcrypt');
+const conexao = require('../db');
+const jwt = require('jsonwebtoken');
 
-app.use(cors())
-app.use(express.json())
+const {
+    uploadPerfil
+} = require('../config/multer');
 
-const porta = 3001
+const verificarToken =
+require('../middlewares/auth');
 
-const api_chave = process.env.API_SEGREDO
+const SECRET =
+"C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
 
-app.listen(porta, () => { 
-    console.log(`Servidor rodando em: http://localhost:${porta}`)
-  })
-  
-  app.post("/cadastrar", async (req, res) => {
+router.post("/cadastrar", async (req, res) => {
     const { nome, cpf, email, senha } = req.body;
 
     if(email.length <= 3){
@@ -38,7 +36,7 @@ app.listen(porta, () => {
 
     try {
         const novaSenha = await bcrypt.hash(senha, 10);
-        const [resultado] = await conexao.execute(
+        await conexao.execute(
             "INSERT INTO users (nome, cpf, email, senha) values (?,?,?,?)", 
             [nome, cpf, email, novaSenha]
         );
@@ -57,7 +55,7 @@ app.listen(porta, () => {
     }
 });
 
-app.post("/login", async (req, res) => {
+router.post("/logar", async (req, res) => {
     const { email, senha } = req.body;
     try {
         const [usuarios] = await conexao.execute(`SELECT * FROM users WHERE email = ?`, [email]);
@@ -70,15 +68,19 @@ app.post("/login", async (req, res) => {
                 return res.status(401).json({ "mensagem": "Usuário ou senha inválido!" });
             }
 
+            // Opcional: Incluir o id dentro do token para maior segurança
             const token = jwt.sign(
-                { email: email },
-                api_chave || 'fallback_chave',
-                { expiresIn: '1h' }
+                { email: email, id_user: usuario.id_user || usuario.id },
+                SECRET,
+                { expiresIn: '8h' }
             );
 
+            // MUDANÇA AQUI: Agora devolvemos o id_user e o nome junto com o token!
             return res.json({
                 "resposta": "true",
                 "token": token,
+                "id_user": usuario.id_user || usuario.id, // Garante o nome correto da coluna do seu banco
+                "nome": usuario.nome,
                 "mensagem": "Bem-vindo!"
             });
 
@@ -91,3 +93,26 @@ app.post("/login", async (req, res) => {
         res.status(500).json({ "resposta": "false", "mensagem": "Erro no servidor" });
     }
 });
+
+const fs = require('fs');
+const path = require('path');
+
+const IMAGE_DIR = path.join(__dirname, '../../frontend/images');
+
+router.get('/images/:nome', async (req, res) => {
+  const base = req.params.nome.replace(/\.(png|jpg|jpeg|webp)$/i, '');
+
+  const exts = ['.png', '.jpg', '.jpeg', '.webp'];
+
+  for (const ext of exts) {
+    const filePath = path.join(IMAGE_DIR, base + ext);
+
+    try {
+      await fs.promises.access(filePath);
+      return res.sendFile(filePath);
+    } catch {}
+  }
+
+  return res.status(404).send('Imagem não encontrada');
+});
+module.exports = router;

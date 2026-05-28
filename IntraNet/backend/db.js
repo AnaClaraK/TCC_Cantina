@@ -1,20 +1,13 @@
 //Meu arquivo de conexão com o banco de dados
 const mysql = require('mysql2/promise')
+require('dotenv').config()
 
-//pool de conexão
-
-const conexao = mysql.createPool({//(o nome)conexao tem q ser o msm la em baixo
-    //criar as configurações do DB
-    //host é o endereço do DB
-    host:"localhost",
-    user:"root",
-    password:"",
-    port:3306,
-    database:"cantina",
-    waitForConnections:true,
-    connectionLimit:10,
-    queueLimit:0
-
+const pool = mysql.createPool({//(o nome)pool tem q ser o msm la em baixo
+    "host":process.env.DB_LOCAL,
+    "user":process.env.DB_USER,
+    "password":process.env.DB_PASSWORD,
+    "port":process.env.DB_PORTA,
+    "database":process.env.DB_DATABASE,
 })
 // 
-module.exports = conexao//desse aq
+module.exports = pool//desse aq
