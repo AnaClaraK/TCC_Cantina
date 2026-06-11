@@ -143,7 +143,7 @@ function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
         modalAviso.close();
     };
 }
-
+let agendamentosCalendario = [];
 function atualizarCalendario() {
     const listaDias = document.getElementById("calendario-numeros");
     const txtDiaGrande = document.getElementById("dia-grande-js");
@@ -177,17 +177,41 @@ function atualizarCalendario() {
 
     // Criar os números
     for (let dia = 1; dia <= ultimoDiaMes; dia++) {
-        const divDia = document.createElement("div");
-        divDia.classList.add("dia-numero");
-        divDia.innerText = dia;
+    const divDia = document.createElement("div");
+    divDia.classList.add("dia-numero");
+    divDia.innerText = dia;
 
-        // Destaque se for hoje (apenas se estivermos no mês/ano atual)
-        if (dia === diaAtual.getDate() && mes === diaAtual.getMonth() && ano === diaAtual.getFullYear()) {
-            divDia.classList.add("tem-evento");
-        }
+    const dataDia = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
 
-        listaDias.appendChild(divDia);
+    const possuiAgendamento = agendamentosCalendario.some(a => {
+        if (!a.data_ag) return false;
+
+        const dataAg = new Date(a.data_ag);
+
+        const dataFormatada =
+            `${dataAg.getFullYear()}-${String(dataAg.getMonth() + 1).padStart(2, "0")}-${String(dataAg.getDate()).padStart(2, "0")}`;
+
+        return dataFormatada === dataDia;
+    });
+
+    if (possuiAgendamento) {
+        divDia.classList.add("dia-agendado");
     }
+
+    if (
+        dia === diaAtual.getDate() &&
+        mes === diaAtual.getMonth() &&
+        ano === diaAtual.getFullYear()
+    ) {
+        divDia.classList.add("tem-evento");
+    }
+
+    divDia.addEventListener("click", () => {
+        mostrarAgendamentosDoDia(dataDia);
+    });
+
+    listaDias.appendChild(divDia);
+}
 }
 
 // Função para as setinhas funcionarem
@@ -212,6 +236,8 @@ async function carregarAgendamentosHome() {
         }
             
         const dados = await resposta.json();
+        agendamentosCalendario = dados;
+atualizarCalendario();
 
         // ORDENAÇÃO: Data mais próxima primeiro
         dados.sort((a, b) => {
@@ -276,6 +302,52 @@ window.addEventListener("load", () => {
     atualizarCalendario();
     carregarAgendamentosHome();
 });
+function mostrarAgendamentosDoDia(dataSelecionada) {
+    const tbody = document.getElementById("tb_agendamentos_home");
+
+    const filtrados = agendamentosCalendario.filter(a => {
+        if (!a.data_ag) return false;
+
+        const dataAg = new Date(a.data_ag);
+
+        const dataFormatada =
+            `${dataAg.getFullYear()}-${String(dataAg.getMonth() + 1).padStart(2, "0")}-${String(dataAg.getDate()).padStart(2, "0")}`;
+
+        return dataFormatada === dataSelecionada;
+    });
+
+    tbody.innerHTML = "";
+
+    if (filtrados.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="3">
+                    Nenhum agendamento neste dia.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    filtrados.forEach(item => {
+        const dataObj = new Date(item.data_ag);
+
+        const dataFormatada = dataObj.toLocaleString("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${item.cliente_nome || "Cliente"}</td>
+                <td>${item.produtos ? item.produtos.map(p => p.nome).join(", ") : "---"}</td>
+                <td>${dataFormatada}</td>
+            </tr>
+        `;
+    });
+}
     </script>
 </body>
 </html>

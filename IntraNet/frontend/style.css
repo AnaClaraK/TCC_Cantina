@@ -147,17 +147,21 @@ main, .conteudo-principal {
     transition: 0.2s;
 }
 
-/* Destaque para dias que possuem agendamento */
-.tem-evento {
-    background-color: #242628;
-    color: #efac4a;
-    font-weight: bold;
-}
+
 
 .dia-numero:hover {
     background-color: rgba(0,0,0,0.1);
 }
+.dia-agendado {
+    background: #242628;
+    color: #efac4a;
+    font-weight: bold;
+    cursor: pointer;
+}
 
+.dia-agendado:hover {
+    background-color: rgba(0,0,0,0.1);
+}
 .info-mes {
     width: 180px; /* Ajuste conforme necessário para caber o maior nome de mês */
     flex-shrink: 0;

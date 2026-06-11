@@ -116,97 +116,164 @@ router.get("/historico-pedidos", verificarToken, async (req, res) => {
 router.post("/comandas", async (req, res) => {
     const { id_user, carrinho, valor_total, qtd_total, status, form_pag } = req.body;
 
-    // 1. Validação básica de segurança
     if (!id_user || !carrinho || carrinho.length === 0) {
-        return res.status(400).json({ sucesso: false, erro: "Dados incompletos ou carrinho vazio." });
+        return res.status(400).json({
+            sucesso: false,
+            erro: "Dados incompletos ou carrinho vazio."
+        });
     }
 
     try {
-        // Gera um número sequencial simples para o num_pedido (ou use o próprio ID do pedido)
-        const [ultimoPedido] = await conexao.execute("SELECT MAX(num_pedido) as max_num FROM pedidos");
+
+        const [ultimoPedido] = await conexao.execute(
+            "SELECT MAX(num_pedido) as max_num FROM pedidos"
+        );
+
         const proximoNumero = (ultimoPedido[0].max_num || 0) + 1;
 
-        // 2. Primeiro INSERT: Criar o registro na tabela principal 'pedidos'
-        const queryPedido = `
-            INSERT INTO pedidos (id_user, num_pedido, data, status, origem, valor_total, qtd_total, form_pag) 
-            VALUES (?, ?, NOW(), ?, 'App', ?, ?, ?)
-        `;
-        
-        const [resultadoPedido] = await conexao.execute(queryPedido, [
-            id_user,
-            proximoNumero,
-            status || 'Agendado',
-            valor_total,
-            qtd_total,
-            form_pag || 'PIX (F6)'
-        ]);
+        // GERA O CÓDIGO DA COMANDA
+        const codigo_comanda = `CMD${proximoNumero}`;
 
-        // Captura o id_pedido gerado automaticamente pelo AUTO_INCREMENT
+        const queryPedido = `
+            INSERT INTO pedidos (
+                id_user,
+                num_pedido,
+                codigo_comanda,
+                data,
+                status,
+                origem,
+                valor_total,
+                qtd_total,
+                form_pag
+            )
+            VALUES (
+                ?,
+                ?,
+                ?,
+                NOW(),
+                ?,
+                'App',
+                ?,
+                ?,
+                ?
+            )
+        `;
+
+        const [resultadoPedido] = await conexao.execute(
+            queryPedido,
+            [
+                id_user,
+                proximoNumero,
+                codigo_comanda,
+                status || "Pendente",
+                valor_total,
+                qtd_total,
+                form_pag || "PIX"
+            ]
+        );
+
         const idPedidoGerado = resultadoPedido.insertId;
 
-        // 3. Segundo INSERT: Salvar cada item dentro da tabela 'pedidos_itens'
         const queryItem = `
-            INSERT INTO pedidos_itens (id_pedido, id_produto, qtd, preco_unitario) 
+            INSERT INTO pedidos_itens (
+                id_pedido,
+                id_produto,
+                qtd,
+                preco_unitario
+            )
             VALUES (?, ?, ?, ?)
         `;
 
-        // Percorre o array de itens enviados pelo React Native
         for (const item of carrinho) {
-            await conexao.execute(queryItem, [
-                idPedidoGerado,
-                item.id_produto || item.id, // Adapte conforme a propriedade do seu objeto
-                item.qtd,
-                item.preco_unitario || item.preco
-            ]);
+
+            await conexao.execute(
+                queryItem,
+                [
+                    idPedidoGerado,
+                    item.id_produto || item.id,
+                    item.qtd,
+                    item.preco_unitario || item.preco
+                ]
+            );
+
         }
 
-        // 4. Resposta de SUCESSO pura em JSON (evita o erro do caractere '<')
         return res.json({
             sucesso: true,
-            mensagem: "Pedido gravado com sucesso!",
+            mensagem: "Comanda criada com sucesso",
             id_pedido: idPedidoGerado,
-            num_pedido: proximoNumero
+            num_pedido: proximoNumero,
+            codigo_comanda
         });
 
     } catch (error) {
-        console.error("Erro crítico ao salvar pedido:", error);
-        // Retorna sempre um objeto JSON mesmo em caso de erro fatal
-        return res.status(500).json({ 
-            sucesso: false, 
-            erro: "Erro interno no servidor ao processar o banco de dados." 
+
+        console.error(error);
+
+        return res.status(500).json({
+            sucesso: false,
+            erro: "Erro ao criar comanda"
         });
+
     }
 });
-router.get('/comandas/:codigo', async (req, res) => {
+
+router.get("/comandas/:codigo", async (req, res) => {
     try {
+
         const { codigo } = req.params;
-  
-        const queryPedido = `SELECT * FROM pedidos WHERE codigo_comanda = ? AND status = 'pendente'`;
-        // Ajustado de db.query para conexao.query
-        const [pedidos] = await conexao.query(queryPedido, [codigo]);
-  
+
+        const [pedidos] = await conexao.query(
+            `
+            SELECT *
+            FROM pedidos
+            WHERE codigo_comanda = ?
+            `,
+            [codigo]
+        );
+
         if (pedidos.length === 0) {
-            return res.status(404).json({ erro: "Comanda não encontrada ou já paga" });
+            return res.status(404).json({
+                erro: "Comanda não encontrada"
+            });
         }
-  
+
         const pedido = pedidos[0];
+
+        const [itens] = await conexao.query(
+            `
   
-        const queryItens = `
-            SELECT pi.*, p.nome 
-            FROM pedidos_itens pi
-            JOIN produtos p ON pi.id_produto = p.id_produto
-            WHERE pi.id_pedido = ?
-        `;
-        const [itens] = await conexao.query(queryItens, [pedido.id_pedido]);
-  
+    SELECT
+    pi.*,
+    p.nome,
+    p.codigo_barras,
+    p.img,
+    p.qtd AS estoque,
+    p.qtd_min,
+    p.img,
+    pi.preco_unitario AS preco
+FROM pedidos_itens pi
+JOIN produtos p ON pi.id_produto = p.id_produto
+WHERE pi.id_pedido = ?
+            `,
+            [pedido.id_pedido]
+        );
+
         pedido.carrinho = itens;
+
         res.json(pedido);
-  
+
     } catch (erro) {
+
         console.error(erro);
-        res.status(500).json({ erro: "Erro ao buscar dados da comanda" });
+
+        res.status(500).json({
+            erro: "Erro ao buscar comanda"
+        });
+
     }
 });
+
 router.get("/historico-pedidos", async (req, res) => {
     try {
         // Coleta os pedidos trazendo o id_user de forma explícita para o app saber de quem é
