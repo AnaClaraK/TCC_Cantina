@@ -1,18 +1,11 @@
+const express = require('express');
+const router = express.Router();
+const conexao = require('../db');
+const verificarToken = require('../middlewares/auth');
 
-const express =
-require('express');
-
-const router =
-express.Router();
-
-const conexao =
-require('../db');
-
-
-const verificarToken =
-require('../middlewares/auth');
 const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
-//--PDV rota pedidos
+
+// ==================== PDV: ROTA DE PEDIDOS ====================
 router.post("/pedidos", verificarToken, async (req, res) => {
     const conn = await conexao.getConnection();
     try {
@@ -22,7 +15,7 @@ router.post("/pedidos", verificarToken, async (req, res) => {
         const idCliente = id_user || 1;
         const status = "Finalizado";
         const data = new Date();
-        const alertas = []; // Array para armazenar os avisos de estoque baixo
+        const alertas = []; 
 
         const [ultimoPedido] = await conn.query(`SELECT MAX(num_pedido) AS ultimoNumero FROM pedidos`);
         const num_pedido = (ultimoPedido[0].ultimoNumero || 0) + 1;
@@ -36,7 +29,6 @@ router.post("/pedidos", verificarToken, async (req, res) => {
 
         if (itens && itens.length > 0) {
             for (const item of itens) {
-                // BUSCA ESTOQUE ATUAL E QTD MÍNIMA
                 const [estoque] = await conn.query(
                     "SELECT nome, qtd, qtd_min FROM produtos WHERE id_produto = ?", 
                     [item.id_produto]
@@ -45,24 +37,20 @@ router.post("/pedidos", verificarToken, async (req, res) => {
                 const produtoDB = estoque[0];
                 const novaQtd = produtoDB.qtd - item.qtd;
 
-                // 1. Bloqueio de segurança (Não deixa vender o que não tem)
                 if (novaQtd < 0) {
                     throw new Error(`Estoque insuficiente para: ${produtoDB.nome}`);
                 }
 
-                // 2. VERIFICAÇÃO DE ESTOQUE MÍNIMO (O AVISO)
                 if (novaQtd <= produtoDB.qtd_min) {
                     alertas.push(`O produto "${produtoDB.nome}" atingiu o estoque mínimo (${novaQtd} restantes).`);
                 }
 
-                // Atualiza o estoque no banco
                 await conn.query("UPDATE produtos SET qtd = ? WHERE id_produto = ?", [novaQtd, item.id_produto]);
 
-                // Salva o item do pedido
                 await conn.query(`
                     INSERT INTO pedidos_itens (id_pedido, id_produto, qtd, preco_unitario, origem) 
                     VALUES (?, ?, ?, ?, ?)
-                `, [id_pedido, item.id_produto, item.qtd, item.origem, item.preco_unitario ?? item.preco]);
+                `, [id_pedido, item.id_produto, item.qtd, item.preco_unitario ?? item.preco, item.origem]);
             }
         }
 
@@ -72,7 +60,7 @@ router.post("/pedidos", verificarToken, async (req, res) => {
             resposta: "Pedido finalizado com sucesso!",
             id_pedido,
             num_pedido,
-            alertas: alertas // Envia a lista de avisos para o frontend
+            alertas
         });
 
     } catch (erro) {
@@ -83,38 +71,97 @@ router.post("/pedidos", verificarToken, async (req, res) => {
         conn.release();
     }
 });
-//---- Histórico Pedidos
 
+// ==================== HISTÓRICO DE PEDIDOS ====================
 router.get("/historico-pedidos", verificarToken, async (req, res) => {
     try {
-        const [pedidos] = await conexao.query(`
-            SELECT
+        const idUserLogado = req.user?.id_user || req.user?.id || req.query.id_user;
+
+        let queryPedidos = `
+            SELECT 
                 p.id_pedido,
                 p.num_pedido,
+                p.codigo_comanda,
+                p.id_user,
                 p.data,
-                p.valor_total,
-                p.form_pag,
+                p.data_ag,
                 p.status,
                 p.origem,
-                u.nome
+                p.valor_total,
+                p.form_pag,
+                COALESCE(u.nome, 'Consumidor Final') AS nome
             FROM pedidos p
             LEFT JOIN users u ON p.id_user = u.id_user
-            WHERE p.status = 'Finalizado'
-            ORDER BY p.data DESC
-        `);
+        `;
 
-        res.json(pedidos);
-    } catch (erro) {
-        console.error("Erro ao buscar histórico:", erro);
-        res.status(500).json({
-            erro: "Erro ao buscar histórico de pedidos"
+        const params = [];
+        if (idUserLogado) {
+            queryPedidos += ` WHERE p.id_user = ?`;
+            params.push(idUserLogado);
+        }
+
+        queryPedidos += ` ORDER BY p.data DESC`;
+
+        const [pedidos] = await conexao.execute(queryPedidos, params);
+
+        if (!pedidos || pedidos.length === 0) {
+            return res.json([]);
+        }
+
+        // Extrai os IDs dos pedidos
+        const idsPedidos = pedidos.map(p => p.id_pedido);
+        const placeholders = idsPedidos.map(() => '?').join(',');
+
+        // Busca TODOS os itens vinculados a esses pedidos
+        const queryItens = `
+            SELECT 
+                pi.id_pedido,
+                pi.id_produto,
+                pi.qtd,
+                pi.preco_unitario,
+                COALESCE(prod.nome, 'Produto Indisponível') AS nome_produto
+            FROM pedidos_itens pi
+            LEFT JOIN produtos prod ON pi.id_produto = prod.id_produto
+            WHERE pi.id_pedido IN (${placeholders})
+        `;
+
+        const [itens] = await conexao.execute(queryItens, idsPedidos);
+
+        // LOG DE DEPURACÃO NO TERMINAL DO NODE:
+        console.log("--> ITENS ENCONTRADOS NO BANCO:", itens);
+
+        // Agrupa os itens garantindo a comparação correta (String com String)
+        const resultadoFinal = pedidos.map(pedido => {
+            const itensDoPedido = itens.filter(
+                item => String(item.id_pedido) === String(pedido.id_pedido)
+            );
+
+            return {
+                ...pedido,
+                itens: itensDoPedido // Garante que é um array simples de objetos [{...}]
+            };
         });
+
+        return res.json(resultadoFinal);
+
+    } catch (error) {
+        console.error("Erro ao buscar histórico:", error);
+        return res.status(500).json({ erro: "Erro ao processar consulta no banco." });
     }
 });
-
-// ==================== ROTA DE COMANDAS CORRIGIDA ====================
+// ==================== ROTA DE COMANDAS ====================
 router.post("/comandas", async (req, res) => {
-    const { id_user, carrinho, valor_total, qtd_total, status, form_pag } = req.body;
+    const { 
+        id_user, 
+        carrinho, 
+        valor_total, 
+        qtd_total, 
+        status, 
+        forma_pagamento, 
+        form_pag 
+    } = req.body;
+
+    const pagamentoSelecionado = forma_pagamento || form_pag;
 
     if (!id_user || !carrinho || carrinho.length === 0) {
         return res.status(400).json({
@@ -123,15 +170,33 @@ router.post("/comandas", async (req, res) => {
         });
     }
 
-    try {
+    if (!pagamentoSelecionado) {
+        return res.status(400).json({
+            sucesso: false,
+            erro: "Forma de pagamento não informada."
+        });
+    }
 
-        const [ultimoPedido] = await conexao.execute(
+    let conn;
+
+    try {
+        conn = await conexao.getConnection();
+        await conn.beginTransaction();
+
+        const primeiroItem = carrinho[0];
+        let dataAgFormatada = null;
+
+        if (primeiroItem?.data_agendamento && primeiroItem?.horario_retirada) {
+            dataAgFormatada = `${primeiroItem.data_agendamento} ${primeiroItem.horario_retirada}:00`;
+        } else if (primeiroItem?.data_agendamento) {
+            dataAgFormatada = `${primeiroItem.data_agendamento} 00:00:00`;
+        }
+
+        const [ultimoPedido] = await conn.execute(
             "SELECT MAX(num_pedido) as max_num FROM pedidos"
         );
 
         const proximoNumero = (ultimoPedido[0].max_num || 0) + 1;
-
-        // GERA O CÓDIGO DA COMANDA
         const codigo_comanda = `CMD${proximoNumero}`;
 
         const queryPedido = `
@@ -140,37 +205,26 @@ router.post("/comandas", async (req, res) => {
                 num_pedido,
                 codigo_comanda,
                 data,
+                data_ag,
                 status,
                 origem,
                 valor_total,
                 qtd_total,
                 form_pag
             )
-            VALUES (
-                ?,
-                ?,
-                ?,
-                NOW(),
-                ?,
-                'App',
-                ?,
-                ?,
-                ?
-            )
+            VALUES (?, ?, ?, NOW(), ?, ?, 'App', ?, ?, ?)
         `;
 
-        const [resultadoPedido] = await conexao.execute(
-            queryPedido,
-            [
-                id_user,
-                proximoNumero,
-                codigo_comanda,
-                status || "Pendente",
-                valor_total,
-                qtd_total,
-                form_pag || "PIX"
-            ]
-        );
+        const [resultadoPedido] = await conn.execute(queryPedido, [
+            id_user,
+            proximoNumero,
+            codigo_comanda,
+            dataAgFormatada,
+            status || "Pendente",
+            valor_total,
+            qtd_total,
+            pagamentoSelecionado
+        ]);
 
         const idPedidoGerado = resultadoPedido.insertId;
 
@@ -185,18 +239,15 @@ router.post("/comandas", async (req, res) => {
         `;
 
         for (const item of carrinho) {
-
-            await conexao.execute(
-                queryItem,
-                [
-                    idPedidoGerado,
-                    item.id_produto || item.id,
-                    item.qtd,
-                    item.preco_unitario || item.preco
-                ]
-            );
-
+            await conn.execute(queryItem, [
+                idPedidoGerado,
+                item.id_produto || item.id,
+                item.qtd,
+                item.preco_unitario || item.preco
+            ]);
         }
+
+        await conn.commit();
 
         return res.json({
             sucesso: true,
@@ -207,100 +258,21 @@ router.post("/comandas", async (req, res) => {
         });
 
     } catch (error) {
-
-        console.error(error);
+        if (conn) {
+            await conn.rollback();
+        }
+        console.error("Erro ao criar comanda:", error);
 
         return res.status(500).json({
             sucesso: false,
-            erro: "Erro ao criar comanda"
+            erro: "Erro interno ao criar comanda"
         });
 
-    }
-});
-
-router.get("/comandas/:codigo", async (req, res) => {
-    try {
-
-        const { codigo } = req.params;
-
-        const [pedidos] = await conexao.query(
-            `
-            SELECT *
-            FROM pedidos
-            WHERE codigo_comanda = ?
-            `,
-            [codigo]
-        );
-
-        if (pedidos.length === 0) {
-            return res.status(404).json({
-                erro: "Comanda não encontrada"
-            });
+    } finally {
+        if (conn) {
+            conn.release();
         }
-
-        const pedido = pedidos[0];
-
-        const [itens] = await conexao.query(
-            `
-  
-    SELECT
-    pi.*,
-    p.nome,
-    p.codigo_barras,
-    p.img,
-    p.qtd AS estoque,
-    p.qtd_min,
-    p.img,
-    pi.preco_unitario AS preco
-FROM pedidos_itens pi
-JOIN produtos p ON pi.id_produto = p.id_produto
-WHERE pi.id_pedido = ?
-            `,
-            [pedido.id_pedido]
-        );
-
-        pedido.carrinho = itens;
-
-        res.json(pedido);
-
-    } catch (erro) {
-
-        console.error(erro);
-
-        res.status(500).json({
-            erro: "Erro ao buscar comanda"
-        });
-
     }
 });
 
-router.get("/historico-pedidos", async (req, res) => {
-    try {
-        // Coleta os pedidos trazendo o id_user de forma explícita para o app saber de quem é
-        const query = `
-            SELECT 
-                p.id_pedido,
-                p.num_pedido,
-                p.id_user,
-                p.data,
-                p.status,
-                p.origem,
-                p.valor_total,
-                p.form_pag,
-                u.nome
-            FROM pedidos p
-            INNER JOIN users u ON p.id_user = u.id_user
-            ORDER BY p.data DESC
-        `;
-
-        const [resultados] = await conexao.execute(query);
-        
-        // Garante o retorno puro do array JSON
-        return res.json(resultados);
-
-    } catch (error) {
-        console.error("Erro ao buscar histórico:", error);
-        return res.status(500).json({ erro: "Erro ao processar consulta no banco." });
-    }
-});""
 module.exports = router;

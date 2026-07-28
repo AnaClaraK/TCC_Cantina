@@ -13,9 +13,9 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from "@react-navigation/native";
 import NotificacaoModal from '../Components/Modal'; 
+const MODO_DEV = true; 
 
-
-const IP_SERVIDOR = "10.111.9.96"; 
+const IP_SERVIDOR = "10.111.9.34"; 
 const URL_API = `http://${IP_SERVIDOR}:3000`;
 
 const CORES = {
