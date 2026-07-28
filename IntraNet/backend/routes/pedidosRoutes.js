@@ -149,6 +149,34 @@ router.get("/historico-pedidos", verificarToken, async (req, res) => {
         return res.status(500).json({ erro: "Erro ao processar consulta no banco." });
     }
 });
+// ==================== LIMPAR/BACKUP HISTÓRICO DE PEDIDOS ====================
+router.delete("/historico-pedidos/limpar", verificarToken, async (req, res) => {
+    let conn;
+    try {
+        conn = await conexao.getConnection();
+        await conn.beginTransaction();
+
+        // 1. Remove os itens dos pedidos das tabelas filhas (integridade referencial)
+        await conn.execute("DELETE FROM pedidos_itens");
+
+        // 2. Remove os registros de pedidos
+        await conn.execute("DELETE FROM pedidos");
+
+        await conn.commit();
+
+        return res.json({
+            sucesso: true,
+            mensagem: "Histórico de pedidos e itens limpos com sucesso!"
+        });
+
+    } catch (error) {
+        if (conn) await conn.rollback();
+        console.error("Erro ao limpar histórico no banco:", error);
+        return res.status(500).json({ erro: "Falha ao apagar o histórico no banco de dados." });
+    } finally {
+        if (conn) conn.release();
+    }
+});
 // ==================== ROTA DE COMANDAS ====================
 router.post("/comandas", async (req, res) => {
     const { 

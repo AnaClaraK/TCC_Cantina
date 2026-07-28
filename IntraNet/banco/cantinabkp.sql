@@ -2,7 +2,7 @@
 -- Servidor:                     127.0.0.1
 -- Versão do servidor:           10.4.32-MariaDB - mariadb.org binary distribution
 -- OS do Servidor:               Win64
--- HeidiSQL Versão:              12.10.0.7000
+-- HeidiSQL Versão:              12.20.0.7320
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `cadastro` (
 -- Copiando dados para a tabela cantina.cadastro: ~3 rows (aproximadamente)
 DELETE FROM `cadastro`;
 INSERT INTO `cadastro` (`id_cadastro`, `nome`, `email`, `senha`, `img`) VALUES
-	(1, 'Ana Banana', 'anabanana@gmail.com', '$2b$10$3NKKQb/fQsf9lPg6CF1hV.BXPtaDQFNQOev9qMzdXiRQgUc4i3LJ.', '/imagens/1777572726880.jpg'),
+	(1, 'Ana Banana', 'anabanana@gmail.com', '$2b$10$gyWNP.xPulBrRpgz9NUFOeF2hTMfGnCHeZPo3ZoMloAaoHpIC55tC', '/imagens/1777572726880.jpg'),
 	(2, 'Kemilly', 'kemillyregina@gmail.com', '5b41d889f9fa1c2d51448a8e009e16b7189030ce6cb637fba913ae33b231f702', '/imagens/1778585396841.jpg'),
 	(4, 'Teste', 't@t.com', 'a2ca37fe6fdc490b8f7ce841e1701a169d2b1697c6b5b5c63f94abb8f9b6d6dd', '/imagens/def_avt.jpg');
 
@@ -79,31 +79,6 @@ INSERT INTO `clientes_fiado` (`id_cliente`, `nome_completo`, `cpf`, `telefone`, 
 	(5, 'Kemilly Regina', '21345678930209', '18 98812-8490', 'adgjkd jd', '2026-05-14 17:03:54'),
 	(6, 'Kemilly Reginer', '213456789654', '5518930853494', 'ku7 opkl', '2026-05-14 18:40:27');
 
--- Copiando estrutura para tabela cantina.contas_fiado
-DROP TABLE IF EXISTS `contas_fiado`;
-CREATE TABLE IF NOT EXISTS `contas_fiado` (
-  `id_conta` int(11) NOT NULL AUTO_INCREMENT,
-  `id_cliente` int(11) NOT NULL,
-  `valor_original` decimal(10,2) NOT NULL,
-  `valor_final` decimal(10,2) NOT NULL,
-  `juros_aplicado` tinyint(1) DEFAULT 0,
-  `data_criacao` datetime DEFAULT current_timestamp(),
-  `data_vencimento` date NOT NULL,
-  `data_pagamento` datetime DEFAULT NULL,
-  `status` enum('Pendente','Pago','Atrasado') DEFAULT 'Pendente',
-  `origem` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id_conta`),
-  KEY `id_cliente` (`id_cliente`),
-  CONSTRAINT `contas_fiado_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `clientes_fiado` (`id_cliente`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
--- Copiando dados para a tabela cantina.contas_fiado: ~3 rows (aproximadamente)
-DELETE FROM `contas_fiado`;
-INSERT INTO `contas_fiado` (`id_conta`, `id_cliente`, `valor_original`, `valor_final`, `juros_aplicado`, `data_criacao`, `data_vencimento`, `data_pagamento`, `status`, `origem`) VALUES
-	(9, 1, 103.50, 103.50, 0, '2026-05-14 16:56:18', '2026-05-30', '2026-05-23 00:00:00', 'Pendente', ''),
-	(13, 1, 9.56, 9.56, 0, '2026-05-19 08:38:50', '2026-05-28', '2026-05-29 00:00:00', 'Pago', NULL),
-	(14, 1, 3.80, 3.80, 0, '2026-05-19 08:49:53', '2026-06-04', NULL, 'Pendente', 'loja');
-
 -- Copiando estrutura para tabela cantina.conta_fiado_prod
 DROP TABLE IF EXISTS `conta_fiado_prod`;
 CREATE TABLE IF NOT EXISTS `conta_fiado_prod` (
@@ -128,6 +103,31 @@ INSERT INTO `conta_fiado_prod` (`id_contprod`, `id_conta`, `id_produto`, `qtd`, 
 	(16, 13, 1, 1, 2.00),
 	(17, 14, 3, 1, 3.80);
 
+-- Copiando estrutura para tabela cantina.contas_fiado
+DROP TABLE IF EXISTS `contas_fiado`;
+CREATE TABLE IF NOT EXISTS `contas_fiado` (
+  `id_conta` int(11) NOT NULL AUTO_INCREMENT,
+  `id_cliente` int(11) NOT NULL,
+  `valor_original` decimal(10,2) NOT NULL,
+  `valor_final` decimal(10,2) NOT NULL,
+  `juros_aplicado` tinyint(1) DEFAULT 0,
+  `data_criacao` datetime DEFAULT current_timestamp(),
+  `data_vencimento` date NOT NULL,
+  `data_pagamento` datetime DEFAULT NULL,
+  `status` enum('Pendente','Pago','Atrasado') DEFAULT 'Pendente',
+  `origem` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id_conta`),
+  KEY `id_cliente` (`id_cliente`),
+  CONSTRAINT `contas_fiado_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `clientes_fiado` (`id_cliente`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+-- Copiando dados para a tabela cantina.contas_fiado: ~3 rows (aproximadamente)
+DELETE FROM `contas_fiado`;
+INSERT INTO `contas_fiado` (`id_conta`, `id_cliente`, `valor_original`, `valor_final`, `juros_aplicado`, `data_criacao`, `data_vencimento`, `data_pagamento`, `status`, `origem`) VALUES
+	(9, 1, 103.50, 113.85, 1, '2026-05-14 16:56:18', '2026-05-30', '2026-05-23 00:00:00', 'Atrasado', ''),
+	(13, 1, 9.56, 9.56, 0, '2026-05-19 08:38:50', '2026-05-28', '2026-05-29 00:00:00', 'Pago', NULL),
+	(14, 1, 3.80, 4.18, 1, '2026-05-19 08:49:53', '2026-06-04', NULL, 'Atrasado', 'loja');
+
 -- Copiando estrutura para tabela cantina.pedidos
 DROP TABLE IF EXISTS `pedidos`;
 CREATE TABLE IF NOT EXISTS `pedidos` (
@@ -146,9 +146,9 @@ CREATE TABLE IF NOT EXISTS `pedidos` (
   UNIQUE KEY `codigo_comanda` (`codigo_comanda`),
   KEY `Index 2` (`id_user`),
   CONSTRAINT `FK_pedidos_users` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE NO ACTION ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.pedidos: ~35 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.pedidos: ~39 rows (aproximadamente)
 DELETE FROM `pedidos`;
 INSERT INTO `pedidos` (`id_pedido`, `id_user`, `num_pedido`, `data`, `data_ag`, `status`, `origem`, `valor_total`, `qtd_total`, `form_pag`, `codigo_comanda`) VALUES
 	(7, 2, 1, '2026-04-16 17:08:06', '0000-00-00 00:00:00', 'Finalizado', 'PDV', 10.00, 1, 'DINHEIRO (F2)', NULL),
@@ -185,7 +185,11 @@ INSERT INTO `pedidos` (`id_pedido`, `id_user`, `num_pedido`, `data`, `data_ag`, 
 	(42, 1, 0, '2026-05-26 14:04:57', NULL, 'pendente', 'APP', 20.70, 1, NULL, 'CMD3284'),
 	(43, 1, 0, '2026-05-26 14:11:46', NULL, 'pendente', 'APP', 20.70, 1, NULL, 'CMD3997'),
 	(44, 4, 0, '2026-05-26 15:54:01', NULL, 'pendente', 'APP', 18.60, 1, NULL, 'CMD3062'),
-	(45, 4, 0, '2026-05-26 15:55:36', NULL, 'pendente', 'APP', 20.70, 1, NULL, 'CMD7401');
+	(45, 4, 0, '2026-05-26 15:55:36', NULL, 'pendente', 'APP', 20.70, 1, NULL, 'CMD7401'),
+	(46, 4, 23, '2026-07-28 10:32:23', NULL, 'Pendente', 'App', 20.70, 1, 'PIX', 'CMD23'),
+	(47, 4, 24, '2026-07-28 10:33:04', NULL, 'Pendente', 'App', 18.60, 1, 'PIX', 'CMD24'),
+	(50, 4, 25, '2026-07-28 11:07:32', '2026-07-29 12:00:00', 'Pendente', 'App', 20.70, 1, 'CREDITO', 'CMD25'),
+	(51, 4, 26, '2026-07-28 13:32:27', '2026-07-29 12:00:00', 'Pendente', 'App', 42.70, 3, 'DINHEIRO', 'CMD26');
 
 -- Copiando estrutura para tabela cantina.pedidos_itens
 DROP TABLE IF EXISTS `pedidos_itens`;
@@ -200,9 +204,9 @@ CREATE TABLE IF NOT EXISTS `pedidos_itens` (
   KEY `Index 3` (`id_produto`),
   CONSTRAINT `FK_pedidos_itens_pedidos` FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `FK_pedidos_itens_produtos` FOREIGN KEY (`id_produto`) REFERENCES `produtos` (`id_produto`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
--- Copiando dados para a tabela cantina.pedidos_itens: ~53 rows (aproximadamente)
+-- Copiando dados para a tabela cantina.pedidos_itens: ~58 rows (aproximadamente)
 DELETE FROM `pedidos_itens`;
 INSERT INTO `pedidos_itens` (`id_itens`, `id_pedido`, `id_produto`, `qtd`, `preco_unitario`) VALUES
 	(12, 7, 1, 1, 2.260000),
@@ -257,7 +261,12 @@ INSERT INTO `pedidos_itens` (`id_itens`, `id_pedido`, `id_produto`, `qtd`, `prec
 	(61, 42, 7, 1, 20.700000),
 	(62, 43, 7, 1, 20.700000),
 	(63, 44, 5, 1, 18.600000),
-	(64, 45, 7, 1, 20.700000);
+	(64, 45, 7, 1, 20.700000),
+	(65, 46, 7, 1, 20.700000),
+	(66, 47, 8, 1, 18.600000),
+	(67, 50, 7, 1, 20.700000),
+	(68, 51, 5, 2, 18.600000),
+	(69, 51, 19, 1, 5.500000);
 
 -- Copiando estrutura para tabela cantina.produtos
 DROP TABLE IF EXISTS `produtos`;
@@ -279,28 +288,28 @@ CREATE TABLE IF NOT EXISTS `produtos` (
 -- Copiando dados para a tabela cantina.produtos: ~70 rows (aproximadamente)
 DELETE FROM `produtos`;
 INSERT INTO `produtos` (`id_produto`, `id_categoria`, `codigo_barras`, `nome`, `descricao`, `preco`, `qtd`, `img`, `qtd_min`) VALUES
-	(1, 1, '100', 'Café coado 50ml', '', 2.26, 4, 'cafe_50.jpg', 3),
-	(2, 1, '4006381492355', 'Café coado 100ml', '', 3.50, 8, 'cafe_100.png', 1),
-	(3, 1, '102', 'Pingado 150ml', '', 3.80, 8, 'cafe_pingado.png', 1),
-	(4, 1, '103', 'Chocolate quente 200ml', '', 6.94, 15, 'cafe.png', 1),
-	(5, 2, '104', 'Arroz, Strogonoff de frango P', 'Delicioso strogonoff preparado com pedaços selecionados de peito de frango, regado ao autêntico molho cremoso de creme de leite fresquinho, ketchup, mostarda e cogumelos fatiados. Acompanha arroz branco soltinho e batata palha super crocante.', 18.60, 20, 'arroz_strog.png', 1),
+	(1, 1, '100', 'Café coado 50ml', '', 2.26, 0, 'cafe_50.jpg', 3),
+	(2, 1, '101', 'Café coado 100ml', '', 3.50, 0, 'cafe_100.png', 1),
+	(3, 1, '102', 'Pingado 150ml', '', 3.80, 0, 'cafe_pingado.png', 1),
+	(4, 1, '103', 'Chocolate quente 200ml', '', 6.94, 0, 'cafe.png', 1),
+	(5, 2, '104', 'Arroz, Strogonoff de frango P', 'Delicioso strogonoff preparado com pedaços selecionados de peito de frango, regado ao autêntico molho cremoso de creme de leite fresquinho, ketchup, mostarda e cogumelos fatiados. Acompanha arroz branco soltinho e batata palha super crocante.', 18.60, 10, 'arroz_strog.png', 1),
 	(6, 2, '105', 'Arroz, Strogonoff de frango M', '', 19.50, 0, 'arroz_strog.jpg', 1),
-	(7, 2, '106', 'Arroz, Strogonoff de frango G', '', 20.70, 2, 'arroz_strog.png', 1),
-	(8, 2, '107', 'Arroz, lasanha bolonhesa P', '', 18.60, 25, 'arroz_lasan.png', 1),
+	(7, 2, '106', 'Arroz, Strogonoff de frango G', '', 20.70, 0, 'arroz_strog.png', 1),
+	(8, 2, '107', 'Arroz, lasanha bolonhesa P', '', 18.60, 0, 'arroz_lasan.png', 1),
 	(9, 2, '108', 'Arroz, lasanha bolonhesa M', '', 19.50, 0, 'arroz_lasan.png', 1),
-	(10, 2, '109', 'Arroz, lasanha bolonhesa G', '', 20.70, -5, 'arroz_lasan.png', 1),
+	(10, 2, '109', 'Arroz, lasanha bolonhesa G', '', 20.70, 0, 'arroz_lasan.png', 1),
 	(11, 2, '110', 'Arroz, feijão, carne de panela P', '', 18.60, 0, 'arroz_carp.jpg', 1),
 	(12, 2, '111', 'Arroz, feijão, carne de panela M', '', 19.50, 0, 'arroz_carp.jpg', 1),
 	(13, 2, '112', 'Arroz, feijão, carne de panela G', '', 20.70, 0, 'arroz_carp.jpg', 1),
-	(14, 2, '113', 'Macarrão bolonhesa P', '', 18.60, -1, 'macarr_bolon.jpg', 1),
+	(14, 2, '113', 'Macarrão bolonhesa P', '', 18.60, 0, 'macarr_bolon.jpg', 1),
 	(15, 2, '114', 'Macarrão bolonhesa M', '', 19.50, 0, 'macarr_bolon.jpg', 1),
 	(16, 2, '115', 'Macarrão bolonhesa G', '', 20.70, 0, 'macarr_bolon.jpg', 1),
 	(17, 3, '116', 'Picolé de água', '', 3.06, 0, 'picole_agua.jpg', 1),
 	(18, 3, '117', 'Picolé de leite', '', 4.20, 0, 'picole_leite.png', 1),
-	(19, 3, '7898119104794', 'Picolé tipo skimo', '', 5.50, 5, 'picole_skimo.jpg', 1),
+	(19, 3, '118', 'Picolé tipo skimo', '', 5.50, 2, 'picole_skimo.jpg', 1),
 	(20, 3, '119', 'Picolé gianduia', '', 5.50, 0, 'img_ntf.png', 1),
 	(21, 3, '120', 'Picolé Maxxi leite trufado', '', 9.00, 0, 'maxxi_black.png', 1),
-	(22, 3, '6972689546657', 'Picolé Maxxi Black', '', 9.00, 82, 'maxxi_black.png', 1),
+	(22, 3, '121', 'Picolé Maxxi Black', '', 9.00, 0, 'maxxi_black.png', 1),
 	(23, 3, '122', 'Picolé Maxxi White', '', 9.00, 0, 'maxxi_white.png', 1),
 	(24, 3, '123', 'Copo Big bombom', '', 7.00, 0, 'big_bombom.png', 1),
 	(25, 3, '124', 'Copo Big flocos', '', 7.00, 0, 'big_flocos.png', 1),
@@ -310,7 +319,7 @@ INSERT INTO `produtos` (`id_produto`, `id_categoria`, `codigo_barras`, `nome`, `
 	(29, 3, '128', 'Mini bombom Maxxi skimo', '', 15.50, 0, 'bomb_skimo.png', 1),
 	(30, 3, '129', 'Pote de açaí 240ml', '', 12.50, 0, 'acai_240.png', 1),
 	(31, 3, '130', 'Sorvete misto', '', 2.00, 0, 'picole_misto.png', 1),
-	(32, 4, '6956825938261', 'Esfirra de carne', '', 7.29, 9, 'esfirra.png', 1),
+	(32, 4, '131', 'Esfirra de carne', '', 7.29, 0, 'esfirra.png', 1),
 	(33, 4, '132', 'Esfirra de frango catu', '', 7.29, 0, 'esfirra.png', 1),
 	(34, 4, '133', 'Enrolado de queijo', '', 7.29, 0, 'enroladinho.jpg', 1),
 	(35, 4, '134', 'Enrolado de salsicha', '', 7.29, 0, 'enr_salsi.png', 1),
@@ -322,7 +331,7 @@ INSERT INTO `produtos` (`id_produto`, `id_categoria`, `codigo_barras`, `nome`, `
 	(41, 4, '140', 'Coxinha de frango', '', 7.58, 0, 'coxinha.jpg', 1),
 	(42, 4, '141', 'Coxinha de costela', '', 8.50, 0, 'coxinha.jpg', 1),
 	(43, 5, '142', 'Pão com ovo', '', 5.62, 0, 'pao_ovo.jpg', 1),
-	(44, 5, '7891962036984', 'Bauru', '', 10.66, 10, 'bauru.png', 1),
+	(44, 5, '143', 'Bauru', '', 10.66, 0, 'bauru.png', 1),
 	(45, 5, '144', 'Americano', '', 18.42, 0, 'img_ntf.png', 1),
 	(46, 5, '145', 'Omelete simples', '', 5.00, 0, 'omelete_sim.png', 1),
 	(47, 5, '146', 'Omelete presunto e queijo', '', 7.50, 0, 'omelete_sim.png', 1),
@@ -347,8 +356,8 @@ INSERT INTO `produtos` (`id_produto`, `id_categoria`, `codigo_barras`, `nome`, `
 	(66, 8, '165', 'Água com gás', '', 2.70, 0, 'agua_gas.jpg', 1),
 	(67, 8, '166', 'Coca-Cola 2L', '', 11.97, 0, 'coca_2l.png', 1),
 	(68, 8, '167', 'Fanta 2L', '', 11.50, 0, 'fanta_2l.png', 1),
-	(70, 6, '168', 'Brownie', '', 6.50, 10, 'brownie.png', NULL),
-	(71, 7, '169', 'Trufa de KitKat', '', 6.50, 1, '1778613120966.png', NULL);
+	(70, 6, '168', 'Brownie', '', 6.50, 0, 'brownie.png', NULL),
+	(71, 7, '169', 'Trufa de KitKat', '', 6.50, 0, '1778613120966.png', NULL);
 
 -- Copiando estrutura para tabela cantina.reposicao
 DROP TABLE IF EXISTS `reposicao`;

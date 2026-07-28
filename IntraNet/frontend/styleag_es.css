@@ -97,7 +97,7 @@
 }
 
 #inputBusca{
-    border: 2px solid #1c1c1c;
+ 
     background-color: #efac4a;
     padding: 12px 80px 12px 90px;
 }
@@ -1292,3 +1292,154 @@ BOTÕES
     color: #1c1c1c !important;
 
 }
+        .topo-cabecalho {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .grupo-esquerda {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .grupo-direita {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Card de Faturamento compacto */
+        .card-faturamento {
+            background-color: #1c1c1c;
+            border: 1px solid #efac4a;
+            padding: 6px 14px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .faturamento-label {
+            color: #efac4a;
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .faturamento-valor {
+            margin: 0;
+            color: #f8c471;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* Busca e Filtro */
+        .busca-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background-color: #1c1c1c;
+            border: 1px solid #efac4a;
+            border-radius: 5px;
+            padding: 4px 8px;
+        }
+
+        .busca-box input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            outline: none;
+            padding: 4px;
+        }
+
+        .icone-busca {
+            width: 16px;
+            height: 16px;
+        }
+
+        #btnFiltro {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 2px;
+        }
+
+        #menuFiltro {
+            display: none;
+            position: absolute;
+            top: 105%;
+            right: 0;
+            background-color: #1c1c1c;
+            border: 1px solid #efac4a;
+            border-radius: 5px;
+            z-index: 100;
+            width: 140px;
+        }
+
+        #menuFiltro.aberto {
+            display: block;
+        }
+
+        .itemFiltro {
+            padding: 8px 12px;
+            color: #f8c471;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .itemFiltro:hover, .itemFiltro.ativo {
+            background-color: #efac4a;
+            color: #1c1c1c;
+            font-weight: bold;
+        }
+
+        /* Botões sem Glow / Brilho ao passar o mouse */
+        .btn-baixar-pdf {
+            background-color: #1c1c1c;
+            color: #ffc27a;
+            border: 1px solid #efac4a;
+            padding: 8px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .btn-baixar-pdf:hover {
+            background-color: #efac4a;
+            color: #1c1c1c;
+            box-shadow: none !important;
+            filter: none !important;
+        }
+
+        .btn-limpar-historico {
+            background-color: #1c1c1c;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+            padding: 8px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .btn-limpar-historico:hover {
+            background-color: #e74c3c;
+            color: #ffffff;
+            box-shadow: none !important;
+            filter: none !important;
+        }
