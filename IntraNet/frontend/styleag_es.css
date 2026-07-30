@@ -1344,10 +1344,9 @@ BOTÕES
             display: flex;
             align-items: center;
             gap: 5px;
-            background-color: #1c1c1c;
-            border: 1px solid #efac4a;
+            border: 3px solid #1c1c1c;
             border-radius: 5px;
-            padding: 4px 8px;
+            padding: 3px 8px;
         }
 
         .busca-box input {
