@@ -14,9 +14,8 @@ export default function LoginScreen() {
     const navigation = useNavigation();
 
    
-
     const FazerLogin = async () => {
-        const urlAPI = "http://10.111.9.96:3000/logar";
+        const urlAPI = "http://10.111.9.34:3000/logar";
         
         console.log("\n========================================");
         console.log("🚀 [LOGIN] Botão clicado!");

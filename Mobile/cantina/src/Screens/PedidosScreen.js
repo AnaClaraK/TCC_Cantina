@@ -24,8 +24,28 @@ const CORES = {
   cinzaCard: '#4a2c0a',
 };
 
-const IP_SERVIDOR = "10.111.9.96"; 
+const IP_SERVIDOR = "10.111.9.34"; 
 const URL_API = `http://${IP_SERVIDOR}:3000`;
+
+// Função auxiliar para formatar a data/hora do agendamento
+const formatarDataAgendada = (dataString) => {
+  if (!dataString) return 'Retirada Imediata / Não agendado';
+
+  try {
+    const d = new Date(dataString);
+    if (isNaN(d.getTime())) return 'Retirada Imediata';
+
+    const dia = String(d.getDate()).padStart(2, '0');
+    const mes = String(d.getMonth() + 1).padStart(2, '0');
+    const ano = d.getFullYear();
+    const hora = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+
+    return `${dia}/${mes}/${ano} às ${hora}:${min}`;
+  } catch (e) {
+    return 'Retirada Imediata';
+  }
+};
 
 export default function PedidosScreen() {
   const [pedidosPendentes, setPedidosPendentes] = useState([]);
@@ -33,8 +53,9 @@ export default function PedidosScreen() {
   const [carregando, setCarregando] = useState(false);
   
   const [modalVisible, setModalVisible] = useState(false);
-  const [codigoSelecionado, setCodigoSelecionado] = useState('');
-  const [itensDoPedido, setItensDoPedido] = useState([]);
+  
+  // Guardamos o objeto do pedido completo selecionado para a Modal
+  const [pedidoSelecionado, setPedidoSelecionado] = useState(null);
 
   const buscarPedidosDoUsuario = async () => {
     try {
@@ -43,10 +64,6 @@ export default function PedidosScreen() {
       const idUser = await AsyncStorage.getItem("id_user");
       
       const idCliente = idUser ? parseInt(idUser) : 1;
-      
-      console.log("=== TESTE DE CONEXÃO ===");
-      console.log("Buscando pedidos para o ID de Usuário:", idCliente);
-      console.log("Endereço da Requisição:", `${URL_API}/historico-pedidos`);
 
       const resposta = await fetch(`${URL_API}/historico-pedidos`, {
         headers: { "Authorization": `Bearer ${token}` }
@@ -57,15 +74,10 @@ export default function PedidosScreen() {
       }
 
       const todosPedidos = await resposta.json();
-      
-      console.log("Pedidos brutos recebidos do Backend:", todosPedidos);
 
-      // Garante que o filtro não quebre caso venha nulo ou sem o id_user correto
       const pedidosFiltrados = todosPedidos.filter(p => {
         return p && (parseInt(p.id_user) === idCliente);
       });
-
-      console.log("Pedidos após filtrar pelo ID do usuário:", pedidosFiltrados);
 
       const pendentes = pedidosFiltrados.filter(p => p.status && p.status.toLowerCase() === 'pendente');
       const concluidos = pedidosFiltrados.filter(p => p.status && (p.status.toLowerCase() === 'finalizado' || p.status.toLowerCase() === 'pago'));
@@ -74,7 +86,7 @@ export default function PedidosScreen() {
       setPedidosConcluidos(concluidos);
     } catch (erro) {
       console.error("Erro detalhado na requisição:", erro);
-      Alert.alert("Erro de Sincronizacao", "Nao foi possivel carregar seus agendamentos.");
+      Alert.alert("Erro de Sincronização", "Não foi possível carregar seus agendamentos.");
     } finally {
       setCarregando(false);
     }
@@ -86,20 +98,10 @@ export default function PedidosScreen() {
     }, [])
   );
 
-  const abrirQrCodeComanda = async (codigoComanda) => {
-    try {
-      setCodigoSelecionado(codigoComanda);
-      setModalVisible(true);
-      setItensDoPedido([]); 
-      
-      const resposta = await fetch(`${URL_API}/comandas/${codigoComanda}`);
-      if (resposta.ok) {
-        const dados = await resposta.json();
-        setItensDoPedido(dados.carrinho || []);
-      }
-    } catch (err) {
-      console.log("Erro ao detalhar comanda:", err);
-    }
+  // Apenas seleciona o pedido que já contém a propriedade 'itens' trazida do backend
+  const abrirQrCodeComanda = (pedido) => {
+    setPedidoSelecionado(pedido);
+    setModalVisible(true);
   };
 
   const renderCardPedido = ({ item, isPendente }) => {
@@ -108,18 +110,18 @@ export default function PedidosScreen() {
     return (
       <TouchableOpacity 
         style={[styles.cardPedido, !isPendente && styles.cardDesativado]}
-        onPress={() => isPendente && abrirQrCodeComanda(item.codigo_comanda)}
+        onPress={() => isPendente && abrirQrCodeComanda(item)}
         disabled={!isPendente}
       >
         <View style={styles.topoCard}>
           <Text style={styles.txtNumeroPedido}>PEDIDO #{item.num_pedido || item.id_pedido}</Text>
           <View style={[styles.badgeStatus, { backgroundColor: isPendente ? CORES.dourado : '#4CD964' }]}>
-            <Text style={styles.txtStatus}>{item.status.toUpperCase()}</Text>
+            <Text style={styles.txtStatus}>{(item.status || 'PENDENTE').toUpperCase()}</Text>
           </View>
         </View>
 
         <Text style={styles.txtData}>Data: {dataFormatada}</Text>
-        <Text style={styles.txtValorTotal}>Total: R$ {parseFloat(item.valor_total).toFixed(2).replace('.', ',')}</Text>
+        <Text style={styles.txtValorTotal}>Total: R$ {parseFloat(item.valor_total || 0).toFixed(2).replace('.', ',')}</Text>
         
         {isPendente && (
           <View style={styles.footerCardPendente}>
@@ -137,6 +139,9 @@ export default function PedidosScreen() {
     { tipo: 'HEADER_CONCLUIDO', titulo: 'PEDIDOS CONCLUIDOS' },
     ...pedidosConcluidos.map(p => ({ ...p, keyType: 'CONCLUIDO' }))
   ];
+
+  // Garante o array de itens para exibição na modal
+  const itensDoModal = Array.isArray(pedidoSelecionado?.itens) ? pedidoSelecionado.itens : [];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -167,6 +172,7 @@ export default function PedidosScreen() {
         )}
       />
 
+      {/* MODAL FICHA DE RETIRADA */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -178,22 +184,46 @@ export default function PedidosScreen() {
             <Text style={styles.tituloModal}>FICHA DE RETIRADA</Text>
             
             <View style={styles.boxQrCode}>
-              {codigoSelecionado ? (
-                <QRCode value={codigoSelecionado} size={180} backgroundColor='#FFF' color='#000' />
+              {pedidoSelecionado?.codigo_comanda ? (
+                <QRCode 
+                  value={String(pedidoSelecionado.codigo_comanda)} 
+                  size={180} 
+                  backgroundColor='#FFF' 
+                  color='#000' 
+                />
               ) : null}
             </View>
 
-            <Text style={styles.textoCodigoComanda}>{codigoSelecionado}</Text>
+            <Text style={styles.textoCodigoComanda}>{pedidoSelecionado?.codigo_comanda}</Text>
             
+            {/* DESTACADO: DATA E HORÁRIO DE AGENDAMENTO */}
+            <View style={styles.boxAgendamentoModal}>
+              <Ionicons name="time-outline" size={20} color={CORES.dourado} />
+              <View style={{ marginLeft: 8 }}>
+                <Text style={styles.labelAgendamentoModal}>Horário de Retirada:</Text>
+                <Text style={styles.valorAgendamentoModal}>
+                  {formatarDataAgendada(pedidoSelecionado?.data_ag)}
+                </Text>
+              </View>
+            </View>
+
             <Text style={styles.txtSubtituloItens}>Itens do seu Agendamento:</Text>
             
             <View style={styles.containerListaItens}>
-              {itensDoPedido.map((prod, idx) => (
-                <View key={idx} style={styles.linhaItemModal}>
-                  <Text style={styles.txtNomeProdModal}>{prod.qtd}x {prod.nome}</Text>
-                  <Text style={styles.txtHorarioProdModal}>as {prod.horario_retirada || '10:00'}</Text>
-                </View>
-              ))}
+              {itensDoModal.length > 0 ? (
+                itensDoModal.map((prod, idx) => (
+                  <View key={idx} style={styles.linhaItemModal}>
+                    <Text style={styles.txtNomeProdModal}>
+                      {prod.qtd}x {prod.nome_produto || prod.nome || 'Produto'}
+                    </Text>
+                    <Text style={styles.txtHorarioProdModal}>
+                      R$ {parseFloat(prod.preco_unitario || 0).toFixed(2).replace('.', ',')}
+                    </Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={styles.txtSemItens}>Nenhum item listado.</Text>
+              )}
             </View>
 
             <TouchableOpacity style={styles.btnFecharModal} onPress={() => setModalVisible(false)}>
@@ -335,6 +365,28 @@ const styles = StyleSheet.create({
     marginTop: 10, 
     marginBottom: 10 
   },
+  boxAgendamentoModal: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(239, 172, 74, 0.15)',
+    borderWidth: 1,
+    borderColor: CORES.dourado,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    width: '100%',
+    marginBottom: 12,
+  },
+  labelAgendamentoModal: {
+    color: CORES.creme,
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  valorAgendamentoModal: {
+    color: CORES.branco,
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
   txtSubtituloItens: { 
     color: CORES.branco, 
     fontSize: 13, 
@@ -356,12 +408,20 @@ const styles = StyleSheet.create({
   },
   txtNomeProdModal: { 
     color: CORES.branco, 
-    fontSize: 13 
+    fontSize: 13,
+    flex: 1,
+    marginRight: 8
   },
   txtHorarioProdModal: { 
     color: CORES.dourado, 
     fontSize: 13, 
     fontWeight: 'bold' 
+  },
+  txtSemItens: {
+    color: CORES.creme,
+    fontSize: 12,
+    textAlign: 'center',
+    fontStyle: 'italic'
   },
   btnFecharModal: { 
     backgroundColor: CORES.dourado, 

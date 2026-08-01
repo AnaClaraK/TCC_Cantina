@@ -120,16 +120,16 @@
             </div>
         </section>
         <footer>
-            <button id="b_nv_venda" disabled>Nova Venda (F7)</button>
+            <button id="b_nv_venda" disabled>Nova Venda (F11)</button>
         </footer>
       </article>
   </dialog>
   <div id="d_botoes">
-     <button id="b_pesq" class="b_atalho">🔍︎ (P)</button>
+     <button id="b_pesq" class="b_atalho">🔍︎ (F3)</button>
      <button id="b_comanda" class="b_atalho">📋 (C)</button>
      <button id="b_canc">Cancelar (ESC)</button>
      <button id="b_agend">Agendamento (F8)</button>
-     <button id="b_final" disabled>Finalizar Compra (F1)</button>
+     <button id="b_final" disabled>Finalizar Compra (F12)</button>
     </div>
 </section>
 <div id="erro_overlay">
@@ -187,6 +187,33 @@
             </button>
         </div>
     </div>
+</dialog>
+<!-- MODAL: PAGAMENTO EM DINHEIRO -->
+<dialog id="dialogDinheiro">
+  <div class="conteudo-dinheiro">
+    <h2>PAGAMENTO EM DINHEIRO</h2>
+    
+    <div class="linha-modal">
+      <span>Total a Pagar:</span>
+      <strong id="lbl_dinheiro_total">R$ 0,00</strong>
+    </div>
+
+    <div class="linha-modal">
+      <label for="inp_valor_pago">Valor Recebido:</label>
+      <input type="number" step="0.01" id="inp_valor_pago" placeholder="0,00" />
+    </div>
+
+    <div class="box-troco">
+      <span>Troco:</span>
+      <strong id="lbl_troco">R$ 0,00</strong>
+    </div>
+
+    <div class="acoes-modal">
+      <button type="button" id="b_confirmar_dinheiro">
+        Confirmar
+      </button>
+    </div>
+  </div>
 </dialog>
 <script>
     // Seletores do novo aviso customizado
@@ -1117,134 +1144,187 @@ inputComanda.addEventListener("keydown", (e) => {
             }
         }
     });
-
-    window.addEventListener("keydown", (event) => {
-        console.log(document.activeElement);
+window.addEventListener("keydown", (event) => {
+    console.log(document.activeElement);
     const tag = document.activeElement.tagName;
 
-            if (
-            (tag === "INPUT" ||
-            tag === "TEXTAREA" ||
-            document.activeElement.isContentEditable)
-            &&
-            document.activeElement !== inp_codb
-        ) {
-            return;
-        }
+    // Se estiver digitando num input (e não for F1-F12), ignora os atalhos comuns
+    if (
+        (tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        document.activeElement.isContentEditable) &&
+        document.activeElement !== inp_codb &&
+        !event.key.startsWith("F") // Permite acionar F1, F3, F11, F12 mesmo com foco em inputs
+    ) {
+        return;
+    }
 
-        if (
-            event.key === "F11" ||
-            event.key === "F12" ||
-            event.key === "F5" ||
-            (event.ctrlKey && event.key.toLowerCase() === "r") ||
-            (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "i")
-        ) {
-            return;
-        }
-        switch(event.key) {
-            case "Escape":
+    // Bloqueia recarregar a página por F5 ou atalhos de desenvolvedor
+    if (
+        event.key === "F5" ||
+        (event.ctrlKey && event.key.toLowerCase() === "r") ||
+        (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "i")
+    ) {
+        return;
+    }
+
+    switch(event.key) {
+        case "Escape":
             console.log("ESC DETECTADO");
 
-                if (dialogComanda.open) {
-                    dialogComanda.close();
-                    voltarFoco();
-                    break;
-                }
+            if (dialogComanda.open) {
+                dialogComanda.close();
+                voltarFoco();
+                break;
+            }
 
-                if (dialogBusca.open) {
-                    dialogBusca.close();
-                    voltarFoco();
-                    break;
-                }
+            if (dialogBusca.open) {
+                dialogBusca.close();
+                voltarFoco();
+                break;
+            }
 
-                if (modal.open) {
-                    modal.close();
-                    voltarFoco();
-                    break;
-                }
+            if (modal.open) {
+                modal.close();
+                voltarFoco();
+                break;
+            }
 
-                if (document.getElementById("d_fiado").open) {
-                    document.getElementById("d_fiado").close();
-                    voltarFoco();
-                    break;
-                }
+            if (document.getElementById("d_fiado")?.open) {
+                document.getElementById("d_fiado").close();
+                voltarFoco();
+                break;
+            }
 
-                confirmarCancelamento();
-                break;
-            case "ArrowDown":
-                if (!dialogBusca.open) {
-                    event.preventDefault();
-                    document.getElementById("sc_tabela").scrollTop += 50;
-                }
-                break;
-            case "ArrowUp":
-                if (!dialogBusca.open) {
-                    event.preventDefault();
-                    document.getElementById("sc_tabela").scrollTop -= 50;
-                }
-                break;
-            case "F1":
+            confirmarCancelamento();
+            break;
+
+        case "ArrowDown":
+            if (!dialogBusca.open) {
                 event.preventDefault();
-                if(!b_final.disabled) b_final.click();
-                break;
-            case "F2":
+                document.getElementById("sc_tabela").scrollTop += 50;
+            }
+            break;
+
+        case "ArrowUp":
+            if (!dialogBusca.open) {
                 event.preventDefault();
-                if(modal.open) document.getElementById("pg_dinheiro").click();
-                break;
-            case "F3":
-                event.preventDefault();
-                if(modal.open) document.getElementById("pg_credito").click();
-                break;
-            case "F4":
-                event.preventDefault();
-                if(modal.open) document.getElementById("pg_debito").click();
-                break;
-            case "F6":
-                event.preventDefault();
-                if(modal.open) document.getElementById("pg_pix").click();
-                break;
-            case "F7":
-                event.preventDefault();
-                if(!nova_venda.disabled) nova_venda.click();
-                break;
-            case "F8":
-                event.preventDefault();
-                document.getElementById("b_agend").click();
-                break;
-            case "p":
-            case "P":
-                if (dialogBusca.open) return;
-                event.preventDefault();
+                document.getElementById("sc_tabela").scrollTop -= 50;
+            }
+            break;
+
+        // F3: PESQUISAR PRODUTO (Se a modal de pagamento estiver aberta, aciona crédito)
+        case "F3":
+            event.preventDefault();
+            if (modal.open) {
+                document.getElementById("pg_credito").click();
+            } else if (!modalp.open) {
                 modalp.showModal();
                 setTimeout(() => { inputBusca.focus(); }, 50);
-                break;
-            case "F9":
-                event.preventDefault();
-                if (modal.open) {
-                    document.getElementById("pg_fiado").click();
-                }
-                break;
-                case "c":
-                case "C":
-                    event.preventDefault();
+            }
+            break;
 
-                    if (!dialogComanda.open) {
-                        inputComanda.value = "CMD";
+        // F11: NOVA VENDA
+        case "F11":
+            event.preventDefault();
+            if (!nova_venda.disabled) nova_venda.click();
+            break;
 
-                        dialogComanda.showModal();
+        // F12: FINALIZAR COMPRA
+        case "F12":
+            event.preventDefault();
+            if (!b_final.disabled) b_final.click();
+            break;
 
-                        setTimeout(() => {
-                            inputComanda.focus();
+        case "F2":
+            event.preventDefault();
+            if (modal.open) document.getElementById("pg_dinheiro").click();
+            break;
 
-                            inputComanda.setSelectionRange(
-                                inputComanda.value.length,
-                                inputComanda.value.length
-                            );
-                        }, 50);
-                    }
-                    break;
-        }
-    });
+        case "F4":
+            event.preventDefault();
+            if (modal.open) document.getElementById("pg_debito").click();
+            break;
+
+        case "F6":
+            event.preventDefault();
+            if (modal.open) document.getElementById("pg_pix").click();
+            break;
+
+        case "F8":
+            event.preventDefault();
+            document.getElementById("b_agend").click();
+            break;
+
+        case "F9":
+            event.preventDefault();
+            if (modal.open) {
+                document.getElementById("pg_fiado").click();
+            }
+            break;
+
+        case "c":
+        case "C":
+            event.preventDefault();
+            if (!dialogComanda.open) {
+                inputComanda.value = "CMD";
+                dialogComanda.showModal();
+                setTimeout(() => {
+                    inputComanda.focus();
+                    inputComanda.setSelectionRange(
+                        inputComanda.value.length,
+                        inputComanda.value.length
+                    );
+                }, 50);
+            }
+            break;
+    }
+});
+// ===== CONTROLE DO MODAL DE DINHEIRO =====
+const pgDinheiroBtn = document.getElementById("pg_dinheiro");
+const dialogDinheiro = document.getElementById("dialogDinheiro");
+const lblDinheiroTotal = document.getElementById("lbl_dinheiro_total");
+const inpValorPago = document.getElementById("inp_valor_pago");
+const lblTroco = document.getElementById("lbl_troco");
+const bConfirmarDinheiro = document.getElementById("b_confirmar_dinheiro");
+
+// Abrir Modal de Dinheiro e carregar Total da Compra
+pgDinheiroBtn.addEventListener("click", () => {
+    formaPagamento = "Dinheiro";
+    
+    // Calcula o total exato da compra
+    const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
+    
+    lblDinheiroTotal.innerText = "R$ " + formatar(totalReal);
+    inpValorPago.value = "";
+    lblTroco.innerText = "R$ 0,00";
+    
+    dialogDinheiro.showModal();
+    setTimeout(() => inpValorPago.focus(), 100);
+});
+
+// Atualizar cálculo de Troco e Valor do Botão ao digitar
+inpValorPago.addEventListener("input", () => {
+    const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
+    const valorRecebido = parseFloat(inpValorPago.value.replace(",", ".")) || 0;
+    
+    const troco = valorRecebido - totalReal;
+    
+    if (troco > 0) {
+        lblTroco.innerText = "R$ " + formatar(troco);
+    } else {
+        lblTroco.innerText = "R$ 0,00";
+    }
+
+    // Atualiza o valor recebido ou o total no botão de confirmação
+    const valorExibicao = valorRecebido > 0 ? valorRecebido : totalReal;
+});
+
+// Confirmar pagamento em dinheiro
+bConfirmarDinheiro.addEventListener("click", () => {
+    dialogDinheiro.close();
+    nova_venda.disabled = false; // Habilita o botão "Nova Venda (F11)"
+});
 </script>
 </body>
 </html>

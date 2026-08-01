@@ -1,17 +1,14 @@
- /* ============================================================
-    RESET E VARIÁVEIS
+/* ============================================================
+   FONTE, RESET E VARIÁVEIS
 ============================================================ */
 
 @font-face {
-    font-family: 'Roca One';
-    /* Certifique-se de que os arquivos estejam na pasta 'fonts' ao lado do seu CSS */
-    src: url('fonts/roca-one-regular.ttf') format('truetype');
+    font-family: "Roca One";
+    src: url("fonts/roca-one-regular.ttf") format("truetype");
     font-weight: normal;
     font-style: normal;
-    font-display: swap; /* Melhora o carregamento da página */
-  }
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
+    font-display: swap;
+}
 
 :root {
     --cor-laranja: #f1b869;
@@ -20,502 +17,430 @@
     --btn-finish: #6dbf6d;
 }
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    min-width: 0;
+}
+
 body {
     background-color: var(--cor-laranja);
-    font-family: 'Roca One';
+    font-family: "Roca One", sans-serif;
+
     display: grid;
+    width: 100%;
+    min-height: 100dvh;
     height: 100vh;
+
+    /*
+      No desktop não permite scroll da página.
+      A tabela possui scroll próprio.
+    */
     overflow: hidden;
-    grid-template-rows: auto 1fr auto;
-    grid-template-columns: 1.2fr 1fr;
+
+    /*
+      Coluna esquerda: inputs + botões.
+      Coluna direita: carrinho/tabela.
+    */
+    grid-template-columns: minmax(0, 1.6fr) minmax(420px, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+
     grid-template-areas:
-        "inputs   tabela"
-        "inputs   tabela"
-        "modal    tabela";
-    padding: 75px 15px 15px 85px; 
-    gap: 15px;
+        "inputs tabela"
+        "modal tabela";
+
+    gap: clamp(12px, 1vw, 15px);
+    padding: 75px 15px 15px;
 }
+
 body.sem-sidebar {
-  margin-left: 0 !important;
-  padding-left: 0 !important;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
 }
 
 body.sem-sidebar .sidebar {
-  display: none;
+    display: none;
 }
-
 
 #btn-menu {
     display: none;
 }
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    max-width: 100%;
+}
+
 /* ============================================================
-    INPUTS E IMAGEM
+   INPUTS E ÁREA ESQUERDA
 ============================================================ */
+
 #sc_inputs {
     grid-area: inputs;
+
+    min-width: 0;
+    min-height: 0;
+
     background-color: var(--cor-escuro);
     border-radius: 12px;
-    padding: 20px;
+
     display: grid;
-    grid-template-columns: repeat(3, 1fr); 
-    gap: 15px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     align-content: start;
+
+    gap: clamp(10px, 1vw, 15px);
+    padding: clamp(12px, 1vw, 20px);
 }
 
-.grupo-input { display: flex; flex-direction: column; gap: 5px; }
-.titulo { 
-    color: var(--cor-laranja); 
-    font-size: 1.4rem; 
-    font-weight: 600; 
+.grupo-input {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 5px;
 }
+
+.titulo {
+    color: var(--cor-laranja);
+    font-size: clamp(1rem, 1.2vw, 1.4rem);
+    font-weight: 600;
+}
+
 #inp_codb {
-    caret-color: transparent; /* some com o cursor */
-    user-select: none;        /* não deixa selecionar */
+    caret-color: transparent;
+    user-select: none;
+    cursor: default;
 }
 
-#inp_codb, .inp_val {
+#inp_codb,
+.inp_val {
+    width: 100%;
+    min-width: 0;
+    height: clamp(38px, 2.2vw, 42px);
+    padding: 0 clamp(9px, 0.65vw, 12px);
+
+    color: var(--cor-escuro);
     background-color: var(--cor-laranja);
     border: none;
-    height: 42px;
-    color: var(--cor-escuro);
-    font-weight: bold;
-    padding: 0 12px;
-    font-size: 1.5rem;
     outline: none;
+
+    font-size: clamp(1rem, 1.3vw, 1.5rem);
+    font-weight: bold;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
+
 #inp_codb::placeholder {
     color: #ffeed5;
     opacity: 1;
-}
-#inp_codb {
-    cursor: default; /* Força o mouse de digitar mesmo sendo readonly */
 }
 
 #img_prod {
     grid-column: 1 / span 2;
     grid-row: 3 / span 2;
-    width: 500px;
-    height: 500px;
+
+    /*
+      Mantém o tamanho de 500px em monitor grande,
+      mas diminui proporcionalmente nas telas menores.
+    */
+    width: min(100%, 500px);
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
+    height: auto;
+
+    justify-self: center;
+    align-self: start;
+
     object-fit: contain;
     background-color: #fff;
     border-radius: 8px;
-    margin-left: 70px;
-    margin-top: 25px;
+
+    margin-top: clamp(15px, 1.3vw, 25px);
+    margin-left: 0;
 }
 
-#d_ttl_c { 
-    height: 60px; 
-    font-size: 2.2rem; 
-    display: flex; 
-    align-items: center; }
-
-/* Coluna direita */
 #grupo_estoque {
     grid-column: 3;
     grid-row: 3;
 }
 
 #total {
-    margin-top: -120px;
     grid-column: 3;
     grid-row: 4;
-    margin-top: 0;
     align-self: start;
 }
 
+#d_ttl_c {
+    height: clamp(48px, 3.2vw, 60px);
+    display: flex;
+    align-items: center;
+    font-size: clamp(1.5rem, 2vw, 2.2rem);
+}
+
+#relogio_pdv {
+    width: 100%;
+    min-width: 0;
+
+    margin-top: 10px;
+    margin-left: clamp(0px, 6.25vw, 120px);
+    padding: 10px;
+
+    color: #ffeed5;
+    font-size: clamp(0.875rem, 1vw, 1.125rem);
+    font-weight: bold;
+    text-align: center;
+    border-radius: 10px;
+}
 
 /* ============================================================
-    TABELA (Zebra e Estilo)
+   TABELA / CARRINHO
 ============================================================ */
+
 #sc_tabela {
     grid-area: tabela;
-    background-color: #fff;
-    border-radius: 12px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    height: 963px;
-    margin-top: 30px;
+
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+
+    /*
+      A tabela acompanha o tamanho completo da área direita.
+      Não use height fixa aqui, pois ela causava desalinhamento.
+    */
+    height: auto;
+    max-height: none;
+
+    margin-top: 15px;
     margin-right: 10px;
+    margin-bottom: 0;
+
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--cor-laranja) var(--cor-escuro);
 }
 
 table {
     width: 100%;
+    max-width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
 }
-thead{
-    font-size: 22px;
+
+thead {
+    font-size: clamp(1rem, 1.15vw, 1.375rem);
 }
+
 tbody tr {
-    height: 35px; /* força TODAS iguais */
+    height: clamp(30px, 1.82vw, 35px);
 }
-/* Cores da Zebra */
-table tbody tr:nth-child(even) td { background-color: #d9d9d9; }
-table tbody tr:nth-child(odd) td { background-color: #f0f0f0; }
+
+table tbody tr:nth-child(even) td {
+    background-color: #d9d9d9;
+}
+
+table tbody tr:nth-child(odd) td {
+    background-color: #f0f0f0;
+}
 
 th {
-    background-color: var(--cor-laranja);
-    padding: 15px;
     position: sticky;
     top: 0;
+    z-index: 1;
+
+    padding: clamp(8px, 0.8vw, 15px);
+
+    background-color: var(--cor-laranja);
     border-right: 2px solid #1c1c1c;
+
+    overflow-wrap: anywhere;
 }
 
 td {
-    padding: 12px;
+    height: clamp(40px, 2.6vw, 50px);
+    padding: clamp(6px, 0.65vw, 12px);
+
     text-align: center;
-    border-right: 2px solid #1c1c1c;
-    height: 50px;
+    font-size: clamp(0.75rem, 0.9vw, 1rem);
     font-weight: bold;
+
+    border-right: 2px solid #1c1c1c;
+
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
-/*scroll
-/* Estilização do Scrollbar para Webkit (Chrome, Edge, Safari) */
+
+/* Scroll da tabela: Chrome, Edge e Safari */
 #sc_tabela::-webkit-scrollbar {
     width: 12px;
 }
 
 #sc_tabela::-webkit-scrollbar-track {
-    background: var(--cor-escuro); /* Fundo da trilha */
+    background: var(--cor-escuro);
     border-radius: 0 12px 12px 0;
 }
 
 #sc_tabela::-webkit-scrollbar-thumb {
-    background: var(--cor-laranja); /* Cor da barrinha que move */
-    border: 3px solid var(--cor-escuro); /* Cria um respiro ao redor */
+    background: var(--cor-laranja);
+    border: 3px solid var(--cor-escuro);
     border-radius: 10px;
 }
 
 #sc_tabela::-webkit-scrollbar-thumb:hover {
-    background: #ffcf8b; /* Laranja mais claro ao passar o mouse */
+    background: #ffcf8b;
 }
 
-/* Para Firefox */
-#sc_tabela {
-    scrollbar-width: thin;
-    scrollbar-color: var(--cor-laranja) var(--cor-escuro);
-}
 /* ============================================================
-    MODAL
-============================================================ */
-dialog {
-    margin: auto;
-    border: none;
-    border-radius: 15px;
-    padding: 30px;
-    background: var(--cor-escuro);
-    color: white;
-    width: 450px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-}
-
-dialog::backdrop { background: rgba(0,0,0,0.8); }
-/* ============================================================
-    MODAL / ÁREA DE BOTÕES
+   ÁREA DOS BOTÕES PRINCIPAIS
 ============================================================ */
 
-#sc_modal { 
-    grid-area: modal; 
-    display: flex; 
-    align-items: center; /* Centraliza os botões menores no meio da altura do maior */
-    gap: 20px;           /* Dá o espaçamento entre os botões */
+#sc_modal {
+    grid-area: modal;
+    min-width: 0;
+
+    /*
+      Mantém os botões abaixo dos inputs
+      e evita sobreposição com a tabela.
+    */
+    position: relative;
+    z-index: 1;
 }
 
+#d_botoes {
+    /*
+      Não usar margin negativa.
+      Margens negativas causavam os botões sobre a tabela/carrinho.
+    */
+    display: grid;
+
+    /*
+      Estrutura dos botões:
+      Pesquisa | Comanda | Cancelar | Agendamento | Finalizar
+    */
+    grid-template-columns:
+        clamp(56px, 3.7vw, 70px)
+        clamp(56px, 3.7vw, 70px)
+        minmax(150px, 1fr)
+        minmax(175px, 1.1fr)
+        minmax(220px, 1.45fr);
+
+    align-items: center;
+    align-content: center;
+    justify-content: start;
+
+    width: 100%;
+    min-width: 0;
+    min-height: clamp(80px, 6vw, 110px);
+
+    gap: clamp(8px, 1vw, 24px);
+
+    /*
+      Move levemente o grupo para a esquerda,
+      sem invadir a área da tabela.
+    */
+    margin: 0;
+    padding: 0 0 0 clamp(0px, 0.8vw, 14px);
+}
+
+#d_botoes button,
 #sc_modal button {
-    padding: 15px 25px;
-    border-radius: 8px;
+    width: 100%;
+    min-width: 0;
+    margin: 0 !important;
+
     border: none;
+    border-radius: 8px;
+    font-family: "Roca One", sans-serif;
     font-weight: bold;
     cursor: pointer;
-    transition: filter 0.2s;
+
+    transition: filter 0.2s, transform 0.1s;
 }
 
 #sc_modal button:hover {
     filter: brightness(0.9);
 }
 
-/* ============================================================
-    MODAL / ÁREA DE BOTÕES (d_botoes)
-============================================================ */
-
-/* Alvo na div que envolve os botões */
-#d_botoes {
-    margin-top: -200px;
-    grid-area: modal; 
-    display: flex;
-    flex-direction: row;      /* Botões lado a lado */
-    align-items: center;      /* CENTRALIZA os botões menores no meio da altura do maior */
-    justify-content: flex-start; /* Alinha ao início da esquerda */
-    gap: 30px;                /* Espaço real entre os botões */
-    width: 100%;
-    height: 110px;            /* Altura suficiente para o botão de 100px */
-}
-
-/* Estilo geral para qualquer botão dentro da d_botoes */
-#d_botoes button {
-    border-radius: 8px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    transition: filter 0.2s, transform 0.1s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 #d_botoes button:active {
     transform: scale(0.98);
 }
 
-/* MODAL VENDA */
-#d_modal {
-    border: 2px solid #efac4a;
-    border-radius: 16px;
-    padding: 0;
-    width: 600px;
-    height: 700px;
-    max-width: 95%;
-    background: #1c1c1c;
-    box-shadow: 0 10px 50px rgba(0,0,0,0.7);
-    overflow: hidden;
-    color: #f8c471;
-}
-
-/* FUNDO */
-#d_modal::backdrop {
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(4px);
-}
-
-/* CONTEÚDO */
-#d_modal article {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-/* ÁREA PRINCIPAL */
-#d_modal article section {
-    flex: 1;
-    padding: 30px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-/* TÍTULOS */
-#d_modal h2 {
-    margin: 0;
-    font-size: 18px;
-    color: #efac4a;
-}
-
-/* VALORES */
-#s_pedido,
-#s_dt,
-#s_tot {
-    font-weight: bold;
-    font-size: 1.4rem;
-    color: #f8c471;
-}
-
-#s_tot {
-    font-size: 2rem;
-}
-
-/* BOTÕES PAGAMENTO */
-.pagamento {
+/* Botões pequenos: pesquisa e comanda */
+.b_atalho,
+#b_pesq {
     width: 100%;
-    background: transparent;
-    color: #f8c471;
-    border: 2px solid #efac4a;
-    padding: 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    text-transform: uppercase;
-    transition: 0.2s;
-}
+    height: clamp(56px, 3.7vw, 70px);
 
-.pagamento:hover {
-    background: #efac4a;
-    color: #1c1c1c;
-}
-
-/* FOOTER FIXO */
-#d_modal footer {
-    background: #262626;
-    padding: 20px;
-    text-align: center;
-}
-
-/* BOTÃO FINAL */
-#b_nv_venda {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 10px;
-    background: #efac4a;
-    color: #1c1c1c;
-    font-weight: bold;
-    font-size: 1.1rem;
-    cursor: pointer;
-}
-
-#b_nv_venda:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-
-#b_agend { 
-    background: var(--cor-laranja);
-    height: 70px;
-    width: 270px;
-    font-size: 25px; 
     color: var(--cor-escuro);
-    font-family: 'Roca One';
-}
-
-#b_canc { 
-    background: var(--btn-cancel); 
-    color: white; 
-    height: 70px;
-    width: 250px;
-    font-size: 25px;
-    font-family: 'Roca One';
-    /* Removida a margin-left exagerada para o gap: 30px trabalhar sozinho */
-
-}
-
-#b_final { 
-    background: var(--btn-finish); 
-    color: white; 
-    width: 357px; /* Um pouco mais largo para destaque */
-    height: 100px; 
-    font-size: 30px;
-    margin-right: 40px;
-    font-family: 'Roca One';
-
-}
-.b_atalho {
     background: var(--cor-laranja);
-    height: 70px;
-    width: 70px;
-    font-size: 25px; 
-    margin-left: 0; /* Removido o espaço de 100px para juntar o P e o C */
+
+    font-size: clamp(1rem, 1.3vw, 25px);
     text-align: center;
+}
+
+/* Cancelar */
+#b_canc {
+    width: 100%;
+    height: clamp(56px, 3.7vw, 70px);
+
+    color: #fff;
+    background: var(--btn-cancel);
+
+    font-size: clamp(1rem, 1.3vw, 25px);
+}
+
+/* Agendamento */
+#b_agend {
+    width: 100%;
+    height: clamp(56px, 3.7vw, 70px);
+
     color: var(--cor-escuro);
-    font-family: 'Roca One';
+    background: var(--cor-laranja);
+
+    font-size: clamp(1rem, 1.3vw, 25px);
 }
 
-/* --- ESTILO DO MODAL E CENTRALIZAÇÃO --- */
-.modal_info_venda {
-    display: flex;
-    flex-direction: column;
-    align-items: center; 
-    text-align: center;
-    gap: 10px;
-}
-/* Container que envolve as 3 informações */
-.bloco-info-venda {
-    display: flex;
-    flex-direction: column;
-    gap: 20px; /* Espaço entre pedido, data e total */
+/* Finalizar */
+#b_final {
     width: 100%;
-    margin: 20px 0;
-}
+    height: clamp(76px, 5.2vw, 100px);
 
-.info-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+    color: #fff;
+    background: var(--btn-finish);
 
-/* Títulos (Pedido n°, Data e Hora...) */
-.info-label {
-    font-size: 1.3rem !important; /* Aumentado */
-    color: #efac4a !important;
-    margin-bottom: 5px !important;
-    text-transform: none; /* Mantém como você escreveu no HTML */
-}
-
-/* Valores (001, Data...) */
-.info-valor {
-    font-size: 1.6rem; /* Valor bem visível */
-    color: #f8c471;
-    font-weight: bold;
-}
-
-/* Destaque especial para o Total da Compra */
-.total-box {
-    background-color: #262626; /* Fundo levemente destacado */
-    padding: 15px;
-    border-radius: 10px;
-    border: 1px dashed #efac4a;
-}
-
-.info-valor-total {
-    font-size: 2.5rem; /* Total bem grande */
-    color: #f8c471;
-    font-weight: 900;
-}
-.titulo-central {
-    font-size: 2rem !important;
-    color: #efac4a;
-    margin-bottom: 15px;
-    font-weight: bold;
-    width: 100%;
-    text-align: center;
-}
-
-.label-pagamento {
-    font-size: 2rem !important;
-    color: #efac4a;
-    margin-top: 20px;
-    margin-bottom: 10px;
-    font-weight: bold;
-    width: 100%;
-    display: block;
-    text-align: center;
-}
-
-.bloco-info h2 {
-    font-size: 1.1rem;
-    color: #efac4a;
-    margin-top: 5px;
-}
-
-/* --- ÁREA DE BOTÕES DE PAGAMENTO --- */
-.area_pagamento {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    width: 100%;
-    padding: 10px;
-}
-
-/* --- BOTÃO FINALIZAR (FIXO E SEM PISCAR) --- */
-#b_final { 
-    background: var(--btn-finish); 
-    color: white; 
-    width: 357px; /* Tamanho mantido */
-    height: 100px; 
-    font-size: 30px;
-    margin-right: 40px;
     border: none;
     border-radius: 8px;
+
+    font-size: clamp(1.2rem, 1.56vw, 30px);
+    font-family: "Roca One", sans-serif;
+
     cursor: pointer;
     transition: background 0.3s ease, opacity 0.3s ease;
 }
 
-/* Estado desativado: cor "morta" e sem animação */
 #b_final:disabled {
-    background: #4a5a4a !important; 
     color: #889888 !important;
+    background: #4a5a4a !important;
+
     cursor: not-allowed;
     opacity: 0.7;
     box-shadow: none;
-    animation: none; /* Garante que não vai piscar */
+    animation: none;
 }
 
 #b_final:not(:disabled) {
@@ -524,173 +449,369 @@ dialog::backdrop { background: rgba(0,0,0,0.8); }
 }
 
 /* ============================================================
-   AVISO DE ERRO (TOAST) - CANTO INFERIOR ESQUERDO
-   ============================================================ */
+   DIALOG PADRÃO
+============================================================ */
 
-#erro_overlay {
-    /* Posicionamento no canto inferior esquerdo */
-    position: fixed;
-    bottom: 30px;  /* Distância do fundo */
-    left: 30px;    /* Distância da esquerda */
-    
-    background-color: transparent;
-    z-index: 10000;
-    display: none; /* Controlado pelo seu JS */
+dialog {
+    width: min(450px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    margin: auto;
+    padding: 30px;
+
+    color: #fff;
+    background: var(--cor-escuro);
+    border: none;
+    border-radius: 15px;
+
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    overflow: auto;
 }
 
-#erro_box.erro {
-    /* Cores conforme solicitado */
-    background-color: #ffffff;    /* Fundo Branco */
-    color: #2b1f14;               /* Escrita Amarela */
-    border: 4px solid #f1b869;    /* Borda Marrom */
-    
-    padding: 15px 25px;
-    border-radius: 10px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    
-    /* Sombra suave para não sumir no fundo branco, se houver */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    
-    /* Animação de entrada suave vindo da esquerda */
-    animation: slideIn 0.3s ease-out;
-}
-#erro_box.alerta {
-    /* Cores conforme solicitado */
-    background-color: #ffffff;    /* Fundo Branco */
-    color: #2b1f14;               /* Escrita Amarela */
-    border: 4px solid #f1b869;    /* Borda Marrom */
-    
-    padding: 20px 30px;
-    border-radius: 10px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    
-    /* Sombra suave para não sumir no fundo branco, se houver */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    
-    /* Animação de entrada suave vindo da esquerda */
-    animation: slideIn 0.6s ease-out;
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.8);
 }
 
-/* Animação para o "negocinho" aparecer deslizando */
-@keyframes slideIn {
-    from {
-        transform: translateX(-100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
+/* ============================================================
+   MODAL DE FINALIZAÇÃO DA VENDA
+============================================================ */
+
+#d_modal {
+    width: min(600px, calc(100vw - 32px));
+    height: min(700px, calc(100dvh - 32px));
+    max-width: 95%;
+
+    padding: 0;
+    overflow: hidden;
+
+    color: #f8c471;
+    background: #1c1c1c;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.7);
 }
 
+#d_modal::backdrop {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+}
 
-.modal-busca {
+#d_modal article {
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: 20px;
-    background: #fff;
-    border-radius: 12px;
+    min-height: 0;
 }
 
-#inputBusca {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
+#d_modal article section {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+
+    gap: 15px;
+    padding: clamp(20px, 2vw, 30px);
+    overflow-y: auto;
 }
-/* MODAL PDV */
+
+#d_modal h2 {
+    margin: 0;
+    color: #efac4a;
+    font-size: 18px;
+}
+
+#s_pedido,
+#s_dt,
+#s_tot {
+    color: #f8c471;
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+#s_tot {
+    font-size: 2rem;
+}
+
+.modal_info_venda {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+}
+
+.bloco-info-venda {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+}
+
+.info-label {
+    margin-bottom: 5px !important;
+
+    color: #efac4a !important;
+    font-size: 1.3rem !important;
+
+    text-transform: none;
+}
+
+.info-valor {
+    color: #f8c471;
+    font-size: 1.6rem;
+    font-weight: bold;
+}
+
+.total-box {
+    padding: 15px;
+
+    background-color: #262626;
+    border: 1px dashed #efac4a;
+    border-radius: 10px;
+}
+
+.info-valor-total {
+    color: #f8c471;
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    font-weight: 900;
+}
+
+.titulo-central {
+    width: 100%;
+    margin-bottom: 15px;
+
+    color: #efac4a;
+    font-size: 2rem !important;
+    font-weight: bold;
+    text-align: center;
+}
+
+.label-pagamento {
+    display: block;
+
+    width: 100%;
+    margin-top: 20px;
+    margin-bottom: 10px;
+
+    color: #efac4a;
+    font-size: 2rem !important;
+    font-weight: bold;
+    text-align: center;
+}
+
+.area_pagamento {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    width: 100%;
+    gap: 12px;
+    padding: 10px;
+}
+
+.pagamento {
+    width: 100%;
+    padding: 14px;
+
+    color: #f8c471;
+    background: transparent;
+    border: 2px solid #efac4a;
+    border-radius: 8px;
+
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.pagamento:hover {
+    color: #1c1c1c;
+    background: #efac4a;
+}
+
+#d_modal footer {
+    padding: 20px;
+    background: #262626;
+    text-align: center;
+}
+
+#b_nv_venda {
+    width: 100%;
+    padding: 14px;
+
+    color: #1c1c1c;
+    background: #efac4a;
+    border: none;
+    border-radius: 10px;
+
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#b_nv_venda:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* ============================================================
+   TOAST DE ERRO
+============================================================ */
+
+#erro_overlay {
+    position: fixed;
+    z-index: 10000;
+    bottom: clamp(16px, 2vw, 30px);
+    left: clamp(16px, 2vw, 30px);
+
+    display: none;
+    max-width: calc(100vw - 32px);
+
+    background-color: transparent;
+}
+
+#erro_box.erro,
+#erro_box.alerta {
+    max-width: 100%;
+
+    color: #2b1f14;
+    background-color: #ffffff;
+    border: 4px solid #f1b869;
+    border-radius: 10px;
+
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+#erro_box.erro {
+    padding: 15px 25px;
+    animation: slideIn 0.3s ease-out;
+}
+
+#erro_box.alerta {
+    padding: 20px 30px;
+    animation: slideIn 0.6s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ============================================================
+   MODAL DE BUSCA
+============================================================ */
+
 #dialogBusca {
+    width: min(600px, calc(100vw - 32px));
+    height: min(500px, calc(100dvh - 32px));
+    max-width: 95%;
+
+    padding: 0;
+    overflow: hidden;
+
+    color: #f8c471;
+    background: #1c1c1c;
     border: 2px solid #efac4a;
     border-radius: 16px;
-    padding: 0;
-    width: 600px;
-    height: 500px;
-    max-width: 95%;
-    background: #1c1c1c;
-    box-shadow: 0 10px 50px rgba(0,0,0,0.7);
-    overflow: hidden;
-    color: #f8c471;
+
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.7);
 }
 
-/* FUNDO ESCURO */
 #dialogBusca::backdrop {
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(4px);
 }
 
-/* CAIXA */
 #dialogBusca .modal_box {
-    background: #1c1c1c;
-    color: #f8c471;
-    padding: 30px;
-    border-radius: 16px;
+    position: relative;
+
     display: flex;
     flex-direction: column;
-    gap: 20px;
+
     height: 100%;
-    position: relative;
+    min-height: 0;
+    gap: 20px;
+    padding: clamp(20px, 2vw, 30px);
+
+    color: #f8c471;
+    background: #1c1c1c;
+    border-radius: 16px;
 }
 
-/* TÍTULO */
 .modal_titulo {
-    text-align: center;
+    color: #f8c471;
     font-size: 22px;
     font-weight: bold;
-    color: #f8c471;
+    text-align: center;
 }
 
-/* LABEL */
 .label {
-    font-size: 14px;
     color: #efac4a;
+    font-size: 20px;
+    font-weight: 500;
 }
 
-/* INPUT */
 .inp_m {
     width: 100%;
+    max-width: 100%;
     height: 50px;
-    font-size: 18px;
+    padding: 0 10px;
+    margin-top: 20px;
+
+    color: #22160d;
     background-color: #fed89d;
     border: 3px solid #efac4a;
     border-radius: 10px;
-    padding: 0 10px;
-    margin-top: 20px;
+
+    font-size: 18px;
 }
 
-/* LISTA */
 #listaSugestoes {
     width: 100%;
-    background: #1c1c1c;
+    min-height: 0;
+    max-height: 180px;
+    padding: 0;
+
     color: #f8c471;
+    background: #1c1c1c;
     border: 2px solid #efac4a;
     border-radius: 8px;
-    max-height: 180px;
-    overflow-y: auto;
-    padding: 0;
+
     list-style: none;
+    overflow-y: auto;
 }
 
-/* ITENS */
 #listaSugestoes li {
     padding: 12px;
     cursor: pointer;
     border-bottom: 1px solid #333;
 }
 
-/* HOVER + SELECIONADO */
 #listaSugestoes li:hover,
 #listaSugestoes .ativo {
-    background: #efac4a;
     color: #1c1c1c;
+    background: #efac4a;
 }
 
-/* SCROLL */
 #listaSugestoes::-webkit-scrollbar {
     width: 10px;
 }
@@ -700,20 +821,20 @@ dialog::backdrop { background: rgba(0,0,0,0.8); }
     border-radius: 10px;
 }
 
-/* FOOTER */
 .modal_footer {
     margin-top: auto;
     text-align: center;
 }
 
-/* BOTÃO FECHAR */
 #b_close_busca {
     position: absolute;
     top: 10px;
     right: 15px;
+
+    color: #efac4a;
     background: transparent;
     border: none;
-    color: #efac4a;
+
     font-size: 26px;
     cursor: pointer;
 }
@@ -722,905 +843,449 @@ dialog::backdrop { background: rgba(0,0,0,0.8); }
     color: #f8c471;
 }
 
-/* Centralização do botão adicionar caso queira fixar */
 #b_addf {
     display: block;
-    position: relative; /* Mudado de absolute para facilitar o fluxo */
-    margin: 20px auto 0 auto; 
+    position: relative;
+
     width: 80%;
-}
-.label{
-    font-size: 20px;
-    font-weight: 500;
-}
-
-#relogio_pdv{
-    width: 100%;
-    text-align: center;
-    margin-top: 10px;
-    margin-left: 120px;
-    font-size: 18px;
-    font-weight: bold;
-    color: #ffeed5;
-    padding: 10px;
-    border-radius: 10px;
-    box-sizing: border-box;
+    margin: 20px auto 0;
 }
 
 /* ============================================================
-   RESPONSIVIDADE DESKTOP (MONITORES)
+   MODAL DE AVISO
 ============================================================ */
 
-body {
-    background-color: var(--cor-laranja);
-    font-family: 'Roca One';
-    display: grid;
-    height: 100vh;
-    overflow: hidden;
-
-    grid-template-rows: 1fr auto;
-
-    grid-template-columns:
-        minmax(700px, 1.6fr)
-        minmax(500px, 1fr);
-
-    grid-template-areas:
-        "inputs tabela"
-        "modal tabela";
-
-    padding: 75px 15px 15px 15px;
-
-    gap: 15px;
-}
-
-
-/* ============================================================
-   INPUTS
-============================================================ */
-
-#sc_inputs {
-
-    padding: clamp(12px, 1vw, 20px);
-
-    gap: clamp(10px, 1vw, 15px);
-
-    min-width: 0;
-}
-
-
-/* ============================================================
-   IMAGEM
-============================================================ */
-
-#img_prod {
-
-    grid-column: 1 / span 2;
-
-    grid-row: 3 / span 2;
-
-    width: min(100%, 500px);
-
-    aspect-ratio: 1 / 1;
-
-    height: auto;
-
-    object-fit: contain;
-
-    background-color: #fff;
-
-    border-radius: 8px;
-
-    margin-left: 70px;
-
-    margin-top: 25px;
-}
-
-/* ============================================================
-   TABELA
-============================================================ */
-
-#sc_tabela {
-
-    grid-area: tabela;
-
-    background-color: #fff;
-
-    border-radius: 12px;
-
-    overflow-y: auto;
-
-    border: 1px solid #ccc;
-
-    height: calc(100vh - 117px); /* DIMINUI o carrinho no F11 */
-
-    margin-top: 15px;
-
-    margin-right: 10px;
-
-    min-width: 0;
-}
-/* ============================================================
-   RESPONSIVIDADE DESKTOP (MONITORES)
-============================================================ */
-
-body {
-    background-color: var(--cor-laranja);
-    font-family: 'Roca One';
-    display: grid;
-    height: 100vh;
-    overflow: hidden;
-
-    grid-template-rows: 1fr auto;
-
-    grid-template-columns:
-        minmax(700px, 1.6fr)
-        minmax(500px, 1fr);
-
-    grid-template-areas:
-        "inputs tabela"
-        "modal tabela";
-
-    padding: 75px 15px 15px 15px;
-
-    gap: 15px;
-}
-
-
-/* ============================================================
-   INPUTS
-============================================================ */
-
-#sc_inputs {
-
-    padding: clamp(12px, 1vw, 20px);
-
-    gap: clamp(10px, 1vw, 15px);
-
-    min-width: 0;
-}
-
-
-/* ============================================================
-   IMAGEM
-============================================================ */
-
-#img_prod {
-
-    grid-column: 1 / span 2;
-
-    grid-row: 3 / span 2;
-
-    width: min(100%, 500px);
-
-    aspect-ratio: 1 / 1;
-
-    height: auto;
-
-    object-fit: contain;
-
-    background-color: #fff;
-
-    border-radius: 8px;
-
-    margin-left: 70px;
-
-    margin-top: 25px;
-}
-/* ============================================================
-   TABELA
-============================================================ */
-
-#sc_tabela {
-
-    grid-area: tabela;
-
-    background-color: #fff;
-
-    border-radius: 12px;
-
-    overflow-y: auto;
-
-    border: 1px solid #ccc;
-
-    height: calc(100vh - 117px); /* DIMINUI o carrinho no F11 */
-
-    margin-top: 15px;
-
-    margin-right: 10px;
-
-    min-width: 0;
-}
-
-/* ============================================================
-   BOTÕES
-============================================================ */
-
-/* ============================================================
-   BOTÕES
-============================================================ */
-
-#d_botoes {
-
-    margin-top: -20px;
-
-    margin-bottom: 20px; /* SOBE os botões no F11 */
-
-    grid-area: modal;
-
-    display: flex;
-
-    flex-direction: row;
-
-    align-items: center;
-
-    justify-content: flex-start;
-
-    gap: 30px;
-
-    width: 100%;
-
-    height: 110px;
-}
-
-
-/* ============================================================
-   BOTÃO PESQUISA
-============================================================ */
-
-#b_pesq {
-
-    background: var(--cor-laranja);
-
-    height: 70px;
-
-    width: 70px;
-
-    font-size: 25px;
-
-    margin-left: 100px;
-
-    text-align: center;
-
-    color: var(--cor-escuro);
-
-    font-family: 'Roca One';
-
-    flex-shrink: 0;
-}
-
-
-/* ============================================================
-   BOTÃO CANCELAR
-============================================================ */
-
-#b_canc {
-
-    background: var(--btn-cancel);
-
-    color: white;
-
-    height: 70px;
-
-    width: clamp(210px, 16vw, 250px);
-
-    font-size: 25px;
-
-    font-family: 'Roca One';
-
-    flex-shrink: 0;
-}
-
-
-/* ============================================================
-   BOTÃO AGENDAMENTO
-============================================================ */
-
-#b_agend {
-
-    background: var(--cor-laranja);
-
-    height: 70px;
-
-    width: clamp(230px, 18vw, 270px);
-
-    font-size: 25px;
-
-    color: var(--cor-escuro);
-
-    font-family: 'Roca One';
-
-    flex-shrink: 0;
-}
-
-
-/* ============================================================
-   BOTÃO FINALIZAR
-============================================================ */
-
-#b_final {
-
-    background: var(--btn-finish);
-
-    color: white;
-
-    width: clamp(300px, 22vw, 357px);
-
-    height: 100px;
-
-    font-size: 30px;
-
-    margin-right: 40px;
-
-    font-family: 'Roca One';
-
-    flex-shrink: 0;
-}
-
-
-/* ============================================================
-   RELÓGIO
-============================================================ */
-
-#relogio_pdv{
-
-    width: 100%;
-
-    text-align: center;
-
-    margin-top: 10px;
-
-    margin-left: 120px;
-
-    font-size: clamp(14px, 1vw, 18px);
-
-    font-weight: bold;
-
-    color: #ffeed5;
-
-    padding: 10px;
-
-    border-radius: 10px;
-
-    box-sizing: border-box;
-}
-
-
-/* ============================================================
-   FONTES
-============================================================ */
-
-.titulo {
-
-    font-size: clamp(1rem, 1.2vw, 1.4rem);
-}
-
-#inp_codb,
-.inp_val {
-
-    font-size: clamp(1rem, 1.3vw, 1.5rem);
-}
-
-#d_ttl_c {
-
-    font-size: clamp(1.5rem, 2vw, 2.2rem);
-}
-
-
-/* ============================================================
-   TELAS MENORES
-============================================================ */
-
-@media (max-width: 1600px) {
-
-    body {
-
-        grid-template-columns:
-            minmax(620px, 1.5fr)
-            minmax(420px, 1fr);
-
-        gap: 12px;
-    }
-
-    #img_prod {
-
-        width: min(100%, 420px);
-    }
-
-    #d_botoes {
-
-        gap: 20px;
-
-        margin-top: -35px;
-
-        height: 85px;
-    }
-
-    #b_pesq {
-
-        margin-left: 40px;
-    }
-
-    #sc_tabela {
-
-        height: calc(100vh - 68px);
-    }
-
-    tbody tr {
-
-        height: 30px;
-    }
-
-    td {
-
-        padding: 8px;
-
-        font-size: 15px;
-    }
-
-    thead {
-
-        font-size: 20px;
-    }
-}
-
-
-/* ============================================================
-   NOTEBOOK 1366
-============================================================ */
-
-@media (max-width: 1366px) {
-
-    body {
-
-        grid-template-columns:
-            minmax(580px, 1.4fr)
-            minmax(390px, 1fr);
-
-        gap: 10px;
-    }
-
-    #img_prod {
-
-        width: min(100%, 340px);
-
-        margin-left: 30px;
-    }
-
-    #d_botoes {
-
-        gap: 12px;
-
-        margin-top: -30px;
-
-        height: 80px;
-    }
-
-    #b_pesq {
-
-        margin-left: 10px;
-    }
-
-    #b_final {
-
-        width: 280px;
-
-        height: 85px;
-
-        font-size: 24px;
-    }
-
-    #b_canc,
-    #b_agend {
-
-        width: 200px;
-
-        height: 60px;
-
-        font-size: 20px;
-    }
-
-    #b_pesq {
-
-        width: 60px;
-
-        height: 60px;
-    }
-
-    thead {
-
-        font-size: 18px;
-    }
-
-    td {
-
-        font-size: 14px;
-
-        padding: 8px;
-    }
-
-    tbody tr {
-
-        height: 30px;
-    }
-
-    #inp_codb,
-    .inp_val {
-
-        height: 38px;
-
-        font-size: 1.2rem;
-    }
-}
-/* ============================================================
-   BOTÃO PESQUISA
-============================================================ */
-
-#b_pesq {
-
-    background: var(--cor-laranja);
-
-    height: 70px;
-
-    width: 70px;
-
-    font-size: 25px;
-
-    margin-left: 100px;
-
-    text-align: center;
-
-    color: var(--cor-escuro);
-
-    font-family: 'Roca One';
-
-    flex-shrink: 0;
-}
-
-
-/* ============================================================
-   BOTÃO CANCELAR
-============================================================ */
-
-#b_canc {
-
-    background: var(--btn-cancel);
-
-    color: white;
-
-    height: 70px;
-
-    width: clamp(210px, 16vw, 250px);
-
-    font-size: 25px;
-
-    font-family: 'Roca One';
-
-    flex-shrink: 0;
-}
-
-
-/* ============================================================
-   BOTÃO AGENDAMENTO
-============================================================ */
-
-#b_agend {
-
-    background: var(--cor-laranja);
-
-    height: 70px;
-
-    width: clamp(230px, 18vw, 270px);
-
-    font-size: 25px;
-
-    color: var(--cor-escuro);
-
-    font-family: 'Roca One';
-
-    flex-shrink: 0;
-}
-
-
-/* ============================================================
-   BOTÃO FINALIZAR
-============================================================ */
-
-#b_final {
-
-    background: var(--btn-finish);
-
-    color: white;
-
-    width: clamp(300px, 22vw, 357px);
-
-    height: 100px;
-
-    font-size: 30px;
-
-    margin-right: 40px;
-
-    font-family: 'Roca One';
-
-    flex-shrink: 0;
-}
-
-
-/* ============================================================
-   RELÓGIO
-============================================================ */
-
-#relogio_pdv{
-
-    width: 100%;
-
-    text-align: center;
-
-    margin-top: 10px;
-
-    margin-left: 120px;
-
-    font-size: clamp(14px, 1vw, 18px);
-
-    font-weight: bold;
-
-    color: #ffeed5;
-
-    padding: 10px;
-
-    border-radius: 10px;
-
-    box-sizing: border-box;
-}
-
-
-/* ============================================================
-   FONTES
-============================================================ */
-
-.titulo {
-
-    font-size: clamp(1rem, 1.2vw, 1.4rem);
-}
-
-#inp_codb,
-.inp_val {
-
-    font-size: clamp(1rem, 1.3vw, 1.5rem);
-}
-
-#d_ttl_c {
-
-    font-size: clamp(1.5rem, 2vw, 2.2rem);
-}
-
-
-/* ============================================================
-   TELAS MENORES
-============================================================ */
-
-@media (max-width: 1600px) {
-
-    body {
-
-        grid-template-columns:
-            minmax(620px, 1.5fr)
-            minmax(420px, 1fr);
-
-        gap: 12px;
-    }
-
-    #img_prod {
-
-        width: min(100%, 420px);
-    }
-
-    #d_botoes {
-
-        gap: 20px;
-
-        margin-top: -35px;
-
-        height: 85px;
-    }
-
-    #b_pesq {
-
-        margin-left: 40px;
-    }
-
-    #sc_tabela {
-
-        height: calc(100vh - 68px);
-    }
-
-    tbody tr {
-
-        height: 30px;
-    }
-
-    td {
-
-        padding: 8px;
-
-        font-size: 15px;
-    }
-
-    thead {
-
-        font-size: 20px;
-    }
-}
-
-
-/* ============================================================
-   NOTEBOOK 1366
-============================================================ */
-
-@media (max-width: 1366px) {
-
-    body {
-
-        grid-template-columns:
-            minmax(580px, 1.4fr)
-            minmax(390px, 1fr);
-
-        gap: 10px;
-    }
-
-    #img_prod {
-
-        width: min(100%, 340px);
-
-        margin-left: 30px;
-    }
-
-    #d_botoes {
-
-        gap: 12px;
-
-        margin-top: -30px;
-
-        height: 80px;
-    }
-
-    #b_pesq {
-
-        margin-left: 10px;
-    }
-
-    #b_final {
-
-        width: 280px;
-
-        height: 85px;
-
-        font-size: 24px;
-    }
-
-    #b_canc,
-    #b_agend {
-
-        width: 200px;
-
-        height: 60px;
-
-        font-size: 20px;
-    }
-
-    #b_pesq {
-
-        width: 60px;
-
-        height: 60px;
-    }
-
-    thead {
-
-        font-size: 18px;
-    }
-
-    td {
-
-        font-size: 14px;
-
-        padding: 8px;
-    }
-
-    tbody tr {
-
-        height: 30px;
-    }
-
-    #inp_codb,
-    .inp_val {
-
-        height: 38px;
-
-        font-size: 1.2rem;
-    }
-}
-
-/* ==========================================
-   ESTILIZAÇÃO DO MODAL DE AVISO (D_AVISO)
-   ========================================== */
-
-/* Container principal do Dialog */
 #d_aviso {
-    background-color: #202020;         /* Fundo escuro idêntico ao da foto */
-    border: 3px solid #f1b256;          /* Borda amarela/laranja destacada */
-    border-radius: 18px;                /* Cantos arredondados do modal */
-    padding: 30px;                      /* Espaçamento interno */
-    width: 420px;                       /* Largura ideal da caixa */
-    max-width: 90%;                     /* Garante responsividade em telas menores */
-    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.5); /* Sombra suave ao fundo */
+    width: min(420px, calc(100vw - 32px));
+    max-width: 90%;
+    padding: clamp(20px, 2vw, 30px);
+
+    background-color: #202020;
+    border: 3px solid #f1b256;
+    border-radius: 18px;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-/* Escurecimento do fundo da tela quando o modal abre */
 #d_aviso::backdrop {
     background-color: rgba(0, 0, 0, 0.6);
 }
 
-/* Caixa interna que organiza o texto e os botões */
 .aviso_box {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 20px;                          /* Espaço entre o texto e o botão */
+
+    gap: 20px;
     font-family: sans-serif;
 }
 
-/* Texto da mensagem (ex: "Quantidade inválida.") */
 #msg_aviso {
-    color: #f1b256;                    /* Cor amarela/laranja idêntica à foto */
-    font-size: 22px;
-    font-weight: bold;
-    text-align: center;
     margin: 0;
+
+    color: #f1b256;
+    font-size: clamp(1rem, 1.3vw, 22px);
+    font-weight: bold;
     letter-spacing: 0.5px;
+    text-align: center;
 }
 
-/* Área que envolve os botões */
 .aviso_botoes {
     display: flex;
-    gap: 15px;
+    flex-wrap: wrap;
     justify-content: center;
+
     width: 100%;
+    gap: 15px;
     margin-top: 5px;
 }
 
-/* Botão OK (e Confirmar) */
-#b_confirmar_aviso, 
+#b_confirmar_aviso,
 #b_cancelar_aviso {
-    background-color: #f1b256;         /* Fundo do botão preenchido */
-    color: #202020;                    /* Cor do texto "OK" escura */
+    min-width: 100px;
+    padding: 10px 30px;
+
+    color: #202020;
+    background-color: #f1b256;
     border: none;
-    border-radius: 8px;                /* Cantos levemente arredondados do botão */
-    padding: 10px 30px;                /* Tamanho interno do botão */
+    border-radius: 8px;
+
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
     transition: background 0.2s, transform 0.1s;
-    min-width: 100px;
 }
 
-/* Efeito ao passar o mouse por cima do botão OK */
 #b_confirmar_aviso:hover {
-    background-color: #df9e3f;         /* Tom levemente mais escuro ao passar o mouse */
+    background-color: #df9e3f;
 }
 
-/* Efeito de clique físico no botão */
-#b_confirmar_aviso:active, 
+#b_confirmar_aviso:active,
 #b_cancelar_aviso:active {
     transform: scale(0.96);
 }
 
-/* Estilização secundária caso você use o botão "Cancelar" no futuro */
 #b_cancelar_aviso {
-    background-color: #555;
     color: #fff;
+    background-color: #555;
 }
 
 #b_cancelar_aviso:hover {
     background-color: #444;
+}
+
+/* ============================================================
+   MODAL PAGAMENTO EM DINHEIRO
+============================================================ */
+
+#dialogDinheiro {
+    width: min(440px, calc(100vw - 32px));
+    padding: 0;
+
+    color: #f1b869;
+    background: #22160d;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+#dialogDinheiro::backdrop {
+    background: rgba(0, 0, 0, 0.75);
+}
+
+.conteudo-dinheiro {
+    padding: clamp(20px, 2vw, 28px);
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.conteudo-dinheiro h2 {
+    margin: 0 0 20px;
+    padding-bottom: 12px;
+
+    color: #f1b869;
+    border-bottom: 1px solid #5a4332;
+
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+
+.linha-modal {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+    margin-bottom: 16px;
+
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.linha-modal span,
+.linha-modal label {
+    color: #f1b869;
+}
+
+.linha-modal strong {
+    color: #ffffff;
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+
+.linha-modal input {
+    width: min(160px, 45%);
+    min-width: 0;
+    height: 42px;
+    padding-right: 12px;
+
+    color: #22160d;
+    background: #ffffff;
+    border: 2px solid #f1b869;
+    border-radius: 8px;
+    outline: none;
+
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-align: right;
+}
+
+.linha-modal input::-webkit-outer-spin-button,
+.linha-modal input::-webkit-inner-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+}
+
+.linha-modal input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.box-troco {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+    margin: 22px 0;
+    padding: 14px 18px;
+
+    color: #d9534f;
+    background: #ffebe2;
+    border-radius: 12px;
+
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.box-troco strong {
+    font-size: 1.35rem;
+}
+
+.acoes-modal {
+    margin-top: 20px;
+}
+
+#b_confirmar_dinheiro {
+    width: 100%;
+    height: 52px;
+
+    color: #ffffff;
+    background: #62c370;
+    border: none;
+    border-radius: 10px;
+
+    font-size: 1.25rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+#b_confirmar_dinheiro:hover {
+    background: #53b060;
+}
+
+#b_confirmar_dinheiro:active {
+    transform: scale(0.99);
+}
+
+/* ============================================================
+   FONTE GLOBAL EM TÍTULOS E BOTÕES
+============================================================ */
+
+h1,
+h2,
+.titulo,
+.titulo-central,
+.info-label,
+.modal_titulo,
+button {
+    font-family: "Roca One", sans-serif !important;
+}
+
+/* ============================================================
+   NOTEBOOKS E TELAS MÉDIAS
+============================================================ */
+
+@media (max-width: 1100px) {
+    body {
+        grid-template-columns: minmax(0, 1.35fr) minmax(330px, 0.9fr);
+        gap: 10px;
+        padding: 65px 12px 12px;
+    }
+
+    #sc_tabela {
+        margin-top: 10px;
+        margin-right: 0;
+    }
+
+    #img_prod {
+        width: min(100%, 360px);
+    }
+
+    #d_botoes {
+        grid-template-columns:
+            56px
+            56px
+            minmax(120px, 1fr)
+            minmax(140px, 1.1fr)
+            minmax(180px, 1.4fr);
+
+        gap: 8px;
+        padding-left: 0;
+    }
+
+    #d_botoes button {
+        font-size: clamp(0.78rem, 1.7vw, 1rem);
+    }
+
+    #b_final {
+        height: 76px;
+    }
+}
+
+/* ============================================================
+   TABLETS
+============================================================ */
+
+@media (max-width: 850px) {
+    body {
+        height: auto;
+        min-height: 100dvh;
+
+        overflow-x: hidden;
+        overflow-y: auto;
+
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto minmax(320px, 55dvh) auto;
+
+        grid-template-areas:
+            "inputs"
+            "tabela"
+            "modal";
+
+        gap: 12px;
+        padding: 12px;
+    }
+
+    #sc_inputs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #sc_tabela {
+        min-height: 320px;
+        height: auto;
+        margin: 0;
+    }
+
+    #img_prod {
+        grid-column: 1 / -1;
+        grid-row: auto;
+
+        width: min(100%, 340px);
+        margin: 15px auto 0;
+    }
+
+    #grupo_estoque,
+    #total {
+        grid-column: auto;
+        grid-row: auto;
+    }
+
+    #relogio_pdv {
+        grid-column: 1 / -1;
+        margin-left: 0;
+    }
+
+    #d_botoes {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        min-height: auto;
+        gap: 10px;
+        padding: 0;
+    }
+
+    #b_final {
+        grid-column: 1 / -1;
+        height: 80px;
+    }
+}
+
+/* ============================================================
+   CELULARES
+============================================================ */
+
+@media (max-width: 520px) {
+    body {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    #sc_inputs {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+        padding: 12px;
+    }
+
+    /*
+      Corrige o primeiro grupo que possui:
+      style="grid-column: 1 / span 3" no HTML.
+    */
+    #sc_inputs > .grupo-input[style*="grid-column"] {
+        grid-column: 1 !important;
+    }
+
+    #img_prod {
+        width: min(100%, 280px);
+    }
+
+    #sc_tabela {
+        min-height: 300px;
+    }
+
+    #d_botoes {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #d_botoes button,
+    #b_canc,
+    #b_agend,
+    #b_final,
+    #b_pesq,
+    .b_atalho {
+        width: 100%;
+        margin: 0 !important;
+    }
+
+    #b_canc,
+    #b_agend,
+    #b_pesq,
+    .b_atalho {
+        height: 56px;
+        font-size: 0.82rem;
+    }
+
+    #b_final {
+        height: 74px;
+        font-size: 1.15rem;
+    }
+
+    #d_modal article section {
+        padding: 20px;
+    }
+
+    .area_pagamento {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 0;
+    }
+
+    .label-pagamento {
+        font-size: 1.5rem !important;
+    }
+
+    .linha-modal {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .linha-modal input {
+        width: 100%;
+    }
+
+    .box-troco {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    th,
+    td {
+        padding: 7px 4px;
+        font-size: clamp(0.65rem, 2.6vw, 0.82rem);
+    }
+
+    thead {
+        font-size: clamp(0.7rem, 2.8vw, 0.95rem);
+    }
 }
