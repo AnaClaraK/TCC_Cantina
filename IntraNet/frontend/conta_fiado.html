@@ -1119,27 +1119,43 @@ let contaSelecionada = null;
 let checkboxAtual = null;
 
 function abrirModalPagamento(idConta, checkbox){
+
     if(!checkbox.checked) return;
 
     checkboxAtual = checkbox;
     contaSelecionada = idConta;
 
+    const hoje = new Date().toISOString().split("T")[0];
+
     const modalConteudo = `
         Deseja concluir o pagamento?
         <br><br>
-        <input type="date" id="inp_data_pagamento" class="inp_m">
+        <input
+            type="date"
+            id="inp_data_pagamento"
+            class="inp_m"
+            value="${hoje}"
+        >
     `;
 
     exibirAviso(modalConteudo, async () => {
-        const data = document.getElementById("inp_data_pagamento").value;
+
+        const data =
+        document
+        .getElementById("inp_data_pagamento")
+        .value;
 
         if(!data){
+
             exibirAviso("Selecione a data para prosseguir.", () => {
                 abrirModalPagamento(idConta, checkbox);
             });
+
             return;
         }
+
         await pagarConta(contaSelecionada, data);
+
     }, true);
 }
 async function pagarConta(idConta, dataPagamento){

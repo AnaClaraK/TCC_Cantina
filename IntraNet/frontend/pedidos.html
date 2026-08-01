@@ -14,32 +14,49 @@
     <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
 
     <title>Histórico de Pedidos</title>
-
 </head>
 
 <body class="fundo-escuro">
+<!-- CABEÇALHO COMPLETO DA PÁGINA -->
+<div class="d_util topo-cabecalho">
 
-    <!-- CABEÇALHO COMPLETO NA MESMA LINHA -->
-    <div class="d_util topo-cabecalho">
-        
-        <div class="grupo-esquerda">
-            <h2 class="h_ag" style="margin: 0;">Histórico de Pedidos</h2>
+    <div class="grupo-esquerda">
+        <div class="titulo-historico">
+            <h2 class="h_ag">Histórico de Pedidos</h2>
 
-            <div id="painel_metricas">
-                <div class="card-faturamento">
-                    <span class="faturamento-label">Faturamento:</span>
-                    <h3 id="lbl_total_mes" class="faturamento-valor">R$ 0,00</h3>
-                </div>
-            </div>
+            <button id="btnRankingProdutos"
+                class="btn-ranking"
+                onclick="abrirRankingProdutos()">
+                📊 Produtos mais vendidos
+            </button>
         </div>
+    </div>
+
+    <div id="painel_metricas">
 
         <div class="grupo-direita">
+
+            <div class="total-faturado-box">
+                <span>Faturamento:</span>
+                <strong id="lbl_total_mes">R$ 0,00</strong>
+            </div>
+
             <!-- BUSCA E FILTRO -->
             <div class="busca-box">
-                <img src="../backend/imagens/lupa.png" class="icone-busca" alt="Buscar">
-                <input type="text" id="inputBusca" placeholder="Buscar cliente ou pedido...">
+                <img src="../backend/imagens/lupa.png"
+                     class="icone-busca"
+                     alt="Buscar">
+
+                <input
+                    type="text"
+                    id="inputBusca"
+                    placeholder="Buscar cliente ou pedido...">
+
                 <button id="btnFiltro" type="button">
-                    <img src="../backend/imagens/filtro.png" id="img_funil" alt="Filtrar" style="width: 16px;">
+                    <img src="../backend/imagens/filtro.png"
+                         id="img_funil"
+                         alt="Filtrar"
+                         style="width:16px;">
                 </button>
 
                 <div id="menuFiltro">
@@ -50,15 +67,24 @@
                 </div>
             </div>
 
-            <!-- BOTÕES DE AÇÃO -->
-            <button id="btnExportarPDF" class="btn-baixar-pdf" onclick="gerarPDFMensal()">
+            <button id="btnExportarPDF"
+                class="btn-baixar-pdf"
+                onclick="gerarPDFMensal()">
                 📄 Baixar PDF
             </button>
-            <button id="btnLimparBackup" class="btn-limpar-historico" onclick="confirmarBackupEApagar()">
+
+            <button id="btnLimparBackup"
+                class="btn-limpar-historico"
+                onclick="confirmarBackupEApagar()">
                 🗑️ Limpar
             </button>
+
         </div>
+
     </div>
+
+</div>
+    </div> <!-- Fim d_util -->
 
     <section id="sc_tabela" class="container mt-5">
         <table class="tabela table-striped table-hover border">
@@ -87,6 +113,25 @@
         </div>
     </dialog>
 
+<dialog id="modalRankingProdutos">
+
+    <div class="modal_box">
+
+        <button id="b_close_ranking"
+            onclick="modalRankingProdutos.close()">
+            ✕
+        </button>
+
+        <h2 class="modal_titulo">
+            Produtos mais vendidos
+        </h2>
+
+        <div id="listaRankingProdutos"></div>
+
+    </div>
+
+</dialog>
+
     <script>
     const corpoTabela = document.getElementById("tb_tbl_produtos");
     const inputBusca = document.getElementById("inputBusca");
@@ -96,6 +141,7 @@
 
     let pedidosCarregados = [];
     let filtroOrigemAtual = "todos";
+    let rankingProdutos = [];
 
     document.addEventListener("DOMContentLoaded", () => {
         buscarProdutosEstoque();
@@ -105,61 +151,67 @@
     // ===============================
     // 1. BUSCAR PEDIDOS NO BACKEND
     // ===============================
-    async function buscarProdutosEstoque() {
-        if (!corpoTabela) return;
-        corpoTabela.innerHTML = "";
+    // 1. Adicionado console.log para você inspecionar o retorno da API no F12
+async function buscarProdutosEstoque() {
+    if (!corpoTabela) return;
+    corpoTabela.innerHTML = "";
 
-        try {
-            const response = await fetch("http://localhost:3000/historico-pedidos", {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-
-            if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
-
-            pedidosCarregados = await response.json();
-
-            if (pedidosCarregados.length === 0) {
-                corpoTabela.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center;">Nenhum pedido finalizado encontrado.</td>
-                    </tr>
-                `;
-                atualizarMetricas([]);
-                return;
+    try {
+        const response = await fetch("http://localhost:3000/historico-pedidos", {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
             }
+        });
 
-            aplicarFiltrosEBusca();
+        if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
 
-        } catch (erro) {
-            console.error("Erro ao carregar histórico:", erro);
+        pedidosCarregados = await response.json();
+
+        // 🔍 IMPRIMA NO CONSOLE DO NAVEGADOR PARA VER OS CAMPOS VINDOS DO BACKEND
+        console.log("Dados recebidos do backend:", pedidosCarregados);
+
+        calcularRankingProdutos();
+
+        if (pedidosCarregados.length === 0) {
             corpoTabela.innerHTML = `
                 <tr>
-                    <td colspan="6" style="text-align: center;">Erro ao carregar histórico de pedidos.</td>
+                    <td colspan="6" style="text-align: center;">Nenhum pedido finalizado encontrado.</td>
                 </tr>
             `;
+            atualizarMetricas([]);
+            return;
         }
+
+        aplicarFiltrosEBusca();
+
+    } catch (erro) {
+        console.error("Erro ao carregar histórico:", erro);
+        corpoTabela.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align: center;">Erro ao carregar histórico de pedidos.</td>
+            </tr>
+        `;
     }
+}
+
 
     // ===============================
-    // 2. CONFIGURAÇÃO DOS FILTROS E PESQUISA (LÓGICA FUNCIONAL)
+    // 2. FILTROS E PESQUISA
     // ===============================
     function configurarEventosFiltro() {
-        // Toggle do Menu de Filtro
-        btnFiltro.addEventListener("click", (e) => {
-            e.stopPropagation();
-            menuFiltro.classList.toggle("aberto");
-        });
+        if (btnFiltro) {
+            btnFiltro.addEventListener("click", (e) => {
+                e.stopPropagation();
+                menuFiltro.classList.toggle("aberto");
+            });
+        }
 
-        // Fechar menu ao clicar fora
         document.addEventListener("click", () => {
-            menuFiltro.classList.remove("aberto");
+            if (menuFiltro) menuFiltro.classList.remove("aberto");
         });
 
-        // Evento de seleção no menu
         itensFiltro.forEach(item => {
-            item.addEventListener("click", (e) => {
+            item.addEventListener("click", () => {
                 itensFiltro.forEach(i => i.classList.remove("ativo"));
                 item.classList.add("ativo");
                 filtroOrigemAtual = item.getAttribute("data-origem");
@@ -167,14 +219,15 @@
             });
         });
 
-        // Evento de digitação na busca
-        inputBusca.addEventListener("input", () => {
-            aplicarFiltrosEBusca();
-        });
+        if (inputBusca) {
+            inputBusca.addEventListener("input", () => {
+                aplicarFiltrosEBusca();
+            });
+        }
     }
 
     function aplicarFiltrosEBusca() {
-        const termoBusca = inputBusca.value.toLowerCase().trim();
+        const termoBusca = inputBusca ? inputBusca.value.toLowerCase().trim() : "";
 
         const pedidosFiltrados = pedidosCarregados.filter(pedido => {
             const atendeOrigem = filtroOrigemAtual === "todos" || 
@@ -193,7 +246,7 @@
     }
 
     // ===============================
-    // 3. RENDERIZAR TABELA NA TELA
+    // 3. RENDERIZAR TABELA
     // ===============================
     function renderizarTabela(pedidos) {
         corpoTabela.innerHTML = "";
@@ -208,15 +261,15 @@
         }
 
         pedidos.forEach(pedido => {
-            const dataFormatada = new Date(pedido.data).toLocaleString("pt-BR");
+            const dataFormatada = pedido.data ? new Date(pedido.data).toLocaleString("pt-BR") : "-";
             const tr = document.createElement("tr");
 
             tr.innerHTML = `
                 <td>${pedido.nome || "Cliente"}</td>
-                <td>${pedido.num_pedido}</td>
+                <td>${pedido.num_pedido || "-"}</td>
                 <td>${pedido.origem || "-"}</td>
                 <td>${dataFormatada}</td>
-                <td>R$ ${Number(pedido.valor_total).toFixed(2).replace(".", ",")}</td>
+                <td>R$ ${Number(pedido.valor_total || 0).toFixed(2).replace(".", ",")}</td>
                 <td>${pedido.form_pag || "-"}</td>
             `;
             corpoTabela.appendChild(tr);
@@ -224,7 +277,7 @@
     }
 
     // ===============================
-    // 4. CÁLCULO DE FATURAMENTO
+    // 4. CÁLCULO DE FATURAMENTO (MÉTRICAS)
     // ===============================
     function atualizarMetricas(pedidos) {
         let totalFaturado = 0;
@@ -233,14 +286,76 @@
             totalFaturado += Number(p.valor_total || 0);
         });
 
-        document.getElementById("lbl_total_mes").innerText = `R$ ${totalFaturado.toFixed(2).replace(".", ",")}`;
+        const elementoTotal = document.getElementById("lbl_total_mes");
+        if (elementoTotal) {
+            elementoTotal.innerText = `R$ ${totalFaturado.toFixed(2).replace(".", ",")}`;
+        }
     }
 
     // ===============================
-    // 5. GERAR PDF COM JSPDF
+    // 5. RANKING DE PRODUTOS
+    // ===============================
+   // 2. Função de Ranking com suporte flexível a diferentes nomes de campos
+function calcularRankingProdutos() {
+    const contador = {};
+
+    pedidosCarregados.forEach(pedido => {
+        // Aceita 'produtos', 'itens', 'itens_pedido' ou 'produtos_json'
+        let listaProds = pedido.produtos || pedido.itens || pedido.itens_pedido || pedido.produtos_json;
+
+        if (!listaProds) return;
+
+        // Se a lista for uma String JSON vinda do banco, converte para Objeto/Array
+        if (typeof listaProds === "string") {
+            try {
+                listaProds = JSON.parse(listaProds);
+            } catch (e) {
+                listaProds = [];
+            }
+        }
+
+        if (Array.isArray(listaProds)) {
+            listaProds.forEach(prod => {
+                const nome = prod.nome || prod.nome_produto || prod.produto || "Produto Sem Nome";
+                const qtd = Number(prod.quantidade || prod.qtd || prod.qtd_comprada || 1);
+
+                if (nome) {
+                    contador[nome] = (contador[nome] || 0) + qtd;
+                }
+            });
+        }
+    });
+
+    rankingProdutos = Object.entries(contador)
+        .map(([nome, quantidade]) => ({ nome, quantidade }))
+        .sort((a, b) => b.quantidade - a.quantidade);
+}
+
+    function abrirRankingProdutos() {
+        const lista = document.getElementById("listaRankingProdutos");
+        lista.innerHTML = "";
+
+        if (rankingProdutos.length === 0) {
+            lista.innerHTML = "<p style='padding: 10px; text-align: center;'>Nenhum dado de produto vendido encontrado.</p>";
+        } else {
+            rankingProdutos.forEach((produto, index) => {
+                lista.innerHTML += `
+                    <div class="item-ranking" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333;">
+                        <span><strong>${index + 1}°</strong> ${produto.nome}</span>
+                        <strong>${produto.quantidade} un.</strong>
+                    </div>
+                `;
+            });
+        }
+
+        document.getElementById("modalRankingProdutos").showModal();
+    }
+
+    // ===============================
+    // 6. GERAR PDF COM JSPDF
     // ===============================
     function gerarPDFMensal() {
-        if (typeof pedidosCarregados === 'undefined' || pedidosCarregados.length === 0) {
+        if (!pedidosCarregados || pedidosCarregados.length === 0) {
             exibirAviso("Não há pedidos para exportar o PDF.");
             return;
         }
@@ -252,6 +367,7 @@
         const corLaranja = [239, 172, 74];
         const corTextoEscuro = [31, 35, 41];
 
+        // Cabeçalho PDF
         doc.setFillColor(...corLaranja);
         doc.rect(0, 0, 210, 30, "F");
 
@@ -268,30 +384,50 @@
         const totalMes = document.getElementById("lbl_total_mes") ? document.getElementById("lbl_total_mes").innerText : "R$ 0,00";
 
         doc.setFillColor(248, 243, 235);
-        doc.roundedRect(14, 36, 182, 20, 3, 3, "F");
-        doc.setFontSize(9);
+        doc.roundedRect(14, 36, 182, 18, 3, 3, "F");
+        doc.setFontSize(10);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(...corTextoEscuro);
-        doc.text("FATURAMENTO TOTAL DO MÊS:", 18, 48);
+        doc.text("FATURAMENTO TOTAL:", 18, 47);
 
-        doc.setFontSize(13);
+        doc.setFontSize(12);
         doc.setTextColor(200, 130, 30);
-        doc.text(totalMes, 85, 48);
+        doc.text(totalMes, 70, 47);
 
+        // Bloco do Ranking no PDF
+        let y = 62;
+        if (rankingProdutos.length > 0) {
+            doc.setFontSize(10);
+            doc.setTextColor(0);
+            doc.setFont("helvetica", "bold");
+            doc.text("Top Produtos mais vendidos:", 14, y);
+            y += 6;
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(9);
+
+            rankingProdutos.slice(0, 5).forEach((produto, index) => {
+                doc.text(`${index + 1}. ${produto.nome} (${produto.quantidade} un.)`, 18, y);
+                y += 5;
+            });
+            y += 4;
+        }
+
+        // Tabela do PDF
         const colunas = ["Cliente", "Nº Pedido", "Origem", "Data/Hora", "Valor Total", "Pagamento"];
         const linhas = pedidosCarregados.map(p => [
             p.nome || "Cliente",
             `#${p.num_pedido}`,
             p.origem || "-",
-            new Date(p.data).toLocaleString("pt-BR"),
-            `R$ ${Number(p.valor_total).toFixed(2).replace(".", ",")}`,
+            p.data ? new Date(p.data).toLocaleString("pt-BR") : "-",
+            `R$ ${Number(p.valor_total || 0).toFixed(2).replace(".", ",")}`,
             p.form_pag || "-"
         ]);
 
         doc.autoTable({
             head: [colunas],
             body: linhas,
-            startY: 62,
+            startY: y,
             theme: 'grid',
             headStyles: {
                 fillColor: corFundoEscuro,
@@ -304,7 +440,7 @@
             },
             bodyStyles: {
                 textColor: corTextoEscuro,
-                fontSize: 9
+                fontSize: 8
             },
             columnStyles: {
                 4: { halign: 'right', fontStyle: 'bold' }
@@ -324,11 +460,11 @@
     }
 
     // ===============================
-    // 6. APAGAR HISTÓRICO
+    // 7. APAGAR HISTÓRICO
     // ===============================
     function confirmarBackupEApagar() {
         exibirAviso(
-            "Atenção: Ao confirmar, o PDF do mês será baixado automaticamente como segurança e todos os pedidos finalizados serão apagados do banco. Deseja continuar?",
+            "Atenção: Ao confirmar, o PDF do mês será baixado automaticamente como segurança e todos os pedidos serão apagados. Deseja continuar?",
             async () => {
                 gerarPDFMensal();
 

@@ -404,17 +404,6 @@ td {
     font-size: clamp(1rem, 1.3vw, 25px);
 }
 
-/* Agendamento */
-#b_agend {
-    width: 100%;
-    height: clamp(56px, 3.7vw, 70px);
-
-    color: var(--cor-escuro);
-    background: var(--cor-laranja);
-
-    font-size: clamp(1rem, 1.3vw, 25px);
-}
-
 /* Finalizar */
 #b_final {
     width: 100%;

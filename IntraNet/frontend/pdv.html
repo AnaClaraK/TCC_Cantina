@@ -128,7 +128,6 @@
      <button id="b_pesq" class="b_atalho">🔍︎ (F3)</button>
      <button id="b_comanda" class="b_atalho">📋 (C)</button>
      <button id="b_canc">Cancelar (ESC)</button>
-     <button id="b_agend">Agendamento (F8)</button>
      <button id="b_final" disabled>Finalizar Compra (F12)</button>
     </div>
 </section>
@@ -255,6 +254,7 @@
     const modalp = document.querySelector("#sc_modalp dialog");
     const nova_venda = document.getElementById("b_nv_venda");
     const sl_cliente = document.getElementById("sl_cliente");
+    const inp_vencimento = document.getElementById("inp_vencimento");
     // Configurações
     const URL_BACKEND_CAD = "http://localhost:3000";
     const IMG_PADRAO = "http://localhost:3000/images/img_ntf.png";
@@ -415,6 +415,7 @@
     }
 
     let ultimaTeclaTempo = Date.now();
+    let timerLeitura = null;
     inp_codb.addEventListener("keydown", (event) => {
         if (
             event.key === "F11" ||
@@ -427,9 +428,38 @@
         }
 
         const fiadoModal = document.getElementById("d_fiado");
-        if (modal.open || dialogBusca.open || (fiadoModal && fiadoModal.open) || aviso.open) {
-            return; 
+        if (
+    modal.open ||
+    dialogBusca.open ||
+    dialogComanda.open ||
+    dialogDinheiro.open ||
+    (fiadoModal && fiadoModal.open) ||
+    aviso.open
+) {
+    return;
+}
+document.getElementById("pg_fiado").addEventListener("click", () => {
+    modal.close();
+
+    inp_vencimento.value = new Date().toISOString().split("T")[0];
+
+    document.getElementById("d_fiado").showModal();
+});
+if (event.key.length === 1) {
+    clearTimeout(timerLeitura);
+
+    timerLeitura = setTimeout(() => {
+        if (!estaProcessando && inp_codb.value.trim() !== "") {
+
+            inp_codb.dispatchEvent(
+                new KeyboardEvent("keydown", {
+                    key: "Enter"
+                })
+            );
+
         }
+    }, 80);
+}
 
         if (inp_codb.value.length > 0) {
             const tempoAtual = Date.now();
@@ -443,8 +473,9 @@
         
         ultimaTeclaTempo = Date.now();
             
-        if (event.key !== "Enter") return;
-            
+       if (event.key !== "Enter") {
+    return;
+}
         event.preventDefault(); 
         if (estaProcessando) return;
 
@@ -904,18 +935,24 @@ const b_comanda = document.getElementById("b_comanda");
             return;
         }
         try {
-            const respostaFiado = await fetch("http://localhost:3000/contas-fiado", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                },
-                body: JSON.stringify({
-                    id_cliente,
-                    valor: totalReal,
-                    vencimento
-                })
-            });
+                    const respostaFiado = await fetch("http://localhost:3000/contas-fiado", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify({
+            id_cliente,
+            valor: totalReal,
+            vencimento,
+            origem: "Fiado",
+            produtos: carrinho.map(item => ({
+                id_produto: item.id_produto,
+                nome: item.nome,
+                qtdSelecionada: item.qtd
+            }))
+        })
+        });
             if (!respostaFiado.ok) {
                 throw new Error("Falha ao registrar a conta fiado no servidor.");
             }
@@ -928,11 +965,12 @@ const b_comanda = document.getElementById("b_comanda");
                     "Authorization": `Bearer ${localStorage.getItem("token")}`
                 },
                 body: JSON.stringify({
-                    itens: carrinho,
-                    valor_total: totalReal,
-                    qtd_total: carrinho.reduce((soma, item) => soma + item.qtd, 0),
-                    form_pag: formaPagamento
-                })
+                itens: carrinho,
+                valor_total: totalReal,
+                qtd_total: carrinho.reduce((soma, item) => soma + item.qtd, 0),
+                form_pag: formaPagamento,
+                origem: "Fiado"
+            })
             })
             .then(res => {
                 if (!res.ok) throw new Error("Erro ao salvar o pedido do fiado.");
@@ -998,13 +1036,19 @@ const b_comanda = document.getElementById("b_comanda");
             Authorization: `Bearer ${localStorage.getItem("token")}`
         }
     })
-    .then(res => {
-        if (!res.ok) {
-            throw new Error("Comanda não encontrada");
-        }
+    .then(async res => {
+    console.log("Status:", res.status);
 
-        return res.json();
-    })
+    const texto = await res.text();
+    console.log("Resposta:", texto);
+
+    if (!res.ok) {
+        throw new Error("Comanda não encontrada");
+    }
+
+    return JSON.parse(texto);
+})
+   
     .then(comanda => {
 
         if (!comanda.carrinho || comanda.carrinho.length === 0) {

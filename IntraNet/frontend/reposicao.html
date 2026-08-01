@@ -41,7 +41,8 @@
         <div id="d_inp">
             <div class="busca-box">
                 <img src="../backend/imagens/lupa.png" class="icone-busca">
-                <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
+                <!-- Alterado o placeholder para refletir a busca por Nome ou Prioridade -->
+                <input type="text" id="inputBusca" placeholder="Buscar por nome ou prioridade">
             </div>
         </div>
     </div>
@@ -151,11 +152,10 @@ function adicionarLinhaTabela(
     const tr = document.createElement('tr');
     tr.dataset.codigo = codigo; // Guarda o código no elemento da linha
     
-    // ATUALIZAÇÃO: width reduzido para 50px e border-color para #efac4a
     tr.innerHTML = `
         <td>${nome}</td>
         <td>${qtd}</td>
-        <td><input type="number" value="${valorComprado}"  class="input-reposicao input-qtd">
+        <td><input type="number" value="${valorComprado}" class="input-reposicao input-qtd">
         </td>
         <td>${prioridade}</td>
         <td><input 
@@ -215,7 +215,6 @@ function adicionarLinhaTabela(
         }
     });
 }
-// ------------------------------------------
 
 // Função para exibir aviso bonitinho
 function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
@@ -274,8 +273,6 @@ b_addf.addEventListener("click", async () => {
     }
 
     try {
-
-        // SALVA NO BACKEND
         await apiFetch(`http://localhost:3000/reposicao/${codigo}`, {
             method: "PUT",
             headers: {
@@ -283,22 +280,21 @@ b_addf.addEventListener("click", async () => {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`
             },
             body: JSON.stringify({
-            quantidade: qtd,
-            local: local,
-            prioridade: prioridade
-        })
+                quantidade: qtd,
+                local: local,
+                prioridade: prioridade
+            })
         });
 
-        // ADICIONA NA TABELA IMEDIATAMENTE
         adicionarLinhaTabela(
-        nome,
-        qtd,
-        local,
-        prioridade,
-        codigo,
-        0,
-        "Pendente"
-);
+            nome,
+            qtd,
+            local,
+            prioridade,
+            codigo,
+            0,
+            "Pendente"
+        );
 
         exibirAviso("Reposição adicionada com sucesso!");
 
@@ -306,9 +302,7 @@ b_addf.addEventListener("click", async () => {
         limparModal();
 
     } catch (err) {
-        console.error("Erro na rota de reposição:");
-        console.error(err);
-        console.error(err?.sqlMessage);
+        console.error("Erro na rota de reposição:", err);
     }
 });
 
@@ -322,7 +316,7 @@ function limparModal() {
     lista.innerHTML = "";
 }
 
-// Apagar funções de botões do topo - ATUALIZADO PARA MODAL BONITINHO
+// Apagar funções de botões do topo
 b_apagar_prod.addEventListener("click", () => {
     const linhas = corpoTabela.querySelectorAll('tr');
     if (linhas.length === 0) {
@@ -338,33 +332,28 @@ b_apagar_prod.addEventListener("click", () => {
             const nomeProd = linhaClicada.cells[0].innerText;
             
             exibirAviso(`Deseja realmente remover o produto: ${nomeProd}?`, async () => {
+                const codigo = linhaClicada.dataset.codigo;
 
-const codigo = linhaClicada.dataset.codigo;
+                try {
+                    await apiFetch(
+                        `http://localhost:3000/reposicao/${codigo}/cancelar`,
+                        {
+                            method: "PUT",
+                            headers: {
+                                "Authorization": `Bearer ${localStorage.getItem("token")}`
+                            }
+                        }
+                    );
 
-try {
+                    linhaClicada.remove();
+                    exibirAviso("Produto removido com sucesso!");
 
-    await apiFetch(
-        `http://localhost:3000/reposicao/${codigo}/cancelar`,
-        {
-            method: "PUT",
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            }
-        }
-    );
+                } catch (erro) {
+                    console.error(erro);
+                    exibirAviso("Erro ao remover produto.");
+                }
 
-    linhaClicada.remove();
-
-    exibirAviso("Produto removido com sucesso!");
-
-} catch (erro) {
-
-    console.error(erro);
-
-    exibirAviso("Erro ao remover produto.");
-}
-
-}, true);
+            }, true);
 
             corpoTabela.removeEventListener('click', selecionarParaApagar);
             corpoTabela.style.cursor = "default";
@@ -383,34 +372,29 @@ b_limpar_lista.addEventListener("click", () => {
     }
 
     exibirAviso("Deseja limpar toda a lista de reposição?", async () => {
+        try {
+            await apiFetch(
+                "http://localhost:3000/reposicao/cancelar/todos",
+                {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    }
+                }
+            );
 
-try {
+            corpoTabela.innerHTML = "";
+            exibirAviso("Lista apagada!");
 
-    await apiFetch(
-        "http://localhost:3000/reposicao/cancelar/todos",
-        {
-            method: "PUT",
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            }
+        } catch (erro) {
+            console.error(erro);
+            exibirAviso("Erro ao limpar lista.");
         }
-    );
 
-    corpoTabela.innerHTML = "";
-
-    exibirAviso("Lista apagada!");
-
-} catch (erro) {
-
-    console.error(erro);
-
-    exibirAviso("Erro ao limpar lista.");
-}
-
-}, true);
+    }, true);
 });
 
-// --- BUSCA E FILTRO ---
+// --- BUSCA SIMULTÂNEA POR NOME OU PRIORIDADE ---
 
 async function carregarProdutos() {
     try {
@@ -433,23 +417,29 @@ async function carregarProdutos() {
     }
 }
 
-// Chamada inicial para carregar produtos da API e a tabela salva
-document.addEventListener("DOMContentLoaded", () => {
-    carregarProdutos();
-    
-});
-
+// Filtra a tabela procurando o texto digitado tanto no NOME (coluna 0) quanto na PRIORIDADE (coluna 3)
 inputBusca.addEventListener('keyup', function() {
     const termoBusca = inputBusca.value.toLowerCase().trim();
     const linhas = document.querySelectorAll('#tb_tbl_estoque tr');
+
     linhas.forEach(linha => {
         const celulaProduto = linha.getElementsByTagName('td')[0];
-        if (celulaProduto) {
-            const texto = celulaProduto.textContent.toLowerCase().trim();
-            linha.style.display = texto.includes(termoBusca) ? "" : "none";
+        const celulaPrioridade = linha.getElementsByTagName('td')[3];
+
+        if (celulaProduto && celulaPrioridade) {
+            const textoProduto = celulaProduto.textContent.toLowerCase().trim();
+            const textoPrioridade = celulaPrioridade.textContent.toLowerCase().trim();
+
+            // Exibe a linha se o termo pesquisado bater com o nome OU com a prioridade
+            if (textoProduto.includes(termoBusca) || textoPrioridade.includes(termoBusca)) {
+                linha.style.display = "";
+            } else {
+                linha.style.display = "none";
+            }
         }
     });
 });
+
 let indexSelecionado = -1;
 
 function atualizarDestaque(itens) {
@@ -460,7 +450,6 @@ function atualizarDestaque(itens) {
         }
     });
 }
-
 
 inpBuscaModal.addEventListener("keydown", (e) => {
     const itens = lista.querySelectorAll("li");
@@ -514,6 +503,7 @@ inpBuscaModal.addEventListener("input", () => {
         lista.appendChild(li);
     });
 });
+
 async function carregarReposicao() {
     const res = await apiFetch("http://localhost:3000/reposicao", {
         headers: {
@@ -526,18 +516,22 @@ async function carregarReposicao() {
     corpoTabela.innerHTML = "";
 
     dados.forEach(item => {
-    adicionarLinhaTabela(
-        item.nome,
-        item.quantidade_prevista,
-        item.local,
-        item.prioridade,
-        item.codigo,
-        item.quantidade_comprada,
-        item.status
-    );
-});
+        adicionarLinhaTabela(
+            item.nome,
+            item.quantidade_prevista,
+            item.local,
+            item.prioridade,
+            item.codigo,
+            item.quantidade_comprada,
+            item.status
+        );
+    });
 }
-document.addEventListener("DOMContentLoaded", carregarReposicao);
+
+document.addEventListener("DOMContentLoaded", () => {
+    carregarProdutos();
+    carregarReposicao();
+});
 </script>
 </body>
 </html>

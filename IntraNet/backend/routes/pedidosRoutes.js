@@ -1,3 +1,4 @@
+console.log("PEDIDOS ROUTES CARREGADO");
 const express = require('express');
 const router = express.Router();
 const conexao = require('../db');
@@ -10,7 +11,8 @@ router.post("/pedidos", verificarToken, async (req, res) => {
     const conn = await conexao.getConnection();
     try {
         await conn.beginTransaction();
-
+        console.log("BODY:", req.body);
+console.log("ORIGEM:", req.body.origem);
         const { id_user, valor_total, qtd_total, form_pag, origem, itens } = req.body;
         const idCliente = id_user || 1;
         const status = "Finalizado";
@@ -47,10 +49,20 @@ router.post("/pedidos", verificarToken, async (req, res) => {
 
                 await conn.query("UPDATE produtos SET qtd = ? WHERE id_produto = ?", [novaQtd, item.id_produto]);
 
-                await conn.query(`
-                    INSERT INTO pedidos_itens (id_pedido, id_produto, qtd, preco_unitario, origem) 
-                    VALUES (?, ?, ?, ?, ?)
-                `, [id_pedido, item.id_produto, item.qtd, item.preco_unitario ?? item.preco, item.origem]);
+               await conn.query(`
+    INSERT INTO pedidos_itens (
+        id_pedido,
+        id_produto,
+        qtd,
+        preco_unitario
+    )
+    VALUES (?, ?, ?, ?)
+`, [
+    id_pedido,
+    item.id_produto,
+    item.qtd,
+    item.preco_unitario ?? item.preco
+]);
             }
         }
 
