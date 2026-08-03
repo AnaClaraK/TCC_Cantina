@@ -226,56 +226,71 @@ async function buscarProdutosEstoque() {
         }
     }
 
-    function aplicarFiltrosEBusca() {
-        const termoBusca = inputBusca ? inputBusca.value.toLowerCase().trim() : "";
+    // ===============================
+// 2. FILTROS E PESQUISA (CORRIGIDO)
+// ===============================
+function aplicarFiltrosEBusca() {
+    const termoBusca = inputBusca ? inputBusca.value.toLowerCase().trim() : "";
 
-        const pedidosFiltrados = pedidosCarregados.filter(pedido => {
-            const atendeOrigem = filtroOrigemAtual === "todos" || 
-                (pedido.origem && pedido.origem.toLowerCase() === filtroOrigemAtual.toLowerCase());
+    const pedidosFiltrados = pedidosCarregados.filter(pedido => {
+        // Trata a origem (se for null ou undefined, define como texto vazio ou 'PDV')
+        const origemPedido = (pedido.origem || "").toLowerCase();
+        
+        const atendeOrigem = (filtroOrigemAtual === "todos") || 
+                             (origemPedido === filtroOrigemAtual.toLowerCase());
 
-            const nomeCliente = (pedido.nome || "").toLowerCase();
-            const numPedido = (pedido.num_pedido || "").toString().toLowerCase();
+        // Trata nome do cliente e número do pedido
+        const nomeCliente = (pedido.nome || "consumidor final").toLowerCase();
+        const numPedido = (pedido.num_pedido !== undefined && pedido.num_pedido !== null) 
+                            ? pedido.num_pedido.toString().toLowerCase() 
+                            : "";
 
-            const atendeBusca = nomeCliente.includes(termoBusca) || numPedido.includes(termoBusca);
+        const atendeBusca = nomeCliente.includes(termoBusca) || numPedido.includes(termoBusca);
 
-            return atendeOrigem && atendeBusca;
-        });
+        return atendeOrigem && atendeBusca;
+    });
 
-        renderizarTabela(pedidosFiltrados);
-        atualizarMetricas(pedidosFiltrados);
+    renderizarTabela(pedidosFiltrados);
+    atualizarMetricas(pedidosFiltrados);
+}
+
+// ===============================
+// 3. RENDERIZAR TABELA (CORRIGIDO)
+// ===============================
+function renderizarTabela(pedidos) {
+    if (!corpoTabela) return;
+    corpoTabela.innerHTML = "";
+
+    if (!pedidos || pedidos.length === 0) {
+        corpoTabela.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align: center;">Nenhum pedido encontrado.</td>
+            </tr>
+        `;
+        return;
     }
 
-    // ===============================
-    // 3. RENDERIZAR TABELA
-    // ===============================
-    function renderizarTabela(pedidos) {
-        corpoTabela.innerHTML = "";
+    pedidos.forEach(pedido => {
+        // Formata a data se existir
+        const dataFormatada = pedido.data ? new Date(pedido.data).toLocaleString("pt-BR") : "-";
+        
+        // Formata o valor total com segurança
+        const valorTotalNum = Number(pedido.valor_total) || 0;
+        const valorFormatado = valorTotalNum.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-        if (pedidos.length === 0) {
-            corpoTabela.innerHTML = `
-                <tr>
-                    <td colspan="6" style="text-align: center;">Nenhum pedido encontrado.</td>
-                </tr>
-            `;
-            return;
-        }
+        const tr = document.createElement("tr");
 
-        pedidos.forEach(pedido => {
-            const dataFormatada = pedido.data ? new Date(pedido.data).toLocaleString("pt-BR") : "-";
-            const tr = document.createElement("tr");
-
-            tr.innerHTML = `
-                <td>${pedido.nome || "Cliente"}</td>
-                <td>${pedido.num_pedido || "-"}</td>
-                <td>${pedido.origem || "-"}</td>
-                <td>${dataFormatada}</td>
-                <td>R$ ${Number(pedido.valor_total || 0).toFixed(2).replace(".", ",")}</td>
-                <td>${pedido.form_pag || "-"}</td>
-            `;
-            corpoTabela.appendChild(tr);
-        });
-    }
-
+        tr.innerHTML = `
+            <td>${pedido.nome || "Consumidor Final"}</td>
+            <td>#${pedido.num_pedido || pedido.id_pedido || "-"}</td>
+            <td>${pedido.origem || "PDV"}</td>
+            <td>${dataFormatada}</td>
+            <td>${valorFormatado}</td>
+            <td>${pedido.form_pag || "-"}</td>
+        `;
+        corpoTabela.appendChild(tr);
+    });
+}
     // ===============================
     // 4. CÁLCULO DE FATURAMENTO (MÉTRICAS)
     // ===============================
@@ -300,12 +315,9 @@ function calcularRankingProdutos() {
     const contador = {};
 
     pedidosCarregados.forEach(pedido => {
-        // Aceita 'produtos', 'itens', 'itens_pedido' ou 'produtos_json'
-        let listaProds = pedido.produtos || pedido.itens || pedido.itens_pedido || pedido.produtos_json;
+        // Pega a lista 'itens' retornada do backend
+        let listaProds = pedido.itens || pedido.produtos || [];
 
-        if (!listaProds) return;
-
-        // Se a lista for uma String JSON vinda do banco, converte para Objeto/Array
         if (typeof listaProds === "string") {
             try {
                 listaProds = JSON.parse(listaProds);
@@ -316,8 +328,10 @@ function calcularRankingProdutos() {
 
         if (Array.isArray(listaProds)) {
             listaProds.forEach(prod => {
-                const nome = prod.nome || prod.nome_produto || prod.produto || "Produto Sem Nome";
-                const qtd = Number(prod.quantidade || prod.qtd || prod.qtd_comprada || 1);
+                // Nome retornado pelo JOIN do backend (prod.nome)
+                const nome = prod.nome || prod.nome_produto || "Produto Sem Nome";
+                // Quantidade retornada do banco (prod.qtd)
+                const qtd = Number(prod.qtd || prod.quantidade || 1);
 
                 if (nome) {
                     contador[nome] = (contador[nome] || 0) + qtd;
