@@ -238,4 +238,38 @@ STYLE CLIENTES FIADO
 #inp_origem_fiado{
     width: 520px;
     margin-left: 20px;
+}/* Estilização para o Select do Modal de Pagamento */
+#menuFiltroPagamento{
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* mais espaço entre as opções */
+    margin-top: 15px;
+}
+
+#menuFiltroPagamento .itemFiltro{
+    background: #111;
+    color: #fff;
+    border: 2px solid #111;
+    border-radius: 10px;
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+/* Hover */
+#menuFiltroPagamento .itemFiltro:hover{
+    background: rgba(239, 172, 74, 0.08);
+    border-color: rgba(239, 172, 74, 0.4);
+}
+
+/* Selecionado */
+#menuFiltroPagamento .itemFiltro.ativo{
+    border: 2px solid #efac4a;
+    background: #111;
+    color: #fff;
+}
+
+/* Hover quando já está selecionado */
+#menuFiltroPagamento .itemFiltro.ativo:hover{
+    background: rgba(239, 172, 74, 0.12);
 }

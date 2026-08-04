@@ -1,6 +1,6 @@
 //Meu arquivo de conexão com o banco de dados
-const mysql = require('mysql2/promise')
 require('dotenv').config()
+const mysql = require('mysql2/promise')
 
 const pool = mysql.createPool({//(o nome)pool tem q ser o msm la em baixo
     "host":process.env.DB_LOCAL,

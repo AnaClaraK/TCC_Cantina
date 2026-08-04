@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="layout.css">
     <link rel="stylesheet" href="stylecadp.css">
     <script src="sidebar_header.js"></script>
-    <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
+    <link rel="icon" type="image/png" href="/imagens/logo_insta.png">
     <script>
         (function() {
             const token = localStorage.getItem("token");
@@ -41,6 +41,13 @@
 
             <img id="preview">
 
+            <input
+    type="text"
+    id="nomeImagem"
+    class="inp_p"
+    placeholder="Nome da imagem"
+    required
+>
             <button type="submit" class="btn-form">Cadastrar Produto</button>
         </form>
     </main>
@@ -89,12 +96,16 @@
         const preview = document.getElementById("preview");
 
         inputImagem.addEventListener("change", () => {
-            const file = inputImagem.files[0];
-            if(file){
-                preview.src = URL.createObjectURL(file);
-                preview.style.display = "block";
-            }
-        });
+    const file = inputImagem.files[0];
+
+    if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+
+        const nomeSemExtensao = file.name.replace(/\.[^/.]+$/, "");
+        document.getElementById("nomeImagem").value = nomeSemExtensao;
+    }
+});
 
         document.getElementById("formProduto").addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -126,8 +137,15 @@
                 exibirAviso("Selecione uma categoria para o produto.");
                 return;
             }
+            const nomeImagem = document.getElementById("nomeImagem").value.trim();
 
-            const formData = new FormData(e.target);
+if (!nomeImagem) {
+    exibirAviso("Informe o nome da imagem.");
+    return;
+}
+
+const formData = new FormData(e.target);
+formData.append("nomeImagem", nomeImagem);
 
             try {
                 const res = await apiFetch("http://localhost:3000/produtos", {

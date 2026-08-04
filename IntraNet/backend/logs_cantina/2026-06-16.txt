@@ -1,0 +1,13 @@
+[09:59:00] [ERRO] - Erro crítico no processo de login: 
+[10:00:28] [ERRO] - Erro crítico no processo de login: Access denied for user 'root'@'localhost' (using password: YES)
+[10:00:28] [ERRO] - Erro crítico no processo de login: Access denied for user 'root'@'localhost' (using password: YES)
+[10:07:06] [ERRO] - Erro crítico no processo de login: Access denied for user 'root'@'localhost' (using password: YES)
+[10:17:25] [ERRO] - Erro crítico no processo de login: 
+[10:18:22] [ERRO] - Erro crítico no processo de login: Access denied for user 'root'@'localhost' (using password: YES)
+[10:18:37] [ERRO] - Erro crítico no processo de login: Access denied for user 'root'@'localhost' (using password: YES)
+[10:19:01] [SUCESSO] - Funcionário logado no sistema: anabanana@gmail.com
+[13:09:04] [SUCESSO] - Funcionário logado no sistema: anabanana@gmail.com
+[13:09:10] [SUCESSO] - Funcionário logado no sistema: anabanana@gmail.com
+[13:09:16] [SUCESSO] - Funcionário logado no sistema: anabanana@gmail.com
+[13:36:05] [ALERTA] - Tentativa de login falhou (Senha incorreta) para o usuário: anabanana@gmail.com
+[13:36:09] [SUCESSO] - Funcionário logado no sistema: anabanana@gmail.com

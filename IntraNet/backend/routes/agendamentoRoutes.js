@@ -21,7 +21,7 @@ router.post("/agendamento", verificarToken, async (req, res) => {
         const {
             id_user,
             data,
-            data_ag,
+            data_pag,
             valor_total,
             qtd_total,
             form_pag,
@@ -42,7 +42,7 @@ router.post("/agendamento", verificarToken, async (req, res) => {
                 id_user,
                 num_pedido,
                 data,
-                data_ag,
+                data_pag,
                 status,
                 valor_total,
                 qtd_total,
@@ -52,7 +52,7 @@ router.post("/agendamento", verificarToken, async (req, res) => {
             id_user,
             num_pedido,
             data,
-            data_ag,
+            data_pag,
             status,
             valor_total,
             qtd_total,
@@ -143,7 +143,8 @@ router.put("/agendamento/:id/finalizar", verificarToken, async (req, res) => {
 
         await conn.query(`
             UPDATE pedidos
-            SET status = 'Finalizado'
+            SET status = 'Finalizado',
+            data_pag = NOW()
             WHERE id_pedido = ?
         `, [id]);
 
@@ -197,7 +198,7 @@ router.get("/agendamento", verificarToken, async (req, res) => {
                 p.id_pedido,
                 p.num_pedido,
                 p.data,
-                p.data_ag,
+                p.data_pag,
                 p.valor_total,
                 p.qtd_total,
                 p.form_pag,
@@ -224,7 +225,7 @@ router.get("/agendamento", verificarToken, async (req, res) => {
                     id_pedido: r.id_pedido,
                     num_pedido: r.num_pedido,
                     data: r.data,
-                    data_ag: r.data_ag,
+                    data_pag: r.data_pag,
                     valor_total: r.valor_total,
                     qtd_total: r.qtd_total,
                     form_pag: r.form_pag,
@@ -252,4 +253,5 @@ router.get("/agendamento", verificarToken, async (req, res) => {
         res.status(500).json({ erro: "Erro ao buscar agendamentos" });
     }
 });
+
 module.exports = router;

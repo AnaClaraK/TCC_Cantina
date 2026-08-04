@@ -11,7 +11,9 @@ const {
 
 const verificarToken =
 require('../middlewares/auth');
-const SECRET = process.env.API_SEGREDO;
+
+const SECRET =
+"C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
 
 router.post("/cadastrar", async (req, res) => {
     const { nome, cpf, email, senha } = req.body;

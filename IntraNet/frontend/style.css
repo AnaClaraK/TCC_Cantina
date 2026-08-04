@@ -1,48 +1,60 @@
+
 @font-face {
     font-family: 'Roca One';
+    /* Certifique-se de que os arquivos estejam na pasta 'fonts' ao lado do seu CSS */
     src: url('fonts/roca-one-regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
-    font-display: swap;
-}
+    font-display: swap; /* Melhora o carregamento da página */
+  }
 
-body {
+body{
     background-color: #242628;
     overflow: hidden;
+    
 }
-
 .custom-header {
     background-color: #efac4a !important;
-}
 
+}
 .custom-sidebar {
     background-color: #efac4a !important; 
 }
 
 .a_btn {
+    /* Transforma o link em um bloco flexível */
     display: inline-flex;
+
 }
 
-.p_nome {
-    font-family: 'Roca One', serif;
+
+.p_nome {font-family: 'Roca One', serif;
     margin-top: 10px;
+    font-size: 20px;
     font-size: 30px;
+    font-family: 'Roca One', serif;
     color: #efac4a;
     text-align: center;
-    width: 300px;
+    width: 300px; /* Mesma largura do botão para alinhar */
 }
 
 /* 1. CONTAINER: Alinha os botões em LINHA */
+/* 1. O container que segura os botões de estoque */
 .s_btn {
+    display: flex;         /* Ativa o Flexbox para alinhar os filhos (<a>) */
+    flex-direction: row;   /* Define o alinhamento como linha (horizontal) */          /* Cria um espaço de 20px entre cada botão */
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 40px;
+    flex-wrap: wrap;          /* Permite quebrar linha se REALMENTE não couber */
+    justify-content: center;  /* Mantém centralizado */
+    gap: 40px;                /* Reduzi o gap de 50px para 20px para ganhar espaço */
     padding: 20px;
+    justify-content: center; /* Opcional: Centraliza o grupo de botões na tela */
     margin-top: 50px;
+    /* Cálculo mágico: 100% da largura menos a largura da sidebar */
     width: auto; 
-    transition: all 0.3s ease;
+    transition: all 0.3s ease; /* Segue o movimento da sidebar suavemente */
+    
 }
 
 /* 2. Garante que o conteúdo principal não "vaze" para fora da tela */
@@ -50,25 +62,26 @@ main, .conteudo-principal {
     overflow-x: hidden;
 }
 
-/* agenda */
+/*agenda*/
 .agenda-box {
     background-color: #efac4a;
     border-radius: 20px;
     padding: 23px;
-    width: 470px;
-    height: 450px;
+    width: 450px;
+    height: 450px; /* Altura fixa garantida */
     color: #242628;
     font-family: 'Roca One', serif;
-    margin: 40px 60px 0 90px;
-    position: relative;
+    margin: 0px 60px;
+    margin-top: 40px;
+    margin-left: 90px;
+    position: relative; /* FUNDAMENTAL: vira a referência para os botões */
     box-sizing: border-box;
-    flex-shrink: 0;
 }
 
 .f_agenda {
     position: absolute;
-    bottom: 25px;
-    right: 25px;
+    bottom: 25px; /* Distância fixa do fundo */
+    right: 25px;  /* Distância fixa da direita */
 }
 
 .btn-agenda-footer {
@@ -80,17 +93,22 @@ main, .conteudo-principal {
     font-family: 'Roca One', serif;
     font-size: 20px;
     display: block;
-    transition: transform 0.2s ease;
 }
+
+/* Garante que a grade de dias não empurre o botão para fora */
+.corpo-agenda {
+    flex-grow: 1; 
+    margin-top: 8px;
+
+}
+
 
 .btn-agenda-footer:hover {
     transform: scale(1.05);
 }
 
-.corpo-agenda {
-    flex-grow: 1; 
-    margin-top: 8px;
-}
+
+/* Estilo do botão "Ver agenda" */
 
 /* Cabeçalho com o Número Grande */
 .agenda-header {
@@ -108,17 +126,17 @@ main, .conteudo-principal {
 /* Grade dos Dias */
 .dias-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(7, 1fr); /* 7 colunas iguais */
     gap: 6px;
     text-align: center;
 }
-
+/* Grade dos Dias - Ajustada para não mover o layout */
 #calendario-numeros {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 6px;
     text-align: center;
-    min-height: 200px;
+    min-height: 200px; /* VALOR CHAVE: Mantém o espaço de 6 linhas sempre ocupado */
     align-content: start;
 }
 
@@ -129,42 +147,26 @@ main, .conteudo-principal {
     transition: 0.2s;
 }
 
+/* Destaque para dias que possuem agendamento */
+.tem-evento {
+    background-color: #242628;
+    color: #efac4a;
+    font-weight: bold;
+}
+
 .dia-numero:hover {
     background-color: rgba(0,0,0,0.1);
 }
 
-/* DIA SELECIONADO / COM AGENDAMENTO - Cor alterada para #242628 */
-/* Dia que tem agendamento ou é hoje */
-.dia-agendado {
-    background-color: #242628;
-    color: #efac4a;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-/* DIA SELECIONADO PELO CLIQUE (Cor Marrom) */
-.dia-selecionado {
-    background-color: #5c3823 !important; /* Cor marrom */
-    color: #ffffff !important;
-    font-weight: bold;
-    border-radius: 8px;
-}
-
-.dia-agendado:hover, .dia-selecionado:hover {
-    opacity: 0.85;
-    background-color: #1a1c1d;
-}
-
-
 .info-mes {
-    width: 180px;
+    width: 180px; /* Ajuste conforme necessário para caber o maior nome de mês */
     flex-shrink: 0;
 }
 
 .nav-agenda {
     position: absolute;
-    top: 25px;
-    right: 25px;
+    top: 25px;    /* Distância do topo igual ao padding */
+    right: 25px;  /* Distância da direita igual ao padding */
     display: flex;
     gap: 8px;
 }
@@ -182,18 +184,22 @@ main, .conteudo-principal {
     align-items: center;
     justify-content: center;
 }
-
-.d_quad {
+.d_quad{
     background-color: #242628;
     max-width: 150px;
+    
 }
-
 .dashboard-inferior {
     display: flex;
     gap: 35px;
     align-items: flex-start;
     margin-top: 30px;
     width: 100%;
+}
+
+.agenda-box {
+    width: 470px;
+    flex-shrink: 0;
 }
 
 .atalho-agendamentos {
@@ -205,7 +211,7 @@ main, .conteudo-principal {
 
 .painel-agendamentos {
     width: 100%;
-    background: #efac4a;
+    background: #e6b35c;
     border-radius: 18px;
     overflow: hidden;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
@@ -213,17 +219,16 @@ main, .conteudo-principal {
 
 .painel-agendamentos-header {
     background: #1f2329;
-    color: #efac4a;
+    color: #e6b35c;
     padding: 12px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-
-/* Tabela de Agendamentos */
+/* Ajuste de largura das colunas da home */
 .tabela-agendamentos-home {
     width: 100%;
-    table-layout: fixed;
+    table-layout: fixed; /* Isso força a tabela a respeitar as larguras definidas */
     border-collapse: collapse;
 }
 
@@ -231,50 +236,40 @@ main, .conteudo-principal {
 .tabela-agendamentos-home td {
     padding: 10px;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: ellipsis; /* Se o nome for muito grande, coloca "..." */
     white-space: nowrap;
-
-    /* Borda das linhas alterada para a cor alaranjada do tema (#efac4a) */
-    border-bottom: 1px solid #efac4a; 
-
-    color: #1f2329;
+    /* A LINHA LARANJA ESCURO AQUI: */
+    border-bottom: 1px solid #c08b3a; 
+    color: #1f2329; /* Garante que o texto fique legível sobre o laranja */
     font-family: 'Roca One', serif;
 }
 
+/* Coluna Nome: Tamanho médio */
 .tabela-agendamentos-home th:nth-child(1),
 .tabela-agendamentos-home td:nth-child(1) {
     width: 25%;
 }
 
+/* Coluna Produto: A maior de todas */
 .tabela-agendamentos-home th:nth-child(2),
 .tabela-agendamentos-home td:nth-child(2) {
     width: 55%; 
     text-align: left;
 }
 
+/* Coluna Data: A menor */
 .tabela-agendamentos-home th:nth-child(3),
 .tabela-agendamentos-home td:nth-child(3) {
     width: 20%;
     text-align: center;
+   
 }
-
 .sem-agendamentos,
 .carregando {
     text-align: center;
     padding: 30px;
 }
-
+/* Remove a linha da última célula para não ficar sobrando no fundo do card */
 .tabela-agendamentos-home tr:last-child td {
     border-bottom: none;
-}
-.tem-evento {
-    background-color: #242628;
-    color: #efac4a;
-    font-weight: bold;
-    border-radius: 8px;
-}
-.tem-evento,
-.dia-agendado.tem-evento {
-    background-color: #242628;
-    color: #efac4a;
 }
