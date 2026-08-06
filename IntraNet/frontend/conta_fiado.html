@@ -1,25 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clientes Fiado</title>
 
-    <link
-        rel="stylesheet"
-        href="layout.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="styleag_es.css"
-    >
+    <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="styleag_es.css">
     <link rel="stylesheet" href="style_clientef.css">
 
     <script src="sidebar_header.js"></script>
@@ -28,68 +15,35 @@
             const token = localStorage.getItem("token");
     
             if (!token) {
-                // 1. Exibe a mensagem primeiro
                 exibirAviso("Acesso restrito! Redirecionando para o login...");
-                
-                // 2. Só então redireciona
                 window.location.replace("login.html"); 
-                
-                // 3. Força a interrupção da leitura do resto do HTML
                 throw new Error("Acesso negado: Redirecionando...");
             }
         })();
     </script>
-
 </head>
 
 <body class="fundo-escuro">
 
 <div class="d_util">
-
-    <h2 class="h_ag">
-        Contas
-    </h2>
+    <h2 class="h_ag">Contas</h2>
 
     <button id="b_addq">
-        <span id="s_addq">
-            Novo Cliente
-        </span>
+        <span id="s_addq">Novo Cliente</span>
     </button>
-<button id="b_nova_compra">
-    Nova Compra
-</button>
+    <button id="b_nova_compra">Nova Compra</button>
 
     <div id="d_inp">
-
         <div class="busca-box">
-
-            <img
-                src="../backend/imagens/lupa.png"
-                class="icone-busca"
-            >
-
-            <input
-                type="text"
-                id="inputBusca"
-                placeholder="Buscar cliente..."
-            >
-
+            <img src="../backend/imagens/lupa.png" class="icone-busca">
+            <input type="text" id="inputBusca" placeholder="Buscar cliente...">
         </div>
-
     </div>
-
 </div>
 
-<section id="sc_tabela">
-
-    <!-- TROQUE SUA TABELA POR ESSA -->
-
 <section id="sc_tabela" class="container mt-5">
-
     <table class="tabela">
-
         <thead>
-
             <tr>
                 <th>Nome</th>
                 <th>Produtos</th>
@@ -99,294 +53,149 @@
                 <th>Data</th>
                 <th>Concluir</th>
             </tr>
-
         </thead>
-
         <tbody id="tbody"></tbody>
-
     </table>
-
 </section>
 
-<!-- =========================================================
-MODAL NOVO CLIENTE
-========================================================= -->
-
 <!-- MODAL NOVO CLIENTE -->
-
 <dialog id="modal_cliente">
-
     <div class="modal_box">
+        <button id="b_close_modal_cliente">x</button>
 
-        <button id="b_close_modal_cliente">
-            x
-        </button>
+        <h2 class="modal_titulo">Novo Cliente</h2>
 
-        <h2 class="modal_titulo">
-            Novo Cliente
-        </h2>
+        <input class="inp_m" id="nome" placeholder="Nome completo">
+        <input class="inp_m" id="cpf" placeholder="CPF (Apenas números)" maxlength="11" oninput="this.value = this.value.replace(/\D/g, '')">
+<input class="inp_m" id="telefone" placeholder="Telefone com DDD" maxlength="11" oninput="this.value = this.value.replace(/\D/g, '')">
+        <input class="inp_m" id="endereco" placeholder="Endereço">
 
-        <input
-            class="inp_m"
-            id="nome"
-            placeholder="Nome completo"
-        >
-
-        <input
-            class="inp_m"
-            id="cpf"
-            placeholder="CPF"
-        >
-
-        <input
-            class="inp_m"
-            id="telefone"
-            placeholder="Telefone"
-        >
-
-        <input
-            class="inp_m"
-            id="endereco"
-            placeholder="Endereço"
-        >
-
-        <button id="b_addf">
-            Cadastrar
-        </button>
-
+        <button id="b_addf">Cadastrar</button>
     </div>
-
 </dialog>
 
-<!-- =========================================================
-MODAL COMPRA
-========================================================= -->
 <!-- MODAL ADICIONAR COMPRA -->
-
 <dialog id="d_modal_fiado">
-
     <div class="modal_box">
-
         <button id="b_close_modal">x</button>
 
-        <h2 class="modal_titulo">
-            Nova Compra Fiado
-        </h2>
+        <h2 class="modal_titulo">Nova Compra Fiado</h2>
 
-        <input
-            type="text"
-            class="inp_m"
-            id="inp_busca_cliente"
-            placeholder="Buscar cliente..."
-        >
-
+        <input type="text" class="inp_m" id="inp_busca_cliente" placeholder="Buscar cliente...">
         <ul id="lista_clientes"></ul>
 
         <p class="pm">
-            Cliente:
-            <span id="s_cliente">
-                ---
-            </span>
+            Cliente: <span id="s_cliente">---</span>
         </p>
 
-        <button id="b_abrir_produtos">
-            Adicionar Produtos
-        </button>
+        <button id="b_abrir_produtos">Adicionar Produtos</button>
 
         <div id="produtos_selecionados"></div>
 
         <p class="pm">
-            Total:
-            <span id="s_total_fiado">
-                R$ 0,00
-            </span>
+            Total: <span id="s_total_fiado">R$ 0,00</span>
         </p>
 
-        <input
-            type="text"
-            class="inp_m"
-            id="inp_origem_fiado"
-            placeholder="Origem (ex: Loja, WhatsApp, Instagram...)"
-        >
+        <input type="text" class="inp_m" id="inp_origem_fiado" placeholder="Origem (ex: Loja, WhatsApp, Instagram...)">
+        <input type="date" class="inp_m" id="inp_data_fiado">
 
-        <input
-            type="date"
-            class="inp_m"
-            id="inp_data_fiado"
-        >
-
-        <button id="b_salvar_fiado">
-            Salvar Compra
-        </button>
-
+        <button id="b_salvar_fiado">Salvar Compra</button>
     </div>
-
 </dialog>
-<!-- =========================================================
-MODAL PRODUTOS
-========================================================= -->
+
+<!-- MODAL PRODUTOS -->
 <dialog id="d_modal_produtos">
-
     <div class="modal_box">
-
         <button id="b_close_produtos">x</button>
 
-        <h2 class="modal_titulo">
-            Selecionar Produtos
-        </h2>
+        <h2 class="modal_titulo">Selecionar Produtos</h2>
 
-        <input
-            type="text"
-            class="inp_m"
-            id="inp_busca_produto"
-            placeholder="Buscar produto..."
-        >
-
+        <input type="text" class="inp_m" id="inp_busca_produto" placeholder="Buscar produto...">
         <ul id="lista_produtos"></ul>
 
         <div id="area_produtos_modal"></div>
 
-        <button id="b_salvar_produtos">
-            Salvar Produtos
-        </button>
-
+        <button id="b_salvar_produtos">Salvar Produtos</button>
     </div>
-
 </dialog>
+
 <!-- MODAL AVISO -->
-
 <dialog id="d_aviso">
-
     <div class="aviso_box">
-
         <div id="msg_aviso"></div>
-
         <div class="aviso_botoes">
-
-            <button id="b_confirmar_aviso">
-                OK
-            </button>
-
-            <button id="b_cancelar_aviso">
-                Cancelar
-            </button>
-
+            <button id="b_confirmar_aviso">OK</button>
+            <button id="b_cancelar_aviso">Cancelar</button>
         </div>
-
     </div>
-
 </dialog>
+
 <script>
-const modalFiado =
-document.getElementById("d_modal_fiado");
-
-const modalProdutos =
-document.getElementById("d_modal_produtos");
-
-const modalCliente =
-document.getElementById("modal_cliente");
-
-const listaClientes =
-document.getElementById("lista_clientes");
-
-const listaProdutos =
-document.getElementById("lista_produtos");
-
-const areaProdutosModal =
-document.getElementById("area_produtos_modal");
-
-const areaProdutosPrincipal =
-document.getElementById("produtos_selecionados");
-
-const modalAviso =
-document.getElementById("d_aviso");
-
-const msgAviso =
-document.getElementById("msg_aviso");
-
-const bConfirmarAviso =
-document.getElementById("b_confirmar_aviso");
-
-const bCancelarAviso =
-document.getElementById("b_cancelar_aviso");
+const modalFiado = document.getElementById("d_modal_fiado");
+const modalProdutos = document.getElementById("d_modal_produtos");
+const modalCliente = document.getElementById("modal_cliente");
+const listaClientes = document.getElementById("lista_clientes");
+const listaProdutos = document.getElementById("lista_produtos");
+const areaProdutosModal = document.getElementById("area_produtos_modal");
+const areaProdutosPrincipal = document.getElementById("produtos_selecionados");
+const modalAviso = document.getElementById("d_aviso");
+const msgAviso = document.getElementById("msg_aviso");
+const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
+const bCancelarAviso = document.getElementById("b_cancelar_aviso");
 
 let clientesCache = [];
 let produtosCache = [];
-
 let clienteSelecionado = null;
-
 let produtosSelecionados = [];
-
 let clientePendente = null;
+let contaSelecionada = null;
+let checkboxAtual = null;
 
 /* ======================================================
 MODAIS
 ====================================================== */
-
-document
-.getElementById("b_nova_compra")
-.onclick = async () => {
-
+document.getElementById("b_nova_compra").onclick = async () => {
     limparCompra();
-
     modalFiado.showModal();
-
     await carregarClientesModal();
 };
 
-document
-.getElementById("b_addq")
-.onclick = () => {
-
+document.getElementById("b_addq").onclick = () => {
     modalCliente.showModal();
 };
 
-document
-.getElementById("b_close_modal")
-.onclick = () => {
-
-    modalFiado.close();
-};
-
-document
-.getElementById("b_close_produtos")
-.onclick = () => {
-
-    modalProdutos.close();
-};
-
-document
-.getElementById("b_close_modal_cliente")
-.onclick = () => {
-
-    modalCliente.close();
-};
+document.getElementById("b_close_modal").onclick = () => modalFiado.close();
+document.getElementById("b_close_produtos").onclick = () => modalProdutos.close();
+document.getElementById("b_close_modal_cliente").onclick = () => modalCliente.close();
 
 /* ======================================================
 CLIENTES
 ====================================================== */
-
 async function carregarClientesModal(){
+    try {
+        const res = await fetch("http://localhost:3000/clientes-fiado", {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
 
-    const res = await fetch(
-        "http://localhost:3000/clientes-fiado",
-        {
-            headers:{
-                Authorization:
-                `Bearer ${localStorage.getItem("token")}`
-            }
+        if (res.status === 401 || res.status === 403) {
+            redirecionarLogin("Sessão expirada. Faça login novamente.");
+            return;
         }
-    );
 
-    clientesCache = await res.json();
+        if (res.ok) {
+            clientesCache = await res.json();
+        } else {
+            exibirAviso("Erro ao buscar lista de clientes.");
+        }
+    } catch (err) {
+        exibirAviso("Erro de conexão ao carregar clientes.");
+    }
 }
 
 function renderClientes(clientes){
-
     listaClientes.innerHTML = "";
 
     if(clientes.length <= 0){
-
         listaClientes.style.display = "none";
         return;
     }
@@ -394,34 +203,16 @@ function renderClientes(clientes){
     listaClientes.style.display = "block";
 
     clientes.slice(0, 10).forEach(cliente => {
-
-        const li =
-        document.createElement("li");
-
-        li.innerText =
-        cliente.nome_completo;
-
-        li.onclick = () => {
-
-            tentarSelecionarCliente(cliente);
-        };
-
+        const li = document.createElement("li");
+        li.innerText = cliente.nome_completo;
+        li.onclick = () => tentarSelecionarCliente(cliente);
         listaClientes.appendChild(li);
     });
 }
 
 function tentarSelecionarCliente(cliente){
-
-    if(
-        clienteSelecionado
-        &&
-        produtosSelecionados.length > 0
-        &&
-        clienteSelecionado.id_cliente !== cliente.id_cliente
-    ){
-
+    if(clienteSelecionado && produtosSelecionados.length > 0 && clienteSelecionado.id_cliente !== cliente.id_cliente){
         clientePendente = cliente;
-
         exibirAviso(
             "Trocar cliente removerá os produtos atuais. Continuar?",
             () => {
@@ -430,68 +221,33 @@ function tentarSelecionarCliente(cliente){
                 selecionarCliente(clientePendente);
                 clientePendente = null;
             },
-            true // Ativa o botão cancelar
+            true
         );
-
         return;
     }
-
     selecionarCliente(cliente);
 }
 
 function selecionarCliente(cliente){
-
     clienteSelecionado = cliente;
-
-    document
-    .getElementById("s_cliente")
-    .innerText =
-    cliente.nome_completo;
-
-    document
-    .getElementById("inp_busca_cliente")
-    .value =
-    cliente.nome_completo;
-
+    document.getElementById("s_cliente").innerText = cliente.nome_completo;
+    document.getElementById("inp_busca_cliente").value = cliente.nome_completo;
     listaClientes.innerHTML = "";
-
     listaClientes.style.display = "none";
 }
 
-document
-.getElementById("inp_busca_cliente")
-.addEventListener("input", function(){
-
-    const termo =
-    this.value
-    .toLowerCase()
-    .trim();
-
+document.getElementById("inp_busca_cliente").addEventListener("input", function(){
+    const termo = this.value.toLowerCase().trim();
     if(!termo){
-
         listaClientes.style.display = "none";
         return;
     }
-
-    const filtrados =
-    clientesCache.filter(c => {
-
-        return c.nome_completo
-        .toLowerCase()
-        .includes(termo);
-    });
-
+    const filtrados = clientesCache.filter(c => c.nome_completo.toLowerCase().includes(termo));
     renderClientes(filtrados);
 });
 
 document.addEventListener("click", (e) => {
-
-    if(
-        !listaClientes.contains(e.target)
-        &&
-        e.target.id !== "inp_busca_cliente"
-    ){
-
+    if(!listaClientes.contains(e.target) && e.target.id !== "inp_busca_cliente"){
         listaClientes.style.display = "none";
     }
 });
@@ -499,433 +255,262 @@ document.addEventListener("click", (e) => {
 /* ======================================================
 PRODUTOS
 ====================================================== */
-document
-.getElementById("b_abrir_produtos")
-.onclick = async () => {
-
+document.getElementById("b_abrir_produtos").onclick = async () => {
     if(!clienteSelecionado){
-
         exibirAviso("Selecione um cliente primeiro");
         return;
     }
 
     modalProdutos.showModal();
 
-    if(
-        Array.isArray(produtosCache)
-        &&
-        produtosCache.length > 0
-    ){
+    if(Array.isArray(produtosCache) && produtosCache.length > 0){
         renderProdutos(produtosCache);
         return;
     }
 
-    try{
+    try {
+        const res = await fetch("http://localhost:3000/produtos", {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
 
-        const res = await fetch(
-            "http://localhost:3000/produtos",
-            {
-                headers:{
-                    Authorization:
-                    `Bearer ${localStorage.getItem("token")}`
-                }
-            }
-        );
+        if (res.status === 401 || res.status === 403) {
+            redirecionarLogin("Sessão expirada. Faça login novamente.");
+            return;
+        }
 
         if(!res.ok){
-
-            const erro = await res.text();
-
-            console.log(erro);
-
             exibirAviso("Erro ao carregar produtos");
             return;
         }
 
-        produtosCache =
-        await res.json();
-
+        produtosCache = await res.json();
         if(!Array.isArray(produtosCache)){
-
-            console.log(produtosCache);
-
-            exibirAviso("Resposta inválida do servidor");
+            exibirAviso("Resposta inválida do servidor ao buscar produtos");
             return;
         }
 
         renderProdutos(produtosCache);
 
-    }catch(err){
-
-        console.log(err);
-
-        exibirAviso("Erro de conexão");
+    } catch(err){
+        exibirAviso("Erro de conexão com o servidor");
     }
 };
 
 function renderProdutos(produtos){
+    if(!Array.isArray(produtos)) return;
 
-if(!Array.isArray(produtos)){
+    listaProdutos.innerHTML = "";
 
-    console.log(produtos);
-    return;
-}
-
-listaProdutos.innerHTML = "";
-
-produtos.slice(0, 10).forEach(produto => {
-
-    const li =
-    document.createElement("li");
-
-    li.innerHTML = `
-        <span>
-            ${produto.nome}
-        </span>
-
-        <span>
-            R$ ${Number(produto.preco)
-                .toFixed(2)
-                .replace(".", ",")}
-        </span>
-    `;
-
-    li.onclick = () => {
-
-        adicionarProduto(produto);
-    };
-
-    listaProdutos.appendChild(li);
-});
-}
-document
-.getElementById("inp_busca_produto")
-.addEventListener("input", function(){
-
-    const termo =
-    this.value.toLowerCase();
-
-    const filtrados =
-    produtosCache.filter(p => {
-
-        return p.nome
-        .toLowerCase()
-        .includes(termo);
+    produtos.slice(0, 10).forEach(produto => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <span>${produto.nome}</span>
+            <span>R$ ${Number(produto.preco).toFixed(2).replace(".", ",")}</span>
+        `;
+        li.onclick = () => adicionarProduto(produto);
+        listaProdutos.appendChild(li);
     });
+}
 
+document.getElementById("inp_busca_produto").addEventListener("input", function(){
+    const termo = this.value.toLowerCase();
+    const filtrados = produtosCache.filter(p => p.nome.toLowerCase().includes(termo));
     renderProdutos(filtrados);
 });
+
 function adicionarProduto(produto){
+    const existe = produtosSelecionados.find(p => p.id_produto === produto.id_produto);
+    const estoque = Number(produto.quantidade);
 
-const existe =
-produtosSelecionados.find(p => {
-
-    return p.id_produto === produto.id_produto;
-});
-
-const estoque =
-Number(produto.quantidade);
-
-if(existe){
-
-    if(existe.qtdSelecionada >= estoque){
-
-        exibirAviso("Estoque máximo atingido");
-        return;
+    if(existe){
+        if(existe.qtdSelecionada >= estoque){
+            exibirAviso("Estoque máximo atingido");
+            return;
+        }
+        existe.qtdSelecionada++;
+    } else {
+        if(estoque <= 0){
+            exibirAviso("Produto sem estoque");
+            return;
+        }
+        produtosSelecionados.push({
+            ...produto,
+            estoque: estoque,
+            qtdSelecionada: 1
+        });
     }
-
-    existe.qtdSelecionada++;
-
-}else{
-
-    if(estoque <= 0){
-
-        exibirAviso("Produto sem estoque");
-        return;
-    }
-
-    produtosSelecionados.push({
-
-        ...produto,
-
-        estoque: estoque,
-
-        qtdSelecionada: 1
-    });
-}
-
-renderProdutosSelecionados();
+    renderProdutosSelecionados();
 }
 
 function alterarQtd(id, valor){
+    const produto = produtosSelecionados.find(p => p.id_produto === id);
+    if(!produto) return;
 
-const produto =
-produtosSelecionados.find(p => {
+    if(valor > 0 && produto.qtdSelecionada >= produto.estoque){
+        exibirAviso("Limite do estoque atingido");
+        return;
+    }
 
-    return p.id_produto === id;
-});
+    produto.qtdSelecionada += valor;
 
-if(!produto) return;
+    if(produto.qtdSelecionada <= 0){
+        produtosSelecionados = produtosSelecionados.filter(p => p.id_produto !== id);
+    }
 
-if(
-    valor > 0
-    &&
-    produto.qtdSelecionada >= produto.estoque
-){
-    exibirAviso("Limite do estoque");
-    return;
-}
-
-produto.qtdSelecionada += valor;
-
-if(produto.qtdSelecionada <= 0){
-
-    produtosSelecionados =
-    produtosSelecionados.filter(p => {
-
-        return p.id_produto !== id;
-    });
-}
-
-renderProdutosSelecionados();
+    renderProdutosSelecionados();
 }
 
 function atualizarQtdManual(id, valor){
+    const produto = produtosSelecionados.find(p => p.id_produto === id);
+    if(!produto) return;
 
-const produto =
-produtosSelecionados.find(p => {
+    valor = Number(valor);
 
-    return p.id_produto === id;
-});
+    // VALIDAÇÃO: Entrada numérica válida
+    if(isNaN(valor) || valor <= 0){
+        produtosSelecionados = produtosSelecionados.filter(p => p.id_produto !== id);
+        renderProdutosSelecionados();
+        return;
+    }
 
-if(!produto) return;
-
-valor = Number(valor);
-
-if(valor > produto.estoque){
-
-    valor = produto.estoque;
-
-    exibirAviso("Quantidade ajustada ao estoque");
-}
-
-if(valor <= 0){
-
-    produtosSelecionados =
-    produtosSelecionados.filter(p => {
-
-        return p.id_produto !== id;
-    });
-
-}else{
+    if(valor > produto.estoque){
+        valor = produto.estoque;
+        exibirAviso("Quantidade ajustada ao limite do estoque");
+    }
 
     produto.qtdSelecionada = valor;
+    renderProdutosSelecionados();
 }
-
-renderProdutosSelecionados();
-}
-
 
 function renderProdutosSelecionados(){
-
     areaProdutosModal.innerHTML = "";
-
     areaProdutosPrincipal.innerHTML = "";
 
     let total = 0;
 
     produtosSelecionados.forEach(produto => {
-
-        total +=
-        Number(produto.preco)
-        *
-        produto.qtdSelecionada
+        total += Number(produto.preco) * produto.qtdSelecionada;
 
         const html = `
-
             <div class="produto_item_modal">
-
-                <div class="produto_nome_modal">
-                    ${produto.nome}
-                </div>
-
+                <div class="produto_nome_modal">${produto.nome}</div>
                 <div class="controles_qtd">
-
-                    <button
-                        class="btn_qtd"
-                        onclick="alterarQtd(${produto.id_produto}, -1)"
-                    >
-                        -
-                    </button>
-
-                    <input
-                        class="inp_qtd_modal"
-                        value="${produto.qtdSelecionada}"
-                        onchange="
-                            atualizarQtdManual(
-                                ${produto.id_produto},
-                                this.value
-                            )
-                        "
-                    >
-
-                    <button
-                        class="btn_qtd"
-                        onclick="alterarQtd(${produto.id_produto}, 1)"
-                    >
-                        +
-                    </button>
-
+                    <button class="btn_qtd" onclick="alterarQtd(${produto.id_produto}, -1)">-</button>
+                    <input class="inp_qtd_modal" type="number" min="1" value="${produto.qtdSelecionada}" onchange="atualizarQtdManual(${produto.id_produto}, this.value)">
+                    <button class="btn_qtd" onclick="alterarQtd(${produto.id_produto}, 1)">+</button>
                 </div>
-
             </div>
         `;
 
         areaProdutosModal.innerHTML += html;
-
         areaProdutosPrincipal.innerHTML += html;
     });
 
-    document
-    .getElementById("s_total_fiado")
-    .innerText =
-    `R$ ${total.toFixed(2).replace(".", ",")}`;
+    document.getElementById("s_total_fiado").innerText = `R$ ${total.toFixed(2).replace(".", ",")}`;
 }
 
-/* ======================================================
-SALVAR PRODUTOS
-====================================================== */
-
-document
-.getElementById("b_salvar_produtos")
-.onclick = () => {
-
+document.getElementById("b_salvar_produtos").onclick = () => {
     modalProdutos.close();
 };
 
 /* ======================================================
-SALVAR COMPRA
+SALVAR COMPRA (VALIDAÇÕES ADICIONADAS)
 ====================================================== */
+document.getElementById("b_salvar_fiado").onclick = async () => {
+    const data = document.getElementById("inp_data_fiado").value;
+    const origem = document.getElementById("inp_origem_fiado").value.trim();
 
-document
-.getElementById("b_salvar_fiado")
-.onclick = async () => {
-
-        const data =
-    document
-    .getElementById("inp_data_fiado")
-    .value;
-
-    const origem =
-    document
-    .getElementById("inp_origem_fiado")
-    .value
-    .trim();
-
+    // VALIDAÇÃO: Cliente
     if(!clienteSelecionado){
-
-        exibirAviso("Selecione um cliente");
+        exibirAviso("Por favor, selecione um cliente para a compra.");
         return;
     }
 
+    // VALIDAÇÃO: Produtos
     if(produtosSelecionados.length <= 0){
-
-        exibirAviso("Adicione produtos");
+        exibirAviso("Adicione ao menos um produto à compra.");
         return;
     }
 
+    // VALIDAÇÃO: Origem
+    if(!origem){
+        exibirAviso("Por favor, informe a Origem da compra (ex: Loja, WhatsApp).");
+        return;
+    }
+
+    // VALIDAÇÃO: Data
     if(!data){
-
-        exibirAviso("Selecione uma data");
+        exibirAviso("Por favor, selecione uma data de vencimento.");
         return;
     }
 
-    const total =
-    produtosSelecionados.reduce((acc, p) => {
+    const total = produtosSelecionados.reduce((acc, p) => acc + (Number(p.preco) * p.qtdSelecionada), 0);
 
-        return acc +
-        (
-            Number(p.preco)
-            *
-            p.qtdSelecionada
-        );
-
-    }, 0);
-
-    const res = await fetch(
-        "http://localhost:3000/contas-fiado",
-        {
-            method:"POST",
-
-            headers:{
-                "Content-Type":
-                "application/json",
-
-                Authorization:
-                `Bearer ${localStorage.getItem("token")}`
+    try {
+        const res = await fetch("http://localhost:3000/contas-fiado", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`
             },
-
             body: JSON.stringify({
-
-                id_cliente:
-                clienteSelecionado.id_cliente,
-
-                valor:
-                total,
-
-                vencimento:
-                data,
-
-                origem:
-                origem,
-
-                produtos:
-                produtosSelecionados
+                id_cliente: clienteSelecionado.id_cliente,
+                valor: total,
+                vencimento: data,
+                origem: origem,
+                produtos: produtosSelecionados
             })
+        });
+
+        if (res.status === 401 || res.status === 403) {
+            redirecionarLogin("Sessão expirada. Faça login novamente.");
+            return;
         }
-    );
 
-    if(res.ok){
-
-        exibirAviso("Compra salva");
-
-        modalFiado.close();
-
-        limparCompra();
-
-        carregarContasFiado();
-
-    }else{
-
-        exibirAviso("Erro ao salvar");
+        if(res.ok){
+            exibirAviso("Compra salva com sucesso!");
+            modalFiado.close();
+            limparCompra();
+            carregarContasFiado();
+        } else {
+            exibirAviso("Erro ao salvar compra no servidor.");
+        }
+    } catch(err) {
+        exibirAviso("Erro de conexão ao tentar salvar a compra.");
     }
 };
 
 /* ======================================================
-NOVO CLIENTE
+NOVO CLIENTE (VALIDAÇÕES ADICIONADAS)
 ====================================================== */
-
 document.getElementById("b_addf").onclick = async () => {
-    // Captura os valores removendo espaços vazios extras com .trim()
     const nome = document.getElementById("nome").value.trim();
-    const cpf = document.getElementById("cpf").value.trim();
-    const telefone = document.getElementById("telefone").value.trim();
+    const cpf = document.getElementById("cpf").value.trim().replace(/\D/g, ""); // apenas números
+    const telefone = document.getElementById("telefone").value.trim().replace(/\D/g, ""); // apenas números
     const endereco = document.getElementById("endereco").value.trim();
 
-    // VALIDAÇÃO: Exige que absolutamente TODOS os campos possuam conteúdo
+    // VALIDAÇÃO: Campos obrigatórios
     if (!nome || !cpf || !telefone || !endereco) {
-        exibirAviso("Por favor, preencha todas as informações (Nome, CPF, Telefone e Endereço) para realizar o cadastro.");
+        exibirAviso("Por favor, preencha todos os campos do formulário.");
         return; 
+    }
+
+    // VALIDAÇÃO: Tamanho mínimo do CPF (11 dígitos)
+    if (cpf.length !== 11) {
+        exibirAviso("CPF inválido! Certifique-se de digitar os 11 números do CPF.");
+        return;
+    }
+
+    // VALIDAÇÃO: Mínimo de dígitos para telefone/celular com DDD (10 ou 11)
+    if (telefone.length < 10 || telefone.length > 11) {
+        exibirAviso("Telefone inválido! Digite o DDD + número do telefone/celular.");
+        return;
     }
 
     try {
         const token = localStorage.getItem("token");
-        
-        // Verifica localmente se o usuário tem um token antes de gastar rede
         if (!token) {
-            exibirAviso("Sua sessão expirou ou você não está autenticado. Redirecionando para a página de login...", () => {
-                window.location.replace("login.html");
-            });
+            redirecionarLogin("Sua sessão expirou.");
             return;
         }
 
@@ -943,20 +528,15 @@ document.getElementById("b_addf").onclick = async () => {
             })
         });
 
-        // AUTENTICAÇÃO: Captura respostas de erro do servidor de sessão inválida/expirada (401 ou 403)
         if (res.status === 401 || res.status === 403) {
-            exibirAviso("Erro de autenticação! Você precisa refazer o login.", () => {
-                window.location.replace("login.html");
-            });
+            redirecionarLogin("Erro de autenticação! Você precisa refazer o login.");
             return;
         }
 
         if (res.ok) {
             exibirAviso("Cliente cadastrado com sucesso!");
-            
             modalCliente.close();
 
-            // Reseta o formulário
             document.getElementById("nome").value = "";
             document.getElementById("cpf").value = "";
             document.getElementById("telefone").value = "";
@@ -964,24 +544,122 @@ document.getElementById("b_addf").onclick = async () => {
 
             carregarClientesModal();
         } else {
-            // Trata outros erros do servidor (como CPF já cadastrado)
-            exibirAviso("Erro ao cadastrar. Verifique se os dados estão corretos ou se o cliente já existe.");
+            exibirAviso("Erro ao cadastrar. Verifique se o cliente/CPF já existe.");
         }
 
     } catch (err) {
-        console.error(err);
-        exibirAviso("Não foi possível conectar ao servidor. Verifique sua conexão de rede.");
+        exibirAviso("Não foi possível conectar ao servidor.");
     }
 };
 
 /* ======================================================
-MODAL AVISO
+CONTAS E PAGAMENTOS
 ====================================================== */
+async function carregarContasFiado(){
+    try {
+        const res = await fetch("http://localhost:3000/contas-fiado", {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
 
+        if (res.status === 401 || res.status === 403) {
+            redirecionarLogin("Sessão expirada.");
+            return;
+        }
+
+        const dados = await res.json();
+        const tbody = document.getElementById("tbody");
+        tbody.innerHTML = "";
+
+        if (!Array.isArray(dados)) return;
+
+        dados.forEach(conta => {
+            const qtd = conta.quantidade_total || 0;
+            const dataFormatada = conta.data_vencimento ? conta.data_vencimento.split("T")[0] : "-";
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${conta.nome_completo}</td>
+                    <td>${conta.produtos || "-"}</td>
+                    <td>R$ ${Number(conta.valor_final).toFixed(2).replace(".", ",")}</td>
+                    <td>${qtd}</td>
+                    <td>${conta.origem || "-"}</td>
+                    <td>${dataFormatada}</td>
+                    <td>
+                        ${
+                            conta.status === "Pago"
+                            ? "✅"
+                            : `<input type="checkbox" class="chk-concluido" onchange="abrirModalPagamento(${conta.id_conta}, this)">`
+                        }
+                    </td>
+                </tr>
+            `;
+        });
+    } catch (err) {
+        exibirAviso("Erro ao carregar a lista de contas fiado.");
+    }
+}
+
+function abrirModalPagamento(idConta, checkbox){
+    if(!checkbox.checked) return;
+
+    checkboxAtual = checkbox;
+    contaSelecionada = idConta;
+
+    const hoje = new Date().toISOString().split("T")[0];
+
+    const modalConteudo = `
+        Deseja concluir o pagamento?
+        <br><br>
+        <input type="date" id="inp_data_pagamento" class="inp_m" value="${hoje}">
+    `;
+
+    exibirAviso(modalConteudo, async () => {
+        const data = document.getElementById("inp_data_pagamento").value;
+
+        if(!data){
+            exibirAviso("Selecione a data para prosseguir.", () => {
+                abrirModalPagamento(idConta, checkbox);
+            });
+            return;
+        }
+
+        await pagarConta(contaSelecionada, data);
+    }, true);
+}
+
+async function pagarConta(idConta, dataPagamento){
+    try {
+        const res = await fetch(`http://localhost:3000/contas-fiado/${idConta}/pagar`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify({ data_pagamento: dataPagamento })
+        });
+
+        if (res.status === 401 || res.status === 403) {
+            redirecionarLogin("Sessão expirada.");
+            return;
+        }
+
+        if(res.ok){
+            carregarContasFiado();
+        } else {
+            exibirAviso("Erro ao concluir o pagamento no servidor.");
+            if(checkboxAtual) checkboxAtual.checked = false;
+        }
+    } catch(err) {
+        exibirAviso("Erro de conexão ao processar pagamento.");
+        if(checkboxAtual) checkboxAtual.checked = false;
+    }
+}
+
+/* ======================================================
+MODAL AVISO E UTILITÁRIOS
+====================================================== */
 function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
     msgAviso.innerHTML = mensagem;
-    
-    // Controla se o botão cancelar aparece (para perguntas) ou some (para exibirAvisoas comuns)
     bCancelarAviso.style.display = mostrarCancelar ? "inline-block" : "none";
 
     modalAviso.showModal();
@@ -993,8 +671,6 @@ function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
 
     bCancelarAviso.onclick = () => {
         modalAviso.close();
-
-        // Se o aviso veio de um checkbox de tabela, desmarca ele ao cancelar
         if (checkboxAtual) {
             checkboxAtual.checked = false;
             checkboxAtual.blur();
@@ -1003,230 +679,28 @@ function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
     };
 }
 
-/* ======================================================
-UTILS
-====================================================== */
+function redirecionarLogin(mensagem) {
+    exibirAviso(mensagem, () => {
+        window.location.replace("login.html");
+    });
+}
 
 function limparCompra(){
-
     clienteSelecionado = null;
-
     produtosSelecionados = [];
 
-    document
-    .getElementById("s_cliente")
-    .innerText = "---";
-
-    document
-    .getElementById("inp_busca_cliente")
-    .value = "";
-
-    document
-    .getElementById("inp_data_fiado")
-    .value = "";
-
-    document
-    .getElementById("s_total_fiado")
-    .innerText = "R$ 0,00";
-    
-    document
-    .getElementById("inp_origem_fiado")
-    .value = "";
+    document.getElementById("s_cliente").innerText = "---";
+    document.getElementById("inp_busca_cliente").value = "";
+    document.getElementById("inp_data_fiado").value = "";
+    document.getElementById("s_total_fiado").innerText = "R$ 0,00";
+    document.getElementById("inp_origem_fiado").value = "";
 
     areaProdutosModal.innerHTML = "";
-
     areaProdutosPrincipal.innerHTML = "";
-
     listaClientes.style.display = "none";
 }
-async function carregarContasFiado(){
 
-const res = await fetch(
-    "http://localhost:3000/contas-fiado",
-    {
-        headers:{
-            Authorization:
-            `Bearer ${localStorage.getItem("token")}`
-        }
-    }
-);
-
-const dados =
-await res.json();
-
-const tbody =
-document.getElementById("tbody");
-
-tbody.innerHTML = "";
-
-dados.forEach(conta => {
-
-    const qtd =
-    conta.quantidade_total || 0;
-
-    tbody.innerHTML += `
-        <tr>
-
-            <td>
-                ${conta.nome_completo}
-            </td>
-
-            <td>
-                ${conta.produtos || "-"}
-            </td>
-
-            <td>
-                R$ ${Number(conta.valor_final)
-                    .toFixed(2)
-                    .replace(".", ",")}
-            </td>
-
-            <td>
-                ${qtd}
-            </td>
-
-            <td>
-                ${conta.origem || "-"}
-            </td>
-
-            <td>
-                ${conta.data_vencimento
-                    .split("T")[0]}
-            </td>
-
-            <td>
-                    ${
-                        conta.status === "Pago"
-                        ?
-                        "✅"
-                        :
-                        `
-                        <input
-                            type="checkbox"
-                            class="chk-concluido"
-                            onchange="abrirModalPagamento(${conta.id_conta}, this)"
-                        >
-                        `
-                    }
-                </td>
-
-        </tr>
-    `;
-});
-}
-let contaSelecionada = null;
-
-let checkboxAtual = null;
-
-function abrirModalPagamento(idConta, checkbox){
-
-    if(!checkbox.checked) return;
-
-    checkboxAtual = checkbox;
-    contaSelecionada = idConta;
-
-    const hoje = new Date().toISOString().split("T")[0];
-
-    const modalConteudo = `
-        Deseja concluir o pagamento?
-        <br><br>
-        <input
-            type="date"
-            id="inp_data_pagamento"
-            class="inp_m"
-            value="${hoje}"
-        >
-    `;
-
-    exibirAviso(modalConteudo, async () => {
-
-        const data =
-        document
-        .getElementById("inp_data_pagamento")
-        .value;
-
-        if(!data){
-
-            exibirAviso("Selecione a data para prosseguir.", () => {
-                abrirModalPagamento(idConta, checkbox);
-            });
-
-            return;
-        }
-
-        await pagarConta(contaSelecionada, data);
-
-    }, true);
-}
-async function pagarConta(idConta, dataPagamento){
-
-try{
-
-    const res = await fetch(
-        `http://localhost:3000/contas-fiado/${idConta}/pagar`,
-        {
-            method:"PUT",
-
-            headers:{
-                "Content-Type":"application/json",
-
-                Authorization:
-                `Bearer ${localStorage.getItem("token")}`
-            },
-
-            body: JSON.stringify({
-                data_pagamento: dataPagamento
-            })
-        }
-    );
-
-    if(!res.ok){
-
-        throw new Error();
-    }
-
-    carregarContasFiado();
-
-}catch(err){
-
-    exibirAviso("Erro ao concluir pagamento");
-
-    if(checkboxAtual){
-
-        checkboxAtual.checked = false;
-    }
-}
-}
-
-async function pagarConta(idConta, dataPagamento){
-
-    const res = await fetch(
-        `http://localhost:3000/contas-fiado/${idConta}/pagar`,
-        {
-            method:"PUT",
-
-            headers:{
-                "Content-Type":"application/json",
-
-                Authorization:
-                `Bearer ${localStorage.getItem("token")}`
-            },
-
-            body: JSON.stringify({
-                data_pagamento: dataPagamento
-            })
-        }
-    );
-
-    if(res.ok){
-
-        carregarContasFiado();
-
-    }else{
-
-        exibirAviso("Erro ao pagar");
-    }
-}
+// Inicialização
 carregarContasFiado();
 </script>
 

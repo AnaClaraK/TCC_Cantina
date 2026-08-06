@@ -258,7 +258,7 @@ router.post("/comandas", async (req, res) => {
                 qtd_total,
                 form_pag
             )
-            VALUES (?, ?, ?, NOW(), ?, ?, 'App', ?, ?, ?)
+            VALUES (?, ?, ?, NOW(), ?, ?, 'APP', ?, ?, ?)
         `;
 
         const [resultadoPedido] = await conn.execute(queryPedido, [
@@ -318,6 +318,74 @@ router.post("/comandas", async (req, res) => {
         if (conn) {
             conn.release();
         }
+    }
+});
+// ==================== BUSCAR COMANDA PELO CÓDIGO ====================
+router.get("/comandas/:codigo", async (req, res) => {
+    const { codigo } = req.params;
+
+    let conn;
+
+    try {
+        conn = await conexao.getConnection();
+        console.log("Buscando comanda pelo código:", codigo);
+
+        // 1. Busca a comanda no banco usando a variável 'pedidos'
+        const [pedidos] = await conn.execute(
+            `
+            SELECT id_pedido, codigo_comanda, origem 
+            FROM pedidos 
+            WHERE codigo_comanda = ? AND UPPER(origem) = 'APP'
+            `,
+            [codigo]
+        );
+
+        console.log("Resultado retornado do BD:", pedidos);
+
+        // 2. Verifica se a comanda foi encontrada
+        if (!pedidos || pedidos.length === 0) {
+            return res.status(404).json({
+                sucesso: false,
+                erro: "Comanda não encontrada."
+            });
+        }
+
+        const idPedido = pedidos[0].id_pedido;
+
+        // 3. Busca os itens da comanda
+        const [itens] = await conn.execute(
+            `
+            SELECT
+                pi.id_produto,
+                pi.qtd,
+                pi.preco_unitario AS preco,
+                p.codigo_barras,
+                p.nome,
+                p.qtd AS estoque,
+                p.qtd_min,
+                p.img
+            FROM pedidos_itens pi
+            INNER JOIN produtos p
+                ON p.id_produto = pi.id_produto
+            WHERE pi.id_pedido = ?
+            `,
+            [idPedido]
+        );
+
+        return res.json({
+            carrinho: itens
+        });
+
+    } catch (erro) {
+        console.error("Erro ao buscar comanda:", erro);
+
+        return res.status(500).json({
+            sucesso: false,
+            erro: "Erro interno."
+        });
+
+    } finally {
+        if (conn) conn.release();
     }
 });
 

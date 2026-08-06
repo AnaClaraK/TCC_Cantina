@@ -1,82 +1,97 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Image, TouchableOpacity, Alert } from 'react-native';
+import { 
+  StyleSheet, 
+  Text, 
+  View, 
+  TextInput, 
+  Image, 
+  TouchableOpacity, 
+  Alert,
+  ActivityIndicator 
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from '@expo/vector-icons'; 
+import Constants from 'expo-constants';
 import { Botao } from '../Components/Botoes';
+
+// IP Dinâmico do Expo Go
+const hostUri = Constants.expoConfig?.hostUri || Constants.manifest2?.extra?.expoGo?.developer?.manifest?.debuggerHost;
+const IP_SERVIDOR = hostUri ? hostUri.split(':')[0] : '10.111.9.55';
+const URL_API = `http://${IP_SERVIDOR}:3000`;
 
 export default function LoginScreen() {
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
     const [verSenha, setVerSenha] = useState(true);
+    const [carregando, setCarregando] = useState(false);
 
     const navigation = useNavigation();
 
     const FazerLogin = async () => {
-        const urlAPI = "http://10.111.9.55:3000/logar";
+        const urlAPI = `${URL_API}/logar`;
         
         console.log("\n========================================");
         console.log("🚀 [LOGIN] Botão clicado!");
-        console.log(`📡 Tentando conectar em: ${urlAPI}`);
-        console.log(`📧 Dados enviados -> Email: "${email}" | Senha: "${senha ? '******' : 'VAZIA'}"`);
+        console.log(`📡 Conectando em: ${urlAPI}`);
+        console.log(`📧 Email: "${email}"`);
         console.log("========================================");
 
         if (!email.trim() || !senha.trim()) {
-            console.warn("⚠️ [AVISO] Usuário tentou logar com campos em branco.");
             Alert.alert("Campos Obrigatórios", "Por favor, preencha o e-mail e a senha.");
             return;
         }
 
         try {
-            console.log("⏳ Aguardando resposta do servidor...");
+            setCarregando(true);
+
             const resposta = await fetch(urlAPI, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    email: email,
+                    email: email.trim(),
                     senha: senha,
                 }),
             });
 
-            console.log(`📥 Resposta HTTP recebida! Status: ${resposta.status} (${resposta.statusText})`);
+            console.log(`📥 Status HTTP: ${resposta.status}`);
             
             const dados = await resposta.json();
-            console.log("📦 Corpo da resposta da API:", dados);
+            console.log("📦 Resposta do servidor:", dados);
         
             if (dados.resposta === "true") {
-                console.log("✅ [SUCESSO] Login validado pelo servidor! Gravando dados de sessão...");
+                console.log("✅ Login realizado com sucesso! Gravando sessão...");
                 
-                // Grava todas as informações necessárias no AsyncStorage
                 if (dados.token) await AsyncStorage.setItem("token", dados.token); 
                 if (dados.id_user) await AsyncStorage.setItem("id_user", String(dados.id_user));
                 if (dados.nome) await AsyncStorage.setItem("nome_user", dados.nome);
-                
-                // AJUSTE CHAVE: Salva o e-mail digitado (ou dados.email se a API retornar)
                 await AsyncStorage.setItem("email_user", dados.email || email);
-                
-                // Caso a API retorne o caminho da foto no login
+                await AsyncStorage.setItem("senha_user", String(senha));
                 if (dados.foto) await AsyncStorage.setItem("foto_user", dados.foto);
+                const emailSalvo = await AsyncStorage.getItem("email_user");
+const senhaSalva = await AsyncStorage.getItem("senha_user");
 
-                console.log(`💾 Armazenado com Sucesso -> ID: ${dados.id_user} | Nome: ${dados.nome} | Email: ${dados.email || email}`);
-                console.log("🔀 Redirecionando para a tela MainApp.");
+if (emailSalvo) setEmail(emailSalvo);
+if (senhaSalva) setSenha(senhaSalva);
+
+                console.log("🔀 Redirecionando para MainApp...");
                 
+                // Redireciona para o TabNavigator registrado no App.js como "MainApp"
                 navigation.replace("MainApp"); 
             } else {
-                console.log(`❌ [NEGADO] Servidor recusou as credenciais. Motivo: ${dados.mensagem}`);
                 Alert.alert("Erro de Autenticação", dados.mensagem || "Usuário ou senha inválidos.");
             }
         
         } catch (erro) {
-            console.log("\n🛑====== ERRO CRÍTICO DE CONEXÃO ======");
-            console.error(" Detalhes técnicos do erro:", erro.message);
-            console.log("=========================================\n");
-
+            console.error("🛑 ERRO DE CONEXÃO:", erro.message);
             Alert.alert(
                 "Falha na Rede", 
-                "Não foi possível conectar ao servidor.\n\nVerifique se o servidor está ligado e configurado na rede local."
+                "Não foi possível conectar ao servidor."
             );
+        } finally {
+            setCarregando(false);
         }
     };
 
@@ -89,6 +104,7 @@ export default function LoginScreen() {
             </View>
 
             <View style={styles.quadrado}>
+                {/* Campo E-mail */}
                 <View style={styles.inputArea}>
                     <Ionicons name="mail-outline" size={28} color="#eeaf55" />
                     <TextInput 
@@ -102,6 +118,7 @@ export default function LoginScreen() {
                     />
                 </View>
 
+                {/* Campo Senha */}
                 <View style={styles.inputArea}>
                     <Ionicons name="lock-closed-outline" size={28} color="#eeaf55" />
                     <TextInput 
@@ -121,14 +138,27 @@ export default function LoginScreen() {
                     </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity style={styles.esqueceuBtn}>
+                {/* Botão Esqueceu a Senha */}
+                <TouchableOpacity 
+                    style={styles.esqueceuBtn}
+                    onPress={() => {
+                        console.log("👉 [NAVEGAÇÃO] Indo para RecuperarScreen");
+                        navigation.navigate("RecuperarScreen");
+                    }}
+                >
                     <Text style={styles.esqueceuTexto}>Esqueceu a senha?</Text>
                 </TouchableOpacity>
 
-                <Botao texto="ENTRAR" acao={FazerLogin} tamFonte={20} />
+                {/* Botão Entrar */}
+                {carregando ? (
+                    <ActivityIndicator size="large" color="#efac4a" style={{ marginVertical: 15 }} />
+                ) : (
+                    <Botao texto="ENTRAR" acao={FazerLogin} tamFonte={20} />
+                )}
 
-                <Text style={styles.ouTexto}>ou</Text>
+                
 
+                {/* Botão Cadastre-se */}
                 <Botao 
                     texto="CADASTRE-SE" 
                     acao={() => navigation.navigate("CadastroScreen")} 
@@ -145,7 +175,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#242628',
         alignItems: 'center',
-        justify: 'center', 
+        justifyContent: 'center',
     },
     header: {
         alignItems: 'center',
@@ -176,7 +206,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         borderRadius: 25,
         alignItems: 'center',
-        justify: 'center', 
+        justifyContent: 'center',
     },
     inputArea: {
         flexDirection: 'row',

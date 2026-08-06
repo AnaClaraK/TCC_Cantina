@@ -22,6 +22,7 @@ import ComprasScreen from './src/Screens/ComprasScreen';
 import BuscarScreen from './src/Screens/BuscarScreen';
 import PedidosScreen from './src/Screens/PedidosScreen'; 
 import SplashScreen from './src/Screens/SplashScreen'; 
+import RecuperarScreen from './src/Screens/RecuperarScreen'; 
 
 const PilhasTelas = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -141,6 +142,7 @@ export default function App() {
         <PilhasTelas.Screen name="CadastroScreen" component={CadastroScreen} />
         <PilhasTelas.Screen name="LoginScreen" component={LoginScreen} />
         <PilhasTelas.Screen name="MainApp" component={TabNavigator} />
+        <PilhasTelas.Screen name="RecuperarScreen" component={RecuperarScreen} />
       </PilhasTelas.Navigator>
     </NavigationContainer>
   );

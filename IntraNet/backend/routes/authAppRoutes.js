@@ -113,4 +113,44 @@ router.get('/images/:nome', async (req, res) => {
 
   return res.status(404).send('Imagem não encontrada');
 });
+
+router.post("/redefinir-senha", async (req, res) => {
+    const { email, novaSenha } = req.body;
+
+    if (!email || email.length <= 3) {
+        return res.status(400).json({ "resposta": "false", "mensagem": "Informe um e-mail válido!" });
+    }
+
+    if (!novaSenha || novaSenha.length < 7) {
+        return res.status(400).json({ "resposta": "false", "mensagem": "A senha deve ter no mínimo 7 caracteres!" });
+    }
+
+    try {
+        // 1. Verifica se o usuário existe
+        const [usuarios] = await conexao.execute(`SELECT * FROM users WHERE email = ?`, [email]);
+
+        if (usuarios.length === 0) {
+            return res.status(404).json({ "resposta": "false", "mensagem": "E-mail não encontrado no sistema!" });
+        }
+
+        // 2. Gera o hash bcrypt da nova senha
+        const senhaHash = await bcrypt.hash(novaSenha, 10);
+
+        // 3. Atualiza a senha no banco de dados
+        await conexao.execute(
+            `UPDATE users SET senha = ? WHERE email = ?`, 
+            [senhaHash, email]
+        );
+
+        return res.json({
+            "resposta": "true",
+            "mensagem": "Senha redefinida com sucesso!"
+        });
+
+    } catch (error) {
+        console.error("Erro ao redefinir senha:", error);
+        return res.status(500).json({ "resposta": "false", "mensagem": "Erro interno no servidor." });
+    }
+});
+
 module.exports = router;

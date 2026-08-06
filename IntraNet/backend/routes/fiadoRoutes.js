@@ -13,16 +13,46 @@ require('../middlewares/auth');
 const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
 //----------------------Clientes Fiado (Conta)
 //----Cadastrar
+//---- Cadastrar Cliente Fiado
 router.post("/clientes-fiado", async (req, res) => {
-
-    try{
-
-        const {
+    try {
+        let {
             nome_completo,
             cpf,
             telefone,
             endereco
         } = req.body;
+
+        // Limpa espaços no início e fim
+        nome_completo = nome_completo ? nome_completo.trim() : "";
+        cpf = cpf ? cpf.replace(/\D/g, "") : "";
+        telefone = telefone ? telefone.replace(/\D/g, "") : "";
+        endereco = endereco ? endereco.trim() : "";
+
+        // Validação de campos vazios ou mínimos
+        if (!nome_completo || nome_completo.length < 3) {
+            return res.status(400).json({
+                erro: "O nome completo deve ter pelo menos 3 caracteres."
+            });
+        }
+
+        if (cpf.length !== 11) {
+            return res.status(400).json({
+                erro: "CPF inválido. Deve conter exatamente 11 dígitos."
+            });
+        }
+
+        if (telefone.length < 10 || telefone.length > 11) {
+            return res.status(400).json({
+                erro: "Telefone inválido. Deve conter DDD + número (10 ou 11 dígitos)."
+            });
+        }
+
+        if (!endereco || endereco.length < 5) {
+            return res.status(400).json({
+                erro: "O endereço deve ter pelo menos 5 caracteres."
+            });
+        }
 
         await conexao.query(`
             INSERT INTO clientes_fiado
@@ -44,10 +74,8 @@ router.post("/clientes-fiado", async (req, res) => {
             sucesso: true
         });
 
-    }catch(err){
-
+    } catch (err) {
         console.log(err);
-
         res.status(500).json({
             erro: err.message
         });
@@ -240,70 +268,6 @@ router.put("/contas-fiado/:id/pagar", async (req, res) => {
     res.json({
         sucesso: true
     });
-});
-router.get("/comandas/:codigo", async (req, res) => {
-    const { codigo } = req.params;
-
-    let conn;
-
-    try {
-        conn = await conexao.getConnection();
-
-        const [pedidos] = await conn.execute(
-            `
-            SELECT id_pedido
-            FROM pedidos
-            WHERE
-                codigo_comanda = ?
-                AND origem = 'Comanda'
-            LIMIT 1
-            `,
-            [codigo]
-        );
-
-        if (pedidos.length === 0) {
-            return res.status(404).json({
-                sucesso: false,
-                erro: "Comanda não encontrada."
-            });
-        }
-
-        const idPedido = pedidos[0].id_pedido;
-
-        const [itens] = await conn.execute(
-            `
-            SELECT
-                pi.id_produto,
-                pi.qtd,
-                pi.preco_unitario AS preco,
-                p.codigo_barras,
-                p.nome,
-                p.qtd AS estoque,
-                p.qtd_min,
-                p.img
-            FROM pedidos_itens pi
-            INNER JOIN produtos p
-                ON p.id_produto = pi.id_produto
-            WHERE pi.id_pedido = ?
-            `,
-            [idPedido]
-        );
-
-        return res.json({
-            carrinho: itens
-        });
-
-    } catch (erro) {
-        console.error("Erro ao buscar comanda:", erro);
-
-        return res.status(500).json({
-            sucesso: false,
-            erro: "Erro interno."
-        });
-
-    } finally {
-        if (conn) conn.release();
-    }
 });
 
 module.exports = router;

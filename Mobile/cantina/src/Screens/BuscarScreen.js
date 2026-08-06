@@ -15,8 +15,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from "@react-navigation/native";
+import Constants from 'expo-constants'; // 1. IMPORTADO O CONSTANTS
 
-const IP_SERVIDOR = "10.111.9.55"; 
+// 2. DETECÇÃO DINÂMICA DO IP DA SUA MÁQUINA VIA EXPO
+const hostUri = Constants.expoConfig?.hostUri || Constants.manifest2?.extra?.expoGo?.developer?.manifest?.debuggerHost;
+const IP_SERVIDOR = hostUri ? hostUri.split(':')[0] : '10.111.9.55'; // Fallback se não detectar
 const URL_API = `http://${IP_SERVIDOR}:3000`;
 
 const CORES = {
@@ -400,7 +403,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5, 
     paddingHorizontal: 10, 
     alignItems: 'center', 
-    justifyContent: 'center', 
+    justify: 'center', 
     borderRadius: 6, 
   },
   btnCategoriaAtiva: { 
@@ -445,7 +448,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: CORES.cinza,
-    justifyContent: 'center',
+    justify: 'center',
     alignItems: 'center',
     overflow: 'hidden',
     position: 'relative',
@@ -473,7 +476,7 @@ const styles = StyleSheet.create({
   containerTextoTop: {
     flex: 1,
     marginLeft: 14,
-    justifyContent: 'center',
+    justify: 'center',
   },
   categoriaTag: {
     color: CORES.dourado,
@@ -500,7 +503,7 @@ const styles = StyleSheet.create({
   },
   headerSabor: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justify: 'space-between',
     alignItems: 'center',
     marginBottom: 4,
   },
@@ -525,7 +528,7 @@ const styles = StyleSheet.create({
   containerPrecoCarrinho: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justify: 'space-between',
     width: '100%',
   },
   badgePreco: {
@@ -546,7 +549,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    justifyContent: 'center',
+    justify: 'center',
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: CORES.branco,
@@ -557,7 +560,7 @@ const styles = StyleSheet.create({
   },
   containerLoading: {
     flex: 1,
-    justifyContent: 'center',
+    justify: 'center',
     alignItems: 'center',
   },
   txtLoading: {
@@ -567,7 +570,7 @@ const styles = StyleSheet.create({
   },
   containerVazio: {
     alignItems: 'center',
-    justifyContent: 'center',
+    justify: 'center',
     paddingTop: 60,
   },
   txtVazio: {
