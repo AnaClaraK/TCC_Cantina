@@ -12,8 +12,7 @@ require('../middlewares/auth');
 
 const {
 
-    uploadProdutos,
-    uploadProduto
+    uploadProdutos
 
 }
 =
@@ -164,12 +163,14 @@ router.get("/produtos/cod/:codigo", verificarToken, async (req, res) => {
   });
   
   // Editar PRODUTO
-  router.put("/produtos/cod/:id", verificarToken, uploadProduto.single("img"), async (req, res) => {
+  router.put("/produtos/cod/:id", verificarToken, uploadProdutos.single("img"), async (req, res) => {
       try {
+        console.log("BODY:", req.body);
+console.log(req.headers["content-type"]);
         const { id } = req.params;
         // Adicionamos 'qtd_min' aqui na desestruturação do corpo
         const { nome, codigo_barras, preco, qtd, qtd_min, descricao } = req.body; 
-        let img = req.file ? req.file.filename : null;
+        const img = req.file ? req.file.filename : null;
     
         await conexao.query(`
           UPDATE produtos SET
