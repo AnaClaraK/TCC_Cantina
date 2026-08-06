@@ -139,6 +139,31 @@
     let filtroOrigemAtual = "todos";
     let rankingProdutos = [];
 
+    // ===============================
+    // FUNÇÃO UTILITÁRIA DE FORMATAÇÃO
+    // ===============================
+    function formatarFormaPagamento(texto) {
+    if (!texto) return "-";
+    
+    let limpo = String(texto);
+
+    // 1. Remove qualquer menção a F1 até F12 (ex: F2, [F2], (F2), F11, etc.)
+    limpo = limpo.replace(/f(?:1[0-2]|[1-9])/gi, "");
+
+    // 2. Remove TODOS os parênteses e colchetes, abertos ou fechados
+    limpo = limpo.replace(/[()\[\]]/g, "");
+
+    // 3. Remove traços e espaços que sobraram nas pontas
+    limpo = limpo.replace(/^[-:\s]+|[-:\s]+$/g, "").trim();
+
+    if (!limpo) return "-";
+
+    // 4. Deixa Primeira Letra Maiúscula e o resto minúsculo
+    return limpo.toLowerCase().replace(/(?:^|\s|-)\S/g, function(a) {
+        return a.toUpperCase();
+    });
+}
+
     document.addEventListener("DOMContentLoaded", () => {
         buscarProdutosEstoque();
         configurarEventosFiltro();
@@ -147,49 +172,46 @@
     // ===============================
     // 1. BUSCAR PEDIDOS NO BACKEND
     // ===============================
-    // 1. Adicionado console.log para você inspecionar o retorno da API no F12
-async function buscarProdutosEstoque() {
-    if (!corpoTabela) return;
-    corpoTabela.innerHTML = "";
+    async function buscarProdutosEstoque() {
+        if (!corpoTabela) return;
+        corpoTabela.innerHTML = "";
 
-    try {
-        const response = await fetch("http://localhost:3000/historico-pedidos", {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`
+        try {
+            const response = await fetch("http://localhost:3000/historico-pedidos", {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+
+            if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+
+            pedidosCarregados = await response.json();
+
+            console.log("Dados recebidos do backend:", pedidosCarregados);
+
+            calcularRankingProdutos();
+
+            if (pedidosCarregados.length === 0) {
+                corpoTabela.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center;">Nenhum pedido finalizado encontrado.</td>
+                    </tr>
+                `;
+                atualizarMetricas([]);
+                return;
             }
-        });
 
-        if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+            aplicarFiltrosEBusca();
 
-        pedidosCarregados = await response.json();
-
-        // 🔍 IMPRIMA NO CONSOLE DO NAVEGADOR PARA VER OS CAMPOS VINDOS DO BACKEND
-        console.log("Dados recebidos do backend:", pedidosCarregados);
-
-        calcularRankingProdutos();
-
-        if (pedidosCarregados.length === 0) {
+        } catch (erro) {
+            console.error("Erro ao carregar histórico:", erro);
             corpoTabela.innerHTML = `
                 <tr>
-                    <td colspan="6" style="text-align: center;">Nenhum pedido finalizado encontrado.</td>
+                    <td colspan="6" style="text-align: center;">Erro ao carregar histórico de pedidos.</td>
                 </tr>
             `;
-            atualizarMetricas([]);
-            return;
         }
-
-        aplicarFiltrosEBusca();
-
-    } catch (erro) {
-        console.error("Erro ao carregar histórico:", erro);
-        corpoTabela.innerHTML = `
-            <tr>
-                <td colspan="6" style="text-align: center;">Erro ao carregar histórico de pedidos.</td>
-            </tr>
-        `;
     }
-}
-
 
     // ===============================
     // 2. FILTROS E PESQUISA
@@ -222,71 +244,67 @@ async function buscarProdutosEstoque() {
         }
     }
 
-    // ===============================
-// 2. FILTROS E PESQUISA (CORRIGIDO)
-// ===============================
-function aplicarFiltrosEBusca() {
-    const termoBusca = inputBusca ? inputBusca.value.toLowerCase().trim() : "";
+    function aplicarFiltrosEBusca() {
+        const termoBusca = inputBusca ? inputBusca.value.toLowerCase().trim() : "";
 
-    const pedidosFiltrados = pedidosCarregados.filter(pedido => {
-        // Trata a origem (se for null ou undefined, define como texto vazio ou 'PDV')
-        const origemPedido = (pedido.origem || "").toLowerCase();
-        
-        const atendeOrigem = (filtroOrigemAtual === "todos") || 
-                             (origemPedido === filtroOrigemAtual.toLowerCase());
+        const pedidosFiltrados = pedidosCarregados.filter(pedido => {
+            const origemPedido = (pedido.origem || "").toLowerCase();
+            
+            const atendeOrigem = (filtroOrigemAtual === "todos") || 
+                                 (origemPedido === filtroOrigemAtual.toLowerCase());
 
-        // Trata nome do cliente e número do pedido
-        const nomeCliente = (pedido.nome || "consumidor final").toLowerCase();
-        const numPedido = (pedido.num_pedido !== undefined && pedido.num_pedido !== null) 
-                            ? pedido.num_pedido.toString().toLowerCase() 
-                            : "";
+            const nomeCliente = (pedido.nome || "consumidor final").toLowerCase();
+            const numPedido = (pedido.num_pedido !== undefined && pedido.num_pedido !== null) 
+                                ? pedido.num_pedido.toString().toLowerCase() 
+                                : "";
 
-        const atendeBusca = nomeCliente.includes(termoBusca) || numPedido.includes(termoBusca);
+            const atendeBusca = nomeCliente.includes(termoBusca) || numPedido.includes(termoBusca);
 
-        return atendeOrigem && atendeBusca;
-    });
+            return atendeOrigem && atendeBusca;
+        });
 
-    renderizarTabela(pedidosFiltrados);
-    atualizarMetricas(pedidosFiltrados);
-}
-
-// ===============================
-// 3. RENDERIZAR TABELA (CORRIGIDO)
-// ===============================
-function renderizarTabela(pedidos) {
-    if (!corpoTabela) return;
-    corpoTabela.innerHTML = "";
-
-    if (!pedidos || pedidos.length === 0) {
-        corpoTabela.innerHTML = `
-            <tr>
-                <td colspan="6" style="text-align: center;">Nenhum pedido encontrado.</td>
-            </tr>
-        `;
-        return;
+        renderizarTabela(pedidosFiltrados);
+        atualizarMetricas(pedidosFiltrados);
     }
 
-    pedidos.forEach(pedido => {
-        // Formata a data se existir
-        const dataFormatada = pedido.data ? new Date(pedido.data).toLocaleString("pt-BR") : "-";
-        
-        // Formata o valor total com segurança
-        const valorTotalNum = Number(pedido.valor_total) || 0;
-        const valorFormatado = valorTotalNum.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    // ===============================
+    // 3. RENDERIZAR TABELA
+    // ===============================
+    function renderizarTabela(pedidos) {
+        if (!corpoTabela) return;
+        corpoTabela.innerHTML = "";
 
-        const tr = document.createElement("tr");
+        if (!pedidos || pedidos.length === 0) {
+            corpoTabela.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center;">Nenhum pedido encontrado.</td>
+                </tr>
+            `;
+            return;
+        }
 
-        tr.innerHTML = `
-            <td>${pedido.nome || "Consumidor Final"}</td>
-            <td>#${pedido.num_pedido || pedido.id_pedido || "-"}</td>
-            <td>${pedido.origem || "PDV"}</td>
-            <td>${dataFormatada}</td>
-            <td>${valorFormatado}</td>
-            <td>${pedido.form_pag || "-"}</td>
-        `;
-        corpoTabela.appendChild(tr);
-    });
-}
+        pedidos.forEach(pedido => {
+            const dataFormatada = pedido.data ? new Date(pedido.data).toLocaleString("pt-BR") : "-";
+            const valorTotalNum = Number(pedido.valor_total) || 0;
+            const valorFormatado = valorTotalNum.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+            
+            // Aplica a limpeza e formatação na forma de pagamento
+            const pagamentoFormatado = formatarFormaPagamento(pedido.form_pag);
+
+            const tr = document.createElement("tr");
+
+            tr.innerHTML = `
+                <td>${pedido.nome || "Consumidor Final"}</td>
+                <td>#${pedido.num_pedido || pedido.id_pedido || "-"}</td>
+                <td>${pedido.origem || "PDV"}</td>
+                <td>${dataFormatada}</td>
+                <td>${valorFormatado}</td>
+                <td>${pagamentoFormatado}</td>
+            `;
+            corpoTabela.appendChild(tr);
+        });
+    }
+
     // ===============================
     // 4. CÁLCULO DE FATURAMENTO (MÉTRICAS)
     // ===============================
@@ -306,40 +324,36 @@ function renderizarTabela(pedidos) {
     // ===============================
     // 5. RANKING DE PRODUTOS
     // ===============================
-   // 2. Função de Ranking com suporte flexível a diferentes nomes de campos
-function calcularRankingProdutos() {
-    const contador = {};
+    function calcularRankingProdutos() {
+        const contador = {};
 
-    pedidosCarregados.forEach(pedido => {
-        // Pega a lista 'itens' retornada do backend
-        let listaProds = pedido.itens || pedido.produtos || [];
+        pedidosCarregados.forEach(pedido => {
+            let listaProds = pedido.itens || pedido.produtos || [];
 
-        if (typeof listaProds === "string") {
-            try {
-                listaProds = JSON.parse(listaProds);
-            } catch (e) {
-                listaProds = [];
-            }
-        }
-
-        if (Array.isArray(listaProds)) {
-            listaProds.forEach(prod => {
-                // Nome retornado pelo JOIN do backend (prod.nome)
-                const nome = prod.nome || prod.nome_produto || "Produto Sem Nome";
-                // Quantidade retornada do banco (prod.qtd)
-                const qtd = Number(prod.qtd || prod.quantidade || 1);
-
-                if (nome) {
-                    contador[nome] = (contador[nome] || 0) + qtd;
+            if (typeof listaProds === "string") {
+                try {
+                    listaProds = JSON.parse(listaProds);
+                } catch (e) {
+                    listaProds = [];
                 }
-            });
-        }
-    });
+            }
 
-    rankingProdutos = Object.entries(contador)
-        .map(([nome, quantidade]) => ({ nome, quantidade }))
-        .sort((a, b) => b.quantidade - a.quantidade);
-}
+            if (Array.isArray(listaProds)) {
+                listaProds.forEach(prod => {
+                    const nome = prod.nome || prod.nome_produto || "Produto Sem Nome";
+                    const qtd = Number(prod.qtd || prod.quantidade || 1);
+
+                    if (nome) {
+                        contador[nome] = (contador[nome] || 0) + qtd;
+                    }
+                });
+            }
+        });
+
+        rankingProdutos = Object.entries(contador)
+            .map(([nome, quantidade]) => ({ nome, quantidade }))
+            .sort((a, b) => b.quantidade - a.quantidade);
+    }
 
     function abrirRankingProdutos() {
         const lista = document.getElementById("listaRankingProdutos");
@@ -423,7 +437,7 @@ function calcularRankingProdutos() {
             y += 4;
         }
 
-        // Tabela do PDF
+        // Tabela do PDF com a formatação de pagamento aplicada
         const colunas = ["Cliente", "Nº Pedido", "Origem", "Data/Hora", "Valor Total", "Pagamento"];
         const linhas = pedidosCarregados.map(p => [
             p.nome || "Cliente",
@@ -431,7 +445,7 @@ function calcularRankingProdutos() {
             p.origem || "-",
             p.data ? new Date(p.data).toLocaleString("pt-BR") : "-",
             `R$ ${Number(p.valor_total || 0).toFixed(2).replace(".", ",")}`,
-            p.form_pag || "-"
+            formatarFormaPagamento(p.form_pag)
         ]);
 
         doc.autoTable({
