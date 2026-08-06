@@ -1278,3 +1278,15 @@ button {
         font-size: clamp(0.7rem, 2.8vw, 0.95rem);
     }
 }
+.dialogComanda{
+    width: min(420px, calc(100vw - 32px));
+    max-width: 90%;
+    padding: clamp(20px, 2vw, 30px);
+
+    background-color: #202020;
+    border: 3px solid #f1b256;
+    border-radius: 18px;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
