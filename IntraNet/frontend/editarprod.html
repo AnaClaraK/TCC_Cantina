@@ -34,11 +34,20 @@
                 <img id="preview-img" src="images/img_ntf.png">
             </div>
 
+        <label class="label-amarela" style="margin-top:12px;">Nome da Imagem</label>
+<input
+    type="text"
+    name="img_nome"
+    id="img_nome"
+    class="inp_p"
+    placeholder="Ex: strog_carne">
+        </div>
             <label class="file-label" style="margin-top: 10px; padding: 8px;">
                 Trocar Imagem
                 <input type="file" name="img" id="inputImagem" accept="image/*">
             </label>
-        </div>
+            
+        
 
         <div class="coluna">
             <label class="label-amarela">Nome</label>
@@ -205,6 +214,13 @@ function selecionarProduto(p){
     } else {
         previewImg.src = "images/img_ntf.png";
     }
+    const campoNomeImagem = document.getElementById("img_nome");
+
+if (p.img) {
+    campoNomeImagem.value = p.img.replace(/\.[^/.]+$/, "");
+} else {
+    campoNomeImagem.value = "";
+}
 
     lista.innerHTML = "";
 }
@@ -227,8 +243,10 @@ formProduto.addEventListener("submit", async (e)=>{
     }
 
     const formData = new FormData(formProduto);
+    
 
     try {
+        console.log(formData.get("img"));
         const res = await apiFetch(`http://localhost:3000/produtos/cod/${produtoSelecionado.id_produto}`, {
             method: "PUT",
             body: formData

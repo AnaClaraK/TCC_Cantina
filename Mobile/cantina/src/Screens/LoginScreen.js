@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Image, TouchableOpacity, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from '@expo/vector-icons'; 
 import { Botao } from '../Components/Botoes';
-
 
 export default function LoginScreen() {
     const [email, setEmail] = useState("");
@@ -13,9 +12,8 @@ export default function LoginScreen() {
 
     const navigation = useNavigation();
 
-   
     const FazerLogin = async () => {
-        const urlAPI = "http://10.111.9.34:3000/logar";
+        const urlAPI = "http://10.111.9.55:3000/logar";
         
         console.log("\n========================================");
         console.log("🚀 [LOGIN] Botão clicado!");
@@ -50,12 +48,18 @@ export default function LoginScreen() {
             if (dados.resposta === "true") {
                 console.log("✅ [SUCESSO] Login validado pelo servidor! Gravando dados de sessão...");
                 
-                // Grava todas as informações necessárias retornadas pelo back corrigido
-                await AsyncStorage.setItem("token", dados.token); 
-                await AsyncStorage.setItem("id_user", String(dados.id_user));
-                await AsyncStorage.setItem("nome_user", dados.nome);
+                // Grava todas as informações necessárias no AsyncStorage
+                if (dados.token) await AsyncStorage.setItem("token", dados.token); 
+                if (dados.id_user) await AsyncStorage.setItem("id_user", String(dados.id_user));
+                if (dados.nome) await AsyncStorage.setItem("nome_user", dados.nome);
+                
+                // AJUSTE CHAVE: Salva o e-mail digitado (ou dados.email se a API retornar)
+                await AsyncStorage.setItem("email_user", dados.email || email);
+                
+                // Caso a API retorne o caminho da foto no login
+                if (dados.foto) await AsyncStorage.setItem("foto_user", dados.foto);
 
-                console.log(`💾 Armazenado com Sucesso -> ID: ${dados.id_user} | Nome: ${dados.nome}`);
+                console.log(`💾 Armazenado com Sucesso -> ID: ${dados.id_user} | Nome: ${dados.nome} | Email: ${dados.email || email}`);
                 console.log("🔀 Redirecionando para a tela MainApp.");
                 
                 navigation.replace("MainApp"); 
@@ -141,7 +145,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#242628',
         alignItems: 'center',
-        justifyContent: 'center', 
+        justify: 'center', 
     },
     header: {
         alignItems: 'center',
@@ -172,7 +176,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         borderRadius: 25,
         alignItems: 'center',
-        justifyContent: 'center', 
+        justify: 'center', 
     },
     inputArea: {
         flexDirection: 'row',
