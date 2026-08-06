@@ -512,10 +512,15 @@ input[type=number]{
     gap: 20px;
 }
 
-#msg_aviso {
-    font-size: 20px;
-    font-weight: bold;
-    margin: 0;
+#msg_aviso input[type="date"]{
+    width:180px;
+    height:35px;
+    font-size:16px;
+    background:#fed89d;
+    border:2px solid #efac4a;
+    border-radius:8px;
+    color:#1c1c1c;
+    text-align:center;
 }
 
 .aviso_botoes {
