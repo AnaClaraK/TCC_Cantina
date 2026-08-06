@@ -27,7 +27,7 @@ export default function CadastroScreen() {
         if (senha !== confirmaSenha) return Alert.alert("Erro", "As senhas não coincidem!");
 
         try {
-            const resposta = await fetch(`http://10.111.9.34:3000/cadastrar`, {
+            const resposta = await fetch(`http://10.111.9.55:3000/cadastrar`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
