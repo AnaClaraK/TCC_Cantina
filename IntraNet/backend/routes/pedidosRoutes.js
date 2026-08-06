@@ -1,3 +1,4 @@
+console.log("PEDIDOS ROUTES CARREGADO");
 const express = require('express');
 const router = express.Router();
 const conexao = require('../db');
@@ -10,7 +11,8 @@ router.post("/pedidos", verificarToken, async (req, res) => {
     const conn = await conexao.getConnection();
     try {
         await conn.beginTransaction();
-
+        console.log("BODY:", req.body);
+console.log("ORIGEM:", req.body.origem);
         const { id_user, valor_total, qtd_total, form_pag, origem, itens } = req.body;
         const idCliente = id_user || 1;
         const status = "Finalizado";
@@ -47,10 +49,20 @@ router.post("/pedidos", verificarToken, async (req, res) => {
 
                 await conn.query("UPDATE produtos SET qtd = ? WHERE id_produto = ?", [novaQtd, item.id_produto]);
 
-                await conn.query(`
-                    INSERT INTO pedidos_itens (id_pedido, id_produto, qtd, preco_unitario, origem) 
-                    VALUES (?, ?, ?, ?, ?)
-                `, [id_pedido, item.id_produto, item.qtd, item.preco_unitario ?? item.preco, item.origem]);
+               await conn.query(`
+    INSERT INTO pedidos_itens (
+        id_pedido,
+        id_produto,
+        qtd,
+        preco_unitario
+    )
+    VALUES (?, ?, ?, ?)
+`, [
+    id_pedido,
+    item.id_produto,
+    item.qtd,
+    item.preco_unitario ?? item.preco
+]);
             }
         }
 
@@ -73,9 +85,11 @@ router.post("/pedidos", verificarToken, async (req, res) => {
 });
 
 // ==================== HISTÓRICO DE PEDIDOS ====================
+// ==================== HISTÓRICO DE PEDIDOS ====================
 router.get("/historico-pedidos", verificarToken, async (req, res) => {
     try {
-        const idUserLogado = req.user?.id_user || req.user?.id || req.query.id_user;
+        const apenasMeus = req.query.apenas_meus === 'true';
+        const idUserLogado = req.user?.id_user || req.user?.id;
 
         let queryPedidos = `
             SELECT 
@@ -95,7 +109,8 @@ router.get("/historico-pedidos", verificarToken, async (req, res) => {
         `;
 
         const params = [];
-        if (idUserLogado) {
+
+        if (apenasMeus && idUserLogado) {
             queryPedidos += ` WHERE p.id_user = ?`;
             params.push(idUserLogado);
         }
@@ -108,41 +123,44 @@ router.get("/historico-pedidos", verificarToken, async (req, res) => {
             return res.json([]);
         }
 
-        // Extrai os IDs dos pedidos
         const idsPedidos = pedidos.map(p => p.id_pedido);
         const placeholders = idsPedidos.map(() => '?').join(',');
 
-        // Busca TODOS os itens vinculados a esses pedidos
         const queryItens = `
             SELECT 
                 pi.id_pedido,
                 pi.id_produto,
                 pi.qtd,
                 pi.preco_unitario,
-                COALESCE(prod.nome, 'Produto Indisponível') AS nome_produto
+                COALESCE(prod.nome, 'Produto Indisponível') AS nome
             FROM pedidos_itens pi
             LEFT JOIN produtos prod ON pi.id_produto = prod.id_produto
             WHERE pi.id_pedido IN (${placeholders})
         `;
 
-        const [itens] = await conexao.execute(queryItens, idsPedidos);
+       const [itens] = await conexao.execute(queryItens, idsPedidos);
 
-        // LOG DE DEPURACÃO NO TERMINAL DO NODE:
-        console.log("--> ITENS ENCONTRADOS NO BANCO:", itens);
+console.log("PEDIDOS:", pedidos.length);
+console.log(pedidos);
 
-        // Agrupa os itens garantindo a comparação correta (String com String)
-        const resultadoFinal = pedidos.map(pedido => {
-            const itensDoPedido = itens.filter(
-                item => String(item.id_pedido) === String(pedido.id_pedido)
-            );
+console.log("ITENS:", itens.length);
+console.log(itens);
 
-            return {
-                ...pedido,
-                itens: itensDoPedido // Garante que é um array simples de objetos [{...}]
-            };
-        });
+const resultadoFinal = pedidos.map(pedido => {
+    const itensDoPedido = itens.filter(
+        item => String(item.id_pedido) === String(pedido.id_pedido)
+    );
 
-        return res.json(resultadoFinal);
+    return {
+        ...pedido,
+        itens: itensDoPedido
+    };
+});
+
+console.log("RESULTADO:");
+console.log(JSON.stringify(resultadoFinal, null, 2));
+
+return res.json(resultadoFinal);
 
     } catch (error) {
         console.error("Erro ao buscar histórico:", error);

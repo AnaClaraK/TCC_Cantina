@@ -29,83 +29,83 @@
             
         </div>
     </div>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const btnEntrar = document.getElementById("btn_entrar");
+        const inputs = document.querySelectorAll(".input-field");
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const btnEntrar = document.getElementById("btn_entrar");
-            const inputs = document.querySelectorAll(".input-field");
+        const realizarLogin = async (e) => {
+            if (e) e.preventDefault();
 
-            // --- FUNÇÃO DE LOGIN REUTILIZÁVEL ---
-            const realizarLogin = async () => {
-                const email = document.getElementById("email").value;
-                const senha = document.getElementById("senha").value;
-                const pMessageEl = document.getElementById("respostas");
-                const containerFimEl = document.querySelector(".container-fim");
+            const email = document.getElementById("email").value;
+            const senha = document.getElementById("senha").value;
+            const pMessageEl = document.getElementById("respostas");
 
-                if (!email || !senha) {
-                    pMessageEl.innerText = "Preencha todos os campos.";
-                    pMessageEl.style.color = "red";
-                    return;
-                }
+            if (!email || !senha) {
+                pMessageEl.innerText = "Preencha todos os campos.";
+                pMessageEl.style.color = "red";
+                return;
+            }
 
-                pMessageEl.innerText = "Validando...";
-                
-                try {
-                    const resposta = await fetch(`http://localhost:3000/login`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ email, senha })
-                    });
-
-                    const dados = await resposta.json();
-
-                    if (resposta.ok) {
-                        containerFimEl.classList.add('container-fim-success');
-                        pMessageEl.innerText = "Login realizado!";
-                        pMessageEl.style.color = "green";
-
-                        localStorage.setItem("token", dados.token); 
-                        localStorage.setItem("usuarioNome", dados.usuario.nome);
-                        localStorage.setItem("usuarioFoto", dados.usuario.foto);
-                        localStorage.setItem("usuarioEmail", dados.usuario.email);
-
-                        setTimeout(() => {
-                            window.location.href = 'index.html';
-                        }, 1000);
-
-                    } else {
-                        containerFimEl.classList.add('container-fim-error');
-                        pMessageEl.innerText = dados.resposta || "Erro no login.";
-                        pMessageEl.style.color = "red";
-                    }
-
-                } catch (error) {
-                    containerFimEl.classList.add('container-fim-error');
-                    pMessageEl.innerText = "Erro ao conectar com servidor.";
-                    pMessageEl.style.color = "red";
-                }
-            };
-
-            // --- LÓGICA DO ENTER ---
-            inputs.forEach((input, index) => {
-                input.addEventListener("keydown", (e) => {
-                    if (e.key === "Enter") {
-                        e.preventDefault(); // Impede comportamento padrão do form
-                        
-                        // Se não for o último input, pula para o próximo
-                        if (index < inputs.length - 1) {
-                            inputs[index + 1].focus();
-                        } else {
-                            // Se for o último, clica no botão ou chama a função
-                            realizarLogin();
-                        }
-                    }
+            pMessageEl.innerText = "Validando...";
+            pMessageEl.style.color = "#333";
+            
+            try {
+                console.log("1. Enviando dados para o servidor...");
+                const resposta = await fetch(`http://localhost:3000/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, senha })
                 });
-            });
 
-            // Evento de clique no botão continua funcionando
-            btnEntrar.addEventListener("click", realizarLogin);
+                console.log("2. Resposta recebida do servidor:", resposta.status);
+                const dados = await resposta.json();
+                console.log("3. Dados retornados:", dados);
+
+                if (resposta.ok) {
+                    pMessageEl.innerText = "Login realizado! Redirecionando...";
+                    pMessageEl.style.color = "green";
+
+                    // Grava os dados
+                    if (dados.token) localStorage.setItem("token", dados.token); 
+                    if (dados.usuario) {
+                        localStorage.setItem("usuarioNome", dados.usuario.nome || "");
+                        localStorage.setItem("usuarioFoto", dados.usuario.foto || "");
+                        localStorage.setItem("usuarioEmail", dados.usuario.email || "");
+                    }
+
+                    console.log("4. Token salvo no LocalStorage. Iniciando redirecionamento...");
+
+                    // Força o redirecionamento
+                    window.location.href = "index.html";
+
+                } else {
+                    pMessageEl.innerText = dados.resposta || "Erro no login.";
+                    pMessageEl.style.color = "red";
+                }
+
+            } catch (error) {
+                console.error("ERRO NO FETCH:", error);
+                pMessageEl.innerText = "Erro ao conectar com o servidor.";
+                pMessageEl.style.color = "red";
+            }
+        };
+
+        inputs.forEach((input, index) => {
+            input.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault(); 
+                    if (index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    } else {
+                        realizarLogin(e);
+                    }
+                }
+            });
         });
-    </script>
+
+        btnEntrar.addEventListener("click", realizarLogin);
+    });
+</script>
 </body>
 </html>

@@ -147,14 +147,6 @@ router.post("/contas-fiado", async (req, res) => {
                 precoBanco
             ]);
 
-            await conn.query(`
-                UPDATE produtos
-                SET qtd = qtd - ?
-                WHERE id_produto = ?
-            `, [
-                produto.qtdSelecionada,
-                produto.id_produto
-            ]);
         }
 
         await conn.commit();
@@ -249,4 +241,69 @@ router.put("/contas-fiado/:id/pagar", async (req, res) => {
         sucesso: true
     });
 });
+router.get("/comandas/:codigo", async (req, res) => {
+    const { codigo } = req.params;
+
+    let conn;
+
+    try {
+        conn = await conexao.getConnection();
+
+        const [pedidos] = await conn.execute(
+            `
+            SELECT id_pedido
+            FROM pedidos
+            WHERE
+                codigo_comanda = ?
+                AND origem = 'Comanda'
+            LIMIT 1
+            `,
+            [codigo]
+        );
+
+        if (pedidos.length === 0) {
+            return res.status(404).json({
+                sucesso: false,
+                erro: "Comanda não encontrada."
+            });
+        }
+
+        const idPedido = pedidos[0].id_pedido;
+
+        const [itens] = await conn.execute(
+            `
+            SELECT
+                pi.id_produto,
+                pi.qtd,
+                pi.preco_unitario AS preco,
+                p.codigo_barras,
+                p.nome,
+                p.qtd AS estoque,
+                p.qtd_min,
+                p.img
+            FROM pedidos_itens pi
+            INNER JOIN produtos p
+                ON p.id_produto = pi.id_produto
+            WHERE pi.id_pedido = ?
+            `,
+            [idPedido]
+        );
+
+        return res.json({
+            carrinho: itens
+        });
+
+    } catch (erro) {
+        console.error("Erro ao buscar comanda:", erro);
+
+        return res.status(500).json({
+            sucesso: false,
+            erro: "Erro interno."
+        });
+
+    } finally {
+        if (conn) conn.release();
+    }
+});
+
 module.exports = router;
