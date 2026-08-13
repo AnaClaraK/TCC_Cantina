@@ -1,4 +1,5 @@
-.env
-/node_modules
+IntraNet/backend/.env
+IntraNet/backend/node_modules
+Mobile/node_modules
 .pdf
-.sql
+IntraNet/banco/.sql
