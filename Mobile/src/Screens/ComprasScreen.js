@@ -44,7 +44,7 @@ const OPCOES_PAGAMENTO = [
   { id: 'DEBITO', label: 'Cartão de Débito', icon: 'card-outline' },
 ];
 
-const IP_SERVIDOR = "10.111.9.55"; 
+const IP_SERVIDOR = "10.111.9.11"; 
 const URL_API = `http://${IP_SERVIDOR}:3000`;
 
 export default function ComprasScreen({ navigation }) {

@@ -1290,3 +1290,14 @@ button {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
+b_desbloquear_pagamento{
+                display: none;
+                width: 24px;
+                height: 24px;
+                padding: 0;
+                margin-left: 8px;
+                font-size: 13px;
+                line-height: 20px;
+                cursor: pointer;
+}
+

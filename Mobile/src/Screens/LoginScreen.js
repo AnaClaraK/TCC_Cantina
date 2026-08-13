@@ -17,7 +17,7 @@ import { Botao } from '../Components/Botoes';
 
 // IP Dinâmico do Expo Go
 const hostUri = Constants.expoConfig?.hostUri || Constants.manifest2?.extra?.expoGo?.developer?.manifest?.debuggerHost;
-const IP_SERVIDOR = hostUri ? hostUri.split(':')[0] : '10.111.9.55';
+const IP_SERVIDOR = hostUri ? hostUri.split(':')[0] : '10.111.9.11';
 const URL_API = `http://${IP_SERVIDOR}:3000`;
 
 export default function LoginScreen() {

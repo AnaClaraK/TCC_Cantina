@@ -110,6 +110,8 @@
                 <div class="secao-pagamento">
                     <h2 class="label-pagamento">Forma de Pagamento</h2> 
                     <div class="area_pagamento">
+                        <!-- Só aparece quando a venda veio do APP -->
+        <button type="button" id="b_desbloquear_pagamento" title="Desbloquear forma de pagamento">🔒</button>
                         <button class="pagamento" id="pg_dinheiro">Dinheiro (F2)</button>
                         <button class="pagamento" id="pg_credito">Cartão de Crédito (F3)</button>
                         <button class="pagamento" id="pg_debito">Cartão de Débito (F4)</button>
@@ -153,7 +155,7 @@
     <div class="aviso_box">
         <p id="msg_aviso"></p>
         <div class="aviso_botoes">
-            <button id="b_confirmar_aviso">OK</button>
+            <button id="b_confirmar_aviso">Sim</button>
             <button id="b_cancelar_aviso" style="display:none;">Cancelar</button>
         </div>
     </div>
@@ -175,7 +177,7 @@
                 type="text"
                 id="inputComanda"
                 class="inp_m"
-                value="CMD"
+                placeholder="Ex: CMD12/cmd12"
                 autocomplete="off"
             >
         </div>
@@ -244,6 +246,9 @@
         aviso.close();
     };
 }
+aviso.addEventListener("cancel", (event) => {
+    event.preventDefault();
+});
 
     // Seletores
     const inp_codb = document.getElementById("inp_codb");
@@ -253,15 +258,28 @@
     const modal = document.getElementById("d_modal");
     const modalp = document.querySelector("#sc_modalp dialog");
     const nova_venda = document.getElementById("b_nv_venda");
+    const dialogBusca = document.getElementById("dialogBusca");
+const inputBusca = document.getElementById("inputBusca");
+const lista = document.getElementById("listaSugestoes");
+
+let produtosFiltrados = [];
+let indexSelecionado = -1;
     const sl_cliente = document.getElementById("sl_cliente");
     const inp_vencimento = document.getElementById("inp_vencimento");
     // Configurações
     const URL_BACKEND_CAD = "http://localhost:3000";
     const IMG_PADRAO = "http://localhost:3000/images/img_ntf.png";
-    let carrinho = []; 
-    let totalCompra = 0; 
+    let carrinho = [];
+    let comandaAtual = null;
+    let totalCompra = 0;
     let formaPagamento = "";
-    // NOVO: Controle de trava contra dupla leitura acidental
+
+// Forma de pagamento original enviada pelo APP
+let formaPagamentoComanda = "";
+
+// Controla se a forma de pagamento da comanda pode ser alterada
+let pagamentoComandaDesbloqueado = false;
+let pagamentoComandaBloqueado = false;
     let estaProcessando = false;
     // ===== SONS DO PDV =====
     const beepSucesso = new Audio("sounds/success.mp3");
@@ -290,7 +308,52 @@
         inp_codb.blur();
         inp_codb.focus();
     }, 50);
+}function atualizarBloqueioPagamento() {
+
+    const botoesPagamento = document.querySelectorAll(".pagamento");
+    const botaoDesbloquear = document.getElementById("b_desbloquear_pagamento");
+
+    botoesPagamento.forEach(botao => {
+        botao.disabled = pagamentoComandaBloqueado;
+    });
+
+    if (botaoDesbloquear) {
+        botaoDesbloquear.style.display =
+            pagamentoComandaBloqueado ? "block" : "none";
+
+        botaoDesbloquear.innerText =
+            pagamentoComandaBloqueado ? "🔒" : "🔓";
+    }
 }
+function desbloquearPagamentoComanda() {
+
+    if (!comandaAtual) {
+        return;
+    }
+
+    exibirAviso(
+        "A forma de pagamento veio definida pelo APP.\n\nDeseja desbloquear e permitir alteração?",
+
+        () => {
+
+            pagamentoComandaDesbloqueado = true;
+
+            pagamentoComandaBloqueado = false;
+
+            atualizarBloqueioPagamento();
+
+            exibirAviso(
+                "Forma de pagamento desbloqueada."
+            );
+        },
+
+        true
+    );
+}
+document
+    .getElementById("b_desbloquear_pagamento")
+    .addEventListener("click", desbloquearPagamentoComanda);
+    
     // Impede que o input perca o foco, exceto se alguma modal estiver aberta
     inp_codb.addEventListener("blur", () => {
         const fiadoModal = document.getElementById("d_fiado");
@@ -614,18 +677,52 @@ if (event.key.length === 1) {
         modalp.showModal();
         setTimeout(() => inputBusca.focus(), 50);
     });
+document.querySelectorAll(".pagamento").forEach(botao => {
 
-    document.querySelectorAll(".pagamento").forEach(botao => {
-        botao.addEventListener("click", () => {
-            formaPagamento = botao.innerText;
-            nova_venda.disabled = false;
-        });
+    botao.addEventListener("click", () => {
+
+        // Comanda do APP bloqueada:
+        // não altera a forma de pagamento.
+        if (
+            comandaAtual &&
+            !pagamentoComandaDesbloqueado
+        ) {
+
+            console.log(
+                "Forma bloqueada. Mantendo:",
+                formaPagamentoComanda
+            );
+
+            return;
+        }
+
+        formaPagamento =
+            botao.innerText.trim();
+
+        console.log(
+            "Forma de pagamento alterada no PDV:",
+            formaPagamento
+        );
+
+        nova_venda.disabled = false;
     });
 
-    function resetarPDV() {
-        carrinho = [];
-        totalCompra = 0;
-        formaPagamento = "";
+});
+
+function resetarPDV() {
+
+    comandaAtual = null;
+
+    carrinho = [];
+    totalCompra = 0;
+
+    formaPagamento = "";
+
+    formaPagamentoComanda = "";
+    pagamentoComandaDesbloqueado = false;
+    pagamentoComandaBloqueado = false;
+
+    atualizarBloqueioPagamento();
 
         atualizarTabelaNoTopo();
 
@@ -715,78 +812,263 @@ if (event.key.length === 1) {
         return qtdAdicionados;
     }
 
-    nova_venda.addEventListener("click", () => {
-        const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
-        tocarSucesso();
-        apiFetch(`${URL_BACKEND_CAD}/pedidos`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
-            body: JSON.stringify({
-                itens: carrinho,
-                valor_total: totalReal,
-                qtd_total: carrinho.reduce((soma, item) => soma + item.qtd, 0),
-                form_pag: formaPagamento,
-                origem: "PDV"
-            })
-        })
-        .then(res => res.json())
-        .then(async data => {
-            document.getElementById("s_pedido").innerText = data.num_pedido;
-            
-            // Tratamento em sequência encadeada dos alertas via modal customizado
-            if (data.alertas && data.alertas.length > 0) {
-                exibirAviso("⚠️ AVISO DE ESTOQUE:\n\n" + data.alertas.join("\n"), async () => {
-                    const qtdAdicionados = await verificarReposicaoAutomatica();
-                    if (qtdAdicionados > 0) {
-                        exibirAviso(`${qtdAdicionados} produto(s) foram adicionados automaticamente à lista de reposição.`, () => {
-                            resetarPDV();
-                        });
-                    } else {
-                        resetarPDV();
-                    }
-                });
-            } else {
-                const qtdAdicionados = await verificarReposicaoAutomatica();
-                if (qtdAdicionados > 0) {
-                    exibirAviso(`${qtdAdicionados} produto(s) foram adicionados automaticamente à lista de reposição.`, () => {
-                        resetarPDV();
-                    });
-                } else {
-                    resetarPDV();
-                }
-            }
-        })
-        .catch(err => {
-            tocarErro();
-            console.error("Erro ao salvar pedido:", err);
-            exibirAviso("Erro ao salvar o pedido. Verifique o console.");
-        });
-    });
-    if (carrinho.length > 0) {
-    exibirAviso(
-        "Já existem produtos no carrinho. Deseja cancelar a venda atual e carregar a comanda?",
-        () => {
-            resetarPDV();
-            carregarComanda();
-        },
-        true
-    );
-}
-function confirmarCancelamento() {
-    console.log("FUNÇÃO CHAMADA");
-    console.log("Carrinho:", carrinho);
-    console.log("Carrinho length:", carrinho.length);
+        nova_venda.addEventListener("click", () => {
 
-    if (carrinho.length === 0) {
-        console.log("Carrinho vazio");
-        resetarPDV();
+    const totalReal = carrinho.reduce(
+        (soma, item) =>
+            soma + (item.preco * item.qtd),
+        0
+    );
+
+    tocarSucesso();
+
+    // =====================================================
+    // DEFINE A FORMA DE PAGAMENTO
+    // =====================================================
+
+    let pagamentoFinal = "";
+
+    if (comandaAtual) {
+
+        // Se veio do APP e continua bloqueada,
+        // SEMPRE usa a forma que veio do APP.
+        if (!pagamentoComandaDesbloqueado) {
+
+            pagamentoFinal = formaPagamentoComanda;
+
+        }
+        else {
+
+            // Se o operador desbloqueou,
+            // pode usar a forma escolhida no PDV.
+            pagamentoFinal =
+                formaPagamento ||
+                formaPagamentoComanda;
+
+        }
+
+    }
+    else {
+
+        // Venda normal do PDV
+        pagamentoFinal = formaPagamento;
+    }
+
+    console.log("=================================");
+    console.log("FINALIZANDO PEDIDO");
+    console.log("Comanda:", comandaAtual);
+    console.log("Forma original APP:", formaPagamentoComanda);
+    console.log("Forma atual:", formaPagamento);
+    console.log("Pagamento final:", pagamentoFinal);
+    console.log("=================================");
+
+    // Segurança
+    if (!pagamentoFinal) {
+
+        exibirAviso(
+            "A forma de pagamento não foi definida."
+        );
+
         return;
     }
 
-    console.log("Abrindo aviso");
+    const dadosPedido = {
+
+        itens: carrinho,
+
+        valor_total: totalReal,
+
+        qtd_total: carrinho.reduce(
+            (soma, item) =>
+                soma + item.qtd,
+            0
+        ),
+
+        // ENVIA A FORMA CORRETA
+        form_pag: pagamentoFinal,
+
+        origem: comandaAtual
+            ? "APP"
+            : "PDV"
+    };
+
+    // Se veio de uma comanda,
+    // manda o ID do pedido original
+    if (comandaAtual) {
+
+        dadosPedido.id_pedido =
+            comandaAtual.id_pedido;
+    }
+
+    console.log(
+        "DADOS ENVIADOS PARA /pedidos:",
+        dadosPedido
+    );
+
+    // Se veio de uma comanda,
+    // manda o ID do pedido original
+    if (comandaAtual) {
+
+        dadosPedido.id_pedido =
+            comandaAtual.id_pedido;
+    }
+
+    console.log(
+        "DADOS ENVIADOS PARA /pedidos:",
+        dadosPedido
+    );
+
+    apiFetch(`${URL_BACKEND_CAD}/pedidos`, {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization":
+                `Bearer ${localStorage.getItem("token")}`
+        },
+
+        body: JSON.stringify(dadosPedido)
+
+    })
+
+    .then(res => {
+
+        if (!res.ok) {
+
+            return res.json()
+                .then(data => {
+
+                    throw new Error(
+                        data.resposta ||
+                        data.erro ||
+                        "Erro ao salvar pedido."
+                    );
+
+                });
+
+        }
+
+        return res.json();
+
+    })
+
+    .then(async data => {
+
+        console.log(
+            "RESPOSTA DO SERVIDOR:",
+            data
+        );
+
+        document
+            .getElementById("s_pedido")
+            .innerText = data.num_pedido;
+
+        if (
+            data.alertas &&
+            data.alertas.length > 0
+        ) {
+
+            exibirAviso(
+
+                "⚠️ AVISO DE ESTOQUE:\n\n" +
+                data.alertas.join("\n"),
+
+                async () => {
+
+                    const qtdAdicionados =
+                        await verificarReposicaoAutomatica();
+
+                    if (qtdAdicionados > 0) {
+
+                        exibirAviso(
+
+                            `${qtdAdicionados} produto(s) foram adicionados automaticamente à lista de reposição.`,
+
+                            () => {
+
+                                comandaAtual = null;
+
+                                resetarPDV();
+
+                            }
+                        );
+
+                    } else {
+
+                        comandaAtual = null;
+
+                        resetarPDV();
+                    }
+                }
+            );
+
+        } else {
+
+            const qtdAdicionados =
+                await verificarReposicaoAutomatica();
+
+            if (qtdAdicionados > 0) {
+
+                exibirAviso(
+
+                    `${qtdAdicionados} produto(s) foram adicionados automaticamente à lista de reposição.`,
+
+                    () => {
+
+                        comandaAtual = null;
+
+                        resetarPDV();
+
+                    }
+                );
+
+            } else {
+
+                comandaAtual = null;
+
+                resetarPDV();
+            }
+        }
+
+    })
+
+    .catch(err => {
+
+        tocarErro();
+
+        console.error(
+            "Erro ao salvar pedido:",
+            err
+        );
+
+        exibirAviso(
+            err.message ||
+            "Erro ao salvar o pedido. Verifique o console."
+        );
+    });
+});
+function confirmarCancelamento() {
+
+    // COMANDA CARREGADA
+    if (comandaAtual !== null) {
+
+        exibirAviso(
+            "Deseja realmente voltar e cancelar o carregamento desta comanda?",
+            () => {
+                resetarPDV();
+            },
+            true
+        );
+
+        return;
+    }
+
+    // VENDA NORMAL
+    if (carrinho.length === 0) {
+        resetarPDV();
+        return;
+    }
 
     exibirAviso(
         "Tem certeza que deseja cancelar a venda atual?",
@@ -796,15 +1078,6 @@ function confirmarCancelamento() {
         true
     );
 }
-    document.getElementById("b_canc").addEventListener("click", confirmarCancelamento);   
-    const dialogBusca = document.getElementById("dialogBusca");
-    const inputBusca = document.getElementById("inputBusca");
-    const dialogComanda = document.getElementById("dialogComanda");
-const inputComanda = document.getElementById("inputComanda");
-const b_comanda = document.getElementById("b_comanda");
-    const lista = document.getElementById("listaSugestoes");
-    let produtosFiltrados = []; 
-    let indexSelecionado = -1;  
     inputBusca.addEventListener("keydown", (event) => {
         const itens = lista.querySelectorAll("li");
         if (event.key === "ArrowDown") {
@@ -851,17 +1124,23 @@ const b_comanda = document.getElementById("b_comanda");
                 headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
             });
             const dados = await resposta.json();
-            const termo = q.toLowerCase();
-            dados.sort((a, b) => {
-                const aNome = a.nome.toLowerCase();
-                const bNome = b.nome.toLowerCase();
-                const aComeca = aNome.startsWith(termo);
-                const bComeca = bNome.startsWith(termo);
-                if (aComeca && !bComeca) return -1;
-                if (!aComeca && bComeca) return 1;
-                return aNome.localeCompare(bNome);
-            });
-            if (!Array.isArray(dados)) return;
+
+if (!Array.isArray(dados)) return;
+
+const termo = q.toLowerCase();
+
+dados.sort((a, b) => {
+    const aNome = a.nome.toLowerCase();
+    const bNome = b.nome.toLowerCase();
+
+    const aComeca = aNome.startsWith(termo);
+    const bComeca = bNome.startsWith(termo);
+
+    if (aComeca && !bComeca) return -1;
+    if (!aComeca && bComeca) return 1;
+
+    return aNome.localeCompare(bNome);
+});
             produtosFiltrados = dados; 
             lista.innerHTML = "";
             dados.forEach((prod, index) => {
@@ -922,10 +1201,6 @@ const b_comanda = document.getElementById("b_comanda");
     }
     carregarClientesFiado();
 
-    document.getElementById("pg_fiado").addEventListener("click", () => {
-        modal.close();
-        document.getElementById("d_fiado").showModal();
-    });
     document.getElementById("b_confirmar_fiado").addEventListener("click", async () => {
         const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
         const vencimento = document.getElementById("inp_vencimento").value;
@@ -1022,7 +1297,8 @@ const b_comanda = document.getElementById("b_comanda");
             exibirAviso("Erro ao registrar fiado no banco. Verifique a conexão com o servidor.");
         }
     });
-    function carregarComanda() {
+function carregarComanda() {
+
     const codigoComanda = inputComanda.value.trim().toUpperCase();
 
     if (!codigoComanda) {
@@ -1036,44 +1312,181 @@ const b_comanda = document.getElementById("b_comanda");
             Authorization: `Bearer ${localStorage.getItem("token")}`
         }
     })
+
     .then(async res => {
-    console.log("Status:", res.status);
 
-    const texto = await res.text();
-    console.log("Resposta:", texto);
+        console.log("=================================");
+        console.log("RESPOSTA DA COMANDA");
+        console.log("Status:", res.status);
 
-    if (!res.ok) {
-        throw new Error("Comanda não encontrada");
-    }
+        const texto = await res.text();
 
-    return JSON.parse(texto);
-})
-   
+        console.log("Texto recebido:", texto);
+
+        let dados = {};
+
+        try {
+            dados = JSON.parse(texto);
+        } catch (e) {
+            console.error("Resposta não é JSON:", texto);
+        }
+
+        // Se o backend retornou erro, usa a mensagem dele
+        if (!res.ok) {
+
+            const mensagemErro =
+                dados.erro ||
+                dados.resposta ||
+                "Não foi possível carregar a comanda.";
+
+            throw new Error(mensagemErro);
+        }
+
+        console.log("Objeto da comanda:", dados);
+        console.log("form_pag:", dados.form_pag);
+        console.log("forma_pagamento:", dados.forma_pagamento);
+        console.log("formaPagamento:", dados.formaPagamento);
+        console.log("pedido:", dados.pedido);
+
+        return dados;
+    })
+
     .then(comanda => {
 
-        if (!comanda.carrinho || comanda.carrinho.length === 0) {
-            exibirAviso("Esta comanda não possui itens.");
+        // =====================================================
+        // GUARDA A COMANDA ORIGINAL
+        // =====================================================
+
+        comandaAtual = comanda;
+
+        // =====================================================
+        // PEGA A FORMA DE PAGAMENTO DO APP
+        // =====================================================
+
+        let pagamentoRecebido = "";
+
+        if (comanda.form_pag) {
+            pagamentoRecebido = comanda.form_pag;
+        }
+        else if (comanda.forma_pagamento) {
+            pagamentoRecebido = comanda.forma_pagamento;
+        }
+        else if (comanda.formaPagamento) {
+            pagamentoRecebido = comanda.formaPagamento;
+        }
+        else if (comanda.pedido?.form_pag) {
+            pagamentoRecebido = comanda.pedido.form_pag;
+        }
+        else if (comanda.pedido?.forma_pagamento) {
+            pagamentoRecebido = comanda.pedido.forma_pagamento;
+        }
+        else if (comanda.pedido?.formaPagamento) {
+            pagamentoRecebido = comanda.pedido.formaPagamento;
+        }
+
+        pagamentoRecebido =
+            pagamentoRecebido !== null &&
+            pagamentoRecebido !== undefined
+                ? String(pagamentoRecebido).trim()
+                : "";
+
+        console.log(
+            "FORMA DE PAGAMENTO FINAL RECEBIDA DO APP:",
+            pagamentoRecebido
+        );
+
+        formaPagamentoComanda = pagamentoRecebido;
+        formaPagamento = pagamentoRecebido;
+
+        console.log(
+            "formaPagamentoComanda:",
+            formaPagamentoComanda
+        );
+
+        console.log(
+            "formaPagamento:",
+            formaPagamento
+        );
+
+        // =====================================================
+        // BLOQUEIA ALTERAÇÃO POR PADRÃO
+        // =====================================================
+
+        pagamentoComandaDesbloqueado = false;
+        pagamentoComandaBloqueado = true;
+
+        atualizarBloqueioPagamento();
+
+        // =====================================================
+        // VERIFICA SE A COMANDA POSSUI PRODUTOS
+        // =====================================================
+
+        if (
+            !comanda.carrinho ||
+            !Array.isArray(comanda.carrinho) ||
+            comanda.carrinho.length === 0
+        ) {
+
+            comandaAtual = null;
+            formaPagamentoComanda = "";
+            formaPagamento = "";
+
+            pagamentoComandaBloqueado = false;
+
+            atualizarBloqueioPagamento();
+
+            exibirAviso(
+                "Esta comanda não possui itens."
+            );
+
             return;
         }
+
+        // =====================================================
+        // CARREGA O CARRINHO
+        // =====================================================
 
         carrinho = [];
 
         comanda.carrinho.forEach(item => {
+
             carrinho.unshift({
+
                 id_produto: item.id_produto,
-                codigo: item.codigo_barras || item.codigo,
+
+                codigo:
+                    item.codigo_barras ||
+                    item.codigo,
+
                 nome: item.nome,
+
                 preco: Number(item.preco),
+
                 qtd: Number(item.qtd),
+
                 estoque: Number(item.estoque),
-                qtd_min: Number(item.qtd_min || 0),
+
+                qtd_min:
+                    Number(item.qtd_min || 0),
+
                 img: item.img
             });
+
         });
 
+        // =====================================================
+        // ATUALIZA PDV
+        // =====================================================
+
         atualizarTabelaNoTopo();
+
         atualizarTotalCompra();
+
         verificarBotao();
+
+        // =====================================================
+        // MOSTRA O PRIMEIRO PRODUTO
+        // =====================================================
 
         if (carrinho.length > 0) {
 
@@ -1081,45 +1494,67 @@ const b_comanda = document.getElementById("b_comanda");
 
             if (carrinho[0].img) {
 
-                const nomeArquivo = carrinho[0].img
-                    .replace("/images/", "")
-                    .replace(/^\//, "");
+                const nomeArquivo =
+                    carrinho[0].img
+                        .replace("/images/", "")
+                        .replace(/^\//, "");
 
                 img_prod.src =
                     `${URL_BACKEND_CAD}/images/${nomeArquivo}`;
 
-            } else {
+            }
+            else {
+
                 img_prod.src = IMG_PADRAO;
+
             }
         }
 
-        dialogComanda.close();
+        // =====================================================
+        // PERMITE FINALIZAR
+        // =====================================================
 
-        inputComanda.value = "CMD";
+        nova_venda.disabled = false;
+
+        // =====================================================
+        // FECHA MODAL
+        // =====================================================
+
+        dialogComanda.close();
 
         tocarSucesso();
 
         voltarFoco();
+
     })
+
     .catch(err => {
-        console.error(err);
+
+        console.error(
+            "ERRO AO CARREGAR COMANDA:",
+            err
+        );
+
+        comandaAtual = null;
+
+        formaPagamento = "";
+        formaPagamentoComanda = "";
+
+        pagamentoComandaDesbloqueado = false;
+        pagamentoComandaBloqueado = false;
+
+        atualizarBloqueioPagamento();
 
         tocarErro();
 
+        // Agora mostra exatamente o erro vindo do backend
         exibirAviso(
-            "Comanda não encontrada ou sem itens cadastrados."
+            err.message ||
+            "Não foi possível carregar a comanda."
         );
     });
 }
-console.log("modal", d_modal.open);
-console.log("fiado", d_fiado.open);
-console.log("busca", dialogBusca.open);
-console.log("comanda", dialogComanda.open);
-console.log("aviso", d_aviso.open);
-
 b_comanda.addEventListener("click", () => {
-
-    inputComanda.value = "CMD";
 
     dialogComanda.showModal();
 
@@ -1169,25 +1604,6 @@ inputComanda.addEventListener("keydown", (e) => {
     }
 });
 
-    inputBusca.addEventListener("keydown", (event) => {
-        const itens = lista.querySelectorAll("li");
-        if (event.key === "ArrowDown") {
-            event.preventDefault();
-            indexSelecionado = (indexSelecionado + 1) % itens.length;
-            atualizarDestaque(itens);
-        } 
-        else if (event.key === "ArrowUp") {
-            event.preventDefault();
-            indexSelecionado = (indexSelecionado - 1 + itens.length) % itens.length;
-            atualizarDestaque(itens);
-        } 
-        else if (event.key === "Enter") {
-            event.preventDefault();
-            if (indexSelecionado > -1 && produtosFiltrados[indexSelecionado]) {
-                selecionarProduto(produtosFiltrados[indexSelecionado]);
-            }
-        }
-    });
 window.addEventListener("keydown", (event) => {
     console.log(document.activeElement);
     const tag = document.activeElement.tagName;
@@ -1214,34 +1630,65 @@ window.addEventListener("keydown", (event) => {
 
     switch(event.key) {
         case "Escape":
-            console.log("ESC DETECTADO");
 
-            if (dialogComanda.open) {
-                dialogComanda.close();
-                voltarFoco();
-                break;
-            }
+    event.preventDefault();
+    event.stopPropagation();
 
-            if (dialogBusca.open) {
-                dialogBusca.close();
-                voltarFoco();
-                break;
-            }
+    console.log("ESC DETECTADO");
+    console.log("Comanda atual:", comandaAtual);
 
-            if (modal.open) {
-                modal.close();
-                voltarFoco();
-                break;
-            }
+    // Se o modal de buscar comanda estiver aberto,
+    // apenas fecha o modal de busca.
+    if (dialogComanda.open) {
+        dialogComanda.close();
+        voltarFoco();
+        break;
+    }
 
-            if (document.getElementById("d_fiado")?.open) {
-                document.getElementById("d_fiado").close();
-                voltarFoco();
-                break;
-            }
+    // Se o modal de busca de produto estiver aberto,
+    // apenas fecha o modal.
+    if (dialogBusca.open) {
+        dialogBusca.close();
+        voltarFoco();
+        break;
+    }
 
-            confirmarCancelamento();
-            break;
+    // Se a tela de pagamento estiver aberta,
+    // fecha o pagamento.
+    if (modal.open) {
+        modal.close();
+        voltarFoco();
+        break;
+    }
+
+    // Se o fiado estiver aberto,
+    // fecha o fiado.
+    if (document.getElementById("d_fiado")?.open) {
+        document.getElementById("d_fiado").close();
+        voltarFoco();
+        break;
+    }
+
+    // Se existe uma comanda carregada,
+    // NÃO cancela diretamente.
+    // Abre a confirmação específica.
+    if (comandaAtual !== null) {
+
+        exibirAviso(
+            "Deseja realmente voltar e cancelar o carregamento desta comanda?",
+            () => {
+                resetarPDV();
+            },
+            true
+        );
+
+        break;
+    }
+
+    // Venda normal
+    confirmarCancelamento();
+
+    break;
 
         case "ArrowDown":
             if (!dialogBusca.open) {
@@ -1311,7 +1758,6 @@ window.addEventListener("keydown", (event) => {
         case "C":
             event.preventDefault();
             if (!dialogComanda.open) {
-                inputComanda.value = "CMD";
                 dialogComanda.showModal();
                 setTimeout(() => {
                     inputComanda.focus();
@@ -1334,6 +1780,9 @@ const bConfirmarDinheiro = document.getElementById("b_confirmar_dinheiro");
 
 // Abrir Modal de Dinheiro e carregar Total da Compra
 pgDinheiroBtn.addEventListener("click", () => {
+    if (comandaAtual && !pagamentoComandaDesbloqueado) {
+        return;
+    }
     formaPagamento = "Dinheiro";
     
     // Calcula o total exato da compra

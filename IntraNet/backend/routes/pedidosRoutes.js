@@ -9,81 +9,326 @@ const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
 // ==================== PDV: ROTA DE PEDIDOS ====================
 router.post("/pedidos", verificarToken, async (req, res) => {
     const conn = await conexao.getConnection();
+
     try {
         await conn.beginTransaction();
-        console.log("BODY:", req.body);
-console.log("ORIGEM:", req.body.origem);
-        const { id_user, valor_total, qtd_total, form_pag, origem, itens } = req.body;
+
+        console.log("====================================");
+        console.log("BODY PEDIDO:", req.body);
+        console.log("ORIGEM:", req.body.origem);
+        console.log("ID COMANDA:", req.body.id_pedido);
+        console.log("====================================");
+
+        const {
+            id_pedido,       // usado quando o PDV está finalizando uma comanda
+            id_user,
+            valor_total,
+            qtd_total,
+            form_pag,
+            origem,
+            itens
+        } = req.body;
+
         const idCliente = id_user || 1;
         const status = "Finalizado";
         const data = new Date();
-        const alertas = []; 
+        const alertas = [];
 
-        const [ultimoPedido] = await conn.query(`SELECT MAX(num_pedido) AS ultimoNumero FROM pedidos`);
-        const num_pedido = (ultimoPedido[0].ultimoNumero || 0) + 1;
+        /*
+        ============================================================
+        CASO 1:
+        É uma comanda criada pelo aplicativo.
 
-        const [resultadoPedido] = await conn.query(`
-            INSERT INTO pedidos (id_user, num_pedido, data, status, origem, valor_total, qtd_total, form_pag) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `, [idCliente, num_pedido, data, status, origem, valor_total, qtd_total, form_pag]);
+        Nesse caso NÃO criamos outro pedido.
+        Apenas atualizamos o pedido que já existe.
+        ============================================================
+        */
 
-        const id_pedido = resultadoPedido.insertId;
+        if (id_pedido) {
+
+            console.log("FINALIZANDO COMANDA EXISTENTE:", id_pedido);
+
+            // Verifica se a comanda existe
+            const [comandas] = await conn.query(
+                `SELECT id_pedido, num_pedido, codigo_comanda, status, origem
+                 FROM pedidos
+                 WHERE id_pedido = ?`,
+                [id_pedido]
+            );
+
+            if (comandas.length === 0) {
+                throw new Error("Comanda não encontrada.");
+            }
+
+            const comanda = comandas[0];
+
+            console.log("COMANDA ENCONTRADA:", comanda);
+
+            /*
+            ------------------------------------------------------------
+            Verifica se já foi finalizada para evitar baixar estoque
+            duas vezes.
+            ------------------------------------------------------------
+            */
+
+            if (comanda.status === "Finalizado") {
+                throw new Error("Esta comanda já foi finalizada.");
+            }
+
+            /*
+            ------------------------------------------------------------
+            Busca os itens que JÁ pertencem à comanda.
+
+            Não inserimos novamente em pedidos_itens.
+            ------------------------------------------------------------
+            */
+
+            const [itensComanda] = await conn.query(
+                `SELECT
+                    pi.id_produto,
+                    pi.qtd,
+                    pi.preco_unitario,
+                    p.nome,
+                    p.qtd AS estoque,
+                    p.qtd_min
+                 FROM pedidos_itens pi
+                 INNER JOIN produtos p
+                    ON p.id_produto = pi.id_produto
+                 WHERE pi.id_pedido = ?`,
+                [id_pedido]
+            );
+
+            if (itensComanda.length === 0) {
+                throw new Error("A comanda não possui itens.");
+            }
+
+            /*
+            ------------------------------------------------------------
+            Baixa o estoque agora, no momento em que o PDV finaliza.
+            ------------------------------------------------------------
+            */
+
+            for (const item of itensComanda) {
+
+                const novaQtd = Number(item.estoque) - Number(item.qtd);
+
+                if (novaQtd < 0) {
+                    throw new Error(
+                        `Estoque insuficiente para: ${item.nome}`
+                    );
+                }
+
+                if (novaQtd <= Number(item.qtd_min || 0)) {
+                    alertas.push(
+                        `O produto "${item.nome}" atingiu o estoque mínimo (${novaQtd} restantes).`
+                    );
+                }
+
+                await conn.query(
+                    `UPDATE produtos
+                     SET qtd = ?
+                     WHERE id_produto = ?`,
+                    [novaQtd, item.id_produto]
+                );
+            }
+
+            /*
+            ------------------------------------------------------------
+            ATUALIZA A MESMA COMANDA.
+            
+            IMPORTANTE:
+            Não muda:
+              - id_pedido
+              - num_pedido
+              - codigo_comanda
+              - origem
+
+            Só finaliza.
+            ------------------------------------------------------------
+            */
+
+            await conn.query(
+                `UPDATE pedidos
+                 SET
+                    status = ?,
+                    valor_total = ?,
+                    qtd_total = ?,
+                    form_pag = ?,
+                    data = ?
+                 WHERE id_pedido = ?`,
+                [
+                    status,
+                    valor_total,
+                    qtd_total,
+                    form_pag,
+                    data,
+                    id_pedido
+                ]
+            );
+
+            await conn.commit();
+
+            console.log("COMANDA FINALIZADA COM SUCESSO");
+            console.log("ID PEDIDO:", comanda.id_pedido);
+            console.log("NÚMERO PEDIDO:", comanda.num_pedido);
+            console.log("CÓDIGO COMANDA:", comanda.codigo_comanda);
+
+            return res.status(200).json({
+                resposta: "Comanda finalizada com sucesso!",
+                id_pedido: comanda.id_pedido,
+                num_pedido: comanda.num_pedido,
+                codigo_comanda: comanda.codigo_comanda,
+                origem: comanda.origem,
+                alertas
+            });
+        }
+
+        /*
+        ============================================================
+        CASO 2:
+        Venda normal feita diretamente pelo PDV.
+
+        Aqui SIM criamos um novo pedido.
+        ============================================================
+        */
+
+        console.log("CRIANDO NOVO PEDIDO NORMAL DO PDV");
+
+        const [ultimoPedido] = await conn.query(
+            `SELECT MAX(num_pedido) AS ultimoNumero
+             FROM pedidos`
+        );
+
+        const num_pedido =
+            (ultimoPedido[0].ultimoNumero || 0) + 1;
+
+        /*
+        NÃO coloque id_pedido no INSERT.
+        O banco cria automaticamente.
+        */
+
+        const [resultadoPedido] = await conn.query(
+            `INSERT INTO pedidos (
+                id_user,
+                num_pedido,
+                data,
+                status,
+                origem,
+                valor_total,
+                qtd_total,
+                form_pag
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                idCliente,
+                num_pedido,
+                data,
+                status,
+                origem || "PDV",
+                valor_total,
+                qtd_total,
+                form_pag
+            ]
+        );
+
+        const novoIdPedido = resultadoPedido.insertId;
+
+        console.log("NOVO PEDIDO CRIADO:", novoIdPedido);
+        console.log("NÚMERO:", num_pedido);
+
+        /*
+        ------------------------------------------------------------
+        Insere os produtos e baixa o estoque.
+        ------------------------------------------------------------
+        */
 
         if (itens && itens.length > 0) {
+
             for (const item of itens) {
+
                 const [estoque] = await conn.query(
-                    "SELECT nome, qtd, qtd_min FROM produtos WHERE id_produto = ?", 
+                    `SELECT nome, qtd, qtd_min
+                     FROM produtos
+                     WHERE id_produto = ?`,
                     [item.id_produto]
                 );
 
+                if (estoque.length === 0) {
+                    throw new Error(
+                        `Produto não encontrado: ${item.id_produto}`
+                    );
+                }
+
                 const produtoDB = estoque[0];
-                const novaQtd = produtoDB.qtd - item.qtd;
+
+                const novaQtd =
+                    Number(produtoDB.qtd) - Number(item.qtd);
 
                 if (novaQtd < 0) {
-                    throw new Error(`Estoque insuficiente para: ${produtoDB.nome}`);
+                    throw new Error(
+                        `Estoque insuficiente para: ${produtoDB.nome}`
+                    );
                 }
 
-                if (novaQtd <= produtoDB.qtd_min) {
-                    alertas.push(`O produto "${produtoDB.nome}" atingiu o estoque mínimo (${novaQtd} restantes).`);
+                if (novaQtd <= Number(produtoDB.qtd_min || 0)) {
+                    alertas.push(
+                        `O produto "${produtoDB.nome}" atingiu o estoque mínimo (${novaQtd} restantes).`
+                    );
                 }
 
-                await conn.query("UPDATE produtos SET qtd = ? WHERE id_produto = ?", [novaQtd, item.id_produto]);
+                await conn.query(
+                    `UPDATE produtos
+                     SET qtd = ?
+                     WHERE id_produto = ?`,
+                    [
+                        novaQtd,
+                        item.id_produto
+                    ]
+                );
 
-               await conn.query(`
-    INSERT INTO pedidos_itens (
-        id_pedido,
-        id_produto,
-        qtd,
-        preco_unitario
-    )
-    VALUES (?, ?, ?, ?)
-`, [
-    id_pedido,
-    item.id_produto,
-    item.qtd,
-    item.preco_unitario ?? item.preco
-]);
+                await conn.query(
+                    `INSERT INTO pedidos_itens (
+                        id_pedido,
+                        id_produto,
+                        qtd,
+                        preco_unitario
+                    )
+                    VALUES (?, ?, ?, ?)`,
+                    [
+                        novoIdPedido,
+                        item.id_produto,
+                        item.qtd,
+                        item.preco_unitario ?? item.preco
+                    ]
+                );
             }
         }
 
         await conn.commit();
 
-        res.status(201).json({
+        return res.status(201).json({
             resposta: "Pedido finalizado com sucesso!",
-            id_pedido,
+            id_pedido: novoIdPedido,
             num_pedido,
             alertas
         });
 
     } catch (erro) {
+
         await conn.rollback();
-        console.error("Erro ao salvar pedido:", erro);
-        res.status(500).json({ resposta: erro.message || "Erro ao salvar pedido." });
+
+        console.error("====================================");
+        console.error("ERRO AO SALVAR PEDIDO:", erro);
+        console.error("====================================");
+
+        return res.status(500).json({
+            resposta: erro.message || "Erro ao salvar pedido."
+        });
+
     } finally {
         conn.release();
     }
 });
-
 // ==================== HISTÓRICO DE PEDIDOS ====================
 // ==================== HISTÓRICO DE PEDIDOS ====================
 router.get("/historico-pedidos", verificarToken, async (req, res) => {
@@ -328,21 +573,28 @@ router.get("/comandas/:codigo", async (req, res) => {
 
     try {
         conn = await conexao.getConnection();
+
         console.log("Buscando comanda pelo código:", codigo);
 
-        // 1. Busca a comanda no banco usando a variável 'pedidos'
+        // 1. Busca a comanda no banco
         const [pedidos] = await conn.execute(
             `
-            SELECT id_pedido, codigo_comanda, origem 
-            FROM pedidos 
-            WHERE codigo_comanda = ? AND UPPER(origem) = 'APP'
+            SELECT
+                id_pedido,
+                num_pedido,
+                codigo_comanda,
+                status,
+                origem,
+                form_pag
+            FROM pedidos
+            WHERE codigo_comanda = ?
+            AND UPPER(origem) = 'APP'
             `,
             [codigo]
         );
 
         console.log("Resultado retornado do BD:", pedidos);
 
-        // 2. Verifica se a comanda foi encontrada
         if (!pedidos || pedidos.length === 0) {
             return res.status(404).json({
                 sucesso: false,
@@ -350,8 +602,17 @@ router.get("/comandas/:codigo", async (req, res) => {
             });
         }
 
-        const idPedido = pedidos[0].id_pedido;
+        const pedido = pedidos[0];
 
+        // BLOQUEIA COMANDA JÁ FINALIZADA
+        if (pedido.status === "Finalizado") {
+            return res.status(400).json({
+                sucesso: false,
+                erro: "Esta comanda já foi finalizada e não pode mais ser aberta."
+            });
+        }
+
+        const idPedido = pedido.id_pedido;
         // 3. Busca os itens da comanda
         const [itens] = await conn.execute(
             `
@@ -372,7 +633,20 @@ router.get("/comandas/:codigo", async (req, res) => {
             [idPedido]
         );
 
+        console.log("Forma de pagamento da comanda:", pedido.form_pag);
+
+        // 4. Retorna a comanda completa
         return res.json({
+            id_pedido: pedido.id_pedido,
+            num_pedido: pedido.num_pedido,
+            codigo_comanda: pedido.codigo_comanda,
+            status: pedido.status,
+            origem: pedido.origem,
+
+            // IMPORTANTE:
+            // forma de pagamento que veio do APP
+            form_pag: pedido.form_pag,
+
             carrinho: itens
         });
 
@@ -385,8 +659,9 @@ router.get("/comandas/:codigo", async (req, res) => {
         });
 
     } finally {
-        if (conn) conn.release();
+        if (conn) {
+            conn.release();
+        }
     }
 });
-
 module.exports = router;
