@@ -1,5 +1,10 @@
+# Arquivos de ambiente
 IntraNet/backend/.env
-IntraNet/backend/node_modules
-Mobile/node_modules
-.pdf
-IntraNet/banco/.sql
+
+# Pastas de dependências
+IntraNet/backend/node_modules/
+Mobile/node_modules/
+
+# Tipos de arquivos
+*.pdf
+IntraNet/banco/*.sql
