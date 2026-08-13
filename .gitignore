@@ -8,3 +8,5 @@ Mobile/node_modules/
 # Tipos de arquivos
 *.pdf
 IntraNet/banco/*.sql
+
+Intranet/backend/imagens
