@@ -5,95 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="sidebar_header.js"></script>
 
+    <!-- Bibliotecas para Gerar PDF no Frontend -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
     <link rel="stylesheet" href="styleag_es.css">
     <link rel="stylesheet" href="layout.css">
+    <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
 
-    <link
-        rel="icon"
-        type="image/png"
-        href="/imagens/logo_insta.png"
-    >
-
-    <title>Histórico de pedido</title>
+    <title>Histórico de Pedidos</title>
 
 </head>
 
 <body class="fundo-escuro">
 
-    <div class="d_util">
+    <!-- CABEÇALHO COMPLETO NA MESMA LINHA -->
+    <div class="d_util topo-cabecalho">
+        
+        <div class="grupo-esquerda">
+            <h2 class="h_ag" style="margin: 0;">Histórico de Pedidos</h2>
 
-        <h2 class="h_ag">
-            Histórico de pedido
-        </h2>
+            <div id="painel_metricas">
+                <div class="card-faturamento">
+                    <span class="faturamento-label">Faturamento:</span>
+                    <h3 id="lbl_total_mes" class="faturamento-valor">R$ 0,00</h3>
+                </div>
+            </div>
+        </div>
 
-        <div id="d_inp">
-
+        <div class="grupo-direita">
+            <!-- BUSCA E FILTRO -->
             <div class="busca-box">
-
-                <img
-                    src="/imagens/lupa.png"
-                    class="icone-busca"
-                >
-
-                <input
-                    type="text"
-                    id="inputBusca"
-                    placeholder="Buscar por nome ou código..."
-                >
-
-                <button id="btnFiltro">
-
-                    <img
-                        src="/imagens/filtro.png"
-                        id="img_funil"
-                    >
-
+                <img src="../backend/imagens/lupa.png" class="icone-busca" alt="Buscar">
+                <input type="text" id="inputBusca" placeholder="Buscar cliente ou pedido...">
+                <button id="btnFiltro" type="button">
+                    <img src="../backend/imagens/filtro.png" id="img_funil" alt="Filtrar" style="width: 16px;">
                 </button>
 
                 <div id="menuFiltro">
-
-                    <div
-                        class="itemFiltro ativo"
-                        data-origem="todos"
-                    >
-                        Todos
-                    </div>
-
-                    <div
-                        class="itemFiltro"
-                        data-origem="PDV"
-                    >
-                        PDV
-                    </div>
-
-                    <div
-                        class="itemFiltro"
-                        data-origem="Agendamento"
-                    >
-                        Agendamento
-                    </div>
-
-                    <div
-                        class="itemFiltro"
-                        data-origem="Fiado"
-                    >
-                        Fiado
-                    </div>
-
+                    <div class="itemFiltro ativo" data-origem="todos">Todos</div>
+                    <div class="itemFiltro" data-origem="PDV">PDV</div>
+                    <div class="itemFiltro" data-origem="Agendamento">Agendamento</div>
+                    <div class="itemFiltro" data-origem="Fiado">Fiado</div>
                 </div>
-
             </div>
 
+            <!-- BOTÕES DE AÇÃO -->
+            <button id="btnExportarPDF" class="btn-baixar-pdf" onclick="gerarPDFMensal()">
+                📄 Baixar PDF
+            </button>
+            <button id="btnLimparBackup" class="btn-limpar-historico" onclick="confirmarBackupEApagar()">
+                🗑️ Limpar
+            </button>
         </div>
-
     </div>
 
     <section id="sc_tabela" class="container mt-5">
-
         <table class="tabela table-striped table-hover border">
-
             <thead class="table-dark">
-
                 <tr>
                     <th scope="col">Nome do cliente</th>
                     <th scope="col">Pedido n°</th>
@@ -102,422 +71,317 @@
                     <th scope="col">Total da compra</th>
                     <th scope="col">Forma de pagamento</th>
                 </tr>
-
             </thead>
-
-            <tbody id="tb_tbl_produtos">
-            </tbody>
-
+            <tbody id="tb_tbl_produtos"></tbody>
         </table>
-
     </section>
 
-    <!-- MODAL -->
-
+    <!-- MODAL DE AVISO -->
     <dialog id="d_aviso">
-
         <div class="aviso_box">
-
             <p id="msg_aviso"></p>
-
             <div class="aviso_botoes">
-
-                <button id="b_confirmar_aviso">
-                    OK
-                </button>
-
-                <button
-                    id="b_cancelar_aviso"
-                    style="display:none;"
-                >
-                    Cancelar
-                </button>
-
+                <button id="b_confirmar_aviso">OK</button>
+                <button id="b_cancelar_aviso" style="display:none;">Cancelar</button>
             </div>
-
         </div>
-
     </dialog>
 
-<script>
+    <script>
+    const corpoTabela = document.getElementById("tb_tbl_produtos");
+    const inputBusca = document.getElementById("inputBusca");
+    const btnFiltro = document.getElementById("btnFiltro");
+    const menuFiltro = document.getElementById("menuFiltro");
+    const itensFiltro = document.querySelectorAll(".itemFiltro");
 
+    let pedidosCarregados = [];
+    let filtroOrigemAtual = "todos";
 
-// ===============================
-// VARIÁVEIS DO MODAL
-// ===============================
+    document.addEventListener("DOMContentLoaded", () => {
+        buscarProdutosEstoque();
+        configurarEventosFiltro();
+    });
 
-const aviso =
-document.getElementById("d_aviso");
+    // ===============================
+    // 1. BUSCAR PEDIDOS NO BACKEND
+    // ===============================
+    async function buscarProdutosEstoque() {
+        if (!corpoTabela) return;
+        corpoTabela.innerHTML = "";
 
-const msgAviso =
-document.getElementById("msg_aviso");
-
-const bConfirmarAviso =
-document.getElementById("b_confirmar_aviso");
-
-const bCancelarAviso =
-document.getElementById("b_cancelar_aviso");
-
-
-// ===============================
-// FUNÇÃO DO MODAL
-// ===============================
-
-function exibirAviso(
-    mensagem,
-    callback = null,
-    mostrarCancelar = false
-){
-
-    msgAviso.innerText = mensagem;
-
-    bCancelarAviso.style.display =
-    mostrarCancelar
-    ? "block"
-    : "none";
-
-    aviso.showModal();
-
-    bConfirmarAviso.onclick = () => {
-
-        aviso.close();
-
-        if(callback){
-            callback();
-        }
-    };
-
-    bCancelarAviso.onclick = () => {
-
-        aviso.close();
-
-        if(window.checkboxAtual){
-
-            window.checkboxAtual.checked = false;
-
-            window.checkboxAtual.blur();
-
-            window.checkboxAtual = null;
-        }
-    };
-}
-
-
-// ===============================
-// ELEMENTOS
-// ===============================
-
-const inputBusca =
-document.getElementById('inputBusca');
-
-const corpoTabela =
-document.getElementById('tb_tbl_produtos');
-
-let origemSelecionada = "todos";
-
-
-// ===============================
-// BUSCAR PEDIDOS
-// ===============================
-
-async function buscarProdutosEstoque() {
-
-    corpoTabela.innerHTML = "";
-
-    try {
-
-        const response =
-        await fetch(
-            "http://localhost:3000/historico-pedidos",
-            {
+        try {
+            const response = await fetch("http://localhost:3000/historico-pedidos", {
                 headers: {
-                    Authorization:
-                    `Bearer ${localStorage.getItem("token")}`
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
                 }
+            });
+
+            if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+
+            pedidosCarregados = await response.json();
+
+            if (pedidosCarregados.length === 0) {
+                corpoTabela.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center;">Nenhum pedido finalizado encontrado.</td>
+                    </tr>
+                `;
+                atualizarMetricas([]);
+                return;
             }
-        );
 
-        if (!response.ok) {
-            throw new Error(`Erro HTTP: ${response.status}`);
-        }
+            aplicarFiltrosEBusca();
 
-        const pedidos =
-        await response.json();
-
-        if (pedidos.length === 0) {
-
+        } catch (erro) {
+            console.error("Erro ao carregar histórico:", erro);
             corpoTabela.innerHTML = `
                 <tr>
-                    <td colspan="5">
-                        Nenhum pedido finalizado encontrado.
-                    </td>
+                    <td colspan="6" style="text-align: center;">Erro ao carregar histórico de pedidos.</td>
                 </tr>
             `;
+        }
+    }
 
+    // ===============================
+    // 2. CONFIGURAÇÃO DOS FILTROS E PESQUISA (LÓGICA FUNCIONAL)
+    // ===============================
+    function configurarEventosFiltro() {
+        // Toggle do Menu de Filtro
+        btnFiltro.addEventListener("click", (e) => {
+            e.stopPropagation();
+            menuFiltro.classList.toggle("aberto");
+        });
+
+        // Fechar menu ao clicar fora
+        document.addEventListener("click", () => {
+            menuFiltro.classList.remove("aberto");
+        });
+
+        // Evento de seleção no menu
+        itensFiltro.forEach(item => {
+            item.addEventListener("click", (e) => {
+                itensFiltro.forEach(i => i.classList.remove("ativo"));
+                item.classList.add("ativo");
+                filtroOrigemAtual = item.getAttribute("data-origem");
+                aplicarFiltrosEBusca();
+            });
+        });
+
+        // Evento de digitação na busca
+        inputBusca.addEventListener("input", () => {
+            aplicarFiltrosEBusca();
+        });
+    }
+
+    function aplicarFiltrosEBusca() {
+        const termoBusca = inputBusca.value.toLowerCase().trim();
+
+        const pedidosFiltrados = pedidosCarregados.filter(pedido => {
+            const atendeOrigem = filtroOrigemAtual === "todos" || 
+                (pedido.origem && pedido.origem.toLowerCase() === filtroOrigemAtual.toLowerCase());
+
+            const nomeCliente = (pedido.nome || "").toLowerCase();
+            const numPedido = (pedido.num_pedido || "").toString().toLowerCase();
+
+            const atendeBusca = nomeCliente.includes(termoBusca) || numPedido.includes(termoBusca);
+
+            return atendeOrigem && atendeBusca;
+        });
+
+        renderizarTabela(pedidosFiltrados);
+        atualizarMetricas(pedidosFiltrados);
+    }
+
+    // ===============================
+    // 3. RENDERIZAR TABELA NA TELA
+    // ===============================
+    function renderizarTabela(pedidos) {
+        corpoTabela.innerHTML = "";
+
+        if (pedidos.length === 0) {
+            corpoTabela.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center;">Nenhum pedido encontrado.</td>
+                </tr>
+            `;
             return;
         }
 
         pedidos.forEach(pedido => {
-
-            let dataMostrar;
-
-if (pedido.origem === "Agendamento") {
-    dataMostrar = pedido.data_ag || pedido.data;
-} else {
-    dataMostrar = pedido.data;
-}
-
-const dataFormatada = new Date(dataMostrar)
-    .toLocaleString("pt-BR");
-
-            const tr =
-            document.createElement("tr");
+            const dataFormatada = new Date(pedido.data).toLocaleString("pt-BR");
+            const tr = document.createElement("tr");
 
             tr.innerHTML = `
-
-                <td>
-                    ${pedido.nome || "Cliente"}
-                </td>
-
-                <td>
-                    ${pedido.num_pedido}
-                </td>
-
-                <td>
-                    ${pedido.origem || "-"}
-                </td>
-
-                <td>
-                    ${dataFormatada}
-                </td>
-
-                <td>
-                    R$ ${Number(pedido.valor_total)
-                        .toFixed(2)
-                        .replace(".", ",")}
-                </td>
-
-                <td>
-                    ${pedido.form_pag}
-                </td>
-
+                <td>${pedido.nome || "Cliente"}</td>
+                <td>${pedido.num_pedido}</td>
+                <td>${pedido.origem || "-"}</td>
+                <td>${dataFormatada}</td>
+                <td>R$ ${Number(pedido.valor_total).toFixed(2).replace(".", ",")}</td>
+                <td>${pedido.form_pag || "-"}</td>
             `;
-
             corpoTabela.appendChild(tr);
+        });
+    }
 
+    // ===============================
+    // 4. CÁLCULO DE FATURAMENTO
+    // ===============================
+    function atualizarMetricas(pedidos) {
+        let totalFaturado = 0;
+
+        pedidos.forEach(p => {
+            totalFaturado += Number(p.valor_total || 0);
         });
 
-    } catch (erro) {
-
-        console.error(
-            "Erro ao carregar histórico:",
-            erro
-        );
-
-        corpoTabela.innerHTML = `
-            <tr>
-                <td colspan="5">
-                    Erro ao carregar histórico de pedidos.
-                </td>
-            </tr>
-        `;
+        document.getElementById("lbl_total_mes").innerText = `R$ ${totalFaturado.toFixed(2).replace(".", ",")}`;
     }
-}
 
+    // ===============================
+    // 5. GERAR PDF COM JSPDF
+    // ===============================
+    function gerarPDFMensal() {
+        if (typeof pedidosCarregados === 'undefined' || pedidosCarregados.length === 0) {
+            exibirAviso("Não há pedidos para exportar o PDF.");
+            return;
+        }
 
-// ===============================
-// BUSCA
-// ===============================
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
 
-inputBusca.addEventListener(
-    'keyup',
-    function() {
+        const corFundoEscuro = [28, 28, 28];
+        const corLaranja = [239, 172, 74];
+        const corTextoEscuro = [31, 35, 41];
 
-        const termo =
-        inputBusca.value
-        .toLowerCase()
-        .trim();
+        doc.setFillColor(...corLaranja);
+        doc.rect(0, 0, 210, 30, "F");
 
-        const linhas =
-        corpoTabela.getElementsByTagName('tr');
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(16);
+        doc.setTextColor(...corFundoEscuro);
+        doc.text("RELATÓRIO MENSAL DE PEDIDOS", 14, 18);
 
-        for (let i = 0; i < linhas.length; i++) {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(50, 50, 50);
+        doc.text(`Gerado em: ${new Date().toLocaleString("pt-BR")}`, 14, 25);
 
-            const colunas =
-            linhas[i].getElementsByTagName('td');
+        const totalMes = document.getElementById("lbl_total_mes") ? document.getElementById("lbl_total_mes").innerText : "R$ 0,00";
 
-            if (colunas.length > 0) {
+        doc.setFillColor(248, 243, 235);
+        doc.roundedRect(14, 36, 182, 20, 3, 3, "F");
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(...corTextoEscuro);
+        doc.text("FATURAMENTO TOTAL DO MÊS:", 18, 48);
 
-                const nomeCliente =
-                colunas[0]
-                .textContent
-                .toLowerCase();
+        doc.setFontSize(13);
+        doc.setTextColor(200, 130, 30);
+        doc.text(totalMes, 85, 48);
 
-                const numPedido =
-                colunas[1]
-                .textContent
-                .toLowerCase();
+        const colunas = ["Cliente", "Nº Pedido", "Origem", "Data/Hora", "Valor Total", "Pagamento"];
+        const linhas = pedidosCarregados.map(p => [
+            p.nome || "Cliente",
+            `#${p.num_pedido}`,
+            p.origem || "-",
+            new Date(p.data).toLocaleString("pt-BR"),
+            `R$ ${Number(p.valor_total).toFixed(2).replace(".", ",")}`,
+            p.form_pag || "-"
+        ]);
 
-                if (
-                    nomeCliente.includes(termo)
-                    ||
-                    numPedido.includes(termo)
-                ) {
-
-                    linhas[i].style.display = "";
-
-                } else {
-
-                    linhas[i].style.display = "none";
-                }
+        doc.autoTable({
+            head: [colunas],
+            body: linhas,
+            startY: 62,
+            theme: 'grid',
+            headStyles: {
+                fillColor: corFundoEscuro,
+                textColor: corLaranja,
+                fontStyle: 'bold',
+                halign: 'left'
+            },
+            alternateRowStyles: {
+                fillColor: [250, 247, 242]
+            },
+            bodyStyles: {
+                textColor: corTextoEscuro,
+                fontSize: 9
+            },
+            columnStyles: {
+                4: { halign: 'right', fontStyle: 'bold' }
+            },
+            didDrawPage: function (data) {
+                const str = `Página ${doc.internal.getNumberOfPages()}`;
+                doc.setFontSize(8);
+                doc.setFont("helvetica", "normal");
+                doc.setTextColor(120, 120, 120);
+                doc.text(str, 196, 285, { align: 'right' });
             }
-        }
-    }
-);
-
-inputBusca.addEventListener(
-    "keyup",
-    aplicarFiltros
-);
-
-
-// ===============================
-// FILTROS
-// ===============================
-
-function aplicarFiltros(){
-
-    const termo =
-    inputBusca.value
-    .toLowerCase()
-    .trim();
-
-    const linhas =
-    corpoTabela.getElementsByTagName("tr");
-
-    for(let i = 0; i < linhas.length; i++){
-
-        const colunas =
-        linhas[i].getElementsByTagName("td");
-
-        if(colunas.length > 0){
-
-            const nome =
-            colunas[0]
-            .textContent
-            .toLowerCase();
-
-            const pedido =
-            colunas[1]
-            .textContent
-            .toLowerCase();
-
-            const origem =
-            colunas[2]
-            .textContent
-            .trim();
-
-            const buscaOk =
-            nome.includes(termo)
-            ||
-            pedido.includes(termo);
-
-            const origemOk =
-            origemSelecionada === "todos"
-            ||
-            origem === origemSelecionada;
-
-            linhas[i].style.display =
-            buscaOk && origemOk
-            ? ""
-            : "none";
-        }
-    }
-}
-
-
-// ===============================
-// MENU FILTRO
-// ===============================
-
-const btnFiltro =
-document.getElementById("btnFiltro");
-
-const menuFiltro =
-document.getElementById("menuFiltro");
-
-const itensFiltro =
-document.querySelectorAll(".itemFiltro");
-
-btnFiltro.onclick = (e) => {
-
-    e.stopPropagation();
-
-    menuFiltro.style.display =
-    menuFiltro.style.display === "block"
-    ? "none"
-    : "block";
-};
-
-document.addEventListener("click", (e) => {
-
-    if(
-        !menuFiltro.contains(e.target)
-        &&
-        !btnFiltro.contains(e.target)
-    ){
-        menuFiltro.style.display = "none";
-    }
-});
-
-itensFiltro.forEach(item => {
-
-    item.onclick = () => {
-
-        itensFiltro.forEach(i => {
-            i.classList.remove("ativo");
         });
 
-        item.classList.add("ativo");
+        const mesAtual = new Date().getMonth() + 1;
+        const anoAtual = new Date().getFullYear();
+        doc.save(`Relatorio_Pedidos_${mesAtual}_${anoAtual}.pdf`);
+    }
 
-        origemSelecionada =
-        item.dataset.origem;
+    // ===============================
+    // 6. APAGAR HISTÓRICO
+    // ===============================
+    function confirmarBackupEApagar() {
+        exibirAviso(
+            "Atenção: Ao confirmar, o PDF do mês será baixado automaticamente como segurança e todos os pedidos finalizados serão apagados do banco. Deseja continuar?",
+            async () => {
+                gerarPDFMensal();
 
-        menuFiltro.style.display = "none";
+                try {
+                    const res = await fetch("http://localhost:3000/historico-pedidos/limpar", {
+                        method: "DELETE",
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`
+                        }
+                    });
 
-        aplicarFiltros();
-    };
-});
+                    const data = await res.json();
+                    if (res.ok) {
+                        exibirAviso("Histórico limpo com sucesso!");
+                        buscarProdutosEstoque();
+                    } else {
+                        exibirAviso(data.erro || "Erro ao apagar histórico.");
+                    }
+                } catch (err) {
+                    console.error("Erro ao apagar o histórico:", err);
+                    exibirAviso("Erro de conexão ao tentar limpar histórico.");
+                }
+            },
+            true
+        );
+    }
 
+    function exibirAviso(mensagem, acaoConfirmar = null, mostrarCancelar = false) {
+        const dialog = document.getElementById("d_aviso");
+        const msg = document.getElementById("msg_aviso");
+        const btnConfirmar = document.getElementById("b_confirmar_aviso");
+        const btnCancelar = document.getElementById("b_cancelar_aviso");
 
-// ===============================
-// VERIFICA LOGIN
-// ===============================
-
-const token =
-localStorage.getItem("token");
-
-if (!token) {
-
-    exibirAviso(
-        "Acesso restrito! Redirecionando para o login...",
-        () => {
-            window.location.href = "login.html";
+        if (!dialog) {
+            alert(mensagem);
+            if (acaoConfirmar) acaoConfirmar();
+            return;
         }
-    );
-}
 
+        msg.innerText = mensagem;
+        btnCancelar.style.display = mostrarCancelar ? "inline-block" : "none";
 
-// ===============================
-// CARREGA TABELA
-// ===============================
+        btnConfirmar.onclick = () => {
+            dialog.close();
+            if (acaoConfirmar) acaoConfirmar();
+        };
 
-document.addEventListener(
-    'DOMContentLoaded',
-    buscarProdutosEstoque
-);
+        btnCancelar.onclick = () => {
+            dialog.close();
+        };
 
-</script>
-
+        dialog.showModal();
+    }
+    </script>
 </body>
 </html>

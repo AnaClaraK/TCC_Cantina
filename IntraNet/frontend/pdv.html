@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="/imagens/logo_insta.png">
-    <title>PDV</title>
+    <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
+    <title>PDV - Sistema Cantina</title>
     <link rel="stylesheet" href="layout.css">
     <link rel="stylesheet" href="stylepdv.css">
     <script src="sidebar_header.js"></script>
@@ -110,39 +110,26 @@
                 <div class="secao-pagamento">
                     <h2 class="label-pagamento">Forma de Pagamento</h2> 
                     <div class="area_pagamento">
-                        <button class="pagamento" id="pg_dinheiro" data-pag="Dinheiro">
-                            Dinheiro (F2)
-                        </button>
-                        
-                        <button class="pagamento" id="pg_credito" data-pag="Cartão de Crédito">
-                            Cartão de Crédito (F3)
-                        </button>
-                        
-                        <button class="pagamento" id="pg_debito" data-pag="Cartão de Débito">
-                            Cartão de Débito (F4)
-                        </button>
-                        
-                        <button class="pagamento" id="pg_pix" data-pag="Pix">
-                            PIX (F6)
-                        </button>
-                        
-                        <button class="pagamento" id="pg_fiado" data-pag="Fiado">
-                            FIADO (F9)
-                        </button>
+                        <button class="pagamento" id="pg_dinheiro">Dinheiro (F2)</button>
+                        <button class="pagamento" id="pg_credito">Cartão de Crédito (F3)</button>
+                        <button class="pagamento" id="pg_debito">Cartão de Débito (F4)</button>
+                        <button class="pagamento" id="pg_pix">PIX (F6)</button>
+                        <button class="pagamento" id="pg_fiado">FIADO (F9)</button>
                     </div>
                 </div>
             </div>
         </section>
         <footer>
-            <button id="b_nv_venda" disabled>Nova Venda (F7)</button>
+            <button id="b_nv_venda" disabled>Nova Venda (F11)</button>
         </footer>
       </article>
   </dialog>
   <div id="d_botoes">
-     <button id="b_pesq">🔍︎ (P)</button>
+     <button id="b_pesq" class="b_atalho">🔍︎ (F3)</button>
+     <button id="b_comanda" class="b_atalho">📋 (C)</button>
      <button id="b_canc">Cancelar (ESC)</button>
      <button id="b_agend">Agendamento (F8)</button>
-     <button id="b_final" disabled>Finalizar Compra (F1)</button>
+     <button id="b_final" disabled>Finalizar Compra (F12)</button>
     </div>
 </section>
 <div id="erro_overlay">
@@ -172,7 +159,62 @@
         </div>
     </div>
 </dialog>
+<dialog id="dialogComanda">
+    <div class="modal_box">
+        <button id="b_close_comanda">x</button>
 
+        <h2 class="modal_titulo">
+            Buscar Comanda
+        </h2>
+
+        <div class="modal_linha">
+            <label class="label">
+                Código da Comanda
+            </label>
+
+            <input
+                type="text"
+                id="inputComanda"
+                class="inp_m"
+                value="CMD"
+                autocomplete="off"
+            >
+        </div>
+
+        <div class="modal_footer">
+            <button id="b_buscar_comanda">
+                Carregar Comanda
+            </button>
+        </div>
+    </div>
+</dialog>
+<!-- MODAL: PAGAMENTO EM DINHEIRO -->
+<dialog id="dialogDinheiro">
+  <div class="conteudo-dinheiro">
+    <h2>PAGAMENTO EM DINHEIRO</h2>
+    
+    <div class="linha-modal">
+      <span>Total a Pagar:</span>
+      <strong id="lbl_dinheiro_total">R$ 0,00</strong>
+    </div>
+
+    <div class="linha-modal">
+      <label for="inp_valor_pago">Valor Recebido:</label>
+      <input type="number" step="0.01" id="inp_valor_pago" placeholder="0,00" />
+    </div>
+
+    <div class="box-troco">
+      <span>Troco:</span>
+      <strong id="lbl_troco">R$ 0,00</strong>
+    </div>
+
+    <div class="acoes-modal">
+      <button type="button" id="b_confirmar_dinheiro">
+        Confirmar
+      </button>
+    </div>
+  </div>
+</dialog>
 <script>
     // Seletores do novo aviso customizado
     const aviso = document.getElementById("d_aviso");
@@ -180,47 +222,36 @@
     const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
     const bCancelarAviso = document.getElementById("b_cancelar_aviso");
 
-    function confirmarCancelamento(callback) {
-    exibirAviso(
-        "Tem certeza que deseja cancelar a compra?",
-        callback,
-        true
-    );
-}
     // Função para exibir aviso customizado no lugar do alert/confirm nativo
     function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
-        msgAviso.innerText = mensagem;
-        bCancelarAviso.style.display = mostrarCancelar ? "block" : "none";
+    console.log("abrindo aviso");
 
+    msgAviso.innerText = mensagem;
+    bCancelarAviso.style.display = mostrarCancelar ? "block" : "none";
+
+    try {
         aviso.showModal();
-            const botoesAviso = mostrarCancelar
-        ? [bConfirmarAviso, bCancelarAviso]
-        : [bConfirmarAviso];
+        console.log("modal aberto");
+    } catch (e) {
+        console.error("erro showModal", e);
+    }
 
-    const removerNavegacao = habilitarSetasBotoes(botoesAviso);
     bConfirmarAviso.onclick = () => {
-    removerNavegacao();
-    aviso.close();
-    if (callback) callback();
-};
+        aviso.close();
+        if (callback) callback();
+    };
 
-bCancelarAviso.onclick = () => {
-    removerNavegacao();
-    aviso.close();
-
-    if (window.checkboxAtual) {
-        window.checkboxAtual.checked = false;
-        window.checkboxAtual.blur();
-        window.checkboxAtual = null;
-    }
-};
-    }
+    bCancelarAviso.onclick = () => {
+        aviso.close();
+    };
+}
 
     // Seletores
     const inp_codb = document.getElementById("inp_codb");
     const tbody = document.getElementById("tb_tbl_produtos");
     const img_prod = document.getElementById("img_prod");
     const b_final = document.getElementById("b_final");
+    const modal = document.getElementById("d_modal");
     const modalp = document.querySelector("#sc_modalp dialog");
     const nova_venda = document.getElementById("b_nv_venda");
     const sl_cliente = document.getElementById("sl_cliente");
@@ -230,12 +261,6 @@ bCancelarAviso.onclick = () => {
     let carrinho = []; 
     let totalCompra = 0; 
     let formaPagamento = "";
-    const modal = document.getElementById("d_modal");
-    modal.addEventListener("close", () => {
-    if (window.removerSetasPagamento) {
-        window.removerSetasPagamento();
-    }
-});
     // NOVO: Controle de trava contra dupla leitura acidental
     let estaProcessando = false;
     // ===== SONS DO PDV =====
@@ -260,8 +285,12 @@ bCancelarAviso.onclick = () => {
         }, 100);
     });
     function voltarFoco() {
-        setTimeout(() => inp_codb.focus(), 0);
-    }
+    setTimeout(() => {
+        inp_codb.focus();
+        inp_codb.blur();
+        inp_codb.focus();
+    }, 50);
+}
     // Impede que o input perca o foco, exceto se alguma modal estiver aberta
     inp_codb.addEventListener("blur", () => {
         const fiadoModal = document.getElementById("d_fiado");
@@ -387,7 +416,6 @@ bCancelarAviso.onclick = () => {
 
     let ultimaTeclaTempo = Date.now();
     inp_codb.addEventListener("keydown", (event) => {
-        
         if (
             event.key === "F11" ||
             event.key === "F12" ||
@@ -467,12 +495,13 @@ bCancelarAviso.onclick = () => {
             } else {
                 carrinho.unshift({
                     id_produto: produto.id_produto,
-                    codigo: produto.codigo_barras,
+                    codigo: produto.codigo_barras || produto.codigo,
                     nome: produto.nome,
                     preco: Number(produto.preco),
                     qtd: 1,
                     estoque: Number(produto.qtd),
-                    qtd_min: Number(produto.qtd_min || 0)
+                    qtd_min: Number(produto.qtd_min || 0),
+                    img: produto.img
                 });
             }
 
@@ -538,15 +567,6 @@ bCancelarAviso.onclick = () => {
                     if (!verificarEstoqueCarrinho() && carrinho.length > 0) {
                         document.getElementById("s_dt").innerText = new Date().toLocaleString();
                         modal.showModal();
-
-window.removerSetasPagamento =
-    habilitarSetasBotoes([
-        document.getElementById("pg_dinheiro"),
-        document.getElementById("pg_credito"),
-        document.getElementById("pg_debito"),
-        document.getElementById("pg_pix"),
-        document.getElementById("pg_fiado")
-    ]);
                     }
                 },
                 true // ativa o botão "Cancelar" para simular a resposta "Não" do confirm nativo
@@ -557,15 +577,6 @@ window.removerSetasPagamento =
         }
         document.getElementById("s_dt").innerText = new Date().toLocaleString();
         modal.showModal();
-
-window.removerSetasPagamento =
-    habilitarSetasBotoes([
-        document.getElementById("pg_dinheiro"),
-        document.getElementById("pg_credito"),
-        document.getElementById("pg_debito"),
-        document.getElementById("pg_pix"),
-        document.getElementById("pg_fiado")
-    ]);
     });
 
     b_pesq.addEventListener("click", () => {
@@ -574,11 +585,12 @@ window.removerSetasPagamento =
     });
 
     document.querySelectorAll(".pagamento").forEach(botao => {
-    botao.addEventListener("click", () => {
-        formaPagamento = botao.dataset.pag;
-        nova_venda.disabled = false;
+        botao.addEventListener("click", () => {
+            formaPagamento = botao.innerText;
+            nova_venda.disabled = false;
+        });
     });
-});
+
     function resetarPDV() {
         carrinho = [];
         totalCompra = 0;
@@ -722,16 +734,43 @@ window.removerSetasPagamento =
             exibirAviso("Erro ao salvar o pedido. Verifique o console.");
         });
     });
+    if (carrinho.length > 0) {
+    exibirAviso(
+        "Já existem produtos no carrinho. Deseja cancelar a venda atual e carregar a comanda?",
+        () => {
+            resetarPDV();
+            carregarComanda();
+        },
+        true
+    );
+}
+function confirmarCancelamento() {
+    console.log("FUNÇÃO CHAMADA");
+    console.log("Carrinho:", carrinho);
+    console.log("Carrinho length:", carrinho.length);
 
-    document.getElementById("b_canc").addEventListener("click", () => {
-    if (carrinho.length === 0) return;
-
-    confirmarCancelamento(() => {
+    if (carrinho.length === 0) {
+        console.log("Carrinho vazio");
         resetarPDV();
-    });
-});
+        return;
+    }
+
+    console.log("Abrindo aviso");
+
+    exibirAviso(
+        "Tem certeza que deseja cancelar a venda atual?",
+        () => {
+            resetarPDV();
+        },
+        true
+    );
+}
+    document.getElementById("b_canc").addEventListener("click", confirmarCancelamento);   
     const dialogBusca = document.getElementById("dialogBusca");
     const inputBusca = document.getElementById("inputBusca");
+    const dialogComanda = document.getElementById("dialogComanda");
+const inputComanda = document.getElementById("inputComanda");
+const b_comanda = document.getElementById("b_comanda");
     const lista = document.getElementById("listaSugestoes");
     let produtosFiltrados = []; 
     let indexSelecionado = -1;  
@@ -831,81 +870,6 @@ window.removerSetasPagamento =
     atualizarRelogio();
     setInterval(atualizarRelogio, 1000);
 
-    window.addEventListener("keydown", (event) => {
-        
-        if (
-            event.key === "F11" ||
-            event.key === "F12" ||
-            event.key === "F5" ||
-            (event.ctrlKey && event.key.toLowerCase() === "r") ||
-            (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "i")
-        ) {
-            return;
-        }
-        switch(event.key) {
-            case "Escape":
-    if (carrinho.length > 0) {
-        confirmarCancelamento(() => {
-            resetarPDV();
-        });
-    }
-    break;
-            case "ArrowDown":
-                if (!dialogBusca.open) {
-                    event.preventDefault();
-                    document.getElementById("sc_tabela").scrollTop += 50;
-                }
-                break;
-            case "ArrowUp":
-                if (!dialogBusca.open) {
-                    event.preventDefault();
-                    document.getElementById("sc_tabela").scrollTop -= 50;
-                }
-                break;
-            case "F1":
-                event.preventDefault();
-                if(!b_final.disabled) b_final.click();
-                break;
-            case "F2":
-                event.preventDefault();
-                if(modal.open) document.getElementById("pg_dinheiro").click();
-                break;
-            case "F3":
-                event.preventDefault();
-                if(modal.open) document.getElementById("pg_credito").click();
-                break;
-            case "F4":
-                event.preventDefault();
-                if(modal.open) document.getElementById("pg_debito").click();
-                break;
-            case "F6":
-                event.preventDefault();
-                if(modal.open) document.getElementById("pg_pix").click();
-                break;
-            case "F7":
-                event.preventDefault();
-                if(!nova_venda.disabled) nova_venda.click();
-                break;
-            case "F8":
-                event.preventDefault();
-                document.getElementById("b_agend").click();
-                break;
-            case "p":
-            case "P":
-                if (dialogBusca.open) return;
-                event.preventDefault();
-                modalp.showModal();
-                setTimeout(() => { inputBusca.focus(); }, 50);
-                break;
-            case "F9":
-                event.preventDefault();
-                if (modal.open) {
-                    document.getElementById("pg_fiado").click();
-                }
-                break;
-        }
-    });
-
     async function carregarClientesFiado(){
         const res = await apiFetch(
             "http://localhost:3000/clientes-fiado",
@@ -930,25 +894,7 @@ window.removerSetasPagamento =
     document.getElementById("pg_fiado").addEventListener("click", () => {
         modal.close();
         document.getElementById("d_fiado").showModal();
-        habilitarSetasBotoes([
-    document.getElementById("sl_cliente"),
-    document.getElementById("inp_vencimento"),
-    document.getElementById("b_confirmar_fiado")
-]);
     });
-    document.getElementById("b_agend").addEventListener("click", () => {
-    const mensagem = carrinho.length > 0
-        ? "Tem certeza que deseja sair da venda atual e ir para o agendamento?"
-        : "Tem certeza que deseja abrir o agendamento?";
-
-    exibirAviso(
-        mensagem,
-        () => {
-            location.href = "agendamento.html";
-        },
-        true
-    );
-});
     document.getElementById("b_confirmar_fiado").addEventListener("click", async () => {
         const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
         const vencimento = document.getElementById("inp_vencimento").value;
@@ -1038,67 +984,347 @@ window.removerSetasPagamento =
             exibirAviso("Erro ao registrar fiado no banco. Verifique a conexão com o servidor.");
         }
     });
-    function habilitarSetasBotoes(botoes, callbackEnter = null) {
-    let indice = 0;
+    function carregarComanda() {
+    const codigoComanda = inputComanda.value.trim().toUpperCase();
 
-    function destacar() {
-        botoes.forEach((btn, i) => {
-            if (i === indice) {
-                btn.focus();
-            }
-        });
+    if (!codigoComanda) {
+        exibirAviso("Informe uma comanda.");
+        return;
     }
 
-    destacar();
+    apiFetch(`${URL_BACKEND_CAD}/comandas/${codigoComanda}`, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+    })
+    .then(res => {
+        if (!res.ok) {
+            throw new Error("Comanda não encontrada");
+        }
 
-    function handler(e) {
-    const modalPagamento = document.getElementById("d_modal");
-    const aviso = document.getElementById("d_aviso");
-    const fiado = document.getElementById("d_fiado");
+        return res.json();
+    })
+    .then(comanda => {
 
+        if (!comanda.carrinho || comanda.carrinho.length === 0) {
+            exibirAviso("Esta comanda não possui itens.");
+            return;
+        }
+
+        carrinho = [];
+
+        comanda.carrinho.forEach(item => {
+            carrinho.unshift({
+                id_produto: item.id_produto,
+                codigo: item.codigo_barras || item.codigo,
+                nome: item.nome,
+                preco: Number(item.preco),
+                qtd: Number(item.qtd),
+                estoque: Number(item.estoque),
+                qtd_min: Number(item.qtd_min || 0),
+                img: item.img
+            });
+        });
+
+        atualizarTabelaNoTopo();
+        atualizarTotalCompra();
+        verificarBotao();
+
+        if (carrinho.length > 0) {
+
+            atualizarVisores(carrinho[0]);
+
+            if (carrinho[0].img) {
+
+                const nomeArquivo = carrinho[0].img
+                    .replace("/images/", "")
+                    .replace(/^\//, "");
+
+                img_prod.src =
+                    `${URL_BACKEND_CAD}/images/${nomeArquivo}`;
+
+            } else {
+                img_prod.src = IMG_PADRAO;
+            }
+        }
+
+        dialogComanda.close();
+
+        inputComanda.value = "CMD";
+
+        tocarSucesso();
+
+        voltarFoco();
+    })
+    .catch(err => {
+        console.error(err);
+
+        tocarErro();
+
+        exibirAviso(
+            "Comanda não encontrada ou sem itens cadastrados."
+        );
+    });
+}
+console.log("modal", d_modal.open);
+console.log("fiado", d_fiado.open);
+console.log("busca", dialogBusca.open);
+console.log("comanda", dialogComanda.open);
+console.log("aviso", d_aviso.open);
+
+b_comanda.addEventListener("click", () => {
+
+    inputComanda.value = "CMD";
+
+    dialogComanda.showModal();
+
+    setTimeout(() => {
+
+        inputComanda.focus();
+
+        inputComanda.setSelectionRange(
+            inputComanda.value.length,
+            inputComanda.value.length
+        );
+
+    }, 50);
+});
+
+b_close_comanda.addEventListener("click", () => {
+    dialogComanda.close();
+    voltarFoco();
+});
+
+b_buscar_comanda.addEventListener("click", () => {
+
+    if (carrinho.length > 0) {
+
+        exibirAviso(
+            "Já existem produtos no carrinho. Deseja cancelar a venda atual e carregar a comanda?",
+            () => {
+                resetarPDV();
+                carregarComanda();
+            },
+            true
+        );
+
+        return;
+    }
+
+    carregarComanda();
+});
+
+inputComanda.addEventListener("keydown", (e) => {
+
+    if (e.key === "Enter") {
+
+        e.preventDefault();
+
+        b_buscar_comanda.click();
+    }
+});
+
+    inputBusca.addEventListener("keydown", (event) => {
+        const itens = lista.querySelectorAll("li");
+        if (event.key === "ArrowDown") {
+            event.preventDefault();
+            indexSelecionado = (indexSelecionado + 1) % itens.length;
+            atualizarDestaque(itens);
+        } 
+        else if (event.key === "ArrowUp") {
+            event.preventDefault();
+            indexSelecionado = (indexSelecionado - 1 + itens.length) % itens.length;
+            atualizarDestaque(itens);
+        } 
+        else if (event.key === "Enter") {
+            event.preventDefault();
+            if (indexSelecionado > -1 && produtosFiltrados[indexSelecionado]) {
+                selecionarProduto(produtosFiltrados[indexSelecionado]);
+            }
+        }
+    });
+window.addEventListener("keydown", (event) => {
+    console.log(document.activeElement);
+    const tag = document.activeElement.tagName;
+
+    // Se estiver digitando num input (e não for F1-F12), ignora os atalhos comuns
     if (
-        !modalPagamento.open &&
-        !aviso.open &&
-        !fiado.open
+        (tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        document.activeElement.isContentEditable) &&
+        document.activeElement !== inp_codb &&
+        !event.key.startsWith("F") // Permite acionar F1, F3, F11, F12 mesmo com foco em inputs
     ) {
         return;
     }
 
+    // Bloqueia recarregar a página por F5 ou atalhos de desenvolvedor
     if (
-        e.key !== "ArrowLeft" &&
-        e.key !== "ArrowRight" &&
-        e.key !== "ArrowUp" &&
-        e.key !== "ArrowDown" &&
-        e.key !== "Enter"
-    ) return;
- 
-        e.preventDefault();
-
-        if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-            indice = (indice - 1 + botoes.length) % botoes.length;
-            destacar();
-        }
-
-        if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-            indice = (indice + 1) % botoes.length;
-            destacar();
-        }
-
-        if (e.key === "Enter") {
-            if (callbackEnter) {
-                callbackEnter(botoes[indice]);
-            } else {
-                botoes[indice].click();
-            }
-        }
+        event.key === "F5" ||
+        (event.ctrlKey && event.key.toLowerCase() === "r") ||
+        (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "i")
+    ) {
+        return;
     }
 
-    document.addEventListener("keydown", handler);
+    switch(event.key) {
+        case "Escape":
+            console.log("ESC DETECTADO");
 
-    return () => {
-        document.removeEventListener("keydown", handler);
-    };
-}
+            if (dialogComanda.open) {
+                dialogComanda.close();
+                voltarFoco();
+                break;
+            }
+
+            if (dialogBusca.open) {
+                dialogBusca.close();
+                voltarFoco();
+                break;
+            }
+
+            if (modal.open) {
+                modal.close();
+                voltarFoco();
+                break;
+            }
+
+            if (document.getElementById("d_fiado")?.open) {
+                document.getElementById("d_fiado").close();
+                voltarFoco();
+                break;
+            }
+
+            confirmarCancelamento();
+            break;
+
+        case "ArrowDown":
+            if (!dialogBusca.open) {
+                event.preventDefault();
+                document.getElementById("sc_tabela").scrollTop += 50;
+            }
+            break;
+
+        case "ArrowUp":
+            if (!dialogBusca.open) {
+                event.preventDefault();
+                document.getElementById("sc_tabela").scrollTop -= 50;
+            }
+            break;
+
+        // F3: PESQUISAR PRODUTO (Se a modal de pagamento estiver aberta, aciona crédito)
+        case "F3":
+            event.preventDefault();
+            if (modal.open) {
+                document.getElementById("pg_credito").click();
+            } else if (!modalp.open) {
+                modalp.showModal();
+                setTimeout(() => { inputBusca.focus(); }, 50);
+            }
+            break;
+
+        // F11: NOVA VENDA
+        case "F11":
+            event.preventDefault();
+            if (!nova_venda.disabled) nova_venda.click();
+            break;
+
+        // F12: FINALIZAR COMPRA
+        case "F12":
+            event.preventDefault();
+            if (!b_final.disabled) b_final.click();
+            break;
+
+        case "F2":
+            event.preventDefault();
+            if (modal.open) document.getElementById("pg_dinheiro").click();
+            break;
+
+        case "F4":
+            event.preventDefault();
+            if (modal.open) document.getElementById("pg_debito").click();
+            break;
+
+        case "F6":
+            event.preventDefault();
+            if (modal.open) document.getElementById("pg_pix").click();
+            break;
+
+        case "F8":
+            event.preventDefault();
+            document.getElementById("b_agend").click();
+            break;
+
+        case "F9":
+            event.preventDefault();
+            if (modal.open) {
+                document.getElementById("pg_fiado").click();
+            }
+            break;
+
+        case "c":
+        case "C":
+            event.preventDefault();
+            if (!dialogComanda.open) {
+                inputComanda.value = "CMD";
+                dialogComanda.showModal();
+                setTimeout(() => {
+                    inputComanda.focus();
+                    inputComanda.setSelectionRange(
+                        inputComanda.value.length,
+                        inputComanda.value.length
+                    );
+                }, 50);
+            }
+            break;
+    }
+});
+// ===== CONTROLE DO MODAL DE DINHEIRO =====
+const pgDinheiroBtn = document.getElementById("pg_dinheiro");
+const dialogDinheiro = document.getElementById("dialogDinheiro");
+const lblDinheiroTotal = document.getElementById("lbl_dinheiro_total");
+const inpValorPago = document.getElementById("inp_valor_pago");
+const lblTroco = document.getElementById("lbl_troco");
+const bConfirmarDinheiro = document.getElementById("b_confirmar_dinheiro");
+
+// Abrir Modal de Dinheiro e carregar Total da Compra
+pgDinheiroBtn.addEventListener("click", () => {
+    formaPagamento = "Dinheiro";
+    
+    // Calcula o total exato da compra
+    const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
+    
+    lblDinheiroTotal.innerText = "R$ " + formatar(totalReal);
+    inpValorPago.value = "";
+    lblTroco.innerText = "R$ 0,00";
+    
+    dialogDinheiro.showModal();
+    setTimeout(() => inpValorPago.focus(), 100);
+});
+
+// Atualizar cálculo de Troco e Valor do Botão ao digitar
+inpValorPago.addEventListener("input", () => {
+    const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
+    const valorRecebido = parseFloat(inpValorPago.value.replace(",", ".")) || 0;
+    
+    const troco = valorRecebido - totalReal;
+    
+    if (troco > 0) {
+        lblTroco.innerText = "R$ " + formatar(troco);
+    } else {
+        lblTroco.innerText = "R$ 0,00";
+    }
+
+    // Atualiza o valor recebido ou o total no botão de confirmação
+    const valorExibicao = valorRecebido > 0 ? valorRecebido : totalReal;
+});
+
+// Confirmar pagamento em dinheiro
+bConfirmarDinheiro.addEventListener("click", () => {
+    dialogDinheiro.close();
+    nova_venda.disabled = false; // Habilita o botão "Nova Venda (F11)"
+});
 </script>
 </body>
 </html>

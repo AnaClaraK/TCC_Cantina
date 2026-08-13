@@ -1,18 +1,11 @@
+const express = require('express');
+const router = express.Router();
+const conexao = require('../db');
+const verificarToken = require('../middlewares/auth');
 
-const express =
-require('express');
-
-const router =
-express.Router();
-
-const conexao =
-require('../db');
-
-
-const verificarToken =
-require('../middlewares/auth');
 const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
-//--PDV rota pedidos
+
+// ==================== PDV: ROTA DE PEDIDOS ====================
 router.post("/pedidos", verificarToken, async (req, res) => {
     const conn = await conexao.getConnection();
     try {
@@ -22,204 +15,291 @@ router.post("/pedidos", verificarToken, async (req, res) => {
         const idCliente = id_user || 1;
         const status = "Finalizado";
         const data = new Date();
-        const alertas = []; // Array para armazenar os avisos de estoque baixo
+        const alertas = []; 
 
-        // 1. Busca o próximo número sequencial de pedido
         const [ultimoPedido] = await conn.query(`SELECT MAX(num_pedido) AS ultimoNumero FROM pedidos`);
         const num_pedido = (ultimoPedido[0].ultimoNumero || 0) + 1;
 
-        // 2. SALVA NA TABELA PRINCIPAL (Aqui sim vai o campo 'origem')
         const [resultadoPedido] = await conn.query(`
             INSERT INTO pedidos (id_user, num_pedido, data, status, origem, valor_total, qtd_total, form_pag) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `, [idCliente, num_pedido, data, status, origem || 'PDV', valor_total, qtd_total, form_pag]);
+        `, [idCliente, num_pedido, data, status, origem, valor_total, qtd_total, form_pag]);
 
         const id_pedido = resultadoPedido.insertId;
 
-        // 3. SE EXISTIREM ITENS, PROCESSA O LOOP
         if (itens && itens.length > 0) {
             for (const item of itens) {
-                // BUSCA ESTOQUE ATUAL E QTD MÍNIMA DO PRODUTO
                 const [estoque] = await conn.query(
                     "SELECT nome, qtd, qtd_min FROM produtos WHERE id_produto = ?", 
                     [item.id_produto]
                 );
 
-                if (estoque.length === 0) {
-                    throw new Error(`Produto com ID ${item.id_produto} não foi localizado.`);
-                }
-
                 const produtoDB = estoque[0];
                 const novaQtd = produtoDB.qtd - item.qtd;
 
-                // Bloqueio de segurança (Não deixa vender o que não tem)
                 if (novaQtd < 0) {
                     throw new Error(`Estoque insuficiente para: ${produtoDB.nome}`);
                 }
 
-                // VERIFICAÇÃO DE ESTOQUE MÍNIMO (AVISO)
                 if (novaQtd <= produtoDB.qtd_min) {
                     alertas.push(`O produto "${produtoDB.nome}" atingiu o estoque mínimo (${novaQtd} restantes).`);
                 }
 
-                // Atualiza o estoque no banco
                 await conn.query("UPDATE produtos SET qtd = ? WHERE id_produto = ?", [novaQtd, item.id_produto]);
 
-                // SALVA NA TABELA FILHA (Apenas dados do item, sem 'origem')
                 await conn.query(`
-                    INSERT INTO pedidos_itens (id_pedido, id_produto, qtd, preco_unitario) 
-                    VALUES (?, ?, ?, ?)
-                `, [
-                    id_pedido, 
-                    item.id_produto, 
-                    item.qtd, 
-                    item.preco_unitario ?? item.preco ?? null
-                ]);
+                    INSERT INTO pedidos_itens (id_pedido, id_produto, qtd, preco_unitario, origem) 
+                    VALUES (?, ?, ?, ?, ?)
+                `, [id_pedido, item.id_produto, item.qtd, item.preco_unitario ?? item.preco, item.origem]);
             }
         }
 
-        // Se tudo deu certo, confirma as alterações no banco de dados
         await conn.commit();
 
         res.status(201).json({
             resposta: "Pedido finalizado com sucesso!",
             id_pedido,
             num_pedido,
-            alertas: alertas // Envia a lista de avisos para o frontend
+            alertas
         });
 
     } catch (erro) {
-        // Se houver qualquer falha, desfaz as alterações e evita dados corrompidos
         await conn.rollback();
-        console.error("❌ Erro ao salvar pedido:", erro);
+        console.error("Erro ao salvar pedido:", erro);
         res.status(500).json({ resposta: erro.message || "Erro ao salvar pedido." });
     } finally {
         conn.release();
     }
 });
-//---- Histórico Pedidos
 
+// ==================== HISTÓRICO DE PEDIDOS ====================
 router.get("/historico-pedidos", verificarToken, async (req, res) => {
     try {
-        const [pedidos] = await conexao.query(`
-            SELECT
-            p.id_pedido,
-            p.num_pedido,
-            p.data,
-            p.data_pag,
-            p.valor_total,
-            p.form_pag,
-            p.status,
-            p.origem,
-            u.nome
-        FROM pedidos p
-        LEFT JOIN users u ON p.id_user = u.id_user
-        WHERE p.status = 'Finalizado'
-        ORDER BY p.data DESC
-        `);
+        const idUserLogado = req.user?.id_user || req.user?.id || req.query.id_user;
 
-        res.json(pedidos);
-    } catch (erro) {
-        console.error("Erro ao buscar histórico:", erro);
-        res.status(500).json({
-            erro: "Erro ao buscar histórico de pedidos"
+        let queryPedidos = `
+            SELECT 
+                p.id_pedido,
+                p.num_pedido,
+                p.codigo_comanda,
+                p.id_user,
+                p.data,
+                p.data_ag,
+                p.status,
+                p.origem,
+                p.valor_total,
+                p.form_pag,
+                COALESCE(u.nome, 'Consumidor Final') AS nome
+            FROM pedidos p
+            LEFT JOIN users u ON p.id_user = u.id_user
+        `;
+
+        const params = [];
+        if (idUserLogado) {
+            queryPedidos += ` WHERE p.id_user = ?`;
+            params.push(idUserLogado);
+        }
+
+        queryPedidos += ` ORDER BY p.data DESC`;
+
+        const [pedidos] = await conexao.execute(queryPedidos, params);
+
+        if (!pedidos || pedidos.length === 0) {
+            return res.json([]);
+        }
+
+        // Extrai os IDs dos pedidos
+        const idsPedidos = pedidos.map(p => p.id_pedido);
+        const placeholders = idsPedidos.map(() => '?').join(',');
+
+        // Busca TODOS os itens vinculados a esses pedidos
+        const queryItens = `
+            SELECT 
+                pi.id_pedido,
+                pi.id_produto,
+                pi.qtd,
+                pi.preco_unitario,
+                COALESCE(prod.nome, 'Produto Indisponível') AS nome_produto
+            FROM pedidos_itens pi
+            LEFT JOIN produtos prod ON pi.id_produto = prod.id_produto
+            WHERE pi.id_pedido IN (${placeholders})
+        `;
+
+        const [itens] = await conexao.execute(queryItens, idsPedidos);
+
+        // LOG DE DEPURACÃO NO TERMINAL DO NODE:
+        console.log("--> ITENS ENCONTRADOS NO BANCO:", itens);
+
+        // Agrupa os itens garantindo a comparação correta (String com String)
+        const resultadoFinal = pedidos.map(pedido => {
+            const itensDoPedido = itens.filter(
+                item => String(item.id_pedido) === String(pedido.id_pedido)
+            );
+
+            return {
+                ...pedido,
+                itens: itensDoPedido // Garante que é um array simples de objetos [{...}]
+            };
         });
+
+        return res.json(resultadoFinal);
+
+    } catch (error) {
+        console.error("Erro ao buscar histórico:", error);
+        return res.status(500).json({ erro: "Erro ao processar consulta no banco." });
     }
 });
+// ==================== LIMPAR/BACKUP HISTÓRICO DE PEDIDOS ====================
+router.delete("/historico-pedidos/limpar", verificarToken, async (req, res) => {
+    let conn;
+    try {
+        conn = await conexao.getConnection();
+        await conn.beginTransaction();
 
-// ==================== ROTA DE COMANDAS CORRIGIDA ====================
+        // 1. Remove os itens dos pedidos das tabelas filhas (integridade referencial)
+        await conn.execute("DELETE FROM pedidos_itens");
+
+        // 2. Remove os registros de pedidos
+        await conn.execute("DELETE FROM pedidos");
+
+        await conn.commit();
+
+        return res.json({
+            sucesso: true,
+            mensagem: "Histórico de pedidos e itens limpos com sucesso!"
+        });
+
+    } catch (error) {
+        if (conn) await conn.rollback();
+        console.error("Erro ao limpar histórico no banco:", error);
+        return res.status(500).json({ erro: "Falha ao apagar o histórico no banco de dados." });
+    } finally {
+        if (conn) conn.release();
+    }
+});
+// ==================== ROTA DE COMANDAS ====================
 router.post("/comandas", async (req, res) => {
-    const { id_user, carrinho, valor_total, qtd_total, status, form_pag } = req.body;
+    const { 
+        id_user, 
+        carrinho, 
+        valor_total, 
+        qtd_total, 
+        status, 
+        forma_pagamento, 
+        form_pag 
+    } = req.body;
 
-    // 1. Validação básica de segurança
+    const pagamentoSelecionado = forma_pagamento || form_pag;
+
     if (!id_user || !carrinho || carrinho.length === 0) {
-        return res.status(400).json({ sucesso: false, erro: "Dados incompletos ou carrinho vazio." });
+        return res.status(400).json({
+            sucesso: false,
+            erro: "Dados incompletos ou carrinho vazio."
+        });
     }
 
-    try {
-        // Gera um número sequencial simples para o num_pedido (ou use o próprio ID do pedido)
-        const [ultimoPedido] = await conexao.execute("SELECT MAX(num_pedido) as max_num FROM pedidos");
-        const proximoNumero = (ultimoPedido[0].max_num || 0) + 1;
+    if (!pagamentoSelecionado) {
+        return res.status(400).json({
+            sucesso: false,
+            erro: "Forma de pagamento não informada."
+        });
+    }
 
-        // 2. Primeiro INSERT: Criar o registro na tabela principal 'pedidos'
+    let conn;
+
+    try {
+        conn = await conexao.getConnection();
+        await conn.beginTransaction();
+
+        const primeiroItem = carrinho[0];
+        let dataAgFormatada = null;
+
+        if (primeiroItem?.data_agendamento && primeiroItem?.horario_retirada) {
+            dataAgFormatada = `${primeiroItem.data_agendamento} ${primeiroItem.horario_retirada}:00`;
+        } else if (primeiroItem?.data_agendamento) {
+            dataAgFormatada = `${primeiroItem.data_agendamento} 00:00:00`;
+        }
+
+        const [ultimoPedido] = await conn.execute(
+            "SELECT MAX(num_pedido) as max_num FROM pedidos"
+        );
+
+        const proximoNumero = (ultimoPedido[0].max_num || 0) + 1;
+        const codigo_comanda = `CMD${proximoNumero}`;
+
         const queryPedido = `
-            INSERT INTO pedidos (id_user, num_pedido, data, status, origem, valor_total, qtd_total, form_pag) 
-            VALUES (?, ?, NOW(), ?, 'App', ?, ?, ?)
+            INSERT INTO pedidos (
+                id_user,
+                num_pedido,
+                codigo_comanda,
+                data,
+                data_ag,
+                status,
+                origem,
+                valor_total,
+                qtd_total,
+                form_pag
+            )
+            VALUES (?, ?, ?, NOW(), ?, ?, 'App', ?, ?, ?)
         `;
-        
-        const [resultadoPedido] = await conexao.execute(queryPedido, [
+
+        const [resultadoPedido] = await conn.execute(queryPedido, [
             id_user,
             proximoNumero,
-            status || 'Agendado',
+            codigo_comanda,
+            dataAgFormatada,
+            status || "Pendente",
             valor_total,
             qtd_total,
-            form_pag || 'PIX (F6)'
+            pagamentoSelecionado
         ]);
 
-        // Captura o id_pedido gerado automaticamente pelo AUTO_INCREMENT
         const idPedidoGerado = resultadoPedido.insertId;
 
-        // 3. Segundo INSERT: Salvar cada item dentro da tabela 'pedidos_itens'
         const queryItem = `
-            INSERT INTO pedidos_itens (id_pedido, id_produto, qtd, preco_unitario) 
+            INSERT INTO pedidos_itens (
+                id_pedido,
+                id_produto,
+                qtd,
+                preco_unitario
+            )
             VALUES (?, ?, ?, ?)
         `;
 
-        // Percorre o array de itens enviados pelo React Native
         for (const item of carrinho) {
-            await conexao.execute(queryItem, [
+            await conn.execute(queryItem, [
                 idPedidoGerado,
-                item.id_produto || item.id, // Adapte conforme a propriedade do seu objeto
+                item.id_produto || item.id,
                 item.qtd,
                 item.preco_unitario || item.preco
             ]);
         }
 
-        // 4. Resposta de SUCESSO pura em JSON (evita o erro do caractere '<')
+        await conn.commit();
+
         return res.json({
             sucesso: true,
-            mensagem: "Pedido gravado com sucesso!",
+            mensagem: "Comanda criada com sucesso",
             id_pedido: idPedidoGerado,
-            num_pedido: proximoNumero
+            num_pedido: proximoNumero,
+            codigo_comanda
         });
 
     } catch (error) {
-        console.error("Erro crítico ao salvar pedido:", error);
-        // Retorna sempre um objeto JSON mesmo em caso de erro fatal
-        return res.status(500).json({ 
-            sucesso: false, 
-            erro: "Erro interno no servidor ao processar o banco de dados." 
-        });
-    }
-});
-router.get('/comandas/:codigo', async (req, res) => {
-    try {
-        const { codigo } = req.params;
-  
-        const queryPedido = `SELECT * FROM pedidos WHERE codigo_comanda = ? AND status = 'pendente'`;
-        // Ajustado de db.query para conexao.query
-        const [pedidos] = await conexao.query(queryPedido, [codigo]);
-  
-        if (pedidos.length === 0) {
-            return res.status(404).json({ erro: "Comanda não encontrada ou já paga" });
+        if (conn) {
+            await conn.rollback();
         }
-  
-        const pedido = pedidos[0];
-  
-        const queryItens = `
-            SELECT pi.*, p.nome 
-            FROM pedidos_itens pi
-            JOIN produtos p ON pi.id_produto = p.id_produto
-            WHERE pi.id_pedido = ?
-        `;
-        const [itens] = await conexao.query(queryItens, [pedido.id_pedido]);
-  
-        pedido.carrinho = itens;
-        res.json(pedido);
-  
-    } catch (erro) {
-        console.error(erro);
-        res.status(500).json({ erro: "Erro ao buscar dados da comanda" });
+        console.error("Erro ao criar comanda:", error);
+
+        return res.status(500).json({
+            sucesso: false,
+            erro: "Erro interno ao criar comanda"
+        });
+
+    } finally {
+        if (conn) {
+            conn.release();
+        }
     }
 });
 

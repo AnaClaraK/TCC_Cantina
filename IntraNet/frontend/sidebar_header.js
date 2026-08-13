@@ -1,3 +1,4 @@
+
 // 🔒 PROTEÇÃO DE PÁGINA
 (function () {
     const paginasPublicas = ["login.html", "cadastrof.html"];
@@ -68,7 +69,6 @@ function checarSessao() {
     }
 }
 setInterval(checarSessao, 5000);
-
 function interceptarEventos() {
     if (tokenExpirado()) logoutForcado();
 }
@@ -119,7 +119,6 @@ async function apiFetch(url, options = {}) {
 
     return res;
 }
-
 function validarSessao() {
     const token = localStorage.getItem("token");
 
@@ -132,17 +131,15 @@ function validarSessao() {
 validarSessao();
 setInterval(validarSessao, 3000);
 
-// CORRIGIDO: Modificado caminho do logo estático para a rota global do Express /imagens/
 const headerHTML = `
 <header class="custom-header">
     <div style="display: flex; align-items: center;">
         <button id="btn-menu">☰</button>
-        <span><a href="index.html"> <img class="l_img" data-name="logo" src="/imagens/logo_p.png"/> </a> </span>
+        <span><a href="index.html"> <img class="l_img" data-name="logo" src="imagens/logo_p.png"/> </a> </span>
     </div>
 </header>
 `;
 
-// CORRIGIDO: Removido o prefixo 'imagens/' fixo nas tags para deixar a lógica do JS estruturar o caminho correto do servidor
 const sidebarHTML = `
 <aside class="custom-sidebar">
     <a href="editarpf.html" style="text-decoration: none; color: inherit;">
@@ -155,46 +152,47 @@ const sidebarHTML = `
     </a>
     <nav>
         <a href="index.html" class="nav-link">
-            <img class="i_img" data-name="inicio" src=""/> 
+            <img class="i_img" data-name="inicio" src="imagens/inicio_p.png"/> 
             <span class="nav-text">Início</span>
         </a>
         <a href="pdv.html" class="nav-link">
-            <img class="i_img" data-name="pdv" src=""/> 
+            <img class="i_img" data-name="pdv" src="imagens/pdv_p.png"/> 
             <span class="nav-text">PDV</span>
         </a>
         <a href="estoque.html" class="nav-link">
-            <img class="i_img" data-name="estoque" src=""/> 
+            <img class="i_img" data-name="estoque" src="imagens/estoque_p.png"/> 
             <span class="nav-text">Estoque</span>
         </a>
         <a href="agendamento.html" class="nav-link">
-            <img class="i_img" data-name="agendamento" src=""/> 
+            <img class="i_img" data-name="agendamento" src="imagens/agendamento_p.png"/> 
             <span class="nav-text">Agendamentos</span>
         </a>
         <a href="pedidos.html" class="nav-link">
-            <img class="i_img" data-name="pedidos" src=""/> 
+            <img class="i_img" data-name="pedidos" src="imagens/pedidos_p.png"/> 
             <span class="nav-text">Pedidos</span>
         </a>
         <a href="conta_fiado.html" class="nav-link">
-            <img class="i_img" data-name="contas" src=""/> 
+            <img class="i_img" data-name="contas" src="imagens/contas_p.png"/> 
             <span class="nav-text">Contas</span>
         </a>
         <a href="editarprod.html" class="nav-link">
-            <img class="i_img" data-name="editarprod" id="icon_edp" src=""/> 
+            <img class="i_img" data-name="editarprod" id="icon_edp" src="imagens/editarprod_p.png"/> 
             <span class="nav-text">Editar Produtos</span>
         </a>
         <a href="reposicao.html" class="nav-link">
-            <img class="i_img" data-name="reposicao" id="icon_comp" src=""/> 
+            <img class="i_img" data-name="reposicao" id="icon_comp" src="imagens/reposicao_p.png"/> 
             <span class="nav-text">Reposição</span>
         </a>
         <a href="cadastrop.html" class="nav-link">
-            <img class="i_img" data-name="cadastrop" src=""/> 
+            <img class="i_img" data-name="cadastrop" src="imagens/cadastrop_p.png"/> 
             <span class="nav-text">Cadastro de <br> Produtos</span>
         </a>
+        
         <a href="cadastrof.html" class="nav-link">
-            <img class="i_img" data-name="cadastrof" id="icon_cadp" src=""/> 
+            <img class="i_img" data-name="cadastrof" id="icon_cadp" src="imagens/cadastrof_p.png"/> 
             <span class="nav-text">Cadastro de <br> Funcionários</span>
         </a>
-    </nav>
+        
 </aside>
 `;
 
@@ -216,11 +214,9 @@ function carregarMenu() {
 
         if (elFoto) {
             if (fotoBanco && fotoBanco !== "null") {
-                // CORRIGIDO: Se a rota já vem com '/imagens/', garante o mapeamento direto no servidor local
-                elFoto.src = fotoBanco.startsWith("http") ? fotoBanco : "http://localhost:3000" + fotoBanco;
+                elFoto.src = "http://localhost:3000" + fotoBanco;
             } else {
-                // CORRIGIDO: Imagem default buscando da rota estática pública do servidor
-                elFoto.src = "/imagens/def_avt.jpg"; 
+                elFoto.src = "../backend/imagens/def_avt.jpg"; 
             }
         }
 
@@ -243,23 +239,22 @@ function carregarMenu() {
         sufixo = '_p';
     }
 
-    // CORRIGIDO: Injeta a rota de servidor pública virtual /imagens/ dinamicamente para os ícones funcionarem
     const imagens = document.querySelectorAll('.i_img, .l_img');
     imagens.forEach(img => {
         const nomeBase = img.getAttribute('data-name');
         if (nomeBase) {
-            img.src = `/imagens/${nomeBase}${sufixo}.png`;
+            img.src = `../backend/imagens/${nomeBase}${sufixo}.png`;
         }
-    });
+        const links = document.querySelectorAll('.nav-link');
+const paginaAtual = window.location.pathname.split("/").pop();
 
-    const links = document.querySelectorAll('.nav-link');
-    const paginaAtual = window.location.pathname.split("/").pop();
+links.forEach(link => {
+    const href = link.getAttribute('href');
 
-    links.forEach(link => {
-        const href = link.getAttribute('href');
-        if(href === paginaAtual){
-            link.classList.add('ativo');
-        }
+    if(href === paginaAtual){
+        link.classList.add('ativo');
+    }
+});
     });
 }
 
