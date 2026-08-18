@@ -342,9 +342,6 @@ function desbloquearPagamentoComanda() {
 
             atualizarBloqueioPagamento();
 
-            exibirAviso(
-                "Forma de pagamento desbloqueada."
-            );
         },
 
         true
@@ -680,24 +677,26 @@ if (event.key.length === 1) {
 document.querySelectorAll(".pagamento").forEach(botao => {
 
     botao.addEventListener("click", () => {
+document.querySelectorAll(".pagamento").forEach(b => {
+            b.classList.remove("selecionado");
+        });
 
-        // Comanda do APP bloqueada:
-        // não altera a forma de pagamento.
+        // Seleciona o botão atual
+        botao.classList.add("selecionado");
+
+        // Comanda do APP bloqueada
         if (
             comandaAtual &&
             !pagamentoComandaDesbloqueado
         ) {
-
             console.log(
                 "Forma bloqueada. Mantendo:",
                 formaPagamentoComanda
             );
-
             return;
         }
 
-        formaPagamento =
-            botao.innerText.trim();
+        formaPagamento = botao.innerText.trim();
 
         console.log(
             "Forma de pagamento alterada no PDV:",
@@ -759,6 +758,40 @@ function resetarPDV() {
             inp_codb.focus();
         }, 50);
     }
+    // =====================================================
+// CONTROLE DE SAÍDA DO PDV
+// =====================================================
+
+window.pdvPossuiVendaEmAndamento = function () {
+    return (
+        Array.isArray(carrinho) &&
+        carrinho.length > 0
+    );
+};
+
+window.pdvConfirmarSaida = function (continuar) {
+
+    if (!window.pdvPossuiVendaEmAndamento()) {
+        continuar();
+        return;
+    }
+
+    exibirAviso(
+        "Existe uma venda em andamento.\n\n" +
+        "Se você sair do PDV, os produtos adicionados serão perdidos.\n\n" +
+        "Deseja realmente sair?",
+        () => {
+            // Cancela a venda atual antes de sair
+            resetarPDV();
+
+            // Pequeno atraso para garantir que o modal feche
+            setTimeout(() => {
+                continuar();
+            }, 50);
+        },
+        true
+    );
+};
 
     function selecionarProduto(prod) {
         const itemExistente = carrinho.find(p => p.codigo == prod.codigo_barras);
@@ -1556,6 +1589,17 @@ function carregarComanda() {
 }
 b_comanda.addEventListener("click", () => {
 
+    // Não abre comanda se outro modal estiver aberto
+    if (
+        dialogBusca.open ||
+        modal.open ||
+        dialogDinheiro.open ||
+        document.getElementById("d_fiado")?.open ||
+        aviso.open
+    ) {
+        return;
+    }
+
     dialogComanda.showModal();
 
     setTimeout(() => {
@@ -1568,6 +1612,7 @@ b_comanda.addEventListener("click", () => {
         );
 
     }, 50);
+
 });
 
 b_close_comanda.addEventListener("click", () => {
@@ -1755,19 +1800,34 @@ window.addEventListener("keydown", (event) => {
             break;
 
         case "c":
-        case "C":
-            event.preventDefault();
-            if (!dialogComanda.open) {
-                dialogComanda.showModal();
-                setTimeout(() => {
-                    inputComanda.focus();
-                    inputComanda.setSelectionRange(
-                        inputComanda.value.length,
-                        inputComanda.value.length
-                    );
-                }, 50);
-            }
-            break;
+case "C":
+    // Não permite abrir a comanda enquanto qualquer modal estiver aberto
+    if (
+        dialogBusca.open ||
+        modal.open ||
+        dialogComanda.open ||
+        dialogDinheiro.open ||
+        document.getElementById("d_fiado")?.open ||
+        aviso.open
+    ) {
+        event.preventDefault();
+        event.stopPropagation();
+        break;
+    }
+
+    event.preventDefault();
+
+    dialogComanda.showModal();
+
+    setTimeout(() => {
+        inputComanda.focus();
+        inputComanda.setSelectionRange(
+            inputComanda.value.length,
+            inputComanda.value.length
+        );
+    }, 50);
+
+    break;
     }
 });
 // ===== CONTROLE DO MODAL DE DINHEIRO =====

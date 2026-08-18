@@ -31,9 +31,17 @@
             <input type="text" name="descricao" id="descricao" class="inp_p" placeholder="Descrição">
             <input type="number" name="preco" id="preco" class="inp_p" placeholder="Preço" step="0.01">
             <input type="number" name="quantidade" id="quantidade" class="inp_p" placeholder="Quantidade">
-            <select name="id_categoria" id="categoria" class="inp_p">
-                <option value="">Selecione a categoria</option>
-            </select>
+           <div class="select-categoria" id="selectCategoria">
+    <button type="button" class="select-categoria-btn" id="categoriaBtn">
+        <span id="categoriaTexto">Selecione a categoria</span>
+        <span class="select-seta">▼</span>
+    </button>
+
+    <div class="select-categoria-lista" id="categoriaLista"></div>
+
+    <!-- Mantém o valor para o FormData -->
+    <input type="hidden" name="id_categoria" id="categoria">
+</div>
             <label class="file-label">
                 Escolher imagem do produto
                 <input type="file" name="imagem" id="inputImagem" accept="image/*">
@@ -150,23 +158,71 @@
         });
 
         async function carregarCategorias() {
-            try {
-                const res = await apiFetch("http://localhost:3000/categorias");
-                const categorias = await res.json();
-                const select = document.getElementById("categoria");
+    try {
+        const res = await apiFetch("http://localhost:3000/categorias");
+        const categorias = await res.json();
 
-                categorias.forEach(cat => {
-                    select.innerHTML += `
-                        <option value="${cat.id_categoria}">
-                            ${cat.nome}
-                        </option>
-                    `;
-                });
-            } catch (err) {
-                console.error(err);
-                exibirAviso("Erro ao carregar categorias");
-            }
-        }
+        const lista = document.getElementById("categoriaLista");
+        const campoCategoria = document.getElementById("categoria");
+        const textoCategoria = document.getElementById("categoriaTexto");
+
+        lista.innerHTML = "";
+
+        categorias.forEach(cat => {
+
+            const opcao = document.createElement("div");
+
+            opcao.className = "categoria-opcao";
+
+            opcao.textContent = cat.nome;
+
+            opcao.dataset.valor = cat.id_categoria;
+
+            opcao.addEventListener("click", () => {
+
+                // Define o valor real
+                campoCategoria.value = cat.id_categoria;
+
+                // Mostra o nome no botão
+                textoCategoria.textContent = cat.nome;
+
+                // Remove seleção anterior
+                document
+                    .querySelectorAll(".categoria-opcao")
+                    .forEach(item => {
+                        item.classList.remove("selecionada");
+                    });
+
+                // Marca esta opção
+                opcao.classList.add("selecionada");
+
+                // Fecha a lista
+                document
+                    .getElementById("selectCategoria")
+                    .classList.remove("aberto");
+            });
+
+            lista.appendChild(opcao);
+        });
+
+    } catch (err) {
+        console.error(err);
+        exibirAviso("Erro ao carregar categorias");
+    }
+}
+const selectCategoria = document.getElementById("selectCategoria");
+const categoriaBtn = document.getElementById("categoriaBtn");
+
+categoriaBtn.addEventListener("click", () => {
+    selectCategoria.classList.toggle("aberto");
+});
+document.addEventListener("click", (e) => {
+
+    if (!selectCategoria.contains(e.target)) {
+        selectCategoria.classList.remove("aberto");
+    }
+
+});
 
         carregarCategorias();
     </script>
