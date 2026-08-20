@@ -13,7 +13,6 @@
             const token = localStorage.getItem("token");
     
             if (!token) {
-                // Como o diálogo ainda não carregou aqui no head, mantemos a estratégia de segurança
                 exibirAviso("Acesso restrito! Redirecionando para o login...");
                 window.location.replace("login.html"); 
                 throw new Error("Acesso negado: Redirecionando...");
@@ -26,14 +25,21 @@
         <form id="formProduto" enctype="multipart/form-data" novalidate>
             <h2>Cadastro de Produto</h2>
 
-            <input type="text" name="codigo" id="codigo" class="inp_p" placeholder="Código">
+            <input type="text" name="codigo" id="codigo" class="inp_p" placeholder="Código" inputmode="numeric">
             <input type="text" name="nome" id="nome" class="inp_p" placeholder="Nome">
             <input type="text" name="descricao" id="descricao" class="inp_p" placeholder="Descrição">
             <input type="number" name="preco" id="preco" class="inp_p" placeholder="Preço" step="0.01">
             <input type="number" name="quantidade" id="quantidade" class="inp_p" placeholder="Quantidade">
-            <select name="id_categoria" id="categoria" class="inp_p">
-                <option value="">Selecione a categoria</option>
-            </select>
+            <div class="select-categoria" id="selectCategoria">
+                <button type="button" class="select-categoria-btn" id="categoriaBtn">
+                    <span id="categoriaTexto">Selecione a categoria</span>
+                    <span class="select-seta">▼</span>
+                </button>
+
+                <div class="select-categoria-lista" id="categoriaLista"></div>
+
+                <input type="hidden" name="id_categoria" id="categoria">
+            </div>
             <label class="file-label">
                 Escolher imagem do produto
                 <input type="file" name="imagem" id="inputImagem" accept="image/*">
@@ -56,119 +62,186 @@
     </dialog>
 
     <script>
-        // Variáveis para o novo aviso
-        const aviso = document.getElementById("d_aviso");
-        const msgAviso = document.getElementById("msg_aviso");
-        const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
-        const bCancelarAviso = document.getElementById("b_cancelar_aviso");
+    const aviso = document.getElementById("d_aviso");
+    const msgAviso = document.getElementById("msg_aviso");
+    const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
+    const bCancelarAviso = document.getElementById("b_cancelar_aviso");
 
-        // Função para exibir aviso bonitinho
-        function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
-            msgAviso.innerText = mensagem;
-            bCancelarAviso.style.display = mostrarCancelar ? "block" : "none";
+    function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
+        msgAviso.innerText = mensagem;
+        bCancelarAviso.style.display = mostrarCancelar ? "block" : "none";
 
-            aviso.showModal();
+        aviso.showModal();
 
-            bConfirmarAviso.onclick = () => {
-                aviso.close();
-                if (callback) callback();
-            };
+        bConfirmarAviso.onclick = () => {
+            aviso.close();
+            if (callback) callback();
+        };
 
-            bCancelarAviso.onclick = () => {
-                aviso.close();
+        bCancelarAviso.onclick = () => {
+            aviso.close();
+            if (window.checkboxAtual) {
+                window.checkboxAtual.checked = false;
+                window.checkboxAtual.blur();
+                window.checkboxAtual = null;
+            }
+        };
+    }
 
-                if (window.checkboxAtual) {
-                    window.checkboxAtual.checked = false;
-                    window.checkboxAtual.blur();
-                    window.checkboxAtual = null;
-                }
-            };
+    const inputCodigo = document.getElementById("codigo");
+    inputCodigo.addEventListener("input", (e) => {
+        e.target.value = e.target.value.replace(/\D/g, "");
+    });
+
+    const inputImagem = document.getElementById("inputImagem");
+    const preview = document.getElementById("preview");
+
+    inputImagem.addEventListener("change", () => {
+        const file = inputImagem.files[0];
+        if (file) {
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = "block";
+        } else {
+            preview.style.display = "none";
+        }
+    });
+
+    // Função para carregar o próximo código automático no campo
+    async function carregarProximoCodigo() {
+        try {
+            const res = await apiFetch("http://localhost:3000/produtos/proximo-codigo");
+            const data = await res.json();
+            if (res.ok && data.proximoCodigo) {
+                inputCodigo.value = data.proximoCodigo;
+            }
+        } catch (err) {
+            console.error("Erro ao buscar próximo código:", err);
+        }
+    }
+
+    document.getElementById("formProduto").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const codigo = document.getElementById("codigo").value.trim();
+        const nome = document.getElementById("nome").value.trim();
+        const preco = document.getElementById("preco").value;
+        const qtd = document.getElementById("quantidade").value;
+        const categoria = document.getElementById("categoria").value;
+
+        const apenasNumeros = /^\d+$/;
+        if (!codigo || !apenasNumeros.test(codigo)) {
+            exibirAviso("O código do produto deve conter apenas números.");
+            return;
         }
 
-        const inputImagem = document.getElementById("inputImagem");
-        const preview = document.getElementById("preview");
-
-        inputImagem.addEventListener("change", () => {
-            const file = inputImagem.files[0];
-            if(file){
-                preview.src = URL.createObjectURL(file);
-                preview.style.display = "block";
-            }
-        });
-
-        document.getElementById("formProduto").addEventListener("submit", async (e) => {
-            e.preventDefault();
-
-            // Pega os valores dos campos para validação manual
-            const codigo = document.getElementById("codigo").value.trim();
-            const nome = document.getElementById("nome").value.trim();
-            const preco = document.getElementById("preco").value;
-            const qtd = document.getElementById("quantidade").value;
-            const categoria = document.getElementById("categoria").value;
-
-            // Validações que disparam o seu Modal Customizado
-            if (nome === "---" || !codigo || !nome) {
-                exibirAviso("Por favor, preencha o código e o nome do produto corretamente.");
-                return;
-            }
-
-            if (!preco || preco <= 0) {
-                exibirAviso("Digite um preço válido.");
-                return;
-            }
-
-            if (!qtd || qtd <= 0) {
-                exibirAviso("Digite uma quantidade válida.");
-                return;
-            }
-
-            if (!categoria) {
-                exibirAviso("Selecione uma categoria para o produto.");
-                return;
-            }
-
-            const formData = new FormData(e.target);
-
-            try {
-                const res = await apiFetch("http://localhost:3000/produtos", {
-                    method: "POST",
-                    body: formData
-                });
-                const data = await res.json();
-
-                if(res.ok){
-                    exibirAviso(data.mensagem || "Produto cadastrado com sucesso!");
-                    e.target.reset();
-                    preview.style.display = "none";
-                }
-                else{
-                    exibirAviso(data.erro || "Erro ao cadastrar.");
-                }
-            } catch (err) {
-                exibirAviso("Erro de servidor.");
-            }
-        });
-
-        async function carregarCategorias() {
-            try {
-                const res = await apiFetch("http://localhost:3000/categorias");
-                const categorias = await res.json();
-                const select = document.getElementById("categoria");
-
-                categorias.forEach(cat => {
-                    select.innerHTML += `
-                        <option value="${cat.id_categoria}">
-                            ${cat.nome}
-                        </option>
-                    `;
-                });
-            } catch (err) {
-                console.error(err);
-                exibirAviso("Erro ao carregar categorias");
-            }
+        if (!nome || nome === "---" || nome.length < 3) {
+            exibirAviso("O nome do produto deve ter pelo menos 3 caracteres.");
+            return;
         }
 
-        carregarCategorias();
-    </script>
+        if (apenasNumeros.test(nome)) {
+            exibirAviso("O nome do produto não pode conter apenas números.");
+            return;
+        }
+
+        if (!preco || preco <= 0) {
+            exibirAviso("Digite um preço válido.");
+            return;
+        }
+
+        if (!qtd || qtd <= 0) {
+            exibirAviso("Digite uma quantidade válida.");
+            return;
+        }
+
+        if (!categoria) {
+            exibirAviso("Selecione uma categoria para o produto.");
+            return;
+        }
+
+        const formData = new FormData(e.target);
+
+        if (!inputImagem.files || inputImagem.files.length === 0 || inputImagem.files[0].size === 0) {
+            formData.delete("imagem");
+        }
+
+        try {
+            const res = await apiFetch("http://localhost:3000/produtos", {
+                method: "POST",
+                body: formData
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                exibirAviso(data.mensagem || "Produto cadastrado com sucesso!");
+                e.target.reset();
+                preview.style.display = "none";
+                document.getElementById("categoriaTexto").textContent = "Selecione a categoria";
+                
+                // Atualiza o campo com o próximo código disponível para o próximo produto
+                carregarProximoCodigo();
+            } else {
+                exibirAviso(data.erro || "Erro ao cadastrar.");
+            }
+        } catch (err) {
+            exibirAviso("Erro de servidor.");
+        }
+    });
+
+    async function carregarCategorias() {
+        try {
+            const res = await apiFetch("http://localhost:3000/categorias");
+            const categorias = await res.json();
+
+            const lista = document.getElementById("categoriaLista");
+            const campoCategoria = document.getElementById("categoria");
+            const textoCategoria = document.getElementById("categoriaTexto");
+
+            lista.innerHTML = "";
+
+            categorias.forEach(cat => {
+                const opcao = document.createElement("div");
+                opcao.className = "categoria-opcao";
+                opcao.textContent = cat.nome;
+                opcao.dataset.valor = cat.id_categoria;
+
+                opcao.addEventListener("click", () => {
+                    campoCategoria.value = cat.id_categoria;
+                    textoCategoria.textContent = cat.nome;
+
+                    document.querySelectorAll(".categoria-opcao").forEach(item => {
+                        item.classList.remove("selecionada");
+                    });
+
+                    opcao.classList.add("selecionada");
+                    document.getElementById("selectCategoria").classList.remove("aberto");
+                });
+
+                lista.appendChild(opcao);
+            });
+
+        } catch (err) {
+            console.error(err);
+            exibirAviso("Erro ao carregar categorias.");
+        }
+    }
+
+    const selectCategoria = document.getElementById("selectCategoria");
+    const categoriaBtn = document.getElementById("categoriaBtn");
+
+    categoriaBtn.addEventListener("click", () => {
+        selectCategoria.classList.toggle("aberto");
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!selectCategoria.contains(e.target)) {
+            selectCategoria.classList.remove("aberto");
+        }
+    });
+
+    // Inicialização da página
+    carregarCategorias();
+    carregarProximoCodigo();
+</script>
 </body>
 </html>

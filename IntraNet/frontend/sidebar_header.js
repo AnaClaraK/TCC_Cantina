@@ -130,12 +130,46 @@ function validarSessao() {
 
 validarSessao();
 setInterval(validarSessao, 3000);
+// =====================================================
+// PROTEÇÃO DE SAÍDA DO PDV
+// =====================================================
+function irParaGranoVita(event) {
+
+    // Só interfere quando estiver no PDV
+    if (window.location.pathname.endsWith("/pdv.html")) {
+
+        // Se o PDV informou que existe uma venda em andamento
+        if (
+            typeof window.pdvPossuiVendaEmAndamento === "function" &&
+            window.pdvPossuiVendaEmAndamento()
+        ) {
+            event.preventDefault();
+
+            window.pdvConfirmarSaida(() => {
+                window.location.href = "index.html";
+            });
+
+            return;
+        }
+    }
+
+    // Fora do PDV, segue normalmente
+}
 
 const headerHTML = `
 <header class="custom-header">
     <div style="display: flex; align-items: center;">
         <button id="btn-menu">☰</button>
-        <span><a href="index.html"> <img class="l_img" data-name="logo" src="imagens/logo_p.png"/> </a> </span>
+
+        <span>
+            <a href="index.html" onclick="irParaGranoVita(event)">
+                <img
+                    class="l_img"
+                    data-name="logo"
+                    src="imagens/logo_p.png"
+                />
+            </a>
+        </span>
     </div>
 </header>
 `;
@@ -256,6 +290,13 @@ links.forEach(link => {
     }
 });
     });
+}
+function normalizarTexto(texto) {
+    return String(texto || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
 }
 
 document.addEventListener('DOMContentLoaded', carregarMenu);

@@ -19,66 +19,125 @@
 
 <body class="fundo-escuro">
 
-<form id="formProduto" enctype="multipart/form-data" style="width: 800px; padding: 15px 30px;">
+
+   <form id="formProduto" enctype="multipart/form-data" class="form-editar-produto">
     <h2>Editar Produto</h2>
 
     <div class="container-flex">
+
+        <!-- COLUNA ESQUERDA -->
         <div class="coluna">
+
             <label class="label-amarela">Buscar Produto</label>
-            <input type="text" class="inp_m" id="inp_busca_editar" placeholder="Código ou nome" style="font-size: 20px; height: 35px;">
+
+            <input
+                type="text"
+                class="inp_m"
+                id="inp_busca_editar"
+                placeholder="Código ou nome"
+            >
+
             <ul id="lista_sugestoes"></ul>
 
-            <p class="pm" style="text-align: center; margin: 10px 0;">Selecionado: <span id="s_produto" style="font-weight: bold; color: #1c1c1c;">---</span></p>
-            
+            <p class="pm selecionado-produto">
+                Selecionado:
+                <span id="s_produto">---</span>
+            </p>
+
             <div class="produto-img">
-                <img id="preview-img" src="images/img_ntf.png">
-            </div>
-
-        <label class="label-amarela" style="margin-top:12px;">Nome da Imagem</label>
-<input
-    type="text"
-    name="img_nome"
-    id="img_nome"
-    class="inp_p"
-    placeholder="Ex: strog_carne">
+    <img id="preview-img" src="images/img_ntf.png">
         </div>
-            <label class="file-label" style="margin-top: 10px; padding: 8px;">
+
+            <label class="label-amarela" style="margin-top:12px;">Nome da Imagem</label>
+
+            <input
+                type="text"
+                name="img_nome"
+                id="img_nome"
+                class="inp_p"
+                placeholder="Ex: strog_carne"
+                disabled
+            >
+
+            <label id="labelTrocarImagem" class="file-label file-label-editar">
                 Trocar Imagem
-                <input type="file" name="img" id="inputImagem" accept="image/*">
+                <input type="file" name="img" id="inputImagem" accept="image/*" disabled>
             </label>
-            
-        
 
+        </div>
+
+
+        <!-- COLUNA DIREITA -->
         <div class="coluna">
-            <label class="label-amarela">Nome</label>
-            <input type="text" name="nome" id="nome" class="inp_p">
 
-            <div style="display: flex; gap: 10px;">
-                <div style="flex: 1;">
+            <label class="label-amarela">Nome</label>
+            <input type="text" name="nome" id="nome" class="inp_p" disabled>
+
+            <div class="linha-campos">
+
+                <div>
                     <label class="label-amarela">Código</label>
-                    <input type="text" name="codigo_barras" id="codigo" class="inp_p">
+                    <input
+                        type="text"
+                        name="codigo_barras"
+                        id="codigo"
+                        class="inp_p"
+                        inputmode="numeric"
+                        pattern="[0-9]*"
+                        disabled
+                    >
                 </div>
-                <div style="flex: 1;">
+
+                <div>
                     <label class="label-amarela">Preço</label>
-                    <input type="number" step="0.01" name="preco" id="preco" class="inp_p">
+                    <input
+                        type="number"
+                        step="0.01"
+                        name="preco"
+                        id="preco"
+                        class="inp_p"
+                        disabled
+                    >
                 </div>
+
             </div>
 
             <label class="label-amarela">Quantidade em Estoque</label>
-            <input type="number" name="qtd" id="qtd" class="inp_p">
+            <input type="number" name="qtd" id="qtd" class="inp_p" disabled>
 
             <label class="label-amarela">Qtd. Mínima</label>
-            <input type="number" name="qtd_min" id="qtd_min" class="inp_p">
+            <input type="number" name="qtd_min" id="qtd_min" class="inp_p" disabled>
 
             <label class="label-amarela">Descrição</label>
-            <textarea name="descricao" id="descricao" class="inp_p" style="height: 60px; resize: none;"></textarea>
+            <textarea
+                name="descricao"
+                id="descricao"
+                class="inp_p descricao-produto"
+                disabled
+            ></textarea>
+
         </div>
+
     </div>
 
+
+    <!-- BOTÕES ABAIXO DAS DUAS COLUNAS -->
     <div class="botoes-fileira">
-        <button type="submit" class="btn-p">Salvar Alterações</button>
-        <button type="button" onclick="window.location.href='estoque.html'" class="btn-p btn-cinza">Cancelar</button>
+
+        <button type="submit" class="btn-p">
+            Salvar Alterações
+        </button>
+
+        <button
+            type="button"
+            onclick="window.location.href='estoque.html'"
+            class="btn-p btn-cinza"
+        >
+            Cancelar
+        </button>
+
     </div>
+
 </form>
 
 <dialog id="d_aviso">
@@ -108,6 +167,18 @@ const modalAviso = document.getElementById("d_aviso");
 const msgAviso = document.getElementById("msg_aviso");
 const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
 const bCancelarAviso = document.getElementById("b_cancelar_aviso");
+const campoNomeImagem = document.getElementById("img_nome");
+const labelTrocarImagem = document.getElementById("labelTrocarImagem");
+const camposEdicao = [
+    nome,
+    codigo,
+    preco,
+    qtd,
+    qtdMin,
+    descricao,
+    campoNomeImagem,
+    inputImagem
+];
 
 let produtosCache = [];
 let produtoSelecionado = null;
@@ -130,6 +201,10 @@ function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
         modalAviso.close();
     };
 }
+// Permite somente números no código de barras
+codigo.addEventListener("input", () => {
+    codigo.value = codigo.value.replace(/\D/g, "");
+});
 
 // carregar produtos
 async function carregarProdutos(){
@@ -186,10 +261,10 @@ inpBusca.addEventListener("keydown", (e) => {
 });
 
 function atualizarSelecao(itens){
-    itens.forEach(li => li.style.background = "");
+    itens.forEach(li => li.classList.remove("ativo"));
 
     if(itens[indexSelecionado]){
-        itens[indexSelecionado].style.background = "#333";
+        itens[indexSelecionado].classList.add("ativo");
     }
 }
 
@@ -205,24 +280,30 @@ function selecionarProduto(p){
     if(preco) preco.value = p.preco || 0;
     if(qtd) qtd.value = p.qtd || 0;
     if(descricao) descricao.value = p.descricao || "";
-    
-    if(qtdMin) qtdMin.value = p.qtd_min || 0; 
+    if(qtdMin) qtdMin.value = p.qtd_min || 0;
 
+    // IMAGEM ATUAL
     if(p.img){
         previewImg.src = `http://localhost:3000/images/${p.img}`;
-        previewImg.style.display = "block"; 
+        previewImg.style.display = "block";
     } else {
         previewImg.src = "images/img_ntf.png";
     }
-    const campoNomeImagem = document.getElementById("img_nome");
 
-if (p.img) {
-    campoNomeImagem.value = p.img.replace(/\.[^/.]+$/, "");
-} else {
-    campoNomeImagem.value = "";
-}
+    // NOME DA IMAGEM
+    if (p.img) {
+        campoNomeImagem.value = p.img.replace(/\.[^/.]+$/, "");
+    } else {
+        campoNomeImagem.value = "";
+    }
 
-    lista.innerHTML = "";
+// HABILITA TODOS OS CAMPOS DE EDIÇÃO
+camposEdicao.forEach(campo => {
+    campo.disabled = false;
+});
+
+labelTrocarImagem.classList.add("habilitado");
+lista.innerHTML = "";
 }
 
 // preview imagem
@@ -254,12 +335,31 @@ formProduto.addEventListener("submit", async (e)=>{
 
         if (res.ok) {
             exibirAviso("Produto atualizado com sucesso!", () => {
+               formProduto.reset();
+
+                produtoSelecionado = null;
+
+                document.getElementById("s_produto").innerText = "---";
+
+                previewImg.src = "images/img_ntf.png";
+
+                inpBusca.value = "";
+
+                // BLOQUEIA TODOS OS CAMPOS NOVAMENTE
+camposEdicao.forEach(campo => {
+    campo.disabled = true;
+});
+
+labelTrocarImagem.classList.remove("habilitado");
                 formProduto.reset(); 
-                produtoSelecionado = null; 
+                produtoSelecionado = null;
+
                 document.getElementById("s_produto").innerText = "---"; 
                 previewImg.src = "images/img_ntf.png"; 
                 inpBusca.value = ""; 
-                
+                labelTrocarImagem.classList.remove("habilitado");
+
+                                
                 carregarProdutos(); 
             });
         } else {

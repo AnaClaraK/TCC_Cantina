@@ -20,9 +20,9 @@ require('../config/multer');
 const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
 
 //--------- Cadastro produtos add
+//--------- Cadastro produtos add
 router.post("/produtos", verificarToken, uploadProdutos.single("imagem"), async (req, res) => {
     try {
-  
         const {
           nome,
           preco,
@@ -31,19 +31,18 @@ router.post("/produtos", verificarToken, uploadProdutos.single("imagem"), async 
           descricao,
           id_categoria
         } = req.body;
-  
+
         if (!nome || !preco || !codigo || !id_categoria) {
           return res.status(400).json({
             erro: "Preencha todos os campos obrigatórios"
           });
         }
-  
+
         const precoFormatado = String(preco).replace(",", ".");
-  
-        const imagem = req.file
-          ? req.file.filename
-          : null;
-  
+
+        // Se req.file não existir (usuário não enviou foto), usa 'img_ntf.png'
+        const imagem = req.file ? req.file.filename : 'img_ntf.png';
+
         await conexao.query(`
           INSERT INTO produtos
           (
@@ -65,20 +64,37 @@ router.post("/produtos", verificarToken, uploadProdutos.single("imagem"), async 
           imagem,
           id_categoria
         ]);
-  
+
         res.status(201).json({
           mensagem: "Produto cadastrado com sucesso"
         });
-  
+
     } catch (erro) {
-  
         console.error("Erro ao cadastrar produto:", erro);
-  
+
         res.status(500).json({
           erro: "Erro ao cadastrar produto"
         });
     }
-  });
+});
+// Rota para buscar o próximo código de barras disponível
+router.get("/produtos/proximo-codigo", verificarToken, async (req, res) => {
+    try {
+        // Converte o campo codigo_barras para número e pega o maior valor
+        const [rows] = await conexao.query(`
+            SELECT MAX(CAST(codigo_barras AS UNSIGNED)) AS maior_codigo 
+            FROM produtos 
+            WHERE codigo_barras REGEXP '^[0-9]+$'
+        `);
+
+        const proximoCodigo = (rows[0].maior_codigo || 0) + 1;
+
+        res.json({ proximoCodigo });
+    } catch (erro) {
+        console.error("Erro ao buscar próximo código:", erro);
+        res.status(500).json({ erro: "Erro ao buscar próximo código" });
+    }
+});
   // LISTAR CATEGORIAS
 router.get("/categorias", verificarToken, async (req, res) => {
     try {

@@ -466,11 +466,11 @@ dialog::backdrop {
 
 #d_modal {
     width: min(600px, calc(100vw - 32px));
-    height: min(700px, calc(100dvh - 32px));
+    height: min(750px, calc(100dvh - 32px));
     max-width: 95%;
-
+    
     padding: 0;
-    overflow: hidden;
+    overflow: hidden !important;
 
     color: #f8c471;
     background: #1c1c1c;
@@ -490,6 +490,7 @@ dialog::backdrop {
     flex-direction: column;
     height: 100%;
     min-height: 0;
+    overflow: hidden !important;
 }
 
 #d_modal article section {
@@ -497,7 +498,7 @@ dialog::backdrop {
     flex: 1;
     flex-direction: column;
     min-height: 0;
-
+    overflow: hidden !important;
     gap: 15px;
     padding: clamp(20px, 2vw, 30px);
     overflow-y: auto;
@@ -600,35 +601,54 @@ dialog::backdrop {
 .area_pagamento {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-
+    overflow: hidden !important;
     width: 100%;
     gap: 12px;
     padding: 10px;
 }
-
 .pagamento {
     width: 100%;
-    padding: 14px;
-
-    color: #f8c471;
     background: transparent;
+    color: #f8c471;
     border: 2px solid #efac4a;
+    padding: 14px;
     border-radius: 8px;
-
+    cursor: pointer;
     font-weight: bold;
     text-transform: uppercase;
-    cursor: pointer;
-    transition: 0.2s;
 }
 
+/* Mouse sobre o botão */
 .pagamento:hover {
-    color: #1c1c1c;
     background: #efac4a;
+    color: #1c1c1c;
+}
+
+/* Botão selecionado pelo atalho ou clique */
+.pagamento.selecionado {
+    background: #efac4a;
+    color: #1c1c1c;
+    border-color: #efac4a;
+
+}
+
+/* Mantém o visual selecionado mesmo com o mouse saindo */
+.pagamento.selecionado:hover {
+    background: #efac4a;
+    color: #1c1c1c;
+}
+
+/* Botão bloqueado */
+.pagamento:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
 }
 
 #d_modal footer {
     padding: 20px;
-    background: #262626;
+    background: #1c1c1c;
     text-align: center;
 }
 
