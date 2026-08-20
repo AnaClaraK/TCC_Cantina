@@ -513,6 +513,19 @@ async function carregarReposicao() {
 
     const dados = await res.json();
 
+    // ORDEM DE PRIORIDADE
+    const ordemPrioridade = {
+        "Alta": 1,
+        "Média": 2,
+        "Baixa": 3
+    };
+
+    // Ordena: Alta → Média → Baixa
+    dados.sort((a, b) => {
+        return (ordemPrioridade[a.prioridade] || 99) -
+               (ordemPrioridade[b.prioridade] || 99);
+    });
+
     corpoTabela.innerHTML = "";
 
     dados.forEach(item => {

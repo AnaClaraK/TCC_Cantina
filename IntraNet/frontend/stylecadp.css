@@ -72,6 +72,12 @@ form .inp_p {
     box-sizing: border-box;
 }
 
+#descricao{
+    width: auto;
+    height: 120px;
+    padding: 12px;
+}
+
 /* BOTÃO DO FORMULÁRIO (Protegendo a Header) */
 form button, .btn-form {
     background-color: #1c1c1c;
@@ -149,7 +155,6 @@ h2 { margin: 5px 0; font-size: 22px; }
             margin-top: 10px;
         }
         .secao-divisora {
-            margin-top: 25px;
             padding-top: 15px;
             border-top: 2px solid #efac4a;
         }
@@ -555,4 +560,205 @@ h2 { margin: 5px 0; font-size: 22px; }
 
 .select-categoria-lista::-webkit-scrollbar-thumb:hover {
     background: #f8c471;
+}
+#labelTrocarImagem{
+    margin-top: 20px;
+}
+/* DESABILITADO */
+#img_nome:disabled,
+#inputImagem:disabled + * {
+    cursor: not-allowed;
+}
+/* =========================================================
+   EDITAR PRODUTO
+   Regras específicas para não afetar a tela de cadastro
+   ========================================================= */
+
+/* =========================================================
+   TROCAR IMAGEM - EDITAR PRODUTO
+   ========================================================= */
+
+/* Desabilitado: cinza e não clicável */
+.file-label-editar {
+    background-color: #777 !important;
+    color: #ddd !important;
+    cursor: not-allowed !important;
+    opacity: 0.7;
+
+    margin-top: 8px !important;
+    padding: 10px !important;
+
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+/* Habilitado após selecionar um produto */
+.file-label-editar.habilitado {
+    background-color: #1c1c1c !important;
+    color: #f8c471 !important;
+    cursor: pointer !important;
+    opacity: 1;
+}
+
+/* Hover somente quando estiver habilitado */
+.file-label-editar.habilitado:hover {
+    background-color: #333 !important;
+}
+
+/* =========================================================
+   LISTA DE PRODUTOS - EDITAR
+   ========================================================= */
+
+/* =========================================================
+   LISTA DE PRODUTOS - EDITAR
+   FICA SOBRE OS OUTROS ELEMENTOS
+   ========================================================= */
+
+/* Primeira coluna serve como referência para a lista */
+.container-flex > .coluna:first-child {
+    position: relative;
+}
+
+/* Lista */
+#lista_sugestoes {
+    position: absolute;
+
+    /* fica logo abaixo do campo de busca */
+    top: 73px;
+    left: 0;
+
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+    background-color: #1c1c1c !important;
+    border: 2px solid #efac4a !important;
+    border-radius: 10px !important;
+
+    color: #f8c471 !important;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    max-height: 210px;
+
+    box-sizing: border-box;
+
+    z-index: 99999;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+/* Cada produto da lista */
+#lista_sugestoes li {
+    background-color: #1c1c1c !important;
+    color: #f8c471 !important;
+    border-bottom: 1px solid #444 !important;
+    padding: 12px 15px !important;
+    min-height: 40px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* Produto passando o mouse */
+#lista_sugestoes li:hover {
+    background-color: #efac4a !important;
+    color: #1c1c1c !important;
+}
+
+/* Produto selecionado pelas setas */
+#lista_sugestoes li.ativo {
+    background-color: #efac4a !important;
+    color: #1c1c1c !important;
+    font-weight: bold;
+}
+
+/* Remove linha do último */
+#lista_sugestoes li:last-child {
+    border-bottom: none !important;
+}
+
+
+/* SCROLL DA LISTA */
+#lista_sugestoes::-webkit-scrollbar {
+    width: 7px;
+}
+
+#lista_sugestoes::-webkit-scrollbar-track {
+    background: #1c1c1c;
+}
+
+#lista_sugestoes::-webkit-scrollbar-thumb {
+    background: #efac4a;
+    border-radius: 10px;
+}
+
+#lista_sugestoes::-webkit-scrollbar-thumb:hover {
+    background: #f8c471;
+}
+
+
+/* =========================================================
+   BOTÕES DO EDITAR PRODUTO
+   ========================================================= */
+
+#formProduto .botoes-fileira {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    box-sizing: border-box;
+}
+
+#formProduto .botoes-fileira .btn-p {
+    width: 150px;
+    flex: none;
+}
+/* =========================================================
+   BUSCAR PRODUTO - TAMANHO DO TEXTO
+   ========================================================= */
+
+#inp_busca_editar {
+    font-size: 16px !important;
+    margin-bottom:5px;
+    box-shadow: none;
+}
+
+#inp_busca_editar::placeholder {
+    font-size: 16px !important;
+    color: #555;
+}
+/* =========================================================
+   PRODUTO SELECIONADO
+   ========================================================= */
+
+.selecionado-produto {
+    margin-top: 100px;
+    background-color: #efac4a;
+    border: 2px solid #1c1c1c;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin: 10px 0;
+    color: #1c1c1c;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    box-sizing: border-box;
+     box-shadow: none !important;
+     text-shadow: none !important;
+}
+
+.selecionado-produto span {
+    color: #1c1c1c !important;
+    font-weight: bold;
+    text-shadow: none !important;
+}
+.selecionado-produto,
+#s_produto {
+    box-shadow: none !important;
+    text-shadow: none !important;
 }

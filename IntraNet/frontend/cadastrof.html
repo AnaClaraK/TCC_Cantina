@@ -91,10 +91,15 @@
             const confsenha = document.getElementById("confsenha").value;
 
             // Validação básica de preenchimento usando o modal de aviso
-            if (!nome || !email || !senha || !confsenha) {
-                pMessageEl.innerText = "Por favor, preencha todos os campos.";
-                pMessageEl.style.color = "yellow";
-                exibirAviso("Por favor, preencha todos os campos.");
+            if (nome.trim().length < 3) {
+                pMessageEl.innerText = "O nome deve possuir pelo menos 3 caracteres.";
+                pMessageEl.style.color = "red";
+                return;
+            }
+
+            if (!/^[A-Za-zÀ-ÿ\s]+$/.test(nome.trim())) {
+                pMessageEl.innerText = "O nome deve conter apenas letras.";
+                pMessageEl.style.color = "red";
                 return;
             }
 
@@ -102,7 +107,6 @@
             if (senha !== confsenha) {
                 pMessageEl.innerText = "As senhas não coincidem!";
                 pMessageEl.style.color = "red";
-                exibirAviso("As senhas não coincidem!");
                 return;
             }
 
