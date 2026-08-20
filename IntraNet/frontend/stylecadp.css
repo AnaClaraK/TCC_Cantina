@@ -457,5 +457,30 @@ h2 { margin: 5px 0; font-size: 22px; }
     filter: brightness(1.2);
 }
 
+/* BOTÃO TROCAR IMAGEM */
+.btn-trocar {
+    background-color: #1c1c1c;
+    color: #f8c471;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+    cursor: pointer;
+}
 
+/* Mantém os 3 botões exatamente do mesmo tamanho */
+.botoes-fileira .btn-p {
+    width: 150px;
+    min-width: 150px;
+    max-width: 150px;
+    height: 62px;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+/* Remove a aparência antiga do input file */
+#inputImagemPerfil {
+    display: none;
+}
 
