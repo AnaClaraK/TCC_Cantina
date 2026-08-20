@@ -9,11 +9,8 @@
     <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
     <title>Editar Perfil</title>
     <script>
-        // Verifica se existe um token no localStorage antes de renderizar a página
         const token = localStorage.getItem("token");
-    
         if (!token) {
-            // Se não tem token, joga direto para o login de forma limpa
             window.location.replace("login.html");
         }
     </script>
@@ -45,13 +42,13 @@
                 <p id="titulo_seg">Segurança</p>
                 
                 <label class="label-amarela">Senha Atual</label>
-                <input type="password" name="senha_atual" class="inp_p" placeholder="Senha atual">
+                <input type="password" id="senha_atual" name="senha_atual" class="inp_p" placeholder="Senha atual">
                 
                 <label class="label-amarela">Nova Senha</label>
-                <input type="password" name="nova_senha" class="inp_p" placeholder="Nova senha">
+                <input type="password" id="nova_senha" name="nova_senha" class="inp_p" placeholder="Nova senha">
                 
                 <label class="label-amarela">Confirmar Senha</label>
-                <input type="password" name="conf_senha" class="inp_p" placeholder="Confirme a senha">
+                <input type="password" id="conf_senha" name="conf_senha" class="inp_p" placeholder="Confirme a senha">
             </div>
         </div>
     
@@ -67,7 +64,7 @@
             <div id="msg_aviso"></div>
             <div class="aviso_botoes">
                 <button id="b_confirmar_aviso">OK</button>
-                <button id="b_cancelar_aviso">Cancelar</button>
+                <button id="b_cancelar_aviso" style="display:none;">Cancelar</button>
             </div>
         </div>
     </dialog>
@@ -76,24 +73,14 @@
         const modalAviso = document.getElementById("d_aviso");
         const msgAviso = document.getElementById("msg_aviso");
         const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
-        const bCancelarAviso = document.getElementById("b_cancelar_aviso");
 
-        // Função idêntica à do outro arquivo, respeitando as classes CSS do seu layout
-        function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
+        function exibirAviso(mensagem, callback = null) {
             msgAviso.innerHTML = mensagem;
-            
-            // Controla se o botão cancelar aparece ou não
-            bCancelarAviso.style.display = mostrarCancelar ? "inline-block" : "none";
-
             modalAviso.showModal();
 
             bConfirmarAviso.onclick = () => {
                 modalAviso.close();
                 if (callback) callback();
-            };
-
-            bCancelarAviso.onclick = () => {
-                modalAviso.close();
             };
         }
 
@@ -102,20 +89,15 @@
             const email = localStorage.getItem("usuarioEmail");
             const foto = localStorage.getItem("usuarioFoto");
 
-            console.log("Foto recuperada do localStorage:", foto);
-
             if(nome) document.getElementById('edit-nome').value = nome;
             if(email) document.getElementById('edit-email').value = email;
             
             const preview = document.getElementById('preview-perfil');
 
-            // Verifica se a foto existe, se não é a string "null" ou "undefined"
             if(foto && foto !== "null" && foto !== "undefined" && foto !== "") {
-                // Se o caminho não começar com /, nós adicionamos. Se já tiver, mantemos.
                 const caminhoTratado = foto.startsWith('/') ? foto : '/' + foto;
                 preview.src = "http://localhost:3000" + caminhoTratado;
             } else {
-                // Imagem padrão
                 preview.src = "images/def_avt.jpg";
             }
         });
@@ -130,6 +112,45 @@
 
         document.getElementById("formPerfil").addEventListener("submit", async (e) => {
             e.preventDefault();
+
+            const nome = document.getElementById("edit-nome").value.trim();
+            const email = document.getElementById("edit-email").value.trim();
+            const senhaAtual = document.getElementById("senha_atual").value;
+            const novaSenha = document.getElementById("nova_senha").value;
+            const confSenha = document.getElementById("conf_senha").value;
+
+            // 1. Validação de Nome
+            if (!nome || nome.length < 3) {
+                exibirAviso("O nome deve ter pelo menos 3 caracteres.");
+                return;
+            }
+            if (/^\d+$/.test(nome)) {
+                exibirAviso("O nome não pode conter apenas números.");
+                return;
+            }
+
+            // 2. Validação de Email
+            if (!email) {
+                exibirAviso("Digite um e-mail válido.");
+                return;
+            }
+
+            // 3. Validação da Nova Senha
+            if (novaSenha || confSenha || senhaAtual) {
+                if (!senhaAtual) {
+                    exibirAviso("Digite sua senha atual para alterar as credenciais.");
+                    return;
+                }
+                if (novaSenha.length < 6) {
+                    exibirAviso("A nova senha deve ter pelo menos 6 caracteres.");
+                    return;
+                }
+                if (novaSenha !== confSenha) {
+                    exibirAviso("A nova senha e a confirmação não coincidem.");
+                    return;
+                }
+            }
+
             const formData = new FormData(e.target);
             formData.append("emailAntigo", localStorage.getItem("usuarioEmail"));
 
@@ -141,19 +162,24 @@
 
                 const dados = await response.json();
 
-                if(response.ok) {
+                if (response.ok) {
                     localStorage.setItem("usuarioNome", dados.novoNome);
                     localStorage.setItem("usuarioEmail", dados.novoEmail);
-                    if(dados.novaFoto) localStorage.setItem("usuarioFoto", dados.novaFoto);
                     
-                    exibirAviso("Perfil updated!", () => {
+                    // Atualiza a chave usuarioFoto com a nova foto enviada pelo backend
+                    if (dados.novaFoto) {
+                        localStorage.setItem("usuarioFoto", dados.novaFoto);
+                    }
+                    
+                    exibirAviso(dados.resposta || "Perfil atualizado com sucesso!", () => {
                         window.location.reload(); 
                     });
+
                 } else {
                     exibirAviso(dados.resposta || "Erro ao salvar.");
                 }
             } catch (error) {
-                exibirAviso("Erro de conexão.");
+                exibirAviso("Erro de conexão ao servidor.");
             }
         });
     </script>

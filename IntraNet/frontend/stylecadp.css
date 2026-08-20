@@ -762,3 +762,6 @@ h2 { margin: 5px 0; font-size: 22px; }
     box-shadow: none !important;
     text-shadow: none !important;
 }
+:disabled {
+    cursor: not-allowed !important;
+}

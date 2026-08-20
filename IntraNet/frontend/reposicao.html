@@ -82,7 +82,7 @@
                 <input type="number" class="inp_m" id="inp_add_qtd" placeholder="">
 
                 <label class="pm">Local</label>
-                <input type="text" class="inp_m" id="inp_add_local" placeholder="">
+                <input type="text" class="inp_m" id="inp_add_local" placeholder="" minlength="3">
 
                 <label class="pm">Prioridade</label>
 
@@ -268,9 +268,14 @@ b_addf.addEventListener("click", async () => {
     }
 
     if (local === "") {
-        exibirAviso("Preencha o local.");
-        return;
-    }
+    exibirAviso("Preencha o local.");
+    return;
+}
+
+if (local.length < 3) {
+    exibirAviso("O local deve ter no mínimo 3 caracteres.");
+    return;
+}
 
     try {
         await apiFetch(`http://localhost:3000/reposicao/${codigo}`, {

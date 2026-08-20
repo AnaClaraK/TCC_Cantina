@@ -71,7 +71,7 @@
         <div class="coluna">
 
             <label class="label-amarela">Nome</label>
-            <input type="text" name="nome" id="nome" class="inp_p">
+            <input type="text" name="nome" id="nome" class="inp_p" disabled>
 
             <div class="linha-campos">
 
@@ -82,6 +82,9 @@
                         name="codigo_barras"
                         id="codigo"
                         class="inp_p"
+                        inputmode="numeric"
+                        pattern="[0-9]*"
+                        disabled
                     >
                 </div>
 
@@ -93,22 +96,24 @@
                         name="preco"
                         id="preco"
                         class="inp_p"
+                        disabled
                     >
                 </div>
 
             </div>
 
             <label class="label-amarela">Quantidade em Estoque</label>
-            <input type="number" name="qtd" id="qtd" class="inp_p">
+            <input type="number" name="qtd" id="qtd" class="inp_p" disabled>
 
             <label class="label-amarela">Qtd. Mínima</label>
-            <input type="number" name="qtd_min" id="qtd_min" class="inp_p">
+            <input type="number" name="qtd_min" id="qtd_min" class="inp_p" disabled>
 
             <label class="label-amarela">Descrição</label>
             <textarea
                 name="descricao"
                 id="descricao"
                 class="inp_p descricao-produto"
+                disabled
             ></textarea>
 
         </div>
@@ -164,7 +169,16 @@ const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
 const bCancelarAviso = document.getElementById("b_cancelar_aviso");
 const campoNomeImagem = document.getElementById("img_nome");
 const labelTrocarImagem = document.getElementById("labelTrocarImagem");
-
+const camposEdicao = [
+    nome,
+    codigo,
+    preco,
+    qtd,
+    qtdMin,
+    descricao,
+    campoNomeImagem,
+    inputImagem
+];
 
 let produtosCache = [];
 let produtoSelecionado = null;
@@ -187,6 +201,10 @@ function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
         modalAviso.close();
     };
 }
+// Permite somente números no código de barras
+codigo.addEventListener("input", () => {
+    codigo.value = codigo.value.replace(/\D/g, "");
+});
 
 // carregar produtos
 async function carregarProdutos(){
@@ -279,12 +297,12 @@ function selecionarProduto(p){
         campoNomeImagem.value = "";
     }
 
-   // HABILITA ALTERAÇÃO DA IMAGEM
-campoNomeImagem.disabled = false;
-inputImagem.disabled = false;
+// HABILITA TODOS OS CAMPOS DE EDIÇÃO
+camposEdicao.forEach(campo => {
+    campo.disabled = false;
+});
 
 labelTrocarImagem.classList.add("habilitado");
-
 lista.innerHTML = "";
 }
 
@@ -327,11 +345,12 @@ formProduto.addEventListener("submit", async (e)=>{
 
                 inpBusca.value = "";
 
-                // DESABILITA NOVAMENTE A TROCA DE IMAGEM
-                campoNomeImagem.disabled = true;
-                inputImagem.disabled = true;
+                // BLOQUEIA TODOS OS CAMPOS NOVAMENTE
+camposEdicao.forEach(campo => {
+    campo.disabled = true;
+});
 
-                labelTrocarImagem.classList.remove("habilitado");
+labelTrocarImagem.classList.remove("habilitado");
                 formProduto.reset(); 
                 produtoSelecionado = null;
 
