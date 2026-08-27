@@ -33,20 +33,19 @@ body {
 
     display: grid;
     width: 100%;
-    min-height: 100dvh;
-    height: 100vh;
 
-    /*
-      No desktop não permite scroll da página.
-      A tabela possui scroll próprio.
-    */
+    /* Não força o conteúdo a ultrapassar a altura disponível */
+    min-height: 100dvh;
+    height: 100dvh;
+
     overflow: hidden;
 
-    /*
-      Coluna esquerda: inputs + botões.
-      Coluna direita: carrinho/tabela.
-    */
     grid-template-columns: minmax(0, 1.6fr) minmax(420px, 1fr);
+
+    /*
+      Deixa a área dos inputs ocupar o espaço disponível
+      e garante espaço para os botões/área inferior.
+    */
     grid-template-rows: minmax(0, 1fr) auto;
 
     grid-template-areas:
@@ -56,7 +55,6 @@ body {
     gap: clamp(12px, 1vw, 15px);
     padding: 75px 15px 15px;
 }
-
 body.sem-sidebar {
     margin-left: 0 !important;
     padding-left: 0 !important;
@@ -156,13 +154,13 @@ button {
     width: min(100%, 500px);
     max-width: 100%;
     aspect-ratio: 1 / 1;
-    height: auto;
+    height: 90%;
 
     justify-self: center;
     align-self: start;
 
     object-fit: contain;
-    background-color: #fff;
+    background-color: #F0F2F5;
     border-radius: 8px;
 
     margin-top: clamp(15px, 1.3vw, 25px);
@@ -1319,5 +1317,217 @@ b_desbloquear_pagamento{
                 font-size: 13px;
                 line-height: 20px;
                 cursor: pointer;
+}
+
+/* =========================================================
+MODAL CLIENTE
+========================================================= */
+
+#modal_cliente{
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    padding: 0;
+    width: 500px;
+    max-width: 95%;
+    background: #1c1c1c;
+    overflow: hidden;
+}
+
+#modal_cliente::backdrop{
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(4px);
+}
+
+#modal_cliente .modal_box{
+    width: 100%;
+    box-sizing: border-box;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    overflow-x: hidden;
+}
+
+
+/* =========================================================
+MODAL FIADO / PRODUTOS
+========================================================= */
+
+#d_modal_fiado,
+#d_modal_produtos{
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    padding: 0;
+    background: #1c1c1c;
+    overflow: hidden;
+}
+
+#d_modal_fiado{
+    width: 650px;
+    max-width: 95%;
+}
+
+#d_modal_produtos{
+    width: 700px;
+    max-width: 95%;
+}
+
+#d_modal_fiado::backdrop,
+#d_modal_produtos::backdrop{
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(4px);
+}
+
+#d_modal_fiado .modal_box,
+#d_modal_produtos .modal_box{
+    overflow-x: hidden;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* =========================================================
+   MODAL - BUSCAR COMANDA
+========================================================= */
+
+#dialogComanda {
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    padding: 0;
+    width: 500px;
+    max-width: 95%;
+    background: #1c1c1c;
+    overflow: hidden;
+    color: white;
+}
+
+/* Fundo escuro atrás do modal */
+#dialogComanda::backdrop {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+}
+
+/* Conteúdo interno */
+#dialogComanda .modal_box {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    overflow-x: hidden;
+}
+
+/* Botão X */
+#dialogComanda #b_close_comanda {
+    position: absolute;
+    top: 12px;
+    right: 15px;
+
+    width: 32px;
+    height: 32px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: transparent;
+    color: #efac4a;
+
+    font-size: 24px;
+    font-weight: bold;
+
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#dialogComanda #b_close_comanda:hover {
+    background: #efac4a;
+    color: #1c1c1c;
+}
+
+/* Título */
+#dialogComanda .modal_titulo {
+    margin: 0;
+    color: #efac4a;
+    font-size: 25px;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Linha do formulário */
+#dialogComanda .modal_linha {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Label */
+#dialogComanda .label {
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Input */
+#dialogComanda #inputComanda {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 13px 15px;
+
+    border: 2px solid #555;
+    border-radius: 10px;
+
+    background: #292929;
+    color: white;
+
+    font-size: 16px;
+    outline: none;
+
+    transition: 0.2s;
+}
+
+#dialogComanda #inputComanda::placeholder {
+    color: #999;
+}
+
+#dialogComanda #inputComanda:focus {
+    border-color: #efac4a;
+    box-shadow: 0 0 0 2px rgba(239, 172, 74, 0.15);
+}
+
+/* Rodapé */
+#dialogComanda .modal_footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+/* Botão carregar comanda */
+#dialogComanda #b_buscar_comanda {
+    width: 100%;
+
+    padding: 13px 20px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #efac4a;
+    color: #1c1c1c;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+#dialogComanda #b_buscar_comanda:hover {
+    background: #ffc56b;
+    transform: translateY(-1px);
+}
+
+#dialogComanda #b_buscar_comanda:active {
+    transform: translateY(0);
 }
 
