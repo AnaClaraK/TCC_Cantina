@@ -239,3 +239,137 @@ STYLE CLIENTES FIADO
     width: 520px;
     margin-left: 20px;
 }
+#modalConclusaoFiado {
+    border: none;
+    padding: 0;
+    background: transparent;
+}
+
+#modalConclusaoFiado::backdrop {
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.modal-conclusao {
+    width: 420px;
+    max-width: 90vw;
+
+    background: #ffffff;
+    border-radius: 14px;
+
+    padding: 28px;
+
+    position: relative;
+
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+
+    font-family: Arial, sans-serif;
+}
+
+.modal-conclusao h3 {
+    margin: 0 0 24px;
+
+    font-size: 22px;
+    font-weight: 700;
+
+    color: #222;
+}
+
+.btn-fechar-conclusao {
+    position: absolute;
+
+    top: 12px;
+    right: 15px;
+
+    border: none;
+    background: transparent;
+
+    font-size: 26px;
+    color: #777;
+
+    cursor: pointer;
+}
+
+.btn-fechar-conclusao:hover {
+    color: #222;
+}
+
+.campo-conclusao {
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+
+    margin-bottom: 18px;
+}
+
+.campo-conclusao label {
+    font-size: 14px;
+    font-weight: 600;
+
+    color: #444;
+}
+
+.campo-conclusao input,
+.campo-conclusao select {
+    width: 100%;
+    box-sizing: border-box;
+
+    height: 44px;
+
+    padding: 0 12px;
+
+    border: 1px solid #d4d4d4;
+    border-radius: 8px;
+
+    background: #fff;
+
+    font-size: 14px;
+
+    outline: none;
+}
+
+.campo-conclusao input:focus,
+.campo-conclusao select:focus {
+    border-color: #555;
+}
+
+.botoes-conclusao {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 25px;
+}
+
+.botoes-conclusao button {
+    height: 42px;
+
+    padding: 0 18px;
+
+    border: none;
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.btn-cancelar-conclusao {
+    background: #e8e8e8;
+    color: #333;
+}
+
+.btn-cancelar-conclusao:hover {
+    background: #dcdcdc;
+}
+
+.btn-confirmar-conclusao {
+    background: #222;
+    color: white;
+}
+
+.btn-confirmar-conclusao:hover {
+    background: #000;
+}

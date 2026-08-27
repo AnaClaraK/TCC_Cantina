@@ -19,7 +19,14 @@
         <div id="d_inp">
             <div class="busca-box">
                 <img src="../backend/imagens/lupa.png" class="icone-busca">
+
                 <input type="text" id="inputBusca" placeholder="Buscar por nome ou data...">
+
+                <label for="filtroData" class="icone-calendario">
+                <img src="../backend/imagens/calendariof_p.png" alt="Selecionar data">
+                </label>
+
+                <input type="date" id="filtroData">
             </div>
         </div>
     </div>
@@ -115,7 +122,7 @@ if (dataRaw) {
 }
 
 tbody.innerHTML += `
-    <tr data-id="${item.id_pedido}">
+    <tr data-id="${item.id_pedido}" data-data="${dataRaw}">
         <td>${item.cliente_nome || "Cliente"}</td>
         <td>${item.produtos.map(p => p.nome).join(", ")}</td>
         <td>R$ ${Number(item.valor_total).toFixed(2).replace(".", ",")}</td>
@@ -194,40 +201,73 @@ function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
 };
 }
 const inputBusca = document.getElementById("inputBusca");
+const filtroData = document.getElementById("filtroData");
 
-inputBusca.addEventListener("keyup", function () {
-    const termo = this.value.toLowerCase().trim();
+function filtrarAgendamentos() {
+    const termo = inputBusca.value.toLowerCase().trim();
+    const dataSelecionada = filtroData.value;
+
     const linhas = document.querySelectorAll("#tb_tbl_produtos tr");
 
     linhas.forEach(linha => {
-        // Pegamos o texto da coluna Nome (índice 0) e da coluna Data (índice 4)
-        const colunas = line = linha.getElementsByTagName("td");
-        
-        // Se a linha for a de "Nenhum agendamento encontrado", ela não terá 6 colunas
-        if (colunas.length >= 5) {
-            const nomeCliente = colunas[0].textContent.toLowerCase();
-            const dataAgendamento = colunas[4].textContent.toLowerCase();
 
-            // Verifica se o termo pesquisado está no nome OU na data
-            if (nomeCliente.includes(termo) || dataAgendamento.includes(termo)) {
-                linha.style.display = "";
-            } else {
-                linha.style.display = "none";
+        const colunas = linha.getElementsByTagName("td");
+
+        // Ignora a linha de mensagem
+        if (colunas.length < 6) return;
+
+        const nomeCliente = colunas[0].textContent
+            .toLowerCase()
+            .trim();
+
+        // Data original que veio do banco
+        const dataOriginal = linha.dataset.data;
+
+        let dataLinha = "";
+
+        if (dataOriginal) {
+            const data = new Date(dataOriginal);
+
+            if (!isNaN(data.getTime())) {
+                const ano = data.getFullYear();
+                const mes = String(data.getMonth() + 1).padStart(2, "0");
+                const dia = String(data.getDate()).padStart(2, "0");
+
+                dataLinha = `${ano}-${mes}-${dia}`;
             }
         }
-    });
-});
 
-document.addEventListener("DOMContentLoaded", () => {
-    if (!token) {
-        exibirAviso(
-            "Acesso restrito! Redirecionando para o login...",
-            () => {
-                window.location.href = "login.html";
-            }
-        );
-    }
-});
+        // Busca pelo nome
+        const correspondeNome =
+            nomeCliente.includes(termo);
+
+        // Busca digitando a data
+        const dataFormatada =
+            colunas[5].textContent.toLowerCase();
+
+        const correspondeBuscaData =
+            dataFormatada.includes(termo);
+
+        // Filtro do calendário
+        const correspondeData =
+            !dataSelecionada || dataLinha === dataSelecionada;
+
+        // Mostra/esconde a linha
+        if (
+            (correspondeNome || correspondeBuscaData) &&
+            correspondeData
+        ) {
+            linha.style.display = "";
+        } else {
+            linha.style.display = "none";
+        }
+    });
+}
+
+inputBusca.addEventListener("input", filtrarAgendamentos);
+
+filtroData.addEventListener("change", filtrarAgendamentos);
+
 
 window.addEventListener("load", carregarAgendamentos);
 </script>

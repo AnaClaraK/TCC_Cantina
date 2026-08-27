@@ -19,7 +19,7 @@ import Constants from 'expo-constants'; // 1. IMPORTADO O CONSTANTS
 
 // 2. DETECÇÃO DINÂMICA DO IP DA SUA MÁQUINA VIA EXPO
 const hostUri = Constants.expoConfig?.hostUri || Constants.manifest2?.extra?.expoGo?.developer?.manifest?.debuggerHost;
-const IP_SERVIDOR = hostUri ? hostUri.split(':')[0] : '10.111.9.11'; // Fallback se não detectar
+const IP_SERVIDOR = hostUri ? hostUri.split(':')[0] : '10.111.9.44'; // Fallback se não detectar
 const URL_API = `http://${IP_SERVIDOR}:3000`;
 
 const CORES = {

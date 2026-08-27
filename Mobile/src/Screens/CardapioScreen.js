@@ -15,7 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import NotificacaoModal from '../Components/Modal'; 
 const MODO_DEV = true; 
 
-const IP_SERVIDOR = "10.111.9.11"; 
+const IP_SERVIDOR = "10.111.9.44"; 
 const URL_API = `http://${IP_SERVIDOR}:3000`;
 
 const CORES = {

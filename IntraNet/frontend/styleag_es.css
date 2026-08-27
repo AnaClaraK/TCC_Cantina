@@ -1722,3 +1722,40 @@ BOTÕES
     font-size:20px;
     font-weight:bold;
 }
+.busca-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+#inputBusca {
+    width: 100%;
+    padding-right: 50px;
+}
+
+.icone-calendario {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.icone-calendario img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+#filtroData {
+    position: absolute;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 3;
+}
