@@ -131,6 +131,8 @@
      <button id="b_comanda" class="b_atalho">📋 (C)</button>
      <button id="b_canc">Cancelar (ESC)</button>
      <button id="b_final" disabled>Finalizar Compra (F12)</button>
+     <button id="btnContasFiado">Contas Fiado</button>
+     
     </div>
 </section>
 <div id="erro_overlay">
@@ -155,7 +157,7 @@
     <div class="aviso_box">
         <p id="msg_aviso"></p>
         <div class="aviso_botoes">
-            <button id="b_confirmar_aviso">Sim</button>
+            <button id="b_confirmar_aviso">OK</button>
             <button id="b_cancelar_aviso" style="display:none;">Cancelar</button>
         </div>
     </div>
@@ -216,6 +218,44 @@
     </div>
   </div>
 </dialog>
+
+<body>
+
+    <!-- TODO O CONTEÚDO DO SEU PDV -->
+    ...
+
+    <!-- MODAL ADICIONAR COMPRA -->
+    <dialog id="d_modal_fiado">
+        <div class="modal_box">
+            <button id="b_close_modal">x</button>
+
+            <h2 class="modal_titulo">Nova Compra Fiado</h2>
+
+            <input type="text" class="inp_m" id="inp_busca_cliente" placeholder="Buscar cliente...">
+            <ul id="lista_clientes"></ul>
+
+            <p class="pm">
+                Cliente: <span id="s_cliente">---</span>
+            </p>
+
+            <button id="b_abrir_produtos">Adicionar Produtos</button>
+
+            <div id="produtos_selecionados"></div>
+
+            <p class="pm">
+                Total: <span id="s_total_fiado">R$ 0,00</span>
+            </p>
+
+            <input type="text" class="inp_m" id="inp_origem_fiado" placeholder="Origem (ex: Loja, WhatsApp, Instagram...)">
+
+            <input type="date" class="inp_m" id="inp_data_fiado">
+
+            <button id="b_salvar_fiado">Salvar Compra</button>
+        </div>
+    </dialog>
+
+</body>
+
 <script>
     // Seletores do novo aviso customizado
     const aviso = document.getElementById("d_aviso");
@@ -1111,7 +1151,14 @@ function confirmarCancelamento() {
         true
     );
 }
-    inputBusca.addEventListener("keydown", (event) => {
+
+    // ===== BOTÃO CANCELAR =====
+    const b_canc = document.getElementById("b_canc");
+
+    b_canc.addEventListener("click", () => {
+        confirmarCancelamento();
+    });
+        inputBusca.addEventListener("keydown", (event) => {
         const itens = lista.querySelectorAll("li");
         if (event.key === "ArrowDown") {
             event.preventDefault();
@@ -1856,6 +1903,8 @@ pgDinheiroBtn.addEventListener("click", () => {
     setTimeout(() => inpValorPago.focus(), 100);
 });
 
+
+
 // Atualizar cálculo de Troco e Valor do Botão ao digitar
 inpValorPago.addEventListener("input", () => {
     const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
@@ -1878,6 +1927,14 @@ bConfirmarDinheiro.addEventListener("click", () => {
     dialogDinheiro.close();
     nova_venda.disabled = false; // Habilita o botão "Nova Venda (F11)"
 });
+
+document.getElementById("btn_conta_fiado").onclick = () => {
+    document.getElementById("d_modal_fiado").showModal();
+};
+
+
 </script>
+
+
 </body>
 </html>
