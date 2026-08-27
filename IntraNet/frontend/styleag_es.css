@@ -1759,3 +1759,142 @@ BOTÕES
     cursor: pointer;
     z-index: 3;
 }
+
+/*Reposição/*
+/* =========================================================
+   LISTA DE PRIORIDADES - REPOSIÇÃO
+   ========================================================= */
+
+/* Botão/campo de prioridade */
+#prioridade,
+#selectPrioridade,
+#prioridadeBtn {
+    background-color: #efac4a !important;
+    color: #1c1c1c !important;
+    border: 2px solid #1c1c1c !important;
+    border-radius: 10px;
+    font-size: 14px !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Remove o azul padrão ao clicar/focar */
+#prioridade:focus,
+#selectPrioridade:focus,
+#prioridadeBtn:focus,
+#prioridade:active,
+#selectPrioridade:active {
+    outline: none !important;
+    border-color: #1c1c1c !important;
+    box-shadow: 0 0 0 2px rgba(239, 172, 74, 0.35) !important;
+}
+
+/* Opções da lista */
+#prioridade option {
+    background-color: #1c1c1c !important;
+    color: #efac4a !important;
+    font-size: 14px !important;
+}
+
+/* Opção selecionada */
+#prioridade option:checked {
+    background-color: #efac4a !important;
+    color: #1c1c1c !important;
+}
+
+/* =========================================================
+   BOTÃO "ADICIONAR PRODUTO"
+   ========================================================= */
+
+#btnAdicionarProduto,
+.btn-adicionar-produto {
+    background-color: #1c1c1c !important;
+    color: #efac4a !important;
+    border: 2px solid #efac4a !important;
+    border-radius: 10px;
+    font-size: 14px !important;
+    font-weight: bold;
+    outline: none !important;
+    box-shadow: none !important;
+    cursor: pointer;
+}
+
+/* Tira o azul de foco do navegador */
+#btnAdicionarProduto:focus,
+.btn-adicionar-produto:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(239, 172, 74, 0.35) !important;
+    border-color: #efac4a !important;
+}
+
+/* Hover */
+#btnAdicionarProduto:hover,
+.btn-adicionar-produto:hover {
+    background-color: #efac4a !important;
+    color: #1c1c1c !important;
+}
+
+/* =========================================================
+   LISTA PERSONALIZADA DE PRIORIDADES
+   ========================================================= */
+
+#listaPrioridades,
+.lista-prioridades {
+    background-color: #1c1c1c !important;
+    border: 2px solid #efac4a !important;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    overflow-y: auto;
+}
+
+/* Itens */
+#listaPrioridades li,
+.lista-prioridades li,
+#listaPrioridades div,
+.lista-prioridades div {
+    background-color: #1c1c1c !important;
+    color: #efac4a !important;
+    font-size: 14px !important;
+    padding: 9px 12px !important;
+    border-bottom: 1px solid #333;
+    cursor: pointer;
+}
+
+/* Hover */
+#listaPrioridades li:hover,
+.lista-prioridades li:hover,
+#listaPrioridades div:hover,
+.lista-prioridades div:hover {
+    background-color: #efac4a !important;
+    color: #1c1c1c !important;
+}
+
+/* Selecionado */
+#listaPrioridades .selecionada,
+.lista-prioridades .selecionada {
+    background-color: #efac4a !important;
+    color: #1c1c1c !important;
+    font-weight: bold;
+}
+
+/* Scroll */
+#listaPrioridades::-webkit-scrollbar,
+.lista-prioridades::-webkit-scrollbar {
+    width: 7px;
+}
+
+#listaPrioridades::-webkit-scrollbar-track,
+.lista-prioridades::-webkit-scrollbar-track {
+    background: #1c1c1c;
+}
+
+#listaPrioridades::-webkit-scrollbar-thumb,
+.lista-prioridades::-webkit-scrollbar-thumb {
+    background: #efac4a;
+    border-radius: 10px;
+}
+
+#listaPrioridades::-webkit-scrollbar-thumb:hover,
+.lista-prioridades::-webkit-scrollbar-thumb:hover {
+    background: #f8c471;
+}

@@ -127,7 +127,6 @@ body.fundo-marrom .user-name{
     border-bottom: 1px solid #444;
 }
 
-/* --- SIDEBAR E NAVEGAÇÃO --- */
 .custom-sidebar {
     width: var(--sidebar-collapsed-width);
     height: 100vh;
@@ -139,11 +138,12 @@ body.fundo-marrom .user-name{
     overflow: hidden;
     z-index: 999;
     padding-top: var(--header-height);
+    border-right: 2px solid #000;
+    box-sizing: border-box;
 }
 
-/* Quando a sidebar abre (via Classe no Body) */
 body.sidebar-open {
-    padding-left: var(--sidebar-width);
+    padding-left: var(--sidebar-collapsed-width);
 }
 
 body.sidebar-open .custom-sidebar {
