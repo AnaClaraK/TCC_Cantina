@@ -26,10 +26,7 @@
                     <img id="preview-perfil" src=""/>
                 </div>
     
-                <label class="file-label">
-                    Trocar Foto
-                    <input type="file" name="imagem" id="inputImagemPerfil" accept="image/*">
-                </label>
+                
     
                 <label class="label-amarela">Nome</label>
                 <input type="text" id="edit-nome" name="nome" class="inp_p" placeholder="Seu nome">
@@ -53,6 +50,9 @@
         </div>
     
         <div class="botoes-fileira">
+            <label for="inputImagemPerfil" class="btn-p btn-trocar">
+        Trocar Imagem
+    </label>
             <button type="submit" class="btn-p">Salvar</button>
             <button type="button" onclick="window.location.href='index.html'" class="btn-p btn-cinza">Cancelar</button>
             <button type="button" onclick="logout()" class="btn-p btn-vermelho">Desconectar</button>
