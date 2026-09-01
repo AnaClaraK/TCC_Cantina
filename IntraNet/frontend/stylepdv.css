@@ -464,7 +464,7 @@ dialog::backdrop {
 
 #d_modal {
     width: min(600px, calc(100vw - 32px));
-    height: min(750px, calc(100dvh - 32px));
+    height: min(820px, calc(100dvh - 32px));
     max-width: 95%;
     
     padding: 0;
@@ -973,7 +973,7 @@ dialog::backdrop {
 
     color: #f1b869;
     border-bottom: 1px solid #5a4332;
-
+    
     font-size: 1.6rem;
     font-weight: 800;
     letter-spacing: 0.5px;
@@ -1559,17 +1559,18 @@ MODAL FIADO / PRODUTOS
     width: 430px;
     max-width: 90vw;
     padding: 30px;
-    background: #fff;
+    background: #1c1c1c;
+    border: 2px solid #efac4a;
     border-radius: 12px;
     box-sizing: border-box;
-    color: #1c1c1c;
+    color: #ffffff;
 }
 
 #dialogDinheiro .conteudo-dinheiro h2 {
     margin: 0 0 25px;
     text-align: center;
     font-size: 24px;
-    color: #5b321c;
+    color: #efac4a;
 }
 
 
@@ -1708,9 +1709,9 @@ MODAL FIADO / PRODUTOS
 
     padding: 30px;
 
-    background: #fff;
+    background: #1c1c1c;
     border-radius: 12px;
-
+    border: 2px solid #efac4a;
     box-sizing: border-box;
     color: #1c1c1c;
 }
@@ -1721,7 +1722,8 @@ MODAL FIADO / PRODUTOS
     text-align: center;
 
     font-size: 23px;
-    color: #5b321c;
+    width: 360px;
+    color: #efac4a;
 }
 
 
@@ -1790,6 +1792,7 @@ MODAL FIADO / PRODUTOS
 #dialogCredito .credito-campo label {
     font-size: 16px;
     font-weight: bold;
+    color: #efac4a;
 }
 
 #sel_parcelas_credito {

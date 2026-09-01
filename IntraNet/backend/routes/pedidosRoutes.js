@@ -4,7 +4,12 @@ const router = express.Router();
 const conexao = require('../db');
 const verificarToken = require('../middlewares/auth');
 
-const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
+// Função auxiliar para sanitizar o nome da forma de pagamento
+function limparFormaPagamento(valor) {
+    return String(valor || "")
+        .replace(/\s*\(F\d+\)\s*/gi, "")
+        .trim();
+}
 // ==================== PRÓXIMO NÚMERO DO PEDIDO ====================
 // Prévia usada pelo PDV antes da finalização.
 // NÃO cria pedido no banco.
