@@ -916,10 +916,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function calcularValorComJuros(valorOriginal, diasAtraso) {
-        const valor = Number(valorOriginal) || 0;
-        const dias = Math.max(0, Number(diasAtraso) || 0);
-        return valor * Math.pow(1 + PORCENTAGEM_JUROS, dias);
-    }
+    const valor = Number(valorOriginal) || 0;
+    const dias = Math.max(0, Number(diasAtraso) || 0);
+
+    return valor * (1 + (PORCENTAGEM_JUROS * dias));
+}
 
     function formatarMoeda(valor) {
         return Number(valor || 0).toLocaleString("pt-BR", {
@@ -972,7 +973,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     : "-";
 
                 const valorOriginal = Number(conta.valor_original ?? conta.valor ?? 0);
-                const jurosBackend = Number(conta.juros_aplicado) === 1 || conta.juros_aplicado === true;
                 const vencida = contaEstaVencida(conta.data_vencimento);
                 const diasAtrasoBackend = Number(conta.dias_atraso);
                 
@@ -980,15 +980,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     ? diasAtrasoBackend
                     : calcularDiasAtraso(conta.data_vencimento);
 
-                const temJuros = jurosBackend || vencida;
+                const temJuros = diasAtraso > 0;
                 let valorFinal = valorOriginal;
 
                 if (temJuros) {
-                    if (conta.valor_final !== null && conta.valor_final !== undefined && Number(conta.valor_final) > 0) {
-                        valorFinal = Number(conta.valor_final);
-                    } else {
-                        valorFinal = calcularValorComJuros(valorOriginal, diasAtraso);
-                    }
+                    valorFinal = calcularValorComJuros(
+                        valorOriginal,
+                        diasAtraso
+                    );
                 }
 
                 const percentualJuros = valorOriginal > 0 ? ((valorFinal / valorOriginal) - 1) * 100 : 0;

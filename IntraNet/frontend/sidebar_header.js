@@ -300,3 +300,131 @@ function normalizarTexto(texto) {
 }
 
 document.addEventListener('DOMContentLoaded', carregarMenu);
+// =====================================================
+// 🔄 SINCRONIZAR DADOS DO USUÁRIO COM O BANCO
+// =====================================================
+
+async function sincronizarPerfilUsuario() {
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            "http://localhost:3000/perfil/meus-dados",
+            {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            }
+        );
+
+
+        if (!response.ok) {
+            return;
+        }
+
+
+        const dados = await response.json();
+
+
+        // Atualiza nome
+
+        if (dados.nome) {
+
+            localStorage.setItem(
+                "usuarioNome",
+                dados.nome
+            );
+
+            const elNome =
+                document.getElementById("sidebar-nome");
+
+            if (elNome) {
+                elNome.innerText = dados.nome;
+            }
+
+        }
+
+
+        // Atualiza e-mail
+
+        if (dados.email) {
+
+            localStorage.setItem(
+                "usuarioEmail",
+                dados.email
+            );
+
+        }
+
+
+        // Atualiza foto
+
+        if (dados.foto) {
+
+            localStorage.setItem(
+                "usuarioFoto",
+                dados.foto
+            );
+
+
+            const elFoto =
+                document.getElementById("sidebar-foto");
+
+
+            if (elFoto) {
+
+                const caminho =
+                    dados.foto.startsWith("/")
+                        ? dados.foto
+                        : "/" + dados.foto;
+
+                elFoto.src =
+                    "http://localhost:3000" + caminho;
+
+            }
+
+        } else {
+
+            localStorage.removeItem(
+                "usuarioFoto"
+            );
+
+
+            const elFoto =
+                document.getElementById("sidebar-foto");
+
+
+            if (elFoto) {
+
+                elFoto.src =
+                    "../backend/imagens/def_avt.jpg";
+
+            }
+
+        }
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao sincronizar perfil:",
+            erro
+        );
+
+    }
+
+}
+
+
+// Executa depois que o menu existir
+
+document.addEventListener(
+    "DOMContentLoaded",
+    sincronizarPerfilUsuario
+);
