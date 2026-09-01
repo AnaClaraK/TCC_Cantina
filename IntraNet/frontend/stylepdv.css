@@ -1879,3 +1879,20 @@ MODAL FIADO / PRODUTOS
     opacity: 1 !important;
     cursor: not-allowed;
 }
+
+
+#relogio_pdv {
+    width: auto;
+    min-width: max-content;
+
+    margin: 0;
+    padding: 10px;
+
+    color: #f1b869;
+    font-size: clamp(0.875rem, 1vw, 1.125rem);
+    font-weight: bold;
+    text-align: center;
+    border-radius: 10px;
+
+    white-space: nowrap;
+}

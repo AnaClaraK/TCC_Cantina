@@ -51,7 +51,6 @@
         </small>
     </div>
     <img src="images/img_ntf.png" alt="imagem product" id="img_prod">
-    <div id="relogio_pdv"></div>
     <div class="grupo-input" id="total">
         <h2 id="h_ttl_c" class="titulo">Total da Compra</h2>
         <div id="d_ttl_c" class="inp_val">R$ 0,00</div>
@@ -135,7 +134,9 @@
      <button id="b_comanda" class="b_atalho">📋 (C)</button>
      <button id="b_canc">Cancelar (ESC)</button>
      <button id="b_final" disabled>Finalizar Compra (F12)</button>
-     <button id="btnContasFiado">Contas Fiado</button>
+     <div id="relogio_pdv"></div>
+</div>
+
      
     </div>
 </section>
@@ -2714,6 +2715,27 @@ if (bConfirmarCredito && dialogCredito) {
 }
 
 
+function iniciarRelogioLinha() {
+    const el = document.getElementById("data_hora_pdv");
+    if (!el) return;
+    
+    function atualizar() {
+        const agora = new Date();
+        const data = agora.toLocaleDateString("pt-BR");
+        const hora = agora.toLocaleTimeString("pt-BR");
+        el.innerText = `${data} ${hora}`;
+    }
+
+    atualizar();
+    setInterval(atualizar, 1000);
+}
+
+// Garante a execução assim que carregar
+if (document.readyState === "complete" || document.readyState === "interactive") {
+    iniciarRelogioLinha();
+} else {
+    document.addEventListener("DOMContentLoaded", iniciarRelogioLinha);
+}
 
 </script>
 
