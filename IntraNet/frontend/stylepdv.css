@@ -1531,3 +1531,348 @@ MODAL FIADO / PRODUTOS
     transform: translateY(0);
 }
 
+/* =========================================================
+   MODAIS DE PAGAMENTO
+   ========================================================= */
+
+#dialogDinheiro,
+#dialogCredito {
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+    background: transparent;
+    overflow: visible;
+}
+
+#dialogDinheiro::backdrop,
+#dialogCredito::backdrop {
+    background: rgba(0, 0, 0, 0.65);
+}
+
+
+/* =========================================================
+   MODAL DINHEIRO
+   ========================================================= */
+
+#dialogDinheiro .conteudo-dinheiro {
+    position: relative;
+    width: 430px;
+    max-width: 90vw;
+    padding: 30px;
+    background: #fff;
+    border-radius: 12px;
+    box-sizing: border-box;
+    color: #1c1c1c;
+}
+
+#dialogDinheiro .conteudo-dinheiro h2 {
+    margin: 0 0 25px;
+    text-align: center;
+    font-size: 24px;
+    color: #5b321c;
+}
+
+
+/* Botão X do dinheiro */
+
+#b_fechar_dinheiro {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+
+    width: 34px;
+    height: 34px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: transparent;
+    color: #555;
+
+    font-size: 26px;
+    font-weight: bold;
+
+    line-height: 30px;
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+#b_fechar_dinheiro:hover {
+    background: #eee;
+    color: #111;
+}
+
+
+/* Linhas */
+
+#dialogDinheiro .linha-modal {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    margin-bottom: 18px;
+
+    font-size: 17px;
+}
+
+#dialogDinheiro .linha-modal strong {
+    font-size: 19px;
+}
+
+
+/* Input valor recebido */
+
+#inp_valor_pago {
+    width: 150px;
+    padding: 10px 12px;
+
+    border: 1px solid #ccc;
+    border-radius: 6px;
+
+    font-size: 17px;
+    text-align: right;
+
+    box-sizing: border-box;
+}
+
+#inp_valor_pago:focus {
+    outline: none;
+    border-color: #efac4a;
+    box-shadow: 0 0 0 2px rgba(239, 172, 74, 0.2);
+}
+
+
+/* Caixa do troco */
+
+#dialogDinheiro .box-troco {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-top: 20px;
+    padding: 15px;
+
+    border-radius: 8px;
+    background: #f5f5f5;
+
+    font-size: 18px;
+}
+
+#dialogDinheiro .box-troco strong {
+    font-size: 21px;
+}
+
+
+/* Botões */
+
+#dialogDinheiro .acoes-modal {
+    display: flex;
+    justify-content: center;
+
+    margin-top: 25px;
+}
+
+#b_confirmar_dinheiro {
+    width: 100%;
+    padding: 13px;
+
+    border: none;
+    border-radius: 7px;
+
+    background: #efac4a;
+    color: #1c1c1c;
+
+    font-size: 17px;
+    font-weight: bold;
+
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#b_confirmar_dinheiro:hover {
+    filter: brightness(0.95);
+}
+
+
+/* =========================================================
+   MODAL CARTÃO DE CRÉDITO
+   ========================================================= */
+
+#dialogCredito .conteudo-credito {
+    position: relative;
+
+    width: 450px;
+    max-width: 90vw;
+
+    padding: 30px;
+
+    background: #fff;
+    border-radius: 12px;
+
+    box-sizing: border-box;
+    color: #1c1c1c;
+}
+
+#dialogCredito .conteudo-credito h2 {
+    margin: 0 35px 25px 0;
+
+    text-align: center;
+
+    font-size: 23px;
+    color: #5b321c;
+}
+
+
+/* X */
+
+#b_fechar_credito {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+
+    width: 34px;
+    height: 34px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: transparent;
+    color: #555;
+
+    font-size: 27px;
+    font-weight: bold;
+
+    line-height: 30px;
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+#b_fechar_credito:hover {
+    background: #eee;
+    color: #111;
+}
+
+
+/* Total */
+
+#dialogCredito .credito-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 22px;
+    padding: 14px;
+
+    border-radius: 8px;
+    background: #f5f5f5;
+
+    font-size: 17px;
+}
+
+#dialogCredito .credito-total strong {
+    font-size: 20px;
+}
+
+
+/* Campo parcelas */
+
+#dialogCredito .credito-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    margin-bottom: 20px;
+}
+
+#dialogCredito .credito-campo label {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#sel_parcelas_credito {
+    width: 100%;
+    padding: 11px;
+
+    border: 1px solid #ccc;
+    border-radius: 6px;
+
+    background: #fff;
+
+    font-size: 17px;
+    cursor: pointer;
+}
+
+#sel_parcelas_credito:focus {
+    outline: none;
+    border-color: #efac4a;
+    box-shadow: 0 0 0 2px rgba(239, 172, 74, 0.2);
+}
+
+
+/* Valor da parcela */
+
+#dialogCredito .credito-parcela {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 25px;
+    padding: 15px;
+
+    border-radius: 8px;
+    background: #f5f5f5;
+
+    font-size: 17px;
+}
+
+#dialogCredito .credito-parcela strong {
+    font-size: 20px;
+}
+
+
+/* Confirmar */
+
+#b_confirmar_credito {
+    width: 100%;
+    padding: 13px;
+
+    border: none;
+    border-radius: 7px;
+
+    background: #efac4a;
+    color: #1c1c1c;
+
+    font-size: 17px;
+    font-weight: bold;
+
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#b_confirmar_credito:hover {
+    filter: brightness(0.95);
+}
+
+
+/* =========================================================
+   PARCELAS AINDA NÃO SELECIONADAS
+   ========================================================= */
+
+#sel_parcelas_credito.parcela-nao-selecionada {
+    border-color: #d9534f;
+    box-shadow: 0 0 0 2px rgba(217, 83, 79, 0.15);
+}
+.pagamento.selecionado {
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+    border-color: #efac4a !important;
+    font-weight: bold;
+    box-shadow: 0 0 0 2px rgba(239, 172, 74, 0.25);
+}
+.pagamento:disabled {
+    opacity: 1 !important;
+    cursor: not-allowed;
+}

@@ -5,6 +5,46 @@ const conexao = require('../db');
 const verificarToken = require('../middlewares/auth');
 
 const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
+// ==================== PRÓXIMO NÚMERO DO PEDIDO ====================
+// Prévia usada pelo PDV antes da finalização.
+// NÃO cria pedido no banco.
+router.get("/pedidos/proximo-numero", verificarToken, async (req, res) => {
+    try {
+        const [resultado] = await conexao.query(
+            `
+            SELECT
+                COALESCE(MAX(num_pedido), 0) AS ultimoNumero
+            FROM pedidos
+            `
+        );
+
+        const proximo_numero =
+            Number(resultado[0]?.ultimoNumero || 0) + 1;
+
+        console.log(
+            "PRÓXIMO NÚMERO DO PEDIDO:",
+            proximo_numero
+        );
+
+        return res.json({
+            sucesso: true,
+            num_pedido: proximo_numero,
+            proximo_numero
+        });
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao buscar próximo número do pedido:",
+            erro
+        );
+
+        return res.status(500).json({
+            sucesso: false,
+            erro: "Não foi possível obter o próximo número do pedido."
+        });
+    }
+});
 
 // ==================== PDV: ROTA DE PEDIDOS ====================
 router.post("/pedidos", verificarToken, async (req, res) => {
