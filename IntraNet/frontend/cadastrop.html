@@ -27,9 +27,10 @@
 
             <input type="text" name="codigo" id="codigo" class="inp_p" placeholder="Código" inputmode="numeric">
             <input type="text" name="nome" id="nome" class="inp_p" placeholder="Nome">
-            <input type="text" name="descricao" id="descricao" class="inp_p" placeholder="Descrição">
             <input type="number" name="preco" id="preco" class="inp_p" placeholder="Preço" step="0.01">
             <input type="number" name="quantidade" id="quantidade" class="inp_p" placeholder="Quantidade">
+            <input type="text" name="descricao" id="descricao" class="inp_p" placeholder="Descrição">
+            <input type="text" name="img_nome" id="img_nome"class="inp_p" placeholder="Nome da Imagem ex:coca_2l">
             <div class="select-categoria" id="selectCategoria">
                 <button type="button" class="select-categoria-btn" id="categoriaBtn">
                     <span id="categoriaTexto">Selecione a categoria</span>
@@ -37,13 +38,18 @@
                 </button>
 
                 <div class="select-categoria-lista" id="categoriaLista"></div>
-
+        
                 <input type="hidden" name="id_categoria" id="categoria">
             </div>
+            
             <label class="file-label">
                 Escolher imagem do produto
                 <input type="file" name="imagem" id="inputImagem" accept="image/*">
             </label>
+
+            
+
+<img id="preview">
 
             <img id="preview">
 
@@ -138,6 +144,13 @@
             exibirAviso("O nome do produto deve ter pelo menos 3 caracteres.");
             return;
         }
+
+        const nomeImagem = document.getElementById("img_nome").value.trim();
+
+if (!nomeImagem) {
+    exibirAviso("Digite o nome da imagem.");
+    return;
+}
 
         if (apenasNumeros.test(nome)) {
             exibirAviso("O nome do produto não pode conter apenas números.");

@@ -86,12 +86,32 @@
 
                 <label class="pm">Prioridade</label>
 
-                <select class="inp_m select-prioridade" id="inp_add_prioridade">
-                    <option value="Baixa">Baixa</option>
-                    <option value="Média">Média</option>
-                    <option value="Alta">Alta</option>
-                </select>
+               <input type="hidden" id="inp_add_prioridade" value="">
 
+<div class="select-categoria select-prioridade" id="selectPrioridade">
+
+    <button type="button" class="select-categoria-btn" id="btnPrioridade">
+        <span id="textoPrioridade"></span>
+        <span class="select-seta">▼</span>
+    </button>
+
+    <div class="select-categoria-lista" id="listaPrioridade">
+
+        <div class="categoria-opcao" data-value="Baixa">
+            Baixa
+        </div>
+
+        <div class="categoria-opcao" data-value="Média">
+            Média
+        </div>
+
+        <div class="categoria-opcao" data-value="Alta">
+            Alta
+        </div>
+
+    </div>
+
+</div>
             </div>
         
             <button class="b_addf">Confirmar</button>
@@ -242,6 +262,7 @@ function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
 // Lógica de abrir/fechar
 b_addq.addEventListener("click", () => {
     limparModal();
+    
     modal.showModal();
 });
 
@@ -249,6 +270,33 @@ b_close_modal.addEventListener("click", () => {
     modal.close();
 });
 
+function limparModal() {
+    inpBuscaModal.value = "";
+
+    if (inpBuscaModal.dataset) {
+        inpBuscaModal.dataset.codigo = "";
+    }
+
+    document.getElementById("s_produto").innerText = "---";
+    document.getElementById("s_qtda").innerText = "0";
+    document.getElementById("inp_add_qtd").value = "";
+    document.getElementById("inp_add_local").value = "";
+    document.getElementById("inp_add_prioridade").value = "";
+
+    lista.innerHTML = "";
+
+    // Prioridade começa vazia
+    textoPrioridade.textContent = "";
+
+    // Remove qualquer seleção anterior
+    listaPrioridade
+        .querySelectorAll(".categoria-opcao")
+        .forEach(item => {
+            item.classList.remove("selecionada");
+        });
+
+    selectPrioridade.classList.remove("aberto");
+}
 // Confirmar Adição na tabela de reposição
 b_addf.addEventListener("click", async () => {
     const nome = document.getElementById("s_produto").innerText;
@@ -311,15 +359,6 @@ if (local.length < 3) {
     }
 });
 
-function limparModal() {
-    inpBuscaModal.value = "";
-    if(inpBuscaModal.dataset) inpBuscaModal.dataset.codigo = "";
-    document.getElementById("s_produto").innerText = "---";
-    document.getElementById("s_qtda").innerText = "0";
-    document.getElementById("inp_add_qtd").value = "";
-    document.getElementById("inp_add_local").value = "";
-    lista.innerHTML = "";
-}
 
 // Apagar funções de botões do topo
 b_apagar_prod.addEventListener("click", () => {
@@ -545,6 +584,54 @@ async function carregarReposicao() {
         );
     });
 }
+const selectPrioridade = document.getElementById("selectPrioridade");
+const btnPrioridade = document.getElementById("btnPrioridade");
+const textoPrioridade = document.getElementById("textoPrioridade");
+const listaPrioridade = document.getElementById("listaPrioridade");
+const inputPrioridade = document.getElementById("inp_add_prioridade");
+
+btnPrioridade.addEventListener("click", (e) => {
+    e.stopPropagation();
+
+    selectPrioridade.classList.toggle("aberto");
+});
+
+listaPrioridade.querySelectorAll(".categoria-opcao").forEach(opcao => {
+
+    opcao.addEventListener("click", () => {
+
+        const valor = opcao.dataset.value;
+
+        // Atualiza texto
+        textoPrioridade.textContent = valor;
+
+        // Atualiza valor que será enviado para o backend
+        inputPrioridade.value = valor;
+
+        // Remove seleção das outras opções
+        listaPrioridade
+            .querySelectorAll(".categoria-opcao")
+            .forEach(item => {
+                item.classList.remove("selecionada");
+            });
+
+        // Marca a escolhida
+        opcao.classList.add("selecionada");
+
+        // Fecha a lista
+        selectPrioridade.classList.remove("aberto");
+    });
+
+});
+
+// Fecha clicando fora
+document.addEventListener("click", (e) => {
+
+    if (!selectPrioridade.contains(e.target)) {
+        selectPrioridade.classList.remove("aberto");
+    }
+
+});
 
 document.addEventListener("DOMContentLoaded", () => {
     carregarProdutos();
