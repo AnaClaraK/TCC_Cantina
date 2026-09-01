@@ -423,2350 +423,810 @@
 
 
 <script>
-
 document.addEventListener("DOMContentLoaded", () => {
 
     /* ======================================================
        ELEMENTOS
     ====================================================== */
+    const modalFiado = document.getElementById("d_modal_fiado");
+    const modalProdutos = document.getElementById("d_modal_produtos");
+    const modalCliente = document.getElementById("modal_cliente");
+    const modalAviso = document.getElementById("d_aviso");
+    const modalConclusaoFiado = document.getElementById("modalConclusaoFiado");
 
-    const modalFiado =
-        document.getElementById("d_modal_fiado");
+    const listaClientes = document.getElementById("lista_clientes");
+    const listaProdutos = document.getElementById("lista_produtos");
+    const areaProdutosModal = document.getElementById("area_produtos_modal");
+    const areaProdutosPrincipal = document.getElementById("produtos_selecionados");
 
-    const modalProdutos =
-        document.getElementById("d_modal_produtos");
+    const msgAviso = document.getElementById("msg_aviso");
+    const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
+    const bCancelarAviso = document.getElementById("b_cancelar_aviso");
 
-    const modalCliente =
-        document.getElementById("modal_cliente");
-
-    const modalAviso =
-        document.getElementById("d_aviso");
-
-    const modalConclusaoFiado =
-        document.getElementById("modalConclusaoFiado");
-
-    const listaClientes =
-        document.getElementById("lista_clientes");
-
-    const listaProdutos =
-        document.getElementById("lista_produtos");
-
-    const areaProdutosModal =
-        document.getElementById("area_produtos_modal");
-
-    const areaProdutosPrincipal =
-        document.getElementById("produtos_selecionados");
-
-    const msgAviso =
-        document.getElementById("msg_aviso");
-
-    const bConfirmarAviso =
-        document.getElementById("b_confirmar_aviso");
-
-    const bCancelarAviso =
-        document.getElementById("b_cancelar_aviso");
-
-    const dataConclusaoFiado =
-        document.getElementById("dataConclusaoFiado");
-
-    const formaPagamentoFiado =
-        document.getElementById("formaPagamentoFiado");
-
-    const btnCancelarConclusao =
-        document.getElementById("btnCancelarConclusao");
-
-    const btnConfirmarConclusao =
-        document.getElementById("btnConfirmarConclusao");
-
-    const btnFecharConclusao =
-        document.getElementById("btnFecharConclusao");
-
+    const dataConclusaoFiado = document.getElementById("dataConclusaoFiado");
+    const formaPagamentoFiado = document.getElementById("formaPagamentoFiado");
+    const btnCancelarConclusao = document.getElementById("btnCancelarConclusao");
+    const btnConfirmarConclusao = document.getElementById("btnConfirmarConclusao");
+    const btnFecharConclusao = document.getElementById("btnFecharConclusao");
 
     /* ======================================================
        ESTADO
     ====================================================== */
-
     let contaFiadoSelecionada = null;
-
     let clientesCache = [];
-
     let produtosCache = [];
-
     let clienteSelecionado = null;
-
     let produtosSelecionados = [];
-
     let clientePendente = null;
-
     let checkboxAtual = null;
 
-
-    /* ======================================================
-       CONFIGURAÇÃO DOS JUROS
-    ====================================================== */
-
-    const PORCENTAGEM_JUROS = 0.10;
-
+    /* CONFIGURAÇÃO DOS JUROS */
+    const PORCENTAGEM_JUROS = 0.10; // 10%
 
     /* ======================================================
        GARANTIR QUE OS ELEMENTOS EXISTEM
     ====================================================== */
-
     const elementosObrigatorios = [
-        modalFiado,
-        modalProdutos,
-        modalCliente,
-        modalAviso,
-        modalConclusaoFiado,
-        listaClientes,
-        listaProdutos,
-        areaProdutosModal,
-        areaProdutosPrincipal,
-        msgAviso,
-        bConfirmarAviso,
-        bCancelarAviso,
-        dataConclusaoFiado,
-        formaPagamentoFiado,
-        btnCancelarConclusao,
-        btnConfirmarConclusao,
-        btnFecharConclusao
+        modalFiado, modalProdutos, modalCliente, modalAviso, modalConclusaoFiado,
+        listaClientes, listaProdutos, areaProdutosModal, areaProdutosPrincipal,
+        msgAviso, bConfirmarAviso, bCancelarAviso, dataConclusaoFiado,
+        formaPagamentoFiado, btnCancelarConclusao, btnConfirmarConclusao, btnFecharConclusao
     ];
 
     if (elementosObrigatorios.some(elemento => !elemento)) {
-
-        console.error(
-            "Erro: um ou mais elementos do HTML não foram encontrados."
-        );
-
+        console.error("Erro: um ou mais elementos do HTML não foram encontrados.");
         return;
     }
 
-
     /* ======================================================
-       MODAIS
+       MODAIS & EVENTOS DE ABERTURA
     ====================================================== */
+    document.getElementById("b_nova_compra").onclick = async () => {
+        limparCompra();
+        modalFiado.showModal();
+        await carregarClientesModal();
+    };
 
-    document
-        .getElementById("b_nova_compra")
-        .onclick = async () => {
+    document.getElementById("b_addq").onclick = () => {
+        modalCliente.showModal();
+    };
 
-            limparCompra();
-
-            modalFiado.showModal();
-
-            await carregarClientesModal();
-        };
-
-
-    document
-        .getElementById("b_addq")
-        .onclick = () => {
-
-            modalCliente.showModal();
-        };
-
-
-    document
-        .getElementById("b_close_modal")
-        .onclick = () => {
-
-            modalFiado.close();
-        };
-
-
-    document
-        .getElementById("b_close_produtos")
-        .onclick = () => {
-
-            modalProdutos.close();
-        };
-
-
-    document
-        .getElementById("b_close_modal_cliente")
-        .onclick = () => {
-
-            modalCliente.close();
-        };
-
+    document.getElementById("b_close_modal").onclick = () => modalFiado.close();
+    document.getElementById("b_close_produtos").onclick = () => modalProdutos.close();
+    document.getElementById("b_close_modal_cliente").onclick = () => modalCliente.close();
 
     /* ======================================================
        CLIENTES
     ====================================================== */
-
     async function carregarClientesModal() {
-
         try {
+            const token = localStorage.getItem("token");
+            const res = await fetch("http://localhost:3000/clientes-fiado", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
 
-            const token =
-                localStorage.getItem("token");
-
-            const res = await fetch(
-                "http://localhost:3000/clientes-fiado",
-                {
-                    headers: {
-                        Authorization:
-                            `Bearer ${token}`
-                    }
-                }
-            );
-
-
-            if (
-                res.status === 401 ||
-                res.status === 403
-            ) {
-
-                redirecionarLogin(
-                    "Sessão expirada. Faça login novamente."
-                );
-
+            if (res.status === 401 || res.status === 403) {
+                redirecionarLogin("Sessão expirada. Faça login novamente.");
                 return;
             }
-
 
             if (!res.ok) {
-
-                exibirAviso(
-                    "Erro ao buscar lista de clientes."
-                );
-
+                exibirAviso("Erro ao buscar lista de clientes.");
                 return;
             }
 
-
-            const dados =
-                await res.json();
-
-
+            const dados = await res.json();
             if (!Array.isArray(dados)) {
-
-                console.error(
-                    "Resposta inválida ao carregar clientes:",
-                    dados
-                );
-
-                exibirAviso(
-                    "Resposta inválida do servidor."
-                );
-
+                console.error("Resposta inválida ao carregar clientes:", dados);
+                exibirAviso("Resposta inválida do servidor.");
                 return;
             }
-
 
             clientesCache = dados;
-
         } catch (err) {
-
-            console.error(
-                "Erro ao carregar clientes:",
-                err
-            );
-
-            exibirAviso(
-                "Erro de conexão ao carregar clientes."
-            );
+            console.error("Erro ao carregar clientes:", err);
+            exibirAviso("Erro de conexão ao carregar clientes.");
         }
     }
-
 
     function renderClientes(clientes) {
-
         listaClientes.innerHTML = "";
-
-        if (
-            !Array.isArray(clientes) ||
-            clientes.length === 0
-        ) {
-
+        if (!Array.isArray(clientes) || clientes.length === 0) {
             listaClientes.style.display = "none";
-
             return;
         }
-
 
         listaClientes.style.display = "block";
-
-
-        clientes
-            .slice(0, 10)
-            .forEach(cliente => {
-
-                const li =
-                    document.createElement("li");
-
-                li.innerText =
-                    cliente.nome_completo || "-";
-
-                li.onclick = () => {
-
-                    tentarSelecionarCliente(cliente);
-                };
-
-                listaClientes.appendChild(li);
-            });
+        clientes.slice(0, 10).forEach(cliente => {
+            const li = document.createElement("li");
+            li.innerText = cliente.nome_completo || "-";
+            li.onclick = () => tentarSelecionarCliente(cliente);
+            listaClientes.appendChild(li);
+        });
     }
 
-
     function tentarSelecionarCliente(cliente) {
-
-        if (
-            clienteSelecionado &&
-            produtosSelecionados.length > 0 &&
-            clienteSelecionado.id_cliente !==
-                cliente.id_cliente
-        ) {
-
+        if (clienteSelecionado && produtosSelecionados.length > 0 && clienteSelecionado.id_cliente !== cliente.id_cliente) {
             clientePendente = cliente;
-
-
             exibirAviso(
                 "Trocar cliente removerá os produtos atuais. Continuar?",
-
                 () => {
-
                     produtosSelecionados = [];
-
                     renderProdutosSelecionados();
-
-                    selecionarCliente(
-                        clientePendente
-                    );
-
+                    selecionarCliente(clientePendente);
                     clientePendente = null;
                 },
-
                 true
             );
-
             return;
         }
-
-
         selecionarCliente(cliente);
     }
 
-
     function selecionarCliente(cliente) {
-
         clienteSelecionado = cliente;
-
-
-        document.getElementById(
-            "s_cliente"
-        ).innerText =
-            cliente.nome_completo || "---";
-
-
-        document.getElementById(
-            "inp_busca_cliente"
-        ).value =
-            cliente.nome_completo || "";
-
-
+        document.getElementById("s_cliente").innerText = cliente.nome_completo || "---";
+        document.getElementById("inp_busca_cliente").value = cliente.nome_completo || "";
         listaClientes.innerHTML = "";
-
         listaClientes.style.display = "none";
     }
 
-
-    document
-        .getElementById("inp_busca_cliente")
-        .addEventListener(
-            "input",
-            function () {
-
-                const termo =
-                    this.value
-                        .toLowerCase()
-                        .trim();
-
-
-                if (!termo) {
-
-                    listaClientes.style.display =
-                        "none";
-
-                    return;
-                }
-
-
-                const filtrados =
-                    clientesCache.filter(cliente =>
-                        String(
-                            cliente.nome_completo || ""
-                        )
-                            .toLowerCase()
-                            .includes(termo)
-                    );
-
-
-                renderClientes(filtrados);
-            }
-        );
-
-
-    document.addEventListener(
-        "click",
-        event => {
-
-            if (
-                !listaClientes.contains(event.target) &&
-                event.target.id !==
-                    "inp_busca_cliente"
-            ) {
-
-                listaClientes.style.display =
-                    "none";
-            }
+    document.getElementById("inp_busca_cliente").addEventListener("input", function () {
+        const termo = this.value.toLowerCase().trim();
+        if (!termo) {
+            listaClientes.style.display = "none";
+            return;
         }
-    );
+        const filtrados = clientesCache.filter(cliente =>
+            String(cliente.nome_completo || "").toLowerCase().includes(termo)
+        );
+        renderClientes(filtrados);
+    });
 
+    document.addEventListener("click", event => {
+        if (!listaClientes.contains(event.target) && event.target.id !== "inp_busca_cliente") {
+            listaClientes.style.display = "none";
+        }
+    });
 
     /* ======================================================
        PRODUTOS
     ====================================================== */
+    document.getElementById("b_abrir_produtos").onclick = async () => {
+        if (!clienteSelecionado) {
+            exibirAviso("Selecione um cliente primeiro.");
+            return;
+        }
+        modalProdutos.showModal();
 
-    document
-        .getElementById("b_abrir_produtos")
-        .onclick = async () => {
+        if (Array.isArray(produtosCache) && produtosCache.length > 0) {
+            renderProdutos(produtosCache);
+            return;
+        }
 
-            if (!clienteSelecionado) {
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch("http://localhost:3000/produtos", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
 
-                exibirAviso(
-                    "Selecione um cliente primeiro."
-                );
-
+            if (res.status === 401 || res.status === 403) {
+                redirecionarLogin("Sessão expirada. Faça login novamente.");
                 return;
             }
 
-
-            modalProdutos.showModal();
-
-
-            if (
-                Array.isArray(produtosCache) &&
-                produtosCache.length > 0
-            ) {
-
-                renderProdutos(produtosCache);
-
+            if (!res.ok) {
+                exibirAviso("Erro ao carregar produtos.");
                 return;
             }
 
-
-            try {
-
-                const token =
-                    localStorage.getItem("token");
-
-
-                const res = await fetch(
-                    "http://localhost:3000/produtos",
-                    {
-                        headers: {
-                            Authorization:
-                                `Bearer ${token}`
-                        }
-                    }
-                );
-
-
-                if (
-                    res.status === 401 ||
-                    res.status === 403
-                ) {
-
-                    redirecionarLogin(
-                        "Sessão expirada. Faça login novamente."
-                    );
-
-                    return;
-                }
-
-
-                if (!res.ok) {
-
-                    exibirAviso(
-                        "Erro ao carregar produtos."
-                    );
-
-                    return;
-                }
-
-
-                const dados =
-                    await res.json();
-
-
-                if (!Array.isArray(dados)) {
-
-                    console.error(
-                        "Resposta inválida de produtos:",
-                        dados
-                    );
-
-                    exibirAviso(
-                        "Resposta inválida do servidor ao buscar produtos."
-                    );
-
-                    return;
-                }
-
-
-                produtosCache = dados;
-
-                renderProdutos(produtosCache);
-
-            } catch (err) {
-
-                console.error(
-                    "Erro ao carregar produtos:",
-                    err
-                );
-
-                exibirAviso(
-                    "Erro de conexão com o servidor."
-                );
+            const dados = await res.json();
+            if (!Array.isArray(dados)) {
+                console.error("Resposta inválida de produtos:", dados);
+                exibirAviso("Resposta inválida do servidor ao buscar produtos.");
+                return;
             }
-        };
 
+            produtosCache = dados;
+            renderProdutos(produtosCache);
+        } catch (err) {
+            console.error("Erro ao carregar produtos:", err);
+            exibirAviso("Erro de conexão com o servidor.");
+        }
+    };
 
     function renderProdutos(produtos) {
-
-        if (!Array.isArray(produtos)) {
-            return;
-        }
-
-
+        if (!Array.isArray(produtos)) return;
         listaProdutos.innerHTML = "";
-
-
-        produtos
-            .slice(0, 10)
-            .forEach(produto => {
-
-                const li =
-                    document.createElement("li");
-
-
-                const nome =
-                    produto.nome || "Produto";
-
-
-                const preco =
-                    Number(produto.preco || 0);
-
-
-                li.innerHTML = `
-                    <span>
-                        ${nome}
-                    </span>
-
-                    <span>
-                        R$ ${preco
-                            .toFixed(2)
-                            .replace(".", ",")}
-                    </span>
-                `;
-
-
-                li.onclick = () => {
-
-                    adicionarProduto(produto);
-                };
-
-
-                listaProdutos.appendChild(li);
-            });
+        produtos.slice(0, 10).forEach(produto => {
+            const li = document.createElement("li");
+            const nome = produto.nome || "Produto";
+            const preco = Number(produto.preco || 0);
+            li.innerHTML = `<span>${nome}</span> <span>R$ ${preco.toFixed(2).replace(".", ",")}</span>`;
+            li.onclick = () => adicionarProduto(produto);
+            listaProdutos.appendChild(li);
+        });
     }
 
-
-    document
-        .getElementById("inp_busca_produto")
-        .addEventListener(
-            "input",
-            function () {
-
-                const termo =
-                    this.value
-                        .toLowerCase()
-                        .trim();
-
-
-                const filtrados =
-                    produtosCache.filter(produto =>
-                        String(
-                            produto.nome || ""
-                        )
-                            .toLowerCase()
-                            .includes(termo)
-                    );
-
-
-                renderProdutos(filtrados);
-            }
+    document.getElementById("inp_busca_produto").addEventListener("input", function () {
+        const termo = this.value.toLowerCase().trim();
+        const filtrados = produtosCache.filter(produto =>
+            String(produto.nome || "").toLowerCase().includes(termo)
         );
-
+        renderProdutos(filtrados);
+    });
 
     function adicionarProduto(produto) {
-
-        const estoque =
-            Number(produto.qtd);
-
-
-        if (
-            !Number.isFinite(estoque) ||
-            estoque <= 0
-        ) {
-
-            exibirAviso(
-                "Produto sem estoque."
-            );
-
+        const estoque = Number(produto.qtd);
+        if (!Number.isFinite(estoque) || estoque <= 0) {
+            exibirAviso("Produto sem estoque.");
             return;
         }
 
-
-        const existe =
-            produtosSelecionados.find(
-                produtoSelecionado =>
-                    produtoSelecionado.id_produto ===
-                    produto.id_produto
-            );
-
-
+        const existe = produtosSelecionados.find(p => p.id_produto === produto.id_produto);
         if (existe) {
-
-            if (
-                existe.qtdSelecionada >=
-                estoque
-            ) {
-
-                exibirAviso(
-                    "Estoque máximo atingido."
-                );
-
+            if (existe.qtdSelecionada >= estoque) {
+                exibirAviso("Estoque máximo atingido.");
                 return;
             }
-
-
             existe.qtdSelecionada++;
-
         } else {
-
             produtosSelecionados.push({
-
                 ...produto,
-
                 estoque: estoque,
-
                 qtdSelecionada: 1
-
             });
         }
-
-
         renderProdutosSelecionados();
     }
 
+    window.alterarQtd = function(id, valor) {
+        const produto = produtosSelecionados.find(item => item.id_produto === id);
+        if (!produto) return;
 
-    function alterarQtd(id, valor) {
-
-        const produto =
-            produtosSelecionados.find(
-                item =>
-                    item.id_produto === id
-            );
-
-
-        if (!produto) {
+        if (valor > 0 && produto.qtdSelecionada >= produto.estoque) {
+            exibirAviso("Limite do estoque atingido.");
             return;
         }
-
-
-        if (
-            valor > 0 &&
-            produto.qtdSelecionada >=
-                produto.estoque
-        ) {
-
-            exibirAviso(
-                "Limite do estoque atingido."
-            );
-
-            return;
-        }
-
 
         produto.qtdSelecionada += valor;
-
-
-        if (
-            produto.qtdSelecionada <= 0
-        ) {
-
-            produtosSelecionados =
-                produtosSelecionados.filter(
-                    item =>
-                        item.id_produto !== id
-                );
+        if (produto.qtdSelecionada <= 0) {
+            produtosSelecionados = produtosSelecionados.filter(item => item.id_produto !== id);
         }
-
-
         renderProdutosSelecionados();
-    }
+    };
 
-
-    function atualizarQtdManual(id, valor) {
-
-        const produto =
-            produtosSelecionados.find(
-                item =>
-                    item.id_produto === id
-            );
-
-
-        if (!produto) {
-            return;
-        }
-
+    window.atualizarQtdManual = function(id, valor) {
+        const produto = produtosSelecionados.find(item => item.id_produto === id);
+        if (!produto) return;
 
         valor = Number(valor);
-
-
-        if (
-            !Number.isFinite(valor) ||
-            valor <= 0
-        ) {
-
-            produtosSelecionados =
-                produtosSelecionados.filter(
-                    item =>
-                        item.id_produto !== id
-                );
-
+        if (!Number.isFinite(valor) || valor <= 0) {
+            produtosSelecionados = produtosSelecionados.filter(item => item.id_produto !== id);
             renderProdutosSelecionados();
-
             return;
         }
 
-
-        if (
-            valor > produto.estoque
-        ) {
-
-            valor =
-                produto.estoque;
-
-
-            exibirAviso(
-                "Quantidade ajustada ao limite do estoque."
-            );
+        if (valor > produto.estoque) {
+            valor = produto.estoque;
+            exibirAviso("Quantidade ajustada ao limite do estoque.");
         }
-
-
-        produto.qtdSelecionada =
-            valor;
-
-
+        produto.qtdSelecionada = valor;
         renderProdutosSelecionados();
-    }
-
+    };
 
     function renderProdutosSelecionados() {
-
         areaProdutosModal.innerHTML = "";
-
         areaProdutosPrincipal.innerHTML = "";
-
-
         let total = 0;
 
-
-        produtosSelecionados.forEach(
-            produto => {
-
-                total +=
-                    Number(produto.preco || 0) *
-                    Number(produto.qtdSelecionada || 0);
-
-
-                const html = `
-
-                    <div class="produto_item_modal">
-
-                        <div class="produto_nome_modal">
-
-                            ${produto.nome || "Produto"}
-
-                        </div>
-
-
-                        <div class="controles_qtd">
-
-                            <button
-                                class="btn_qtd"
-                                type="button"
-                                onclick="
-                                    alterarQtd(
-                                        ${produto.id_produto},
-                                        -1
-                                    )
-                                "
-                            >
-                                -
-                            </button>
-
-
-                            <input
-                                class="inp_qtd_modal"
-                                type="number"
-                                min="1"
-                                max="${produto.estoque}"
-                                value="${produto.qtdSelecionada}"
-                                onchange="
-                                    atualizarQtdManual(
-                                        ${produto.id_produto},
-                                        this.value
-                                    )
-                                "
-                            >
-
-
-                            <button
-                                class="btn_qtd"
-                                type="button"
-                                onclick="
-                                    alterarQtd(
-                                        ${produto.id_produto},
-                                        1
-                                    )
-                                "
-                            >
-                                +
-                            </button>
-
-                        </div>
-
+        produtosSelecionados.forEach(produto => {
+            total += Number(produto.preco || 0) * Number(produto.qtdSelecionada || 0);
+            const html = `
+                <div class="produto_item_modal">
+                    <div class="produto_nome_modal">${produto.nome || "Produto"}</div>
+                    <div class="controles_qtd">
+                        <button class="btn_qtd" type="button" onclick="alterarQtd(${produto.id_produto}, -1)">-</button>
+                        <input class="inp_qtd_modal" type="number" min="1" max="${produto.estoque}" value="${produto.qtdSelecionada}" onchange="atualizarQtdManual(${produto.id_produto}, this.value)">
+                        <button class="btn_qtd" type="button" onclick="alterarQtd(${produto.id_produto}, 1)">+</button>
                     </div>
+                </div>
+            `;
+            areaProdutosModal.innerHTML += html;
+            areaProdutosPrincipal.innerHTML += html;
+        });
 
-                `;
-
-
-                areaProdutosModal.innerHTML +=
-                    html;
-
-
-                areaProdutosPrincipal.innerHTML +=
-                    html;
-            }
-        );
-
-
-        document.getElementById(
-            "s_total_fiado"
-        ).innerText =
-            `R$ ${total
-                .toFixed(2)
-                .replace(".", ",")}`;
+        document.getElementById("s_total_fiado").innerText = `R$ ${total.toFixed(2).replace(".", ",")}`;
     }
 
-
-    document
-        .getElementById("b_salvar_produtos")
-        .onclick = () => {
-
-            modalProdutos.close();
-        };
-
+    document.getElementById("b_salvar_produtos").onclick = () => modalProdutos.close();
 
     /* ======================================================
        SALVAR COMPRA
     ====================================================== */
+    document.getElementById("b_salvar_fiado").onclick = async () => {
+        const data = document.getElementById("inp_data_fiado").value;
+        const origem = document.getElementById("inp_origem_fiado").value.trim();
 
-    document
-        .getElementById("b_salvar_fiado")
-        .onclick = async () => {
+        if (!clienteSelecionado) {
+            exibirAviso("Por favor, selecione um cliente para a compra.");
+            return;
+        }
+        if (produtosSelecionados.length === 0) {
+            exibirAviso("Adicione ao menos um produto à compra.");
+            return;
+        }
+        if (!origem) {
+            exibirAviso("Por favor, informe a origem da compra.");
+            return;
+        }
+        if (!data) {
+            exibirAviso("Por favor, selecione uma data de vencimento.");
+            return;
+        }
 
-            const data =
-                document.getElementById(
-                    "inp_data_fiado"
-                ).value;
+        const total = produtosSelecionados.reduce((acc, produto) =>
+            acc + (Number(produto.preco || 0) * Number(produto.qtdSelecionada || 0)), 0
+        );
 
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch("http://localhost:3000/contas-fiado", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    id_cliente: clienteSelecionado.id_cliente,
+                    valor: total,
+                    vencimento: data,
+                    origem: origem,
+                    produtos: produtosSelecionados
+                })
+            });
 
-            const origem =
-                document.getElementById(
-                    "inp_origem_fiado"
-                ).value.trim();
-
-
-            if (!clienteSelecionado) {
-
-                exibirAviso(
-                    "Por favor, selecione um cliente para a compra."
-                );
-
+            if (res.status === 401 || res.status === 403) {
+                redirecionarLogin("Sessão expirada. Faça login novamente.");
                 return;
             }
 
+            let resposta = {};
+            try { resposta = await res.json(); } catch (e) {}
 
-            if (
-                produtosSelecionados.length === 0
-            ) {
-
-                exibirAviso(
-                    "Adicione ao menos um produto à compra."
-                );
-
-                return;
+            if (res.ok) {
+                modalFiado.close();
+                limparCompra();
+                await carregarContasFiado();
+                exibirAviso("Compra salva com sucesso!");
+            } else {
+                exibirAviso(resposta.erro || "Erro ao salvar compra no servidor.");
             }
-
-
-            if (!origem) {
-
-                exibirAviso(
-                    "Por favor, informe a origem da compra."
-                );
-
-                return;
-            }
-
-
-            if (!data) {
-
-                exibirAviso(
-                    "Por favor, selecione uma data de vencimento."
-                );
-
-                return;
-            }
-
-
-            const total =
-                produtosSelecionados.reduce(
-                    (acc, produto) =>
-                        acc +
-                        Number(produto.preco || 0) *
-                        Number(produto.qtdSelecionada || 0),
-                    0
-                );
-
-
-            try {
-
-                const token =
-                    localStorage.getItem("token");
-
-
-                const res = await fetch(
-                    "http://localhost:3000/contas-fiado",
-                    {
-                        method: "POST",
-
-                        headers: {
-
-                            "Content-Type":
-                                "application/json",
-
-                            "Authorization":
-                                `Bearer ${token}`
-                        },
-
-                        body: JSON.stringify({
-
-                            id_cliente:
-                                clienteSelecionado.id_cliente,
-
-                            valor:
-                                total,
-
-                            vencimento:
-                                data,
-
-                            origem:
-                                origem,
-
-                            produtos:
-                                produtosSelecionados
-                        })
-                    }
-                );
-
-
-                if (
-                    res.status === 401 ||
-                    res.status === 403
-                ) {
-
-                    redirecionarLogin(
-                        "Sessão expirada. Faça login novamente."
-                    );
-
-                    return;
-                }
-
-
-                let resposta = {};
-
-                try {
-                    resposta = await res.json();
-                } catch (e) {
-                    resposta = {};
-                }
-
-
-                if (res.ok) {
-
-                    modalFiado.close();
-
-                    limparCompra();
-
-                    await carregarContasFiado();
-
-                    exibirAviso(
-                        "Compra salva com sucesso!"
-                    );
-
-                } else {
-
-                    exibirAviso(
-                        resposta.erro ||
-                        "Erro ao salvar compra no servidor."
-                    );
-                }
-
-            } catch (err) {
-
-                console.error(
-                    "Erro ao salvar compra:",
-                    err
-                );
-
-                exibirAviso(
-                    "Erro de conexão ao tentar salvar a compra."
-                );
-            }
-        };
-
+        } catch (err) {
+            console.error("Erro ao salvar compra:", err);
+            exibirAviso("Erro de conexão ao tentar salvar a compra.");
+        }
+    };
 
     /* ======================================================
        NOVO CLIENTE
     ====================================================== */
+    document.getElementById("b_addf").onclick = async () => {
+        const nome = document.getElementById("nome").value.trim();
+        const cpf = document.getElementById("cpf").value.trim().replace(/\D/g, "");
+        const telefone = document.getElementById("telefone").value.trim().replace(/\D/g, "");
+        const endereco = document.getElementById("endereco").value.trim();
 
-    document
-        .getElementById("b_addf")
-        .onclick = async () => {
+        if (!nome || !cpf || !telefone || !endereco) {
+            exibirAviso("Por favor, preencha todos os campos do formulário.");
+            return;
+        }
+        if (cpf.length !== 11) {
+            exibirAviso("CPF inválido! Digite os 11 números do CPF.");
+            return;
+        }
+        if (telefone.length < 10 || telefone.length > 11) {
+            exibirAviso("Telefone inválido! Digite o DDD + número.");
+            return;
+        }
 
-            const nome =
-                document.getElementById(
-                    "nome"
-                ).value.trim();
-
-
-            const cpf =
-                document.getElementById(
-                    "cpf"
-                ).value
-                    .trim()
-                    .replace(/\D/g, "");
-
-
-            const telefone =
-                document.getElementById(
-                    "telefone"
-                ).value
-                    .trim()
-                    .replace(/\D/g, "");
-
-
-            const endereco =
-                document.getElementById(
-                    "endereco"
-                ).value.trim();
-
-
-            if (
-                !nome ||
-                !cpf ||
-                !telefone ||
-                !endereco
-            ) {
-
-                exibirAviso(
-                    "Por favor, preencha todos os campos do formulário."
-                );
-
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                redirecionarLogin("Sua sessão expirou.");
                 return;
             }
 
+            const res = await fetch("http://localhost:3000/clientes-fiado", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    nome_completo: nome,
+                    cpf: cpf,
+                    telefone: telefone,
+                    endereco: endereco
+                })
+            });
 
-            if (cpf.length !== 11) {
-
-                exibirAviso(
-                    "CPF inválido! Digite os 11 números do CPF."
-                );
-
+            if (res.status === 401 || res.status === 403) {
+                redirecionarLogin("Erro de autenticação! Você precisa refazer o login.");
                 return;
             }
 
+            let resposta = {};
+            try { resposta = await res.json(); } catch (e) {}
 
-            if (
-                telefone.length < 10 ||
-                telefone.length > 11
-            ) {
-
-                exibirAviso(
-                    "Telefone inválido! Digite o DDD + número."
-                );
-
-                return;
+            if (res.ok) {
+                modalCliente.close();
+                document.getElementById("nome").value = "";
+                document.getElementById("cpf").value = "";
+                document.getElementById("telefone").value = "";
+                document.getElementById("endereco").value = "";
+                await carregarClientesModal();
+                exibirAviso("Cliente cadastrado com sucesso!");
+            } else {
+                exibirAviso(resposta.erro || "Erro ao cadastrar. Verifique se o cliente/CPF já existe.");
             }
-
-
-            try {
-
-                const token =
-                    localStorage.getItem("token");
-
-
-                if (!token) {
-
-                    redirecionarLogin(
-                        "Sua sessão expirou."
-                    );
-
-                    return;
-                }
-
-
-                const res = await fetch(
-                    "http://localhost:3000/clientes-fiado",
-                    {
-                        method: "POST",
-
-                        headers: {
-
-                            "Content-Type":
-                                "application/json",
-
-                            "Authorization":
-                                `Bearer ${token}`
-                        },
-
-                        body: JSON.stringify({
-
-                            nome_completo:
-                                nome,
-
-                            cpf:
-                                cpf,
-
-                            telefone:
-                                telefone,
-
-                            endereco:
-                                endereco
-                        })
-                    }
-                );
-
-
-                if (
-                    res.status === 401 ||
-                    res.status === 403
-                ) {
-
-                    redirecionarLogin(
-                        "Erro de autenticação! Você precisa refazer o login."
-                    );
-
-                    return;
-                }
-
-
-                let resposta = {};
-
-                try {
-                    resposta = await res.json();
-                } catch (e) {
-                    resposta = {};
-                }
-
-
-                if (res.ok) {
-
-                    modalCliente.close();
-
-
-                    document.getElementById(
-                        "nome"
-                    ).value = "";
-
-
-                    document.getElementById(
-                        "cpf"
-                    ).value = "";
-
-
-                    document.getElementById(
-                        "telefone"
-                    ).value = "";
-
-
-                    document.getElementById(
-                        "endereco"
-                    ).value = "";
-
-
-                    await carregarClientesModal();
-
-
-                    exibirAviso(
-                        "Cliente cadastrado com sucesso!"
-                    );
-
-                } else {
-
-                    exibirAviso(
-                        resposta.erro ||
-                        "Erro ao cadastrar. Verifique se o cliente/CPF já existe."
-                    );
-                }
-
-            } catch (err) {
-
-                console.error(
-                    "Erro ao cadastrar cliente:",
-                    err
-                );
-
-                exibirAviso(
-                    "Não foi possível conectar ao servidor."
-                );
-            }
-        };
-
+        } catch (err) {
+            console.error("Erro ao cadastrar cliente:", err);
+            exibirAviso("Não foi possível conectar ao servidor.");
+        }
+    };
 
     /* ======================================================
-       DATA
+       TRATAMENTO DE DATAS E JUROS
     ====================================================== */
-
     function obterDataSemHorario(data) {
+        if (!data) return null;
+        const texto = String(data).split("T")[0].split(" ")[0];
+        const partes = texto.split("-");
+        if (partes.length !== 3) return null;
 
-        if (!data) {
+        const ano = Number(partes[0]);
+        const mes = Number(partes[1]);
+        const dia = Number(partes[2]);
+
+        if (!Number.isFinite(ano) || !Number.isFinite(mes) || !Number.isFinite(dia)) {
             return null;
         }
-
-
-        const texto =
-            String(data)
-                .split("T")[0]
-                .split(" ")[0];
-
-
-        const partes =
-            texto.split("-");
-
-
-        if (partes.length !== 3) {
-            return null;
-        }
-
-
-        const ano =
-            Number(partes[0]);
-
-        const mes =
-            Number(partes[1]);
-
-        const dia =
-            Number(partes[2]);
-
-
-        if (
-            !Number.isFinite(ano) ||
-            !Number.isFinite(mes) ||
-            !Number.isFinite(dia)
-        ) {
-
-            return null;
-        }
-
-
-        return new Date(
-            ano,
-            mes - 1,
-            dia
-        );
+        return new Date(ano, mes - 1, dia);
     }
-
 
     function contaEstaVencida(dataVencimento) {
-
-        const vencimento =
-            obterDataSemHorario(
-                dataVencimento
-            );
-
-
-        if (!vencimento) {
-            return false;
-        }
-
-
-        vencimento.setHours(
-            23,
-            59,
-            59,
-            999
-        );
-
-
-        return new Date() > vencimento;
+        const vencimento = obterDataSemHorario(dataVencimento);
+        if (!vencimento) return false;
+        
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+        return hoje > vencimento;
     }
-
 
     function calcularDiasAtraso(dataVencimento) {
+        const vencimento = obterDataSemHorario(dataVencimento);
+        if (!vencimento) return 0;
 
-        const vencimento =
-            obterDataSemHorario(
-                dataVencimento
-            );
+        const hoje = new Date();
+        const hojeSemHora = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+        const vencimentoSemHora = new Date(vencimento.getFullYear(), vencimento.getMonth(), vencimento.getDate());
 
-
-        if (!vencimento) {
-            return 0;
-        }
-
-
-        const hoje =
-            new Date();
-
-
-        const hojeSemHora =
-            new Date(
-                hoje.getFullYear(),
-                hoje.getMonth(),
-                hoje.getDate()
-            );
-
-
-        const vencimentoSemHora =
-            new Date(
-                vencimento.getFullYear(),
-                vencimento.getMonth(),
-                vencimento.getDate()
-            );
-
-
-        return Math.max(
-            0,
-            Math.floor(
-                (
-                    hojeSemHora -
-                    vencimentoSemHora
-                ) /
-                86400000
-            )
-        );
+        return Math.max(0, Math.floor((hojeSemHora - vencimentoSemHora) / 86400000));
     }
 
-
-    function calcularValorComJuros(
-        valorOriginal,
-        diasAtraso
-    ) {
-
-        const valor =
-            Number(valorOriginal) || 0;
-
-
-        const dias =
-            Math.max(
-                0,
-                Number(diasAtraso) || 0
-            );
-
-
-        return valor *
-            Math.pow(
-                1 + PORCENTAGEM_JUROS,
-                dias
-            );
+    function calcularValorComJuros(valorOriginal, diasAtraso) {
+        const valor = Number(valorOriginal) || 0;
+        const dias = Math.max(0, Number(diasAtraso) || 0);
+        return valor * Math.pow(1 + PORCENTAGEM_JUROS, dias);
     }
-
 
     function formatarMoeda(valor) {
-
-        return Number(valor || 0)
-            .toLocaleString(
-                "pt-BR",
-                {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                }
-            );
+        return Number(valor || 0).toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
     }
-
 
     /* ======================================================
        CONTAS FIADO
     ====================================================== */
-
     async function carregarContasFiado() {
-
         try {
+            const token = localStorage.getItem("token");
+            const res = await fetch("http://localhost:3000/contas-fiado", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
 
-            const token =
-                localStorage.getItem("token");
-
-
-            const res = await fetch(
-                "http://localhost:3000/contas-fiado",
-                {
-                    headers: {
-                        Authorization:
-                            `Bearer ${token}`
-                    }
-                }
-            );
-
-
-            if (
-                res.status === 401 ||
-                res.status === 403
-            ) {
-
-                redirecionarLogin(
-                    "Sessão expirada. Faça login novamente."
-                );
-
+            if (res.status === 401 || res.status === 403) {
+                redirecionarLogin("Sessão expirada. Faça login novamente.");
                 return;
             }
 
-
             let dados = [];
-
             try {
                 dados = await res.json();
             } catch (e) {
-
-                console.error(
-                    "Resposta inválida do servidor."
-                );
+                console.error("Resposta inválida do servidor.");
             }
-
 
             if (!res.ok) {
-
-                exibirAviso(
-                    dados.erro ||
-                    "Erro ao carregar contas fiado."
-                );
-
+                exibirAviso(dados.erro || "Erro ao carregar contas fiado.");
                 return;
             }
-
 
             if (!Array.isArray(dados)) {
-
-                console.error(
-                    "Resposta inválida:",
-                    dados
-                );
-
+                console.error("Resposta inválida:", dados);
                 return;
             }
 
-
-            const tbodySemJuros =
-                document.getElementById(
-                    "tbodySemJuros"
-                );
-
-
-            const tbodyComJuros =
-                document.getElementById(
-                    "tbodyComJuros"
-                );
-
-
+            const tbodySemJuros = document.getElementById("tbodySemJuros");
+            const tbodyComJuros = document.getElementById("tbodyComJuros");
             tbodySemJuros.innerHTML = "";
-
             tbodyComJuros.innerHTML = "";
 
-
             dados.forEach(conta => {
+                const qtd = Number(conta.quantidade_total || 0);
+                const dataFormatada = conta.data_vencimento
+                    ? String(conta.data_vencimento).split("T")[0].split(" ")[0].split("-").reverse().join("/")
+                    : "-";
 
-                const qtd =
-                    Number(
-                        conta.quantidade_total || 0
-                    );
+                const valorOriginal = Number(conta.valor_original ?? conta.valor ?? 0);
+                const jurosBackend = Number(conta.juros_aplicado) === 1 || conta.juros_aplicado === true;
+                const vencida = contaEstaVencida(conta.data_vencimento);
+                const diasAtrasoBackend = Number(conta.dias_atraso);
+                
+                const diasAtraso = Number.isFinite(diasAtrasoBackend) && diasAtrasoBackend > 0
+                    ? diasAtrasoBackend
+                    : calcularDiasAtraso(conta.data_vencimento);
 
-
-                const dataFormatada =
-                    conta.data_vencimento
-                        ? String(
-                            conta.data_vencimento
-                        )
-                            .split("T")[0]
-                            .split(" ")[0]
-                        : "-";
-
-
-                const valorOriginal =
-                    Number(
-                        conta.valor_original ??
-                        conta.valor ??
-                        0
-                    );
-
-
-                const jurosBackend =
-                    Number(
-                        conta.juros_aplicado
-                    ) === 1 ||
-                    conta.juros_aplicado === true;
-
-
-                const vencida =
-                    contaEstaVencida(
-                        conta.data_vencimento
-                    );
-
-
-                const diasAtrasoBackend =
-                    Number(
-                        conta.dias_atraso
-                    );
-
-
-                const diasAtraso =
-                    Number.isFinite(
-                        diasAtrasoBackend
-                    ) &&
-                    diasAtrasoBackend > 0
-
-                        ? diasAtrasoBackend
-
-                        : calcularDiasAtraso(
-                            conta.data_vencimento
-                        );
-
-
-                const temJuros =
-                    jurosBackend ||
-                    vencida;
-
-
-                let valorFinal =
-                    valorOriginal;
-
+                const temJuros = jurosBackend || vencida;
+                let valorFinal = valorOriginal;
 
                 if (temJuros) {
-
-                    if (
-                        conta.valor_final !==
-                            null &&
-                        conta.valor_final !==
-                            undefined &&
-                        Number(
-                            conta.valor_final
-                        ) > 0
-                    ) {
-
-                        valorFinal =
-                            Number(
-                                conta.valor_final
-                            );
-
+                    if (conta.valor_final !== null && conta.valor_final !== undefined && Number(conta.valor_final) > 0) {
+                        valorFinal = Number(conta.valor_final);
                     } else {
-
-                        valorFinal =
-                            calcularValorComJuros(
-                                valorOriginal,
-                                diasAtraso
-                            );
+                        valorFinal = calcularValorComJuros(valorOriginal, diasAtraso);
                     }
                 }
 
+                const percentualJuros = valorOriginal > 0 ? ((valorFinal / valorOriginal) - 1) * 100 : 0;
 
-                const percentualJuros =
-                    valorOriginal > 0
-
-                        ? (
-                            (
-                                valorFinal /
-                                valorOriginal
-                            ) - 1
-                        ) * 100
-
-                        : 0;
-
-
-                const linha = `
-
-                    <tr>
-
-                        <td>
-                            ${conta.nome_completo || "-"}
-                        </td>
-
-
-                        <td>
-                            ${conta.produtos || "-"}
-                        </td>
-
-
-                        ${
-                            temJuros
-
-                                ? `
-
-                                    <td>
-
-                                        <span
-                                            title="Valor original antes dos juros"
-                                            style="
-                                                text-decoration: line-through;
-                                                opacity: 0.6;
-                                                cursor: help;
-                                            "
-                                        >
-
-                                            R$
-                                            ${formatarMoeda(
-                                                valorOriginal
-                                            )}
-
-                                        </span>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <strong>
-                                            R$
-                                            ${formatarMoeda(
-                                                valorFinal
-                                            )}
-                                        </strong>
-
-
-                                        <small
-                                            title="Juros aplicados"
-                                            style="
-                                                display: block;
-                                                opacity: 0.7;
-                                                cursor: help;
-                                            "
-                                        >
-
-                                            ${diasAtraso}
-                                            ${
-                                                diasAtraso === 1
-                                                    ? "dia"
-                                                    : "dias"
-                                            }
-                                            de atraso
-
-                                            <br>
-
-                                            +${percentualJuros
-                                                .toFixed(2)
-                                                .replace(".", ",")}%
-
-                                            de juros
-
-                                        </small>
-
-                                    </td>
-
-                                    <td>
-                                        ${qtd}
-                                    </td>
-
-                                    <td>
-                                        ${conta.origem || "-"}
-                                    </td>
-
-                                    <td>
-
-                                        ${dataFormatada}
-
-                                        ${
-                                            vencida
-
-                                                ? `
-
-                                                    <small
-                                                        style="
-                                                            display: block;
-                                                            opacity: 0.7;
-                                                        "
-                                                    >
-                                                        Vencida
-                                                    </small>
-
-                                                `
-
-                                                : ""
-                                        }
-
-                                    </td>
-
-                                    <td>
-
-                                        ${diasAtraso}
-                                        ${
-                                            diasAtraso === 1
-                                                ? "dia"
-                                                : "dias"
-                                        }
-
-                                    </td>
-
-                                    <td>
-
-                                        <input
-                                            type="checkbox"
-                                            class="chk-concluido"
-                                            onchange="
-                                                abrirModalConclusaoFiado(
-                                                    ${conta.id_conta},
-                                                    this
-                                                )
-                                            "
-                                        >
-
-                                    </td>
-
-                                `
-
-                                : `
-
-                                    <td>
-                                        R$
-                                        ${formatarMoeda(
-                                            valorOriginal
-                                        )}
-                                    </td>
-
-                                    <td>
-                                        ${qtd}
-                                    </td>
-
-                                    <td>
-                                        ${conta.origem || "-"}
-                                    </td>
-
-                                    <td>
-
-                                        ${dataFormatada}
-
-                                        ${
-                                            vencida
-
-                                                ? `
-
-                                                    <small
-                                                        style="
-                                                            display: block;
-                                                            opacity: 0.7;
-                                                        "
-                                                    >
-                                                        Vencida
-                                                    </small>
-
-                                                `
-
-                                                : ""
-                                        }
-
-                                    </td>
-
-                                    <td>
-
-                                        <input
-                                            type="checkbox"
-                                            class="chk-concluido"
-                                            onchange="
-                                                abrirModalConclusaoFiado(
-                                                    ${conta.id_conta},
-                                                    this
-                                                )
-                                            "
-                                        >
-
-                                    </td>
-
-                                `
-                        }
-
-                    </tr>
-
-                `;
-
+                const tr = document.createElement("tr");
 
                 if (temJuros) {
-
-                    tbodyComJuros.innerHTML +=
-                        linha;
-
+                    tr.innerHTML = `
+                        <td>${conta.nome_completo || conta.cliente || "-"}</td>
+                        <td>${conta.produtos || "-"}</td>
+                        <td>
+                            <span title="Valor original antes dos juros" style="text-decoration: line-through; opacity: 0.6; cursor: help;">
+                                R$ ${formatarMoeda(valorOriginal)}
+                            </span>
+                        </td>
+                        <td>
+                            <strong>R$ ${formatarMoeda(valorFinal)}</strong>
+                            <small title="Juros aplicados" style="display: block; opacity: 0.7; cursor: help;">
+                                ${diasAtraso} ${diasAtraso === 1 ? "dia" : "dias"} de atraso<br>
+                                +${percentualJuros.toFixed(2).replace(".", ",")}% de juros
+                            </small>
+                        </td>
+                        <td>${qtd}</td>
+                        <td>${conta.origem || "-"}</td>
+                        <td>
+                            ${dataFormatada}
+                            ${vencida ? '<small style="display: block; opacity: 0.7;">Vencida</small>' : ''}
+                        </td>
+                        <td>${diasAtraso} ${diasAtraso === 1 ? "dia" : "dias"}</td>
+                        <td>
+                            <input type="checkbox" class="chk-concluido" onchange="abrirModalConclusaoFiado(${conta.id_conta || conta.id}, this)">
+                        </td>
+                    `;
+                    tbodyComJuros.appendChild(tr);
                 } else {
-
-                    tbodySemJuros.innerHTML +=
-                        linha;
+                    tr.innerHTML = `
+                        <td>${conta.nome_completo || conta.cliente || "-"}</td>
+                        <td>${conta.produtos || "-"}</td>
+                        <td>R$ ${formatarMoeda(valorOriginal)}</td>
+                        <td>${qtd}</td>
+                        <td>${conta.origem || "-"}</td>
+                        <td>
+                            ${dataFormatada}
+                            ${vencida ? '<small style="display: block; opacity: 0.7;">Vencida</small>' : ''}
+                        </td>
+                        <td>
+                            <input type="checkbox" class="chk-concluido" onchange="abrirModalConclusaoFiado(${conta.id_conta || conta.id}, this)">
+                        </td>
+                    `;
+                    tbodySemJuros.appendChild(tr);
                 }
-
             });
 
-
-            console.log(
-                "Contas fiado carregadas:",
-                dados
-            );
-
         } catch (err) {
-
-            console.error(
-                "Erro ao carregar contas fiado:",
-                err
-            );
-
-            exibirAviso(
-                "Erro ao carregar a lista de contas fiado."
-            );
+            console.error("Erro ao carregar contas fiado:", err);
+            exibirAviso("Erro ao carregar a lista de contas fiado.");
         }
     }
-
 
     /* ======================================================
        MODAL DE CONCLUSÃO
     ====================================================== */
+    window.abrirModalConclusaoFiado = function (idConta, checkbox) {
+        contaFiadoSelecionada = idConta;
+        checkboxAtual = checkbox;
 
-    window.abrirModalConclusaoFiado =
-        function (
-            idConta,
-            checkbox
-        ) {
+        const hoje = new Date();
+        const ano = hoje.getFullYear();
+        const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+        const dia = String(hoje.getDate()).padStart(2, "0");
 
-            contaFiadoSelecionada =
-                idConta;
-
-
-            checkboxAtual =
-                checkbox;
-
-
-            const hoje =
-                new Date();
-
-
-            const ano =
-                hoje.getFullYear();
-
-
-            const mes =
-                String(
-                    hoje.getMonth() + 1
-                ).padStart(2, "0");
-
-
-            const dia =
-                String(
-                    hoje.getDate()
-                ).padStart(2, "0");
-
-
-            dataConclusaoFiado.value =
-                `${ano}-${mes}-${dia}`;
-
-
-            formaPagamentoFiado.value =
-                "";
-
-
-            modalConclusaoFiado.showModal();
-        };
-
+        dataConclusaoFiado.value = `${ano}-${mes}-${dia}`;
+        formaPagamentoFiado.value = "";
+        modalConclusaoFiado.showModal();
+    };
 
     function fecharModalConclusao() {
-
-        if (
-            modalConclusaoFiado.open
-        ) {
-
+        if (modalConclusaoFiado.open) {
             modalConclusaoFiado.close();
         }
-
-
         if (checkboxAtual) {
-
-            checkboxAtual.checked =
-                false;
+            checkboxAtual.checked = false;
         }
-
-
-        checkboxAtual =
-            null;
-
-
-        contaFiadoSelecionada =
-            null;
+        checkboxAtual = null;
+        contaFiadoSelecionada = null;
     }
 
+    btnFecharConclusao.onclick = fecharModalConclusao;
+    btnCancelarConclusao.onclick = fecharModalConclusao;
 
-    btnFecharConclusao.onclick =
-        fecharModalConclusao;
+    btnConfirmarConclusao.onclick = async () => {
+        const dataVal = dataConclusaoFiado.value;
+        const formaPagamento = formaPagamentoFiado.value;
 
+        if (!dataVal) {
+            exibirAviso("Por favor, informe a data do pagamento.");
+            return;
+        }
+        if (!formaPagamento) {
+            exibirAviso("Por favor, selecione a forma de pagamento.");
+            return;
+        }
+        if (!contaFiadoSelecionada) {
+            exibirAviso("Nenhuma conta foi selecionada.");
+            return;
+        }
 
-    btnCancelarConclusao.onclick =
-        fecharModalConclusao;
+        const agora = new Date();
+        const horas = String(agora.getHours()).padStart(2, "0");
+        const minutos = String(agora.getMinutes()).padStart(2, "0");
+        const segundos = String(agora.getSeconds()).padStart(2, "0");
+        const dataHoraIso = `${dataVal} ${horas}:${minutos}:${segundos}`;
 
+        try {
+            const token = localStorage.getItem("token");
+            const idConta = contaFiadoSelecionada;
+            const res = await fetch(`http://localhost:3000/contas-fiado/${idConta}/finalizar`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    data_conclusao: dataHoraIso,
+                    forma_pagamento: formaPagamento
+                })
+            });
 
-    btnConfirmarConclusao.onclick =
-        async () => {
-
-            const dataVal =
-                dataConclusaoFiado.value;
-
-
-            const formaPagamento =
-                formaPagamentoFiado.value;
-
-
-            if (!dataVal) {
-
-                exibirAviso(
-                    "Por favor, informe a data do pagamento."
-                );
-
+            if (res.status === 401 || res.status === 403) {
+                fecharModalConclusao();
+                redirecionarLogin("Sessão expirada. Faça login novamente.");
                 return;
             }
 
+            let resposta = {};
+            try { resposta = await res.json(); } catch (e) {}
 
-            if (!formaPagamento) {
-
-                exibirAviso(
-                    "Por favor, selecione a forma de pagamento."
-                );
-
+            if (!res.ok) {
+                if (checkboxAtual) checkboxAtual.checked = false;
+                exibirAviso(resposta.erro || "Erro ao finalizar a conta.");
                 return;
             }
 
-
-            if (!contaFiadoSelecionada) {
-
-                exibirAviso(
-                    "Nenhuma conta foi selecionada."
-                );
-
-                return;
-            }
-
-
-            const agora =
-                new Date();
-
-
-            const horas =
-                String(
-                    agora.getHours()
-                ).padStart(2, "0");
-
-
-            const minutos =
-                String(
-                    agora.getMinutes()
-                ).padStart(2, "0");
-
-
-            const segundos =
-                String(
-                    agora.getSeconds()
-                ).padStart(2, "0");
-
-
-            const dataHoraIso =
-                `${dataVal} ${horas}:${minutos}:${segundos}`;
-
-
-            try {
-
-                const token =
-                    localStorage.getItem(
-                        "token"
-                    );
-
-
-                const idConta =
-                    contaFiadoSelecionada;
-
-
-                const res =
-                    await fetch(
-                        `http://localhost:3000/contas-fiado/${idConta}/finalizar`,
-                        {
-                            method: "PUT",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json",
-
-                                "Authorization":
-                                    `Bearer ${token}`
-                            },
-
-                            body:
-                                JSON.stringify({
-
-                                    data_conclusao:
-                                        dataHoraIso,
-
-                                    forma_pagamento:
-                                        formaPagamento
-                                })
-                        }
-                    );
-
-
-                if (
-                    res.status === 401 ||
-                    res.status === 403
-                ) {
-
-                    fecharModalConclusao();
-
-                    redirecionarLogin(
-                        "Sessão expirada. Faça login novamente."
-                    );
-
-                    return;
-                }
-
-
-                let resposta = {};
-
-                try {
-
-                    resposta =
-                        await res.json();
-
-                } catch (e) {
-
-                    resposta = {};
-                }
-
-
-                console.log(
-                    "RESPOSTA DA FINALIZAÇÃO:",
-                    resposta
-                );
-
-
-                if (!res.ok) {
-
-                    if (checkboxAtual) {
-
-                        checkboxAtual.checked =
-                            false;
-                    }
-
-
-                    exibirAviso(
-                        resposta.erro ||
-                        "Erro ao finalizar a conta."
-                    );
-
-                    return;
-                }
-
-
-                if (
-                    modalConclusaoFiado.open
-                ) {
-
-                    modalConclusaoFiado.close();
-                }
-
-
-                checkboxAtual =
-                    null;
-
-
-                contaFiadoSelecionada =
-                    null;
-
-
-                await carregarContasFiado();
-
-
-                exibirAviso(
-                    "Pagamento registrado e conta finalizada com sucesso!"
-                );
-
-            } catch (err) {
-
-                console.error(
-                    "ERRO DE CONEXÃO:",
-                    err
-                );
-
-
-                if (checkboxAtual) {
-
-                    checkboxAtual.checked =
-                        false;
-                }
-
-
-                exibirAviso(
-                    "Erro de conexão ao tentar finalizar o pagamento."
-                );
-            }
-        };
-
+            if (modalConclusaoFiado.open) modalConclusaoFiado.close();
+
+            checkboxAtual = null;
+            contaFiadoSelecionada = null;
+            await carregarContasFiado();
+            exibirAviso("Pagamento registrado e conta finalizada com sucesso!");
+        } catch (err) {
+            console.error("ERRO DE CONEXÃO:", err);
+            if (checkboxAtual) checkboxAtual.checked = false;
+            exibirAviso("Erro de conexão ao tentar finalizar o pagamento.");
+        }
+    };
 
     /* ======================================================
        MODAL AVISO
     ====================================================== */
+    function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
+        msgAviso.innerHTML = mensagem;
+        bCancelarAviso.style.display = mostrarCancelar ? "inline-block" : "none";
 
-    function exibirAviso(
-        mensagem,
-        callback = null,
-        mostrarCancelar = false
-    ) {
-
-        msgAviso.innerHTML =
-            mensagem;
-
-
-        bCancelarAviso.style.display =
-            mostrarCancelar
-                ? "inline-block"
-                : "none";
-
-
-        if (
-            modalAviso.open
-        ) {
-
+        if (modalAviso.open) {
             modalAviso.close();
         }
-
-
         modalAviso.showModal();
 
+        bConfirmarAviso.onclick = () => {
+            modalAviso.close();
+            if (callback) callback();
+        };
 
-        bConfirmarAviso.onclick =
-            () => {
-
-                modalAviso.close();
-
-
-                if (callback) {
-
-                    callback();
-                }
-            };
-
-
-        bCancelarAviso.onclick =
-            () => {
-
-                modalAviso.close();
-
-
-                if (checkboxAtual) {
-
-                    checkboxAtual.checked =
-                        false;
-
-                    checkboxAtual.blur();
-
-                    checkboxAtual =
-                        null;
-                }
-
-
-                clientePendente =
-                    null;
-            };
-    }
-
-
-    function redirecionarLogin(
-        mensagem
-    ) {
-
-        exibirAviso(
-            mensagem,
-
-            () => {
-
-                window.location.replace(
-                    "login.html"
-                );
+        bCancelarAviso.onclick = () => {
+            modalAviso.close();
+            if (checkboxAtual) {
+                checkboxAtual.checked = false;
+                checkboxAtual.blur();
+                checkboxAtual = null;
             }
-        );
+            clientePendente = null;
+        };
     }
 
+    function redirecionarLogin(mensagem) {
+        exibirAviso(mensagem, () => {
+            window.location.replace("login.html");
+        });
+    }
 
     /* ======================================================
-       DATA ATUAL
+       FUNÇÕES AUXILIARES
     ====================================================== */
-
     function preencherDataAtual() {
-
-        const hoje =
-            new Date();
-
-
-        const ano =
-            hoje.getFullYear();
-
-
-        const mes =
-            String(
-                hoje.getMonth() + 1
-            ).padStart(2, "0");
-
-
-        const dia =
-            String(
-                hoje.getDate()
-            ).padStart(2, "0");
-
-
-        document.getElementById(
-            "inp_data_fiado"
-        ).value =
-            `${ano}-${mes}-${dia}`;
+        const hoje = new Date();
+        const ano = hoje.getFullYear();
+        const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+        const dia = String(hoje.getDate()).padStart(2, "0");
+        document.getElementById("inp_data_fiado").value = `${ano}-${mes}-${dia}`;
     }
-
-
-    /* ======================================================
-       LIMPAR NOVA COMPRA
-    ====================================================== */
 
     function limparCompra() {
+        clienteSelecionado = null;
+        clientePendente = null;
+        produtosSelecionados = [];
 
-        clienteSelecionado =
-            null;
-
-
-        produtosSelecionados =
-            [];
-
-
-        clientePendente =
-            null;
-
-
-        document.getElementById(
-            "s_cliente"
-        ).innerText =
-            "---";
-
-
-        document.getElementById(
-            "inp_busca_cliente"
-        ).value =
-            "";
-
-
+        document.getElementById("s_cliente").innerText = "---";
+        document.getElementById("inp_busca_cliente").value = "";
         preencherDataAtual();
+        document.getElementById("s_total_fiado").innerText = "R$ 0,00";
+        document.getElementById("inp_origem_fiado").value = "";
+        document.getElementById("inp_busca_produto").value = "";
 
-
-        document.getElementById(
-            "s_total_fiado"
-        ).innerText =
-            "R$ 0,00";
-
-
-        document.getElementById(
-            "inp_origem_fiado"
-        ).value =
-            "";
-
-
-        document.getElementById(
-            "inp_busca_produto"
-        ).value =
-            "";
-
-
-        areaProdutosModal.innerHTML =
-            "";
-
-
-        areaProdutosPrincipal.innerHTML =
-            "";
-
-
-        listaClientes.innerHTML =
-            "";
-
-
-        listaClientes.style.display =
-            "none";
+        areaProdutosModal.innerHTML = "";
+        areaProdutosPrincipal.innerHTML = "";
+        listaClientes.innerHTML = "";
+        listaClientes.style.display = "none";
     }
-
 
     /* ======================================================
        BUSCA DE CLIENTES NA TABELA
     ====================================================== */
+    document.getElementById("inputBusca").addEventListener("input", function () {
+        const termo = this.value.toLowerCase().trim();
+        const todasAsLinhas = document.querySelectorAll("#tbodySemJuros tr, #tbodyComJuros tr");
 
-    document
-        .getElementById("inputBusca")
-        .addEventListener(
-            "input",
-            function () {
-
-                const termo =
-                    this.value
-                        .toLowerCase()
-                        .trim();
-
-
-                const todasAsLinhas =
-                    document.querySelectorAll(
-                        "#tbodySemJuros tr, #tbodyComJuros tr"
-                    );
-
-
-                todasAsLinhas.forEach(
-                    linha => {
-
-                        const texto =
-                            linha.innerText
-                                .toLowerCase();
-
-
-                        linha.style.display =
-                            texto.includes(termo)
-                                ? ""
-                                : "none";
-                    }
-                );
-            }
-        );
-
+        todasAsLinhas.forEach(linha => {
+            const texto = linha.innerText.toLowerCase();
+            linha.style.display = texto.includes(termo) ? "" : "none";
+        });
+    });
 
     /* ======================================================
        INICIALIZAÇÃO
     ====================================================== */
-
     preencherDataAtual();
-
     carregarContasFiado();
-
 });
-
 </script>
 
 </body>

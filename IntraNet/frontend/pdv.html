@@ -106,6 +106,10 @@
                         <h2 class="info-label">Total da Compra</h2>
                         <span id="s_tot" class="info-valor-total">R$ 2,26</span>
                     </div>
+                    <div class="info-item">
+                        <h2 class="info-label">Forma de Pagamento</h2>
+                        <span id="s_forma_pagamento" class="info-valor">---</span>
+                    </div>
                 </div>
                 <div class="secao-pagamento">
                     <h2 class="label-pagamento">Forma de Pagamento</h2> 
@@ -194,8 +198,15 @@
 <!-- MODAL: PAGAMENTO EM DINHEIRO -->
 <dialog id="dialogDinheiro">
   <div class="conteudo-dinheiro">
+
+    <button
+        type="button"
+        id="b_fechar_dinheiro"
+        aria-label="Fechar"
+    >×</button>
+
     <h2>PAGAMENTO EM DINHEIRO</h2>
-    
+
     <div class="linha-modal">
       <span>Total a Pagar:</span>
       <strong id="lbl_dinheiro_total">R$ 0,00</strong>
@@ -219,10 +230,35 @@
   </div>
 </dialog>
 
-<body>
+<dialog id="dialogCredito" class="modal-pagamento-credito">
+    <div class="conteudo-credito">
+        <button type="button" id="b_fechar_credito" class="fechar-modal-pagamento">×</button>
+        <h2>PAGAMENTO NO CARTÃO DE CRÉDITO</h2>
+        <div class="credito-total"><span>Total da compra</span><strong id="lbl_credito_total">R$ 0,00</strong></div>
+        <div class="credito-campo">
+            <label for="sel_parcelas_credito">Quantidade de parcelas</label>
+            <select id="sel_parcelas_credito">
+                <option value="" selected>Selecione a quantidade de parcelas</option>
+                <option value="1">1x</option>
+                <option value="2">2x</option>
+                <option value="3">3x</option>
+                <option value="4">4x</option>
+                <option value="5">5x</option>
+                <option value="6">6x</option>
+                <option value="7">7x</option>
+                <option value="8">8x</option>
+                <option value="9">9x</option>
+                <option value="10">10x</option>
+                <option value="11">11x</option>
+                <option value="12">12x</option>
+            </select>
+        </div>
+        <div class="credito-parcela"><span>Valor de cada parcela</span><strong id="lbl_valor_parcela">R$ 0,00</strong></div>
+        <button type="button" id="b_confirmar_credito" class="btn-confirmar-pagamento">Confirmar pagamento</button>
+    </div>
+</dialog>
 
-    <!-- TODO O CONTEÚDO DO SEU PDV -->
-    ...
+<body>
 
     <!-- MODAL ADICIONAR COMPRA -->
     <dialog id="d_modal_fiado">
@@ -308,6 +344,96 @@ let indexSelecionado = -1;
     const inp_vencimento = document.getElementById("inp_vencimento");
     // Configurações
     const URL_BACKEND_CAD = "http://localhost:3000";
+
+    // =====================================================
+    // CARREGA O PRÓXIMO NÚMERO DO PEDIDO ASSIM QUE
+    // A VENDA NORMAL DO PDV RECEBE O PRIMEIRO PRODUTO.
+    // =====================================================
+  let carregandoNumeroPedido = false;
+
+async function atualizarNumeroPedidoPreview(forcar = false) {
+
+    // Só busca número para venda normal do PDV
+    if (comandaAtual || origemVenda !== "PDV" || carrinho.length === 0) {
+        return null;
+    }
+
+    // Se já estiver buscando, não faz duas requisições ao mesmo tempo
+    if (carregandoNumeroPedido) {
+        return numeroPedidoAtual;
+    }
+
+    // Só impede nova consulta quando NÃO estamos forçando atualização
+   if (!forcar && numeroPedidoAtual !== null) return;
+if (carregandoNumeroPedido) return;
+
+    carregandoNumeroPedido = true;
+
+    try {
+
+        const resposta = await apiFetch(
+            `${URL_BACKEND_CAD}/pedidos/proximo-numero`,
+            {
+                method: "GET",
+                headers: {
+                    "Authorization":
+                        `Bearer ${localStorage.getItem("token")}`
+                }
+            }
+        );
+
+        if (!resposta.ok) {
+            throw new Error(
+                "Não foi possível obter o próximo número do pedido."
+            );
+        }
+
+        const data = await resposta.json();
+
+        console.log("PRÓXIMO NÚMERO RECEBIDO:", data);
+
+        const numero =
+            data.num_pedido ??
+            data.numero_pedido ??
+            data.proximo_numero ??
+            data.proximoNumero;
+
+        if (
+            numero !== undefined &&
+            numero !== null &&
+            !isNaN(Number(numero))
+        ) {
+
+            numeroPedidoAtual = Number(numero);
+
+            const visor =
+                document.getElementById("s_pedido");
+
+            if (visor) {
+                visor.innerText = numeroPedidoAtual;
+            }
+
+            return numeroPedidoAtual;
+        }
+
+        throw new Error(
+            "O backend não retornou o número do próximo pedido."
+        );
+
+    } catch (erro) {
+
+        console.error(
+            "ERRO AO BUSCAR PRÓXIMO NÚMERO:",
+            erro
+        );
+
+        return null;
+
+    } finally {
+
+        carregandoNumeroPedido = false;
+    }
+}
     const IMG_PADRAO = "http://localhost:3000/images/img_ntf.png";
     let carrinho = [];
     let comandaAtual = null;
@@ -320,6 +446,10 @@ let formaPagamentoComanda = "";
 // Controla se a forma de pagamento da comanda pode ser alterada
 let pagamentoComandaDesbloqueado = false;
 let pagamentoComandaBloqueado = false;
+let origemVenda = "PDV";
+let numeroPedidoAtual = null;
+let parcelasCredito = 1;
+    let pedidoFinalizado = false;
     let estaProcessando = false;
     // ===== SONS DO PDV =====
     const beepSucesso = new Audio("sounds/success.mp3");
@@ -348,23 +478,101 @@ let pagamentoComandaBloqueado = false;
         inp_codb.blur();
         inp_codb.focus();
     }, 50);
-}function atualizarBloqueioPagamento() {
-
-    const botoesPagamento = document.querySelectorAll(".pagamento");
-    const botaoDesbloquear = document.getElementById("b_desbloquear_pagamento");
-
-    botoesPagamento.forEach(botao => {
-        botao.disabled = pagamentoComandaBloqueado;
-    });
-
-    if (botaoDesbloquear) {
-        botaoDesbloquear.style.display =
-            pagamentoComandaBloqueado ? "block" : "none";
-
-        botaoDesbloquear.innerText =
-            pagamentoComandaBloqueado ? "🔒" : "🔓";
-    }
 }
+function atualizarBloqueioPagamento() {
+
+    const botoesPagamento =
+        document.querySelectorAll(".pagamento");
+
+    const botaoDesbloquear =
+        document.getElementById("b_desbloquear_pagamento");
+
+    const bloqueado =
+        comandaAtual !== null &&
+        pagamentoComandaBloqueado === true;
+
+    // =====================================================
+    // BLOQUEIA/DESBLOQUEIA OS PAGAMENTOS
+    // =====================================================
+    botoesPagamento.forEach(botao => {
+    botao.addEventListener("click", () => {
+
+        // =====================================================
+        // COMANDA DO APP BLOQUEADA
+        // NÃO PERMITE ALTERAR O PAGAMENTO
+        // =====================================================
+        if (
+            comandaAtual &&
+            pagamentoComandaBloqueado &&
+            !pagamentoComandaDesbloqueado
+        ) {
+            console.log(
+                "Forma de pagamento bloqueada:",
+                formaPagamentoComanda
+            );
+
+            return;
+        }
+
+        // =====================================================
+        // ALTERA A SELEÇÃO VISUAL
+        // =====================================================
+        botoesPagamento.forEach(b => {
+            b.classList.remove("selecionado");
+        });
+
+        botao.classList.add("selecionado");
+
+        // =====================================================
+        // SALVA SOMENTE O NOME DA FORMA DE PAGAMENTO
+        // =====================================================
+        formaPagamento =
+            botao.innerText
+                .replace(/\s*\(F\d+\)\s*/gi, "")
+                .trim();
+
+        console.log(
+            "Forma de pagamento selecionada:",
+            formaPagamento
+        );
+    });
+});
+
+    // =====================================================
+    // BOTÃO DE DESBLOQUEIO
+    // SÓ EXISTE VISUALMENTE EM COMANDA BLOQUEADA
+    // =====================================================
+    if (botaoDesbloquear) {
+    botaoDesbloquear.style.display =
+        (comandaAtual && pagamentoComandaBloqueado)
+            ? "block"
+            : "none";
+}
+}
+function normalizarFormaPagamento(valor) {
+    return String(valor || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/\s*\(f\d+\)/g, "")
+        .trim();
+}
+
+function atualizarSelecaoPagamento(valor) {
+    const forma = normalizarFormaPagamento(valor);
+    document.querySelectorAll(".pagamento").forEach(botao => {
+        const texto = normalizarFormaPagamento(botao.innerText);
+        const selecionado = forma !== "" && texto === forma;
+        botao.classList.toggle("selecionado", selecionado);
+        botao.setAttribute("aria-pressed", selecionado ? "true" : "false");
+    });
+}
+
+function atualizarFormaPagamentoFinal(valor) {
+    const el = document.getElementById("s_forma_pagamento");
+    if (el) el.innerText = valor || "---";
+}
+
 function desbloquearPagamentoComanda() {
 
     if (!comandaAtual) {
@@ -387,9 +595,10 @@ function desbloquearPagamentoComanda() {
         true
     );
 }
-document
-    .getElementById("b_desbloquear_pagamento")
-    .addEventListener("click", desbloquearPagamentoComanda);
+const botaoDesbloquearPagamento = document.getElementById("b_desbloquear_pagamento");
+if (botaoDesbloquearPagamento) {
+    botaoDesbloquearPagamento.addEventListener("click", desbloquearPagamentoComanda);
+}
     
     // Impede que o input perca o foco, exceto se alguma modal estiver aberta
     inp_codb.addEventListener("blur", () => {
@@ -538,13 +747,6 @@ document
 ) {
     return;
 }
-document.getElementById("pg_fiado").addEventListener("click", () => {
-    modal.close();
-
-    inp_vencimento.value = new Date().toISOString().split("T")[0];
-
-    document.getElementById("d_fiado").showModal();
-});
 if (event.key.length === 1) {
     clearTimeout(timerLeitura);
 
@@ -657,9 +859,21 @@ if (event.key.length === 1) {
             }
 
             atualizarTabelaNoTopo();
-            atualizarVisores(carrinho[0]); 
-            atualizarTotalCompra();
-            verificarBotao();
+atualizarVisores(carrinho[0]);
+atualizarTotalCompra();
+verificarBotao();
+
+// VENDA NORMAL:
+// assim que o primeiro produto entra no carrinho,
+// já carrega o número do pedido.
+if (
+    !comandaAtual &&
+    origemVenda === "PDV" &&
+    carrinho.length > 0
+) {
+    atualizarNumeroPedidoPreview();
+}
+
             finalizarLeitura(codigo); 
         })
         .catch(err => {
@@ -678,37 +892,107 @@ if (event.key.length === 1) {
         });
     });
 
-    b_final.addEventListener("click", () => {
-        if (verificarEstoqueCarrinho()) {
-            const item = carrinho.find(i => i.qtd > i.estoque);
-            
-            // Substituído o confirm nativo por exibirAviso estruturado com callback de confirmação
-            exibirAviso(
-                `O produto "${item.nome}" possui apenas ${item.estoque} unidade(s) em estoque.\n\nDeseja ajustar automaticamente a quantidade?`,
-                () => {
-                    item.qtd = item.estoque;
-                    if (item.qtd === 0) {
-                        carrinho = carrinho.filter(i => i.codigo !== item.codigo);
-                    }
-                    atualizarTabelaNoTopo();
-                    atualizarVisores(carrinho[0] || { qtd: 0, preco: 0, estoque: 0 });
-                    atualizarTotalCompra();
-                    verificarBotao();
+   b_final.addEventListener("click", async () => {
 
-                    if (!verificarEstoqueCarrinho() && carrinho.length > 0) {
-                        document.getElementById("s_dt").innerText = new Date().toLocaleString();
-                        modal.showModal();
+    if (verificarEstoqueCarrinho()) {
+
+        const item = carrinho.find(i => i.qtd > i.estoque);
+
+        exibirAviso(
+            `O produto "${item.nome}" possui apenas ${item.estoque} unidade(s) em estoque.\n\nDeseja ajustar automaticamente a quantidade?`,
+            async () => {
+
+                item.qtd = item.estoque;
+
+                if (item.qtd === 0) {
+                    carrinho = carrinho.filter(
+                        i => i.codigo !== item.codigo
+                    );
+                }
+
+                atualizarTabelaNoTopo();
+                atualizarVisores(
+                    carrinho[0] || {
+                        qtd: 0,
+                        preco: 0,
+                        estoque: 0
                     }
-                },
-                true // ativa o botão "Cancelar" para simular a resposta "Não" do confirm nativo
-            );
-            
-            voltarFoco();
-            return;
+                );
+                atualizarTotalCompra();
+                verificarBotao();
+
+                if (
+                    !verificarEstoqueCarrinho() &&
+                    carrinho.length > 0
+                ) {
+
+                    document.getElementById("s_dt").innerText =
+                        new Date().toLocaleString();
+
+                    if (
+                        !comandaAtual &&
+                        origemVenda === "PDV" &&
+                        carrinho.length > 0
+                    ) {
+                        await atualizarNumeroPedidoPreview(true);
+                    }
+
+                    document.getElementById("s_pedido").innerText =
+                        comandaAtual
+                            ? (
+                                comandaAtual.num_pedido ??
+                                comandaAtual.numero_pedido ??
+                                "---"
+                              )
+                            : (
+                                numeroPedidoAtual ??
+                                "---"
+                              );
+
+                    modal.showModal();
+                }
+            },
+            true
+        );
+
+        voltarFoco();
+        return;
+    }
+
+    document.getElementById("s_dt").innerText =
+        new Date().toLocaleString();
+
+    // VENDA NORMAL DO PDV
+    if (
+    !comandaAtual &&
+    origemVenda === "PDV" &&
+    carrinho.length > 0
+) {
+    await atualizarNumeroPedidoPreview(true);
+}
+
+    // COMANDA: mostra o número que já pertence à comanda
+    if (comandaAtual) {
+        const numeroComanda =
+            comandaAtual.num_pedido ??
+            comandaAtual.numero_pedido ??
+            comandaAtual.pedido?.num_pedido ??
+            comandaAtual.pedido?.numero_pedido;
+
+        if (numeroComanda !== undefined && numeroComanda !== null) {
+            numeroPedidoAtual = Number(numeroComanda);
         }
-        document.getElementById("s_dt").innerText = new Date().toLocaleString();
-        modal.showModal();
-    });
+    }
+
+    const visorPedido = document.getElementById("s_pedido");
+
+    if (visorPedido) {
+        visorPedido.innerText =
+            numeroPedidoAtual ?? "---";
+    }
+
+    modal.showModal();
+});
 
     b_pesq.addEventListener("click", () => {
         modalp.showModal();
@@ -717,29 +1001,46 @@ if (event.key.length === 1) {
 document.querySelectorAll(".pagamento").forEach(botao => {
 
     botao.addEventListener("click", () => {
-document.querySelectorAll(".pagamento").forEach(b => {
-            b.classList.remove("selecionado");
-        });
 
-        // Seleciona o botão atual
-        botao.classList.add("selecionado");
-
-        // Comanda do APP bloqueada
-        if (
-            comandaAtual &&
-            !pagamentoComandaDesbloqueado
-        ) {
+        // =====================================================
+        // NUNCA permite alterar pagamento de comanda bloqueada
+        // =====================================================
+        if (comandaAtual && pagamentoComandaBloqueado) {
             console.log(
-                "Forma bloqueada. Mantendo:",
+                "Pagamento bloqueado. Mantendo:",
                 formaPagamentoComanda
             );
+
+            // Restaura visualmente a forma original
+            atualizarSelecaoPagamento(formaPagamentoComanda);
+            atualizarFormaPagamentoFinal(formaPagamentoComanda);
+
             return;
         }
 
-        formaPagamento = botao.innerText.trim();
+        // =====================================================
+        // LIMPA A SELEÇÃO ANTERIOR
+        // =====================================================
+        document.querySelectorAll(".pagamento").forEach(b => {
+            b.classList.remove("selecionado");
+        });
+
+        botao.classList.add("selecionado");
+
+        // =====================================================
+        // PEGA SOMENTE O NOME
+        // Remove "(F2)", "(F3)", "(F4)", "(F6)", "(F9)"
+        // =====================================================
+        const nomePagamento = botao.innerText
+            .replace(/\s*\(F\d+\)\s*/gi, "")
+            .trim();
+
+        formaPagamento = nomePagamento;
+
+        atualizarFormaPagamentoFinal(formaPagamento);
 
         console.log(
-            "Forma de pagamento alterada no PDV:",
+            "Forma de pagamento selecionada:",
             formaPagamento
         );
 
@@ -751,6 +1052,16 @@ document.querySelectorAll(".pagamento").forEach(b => {
 function resetarPDV() {
 
     comandaAtual = null;
+origemVenda = "PDV";
+numeroPedidoAtual = null;
+carregandoNumeroPedido = false;
+
+const visorPedido =
+    document.getElementById("s_pedido");
+
+if (visorPedido) {
+    visorPedido.innerText = "---";
+}
 
     carrinho = [];
     totalCompra = 0;
@@ -779,8 +1090,14 @@ function resetarPDV() {
         b_final.disabled = true;
         nova_venda.disabled = true;
         estaProcessando = false;
+        pedidoFinalizado = false;
+        parcelasCredito = 1;
+        atualizarBloqueioPagamento();
+        atualizarSelecaoPagamento("");
+        atualizarFormaPagamentoFinal("");
 
         modal.close();
+        if (document.getElementById("dialogCredito")?.open) document.getElementById("dialogCredito").close();
 
         if (dialogBusca.open) {
             dialogBusca.close();
@@ -886,6 +1203,18 @@ window.pdvConfirmarSaida = function (continuar) {
     }
 
         nova_venda.addEventListener("click", () => {
+            if (estaProcessando) {
+                return;
+            }
+
+            estaProcessando = true;
+            nova_venda.disabled = true;
+
+    if (pedidoFinalizado) {
+        resetarPDV();
+        document.querySelectorAll(".pagamento").forEach(b => b.disabled = false);
+        return;
+    }
 
     const totalReal = carrinho.reduce(
         (soma, item) =>
@@ -944,7 +1273,17 @@ window.pdvConfirmarSaida = function (continuar) {
 
         return;
     }
+const pagamentoFinalLimpo =
+    String(pagamentoFinal || "")
+        .replace(/\s*\(F\d+\)\s*/gi, "")
+        .trim();
 
+if (!pagamentoFinalLimpo) {
+    exibirAviso("A forma de pagamento não foi definida.");
+    estaProcessando = false;
+    nova_venda.disabled = false;
+    return;
+}
     const dadosPedido = {
 
         itens: carrinho,
@@ -955,10 +1294,13 @@ window.pdvConfirmarSaida = function (continuar) {
             (soma, item) =>
                 soma + item.qtd,
             0
+            
         ),
-
+        
         // ENVIA A FORMA CORRETA
-        form_pag: pagamentoFinal,
+        form_pag: pagamentoFinalLimpo,
+        parcelas: pagamentoFinal === "Cartão de Crédito" ? parcelasCredito : null,
+        valor_parcela: pagamentoFinal === "Cartão de Crédito" ? (totalReal / parcelasCredito) : null,
 
         origem: comandaAtual
             ? "APP"
@@ -1032,10 +1374,24 @@ window.pdvConfirmarSaida = function (continuar) {
             "RESPOSTA DO SERVIDOR:",
             data
         );
+        document
+        .getElementById("s_pedido")
+        .innerText = data.num_pedido;
 
+    // FECHA O MODAL ASSIM QUE A VENDA FOI SALVA
+    modal.close();
+
+        const numeroPedido = data.num_pedido ?? data.numero_pedido ?? data.id_pedido;
+        numeroPedidoAtual = numeroPedido;
         document
             .getElementById("s_pedido")
-            .innerText = data.num_pedido;
+            .innerText = numeroPedido ?? "---";
+
+        atualizarFormaPagamentoFinal(pagamentoFinal);
+        atualizarSelecaoPagamento(pagamentoFinal);
+        pedidoFinalizado = true;
+        nova_venda.disabled = false;
+        atualizarBloqueioPagamento();
 
         if (
             data.alertas &&
@@ -1062,7 +1418,7 @@ window.pdvConfirmarSaida = function (continuar) {
 
                                 comandaAtual = null;
 
-                                resetarPDV();
+                                // Aguarda o operador clicar em Nova Venda.
 
                             }
                         );
@@ -1071,7 +1427,7 @@ window.pdvConfirmarSaida = function (continuar) {
 
                         comandaAtual = null;
 
-                        resetarPDV();
+                        // Aguarda o operador clicar em Nova Venda.
                     }
                 }
             );
@@ -1091,7 +1447,7 @@ window.pdvConfirmarSaida = function (continuar) {
 
                         comandaAtual = null;
 
-                        resetarPDV();
+                        // Aguarda o operador clicar em Nova Venda.
 
                     }
                 );
@@ -1100,7 +1456,7 @@ window.pdvConfirmarSaida = function (continuar) {
 
                 comandaAtual = null;
 
-                resetarPDV();
+                // Aguarda o operador clicar em Nova Venda.
             }
         }
 
@@ -1311,7 +1667,8 @@ dados.sort((a, b) => {
             if (!respostaFiado.ok) {
                 throw new Error("Falha ao registrar a conta fiado no servidor.");
             }
-            formaPagamento = "FIADO";
+            formaPagamento = "Fiado";
+            origemVenda = "Fiado";
 
             apiFetch(`${URL_BACKEND_CAD}/pedidos`, {
                 method: "POST",
@@ -1332,7 +1689,9 @@ dados.sort((a, b) => {
                 return res.json();
             })
             .then(async data => {
-                document.getElementById("s_pedido").innerText = data.num_pedido;
+                const numeroFiado = data.num_pedido ?? data.numero_pedido ?? data.id_pedido;
+                numeroPedidoAtual = numeroFiado;
+                document.getElementById("s_pedido").innerText = numeroFiado ?? "---";
                 
                 if (data.alertas && data.alertas.length > 0) {
                     exibirAviso("⚠️ AVISO DE ESTOQUE:\n\n" + data.alertas.join("\n"), async () => {
@@ -1438,6 +1797,7 @@ function carregarComanda() {
         // =====================================================
 
         comandaAtual = comanda;
+        origemVenda = "APP";
 
         // =====================================================
         // PEGA A FORMA DE PAGAMENTO DO APP
@@ -1477,6 +1837,8 @@ function carregarComanda() {
 
         formaPagamentoComanda = pagamentoRecebido;
         formaPagamento = pagamentoRecebido;
+        atualizarSelecaoPagamento(pagamentoRecebido);
+        atualizarFormaPagamentoFinal(pagamentoRecebido);
 
         console.log(
             "formaPagamentoComanda:",
@@ -1508,6 +1870,7 @@ function carregarComanda() {
         ) {
 
             comandaAtual = null;
+            origemVenda = "PDV";
             formaPagamentoComanda = "";
             formaPagamento = "";
 
@@ -1697,16 +2060,21 @@ inputComanda.addEventListener("keydown", (e) => {
 });
 
 window.addEventListener("keydown", (event) => {
-    console.log(document.activeElement);
-    const tag = document.activeElement.tagName;
 
-    // Se estiver digitando num input (e não for F1-F12), ignora os atalhos comuns
+    console.log(document.activeElement);
+
+    const active = document.activeElement;
+    const tag = active?.tagName;
+
+    // Se estiver digitando em um campo, ignora atalhos comuns,
+    // mas PERMITE Escape e teclas F1-F12.
     if (
         (tag === "INPUT" ||
-        tag === "TEXTAREA" ||
-        document.activeElement.isContentEditable) &&
-        document.activeElement !== inp_codb &&
-        !event.key.startsWith("F") // Permite acionar F1, F3, F11, F12 mesmo com foco em inputs
+         tag === "TEXTAREA" ||
+         active?.isContentEditable) &&
+        active !== inp_codb &&
+        event.key !== "Escape" &&
+        !event.key.startsWith("F")
     ) {
         return;
     }
@@ -1717,220 +2085,634 @@ window.addEventListener("keydown", (event) => {
         (event.ctrlKey && event.key.toLowerCase() === "r") ||
         (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "i")
     ) {
+        event.preventDefault();
         return;
     }
 
-    switch(event.key) {
+    switch (event.key) {
+
         case "Escape":
 
-    event.preventDefault();
-    event.stopPropagation();
+            event.preventDefault();
+            event.stopPropagation();
 
-    console.log("ESC DETECTADO");
-    console.log("Comanda atual:", comandaAtual);
+            // Modal buscar comanda
+            if (dialogComanda?.open) {
+                dialogComanda.close();
+                voltarFoco();
+                break;
+            }
 
-    // Se o modal de buscar comanda estiver aberto,
-    // apenas fecha o modal de busca.
-    if (dialogComanda.open) {
-        dialogComanda.close();
-        voltarFoco();
-        break;
-    }
+            // Modal busca produto
+            if (dialogBusca?.open) {
+                dialogBusca.close();
+                voltarFoco();
+                break;
+            }
 
-    // Se o modal de busca de produto estiver aberto,
-    // apenas fecha o modal.
-    if (dialogBusca.open) {
-        dialogBusca.close();
-        voltarFoco();
-        break;
-    }
+            // Modal dinheiro
+            if (dialogDinheiro?.open) {
+                dialogDinheiro.close();
+                voltarFoco();
+                break;
+            }
 
-    // Se a tela de pagamento estiver aberta,
-    // fecha o pagamento.
-    if (modal.open) {
-        modal.close();
-        voltarFoco();
-        break;
-    }
+            // Modal crédito
+            if (dialogCredito?.open) {
+                dialogCredito.close();
+                voltarFoco();
+                break;
+            }
 
-    // Se o fiado estiver aberto,
-    // fecha o fiado.
-    if (document.getElementById("d_fiado")?.open) {
-        document.getElementById("d_fiado").close();
-        voltarFoco();
-        break;
-    }
+            // Tela de pagamento
+            if (modal?.open) {
+                modal.close();
+                voltarFoco();
+                break;
+            }
 
-    // Se existe uma comanda carregada,
-    // NÃO cancela diretamente.
-    // Abre a confirmação específica.
-    if (comandaAtual !== null) {
+            // Fiado
+            const dFiado = document.getElementById("d_fiado");
 
-        exibirAviso(
-            "Deseja realmente voltar e cancelar o carregamento desta comanda?",
-            () => {
-                resetarPDV();
-            },
-            true
-        );
+            if (dFiado?.open) {
+                dFiado.close();
+                voltarFoco();
+                break;
+            }
 
-        break;
-    }
+            // Comanda carregada
+            if (comandaAtual !== null) {
+                exibirAviso(
+                    "Deseja realmente voltar e cancelar o carregamento desta comanda?",
+                    () => {
+                        resetarPDV();
+                    },
+                    true
+                );
+                break;
+            }
 
-    // Venda normal
-    confirmarCancelamento();
+            // Venda normal
+            confirmarCancelamento();
+            break;
 
-    break;
 
         case "ArrowDown":
-            if (!dialogBusca.open) {
+
+            if (!dialogBusca?.open) {
                 event.preventDefault();
-                document.getElementById("sc_tabela").scrollTop += 50;
+
+                const tabela = document.getElementById("sc_tabela");
+
+                if (tabela) {
+                    tabela.scrollTop += 50;
+                }
             }
+
             break;
+
 
         case "ArrowUp":
-            if (!dialogBusca.open) {
+
+            if (!dialogBusca?.open) {
                 event.preventDefault();
-                document.getElementById("sc_tabela").scrollTop -= 50;
+
+                const tabela = document.getElementById("sc_tabela");
+
+                if (tabela) {
+                    tabela.scrollTop -= 50;
+                }
             }
-            break;
 
-        // F3: PESQUISAR PRODUTO (Se a modal de pagamento estiver aberta, aciona crédito)
-        case "F3":
-            event.preventDefault();
-            if (modal.open) {
-                document.getElementById("pg_credito").click();
-            } else if (!modalp.open) {
-                modalp.showModal();
-                setTimeout(() => { inputBusca.focus(); }, 50);
-            }
-            break;
-
-        // F11: NOVA VENDA
-        case "F11":
-            event.preventDefault();
-            if (!nova_venda.disabled) nova_venda.click();
-            break;
-
-        // F12: FINALIZAR COMPRA
-        case "F12":
-            event.preventDefault();
-            if (!b_final.disabled) b_final.click();
             break;
 
         case "F2":
             event.preventDefault();
-            if (modal.open) document.getElementById("pg_dinheiro").click();
+
+            if (
+                modal.open &&
+                !(comandaAtual && pagamentoComandaBloqueado)
+            ) {
+                document.getElementById("pg_dinheiro").click();
+            }
+
             break;
+
+
+        case "F3":
+            event.preventDefault();
+
+            if (modal.open) {
+
+                if (
+                    !(comandaAtual && pagamentoComandaBloqueado)
+                ) {
+                    document.getElementById("pg_credito").click();
+                }
+
+            } else if (!modalp.open) {
+
+                modalp.showModal();
+
+                setTimeout(() => {
+                    inputBusca.focus();
+                }, 50);
+            }
+
+            break;
+
 
         case "F4":
             event.preventDefault();
-            if (modal.open) document.getElementById("pg_debito").click();
+
+            if (
+                modal.open &&
+                !(comandaAtual && pagamentoComandaBloqueado)
+            ) {
+                document.getElementById("pg_debito").click();
+            }
+
             break;
+
 
         case "F6":
             event.preventDefault();
-            if (modal.open) document.getElementById("pg_pix").click();
+
+            if (
+                modal.open &&
+                !(comandaAtual && pagamentoComandaBloqueado)
+            ) {
+                document.getElementById("pg_pix").click();
+            }
+
             break;
 
-        case "F8":
-            event.preventDefault();
-            document.getElementById("b_agend").click();
-            break;
 
         case "F9":
             event.preventDefault();
-            if (modal.open) {
+
+            if (
+                modal.open &&
+                !(comandaAtual && pagamentoComandaBloqueado)
+            ) {
                 document.getElementById("pg_fiado").click();
             }
+
             break;
 
+        // F11: NOVA VENDA
+        case "F11":
+
+            event.preventDefault();
+
+            if (!nova_venda.disabled) {
+                nova_venda.click();
+            }
+
+            break;
+
+
+        // F12: FINALIZAR COMPRA
+        case "F12":
+
+            event.preventDefault();
+
+            if (!b_final.disabled) {
+                b_final.click();
+            }
+
+            break;
+
+
+        // F8: AGENDAMENTO
+        case "F8":
+
+            event.preventDefault();
+
+            document.getElementById("b_agend")?.click();
+
+            break;
+
+
+        // C: ABRIR COMANDA
         case "c":
-case "C":
-    // Não permite abrir a comanda enquanto qualquer modal estiver aberto
-    if (
-        dialogBusca.open ||
-        modal.open ||
-        dialogComanda.open ||
-        dialogDinheiro.open ||
-        document.getElementById("d_fiado")?.open ||
-        aviso.open
-    ) {
-        event.preventDefault();
-        event.stopPropagation();
-        break;
-    }
+        case "C":
 
-    event.preventDefault();
+            if (
+                dialogBusca?.open ||
+                modal?.open ||
+                dialogComanda?.open ||
+                dialogDinheiro?.open ||
+                document.getElementById("d_fiado")?.open ||
+                aviso?.open
+            ) {
+                event.preventDefault();
+                event.stopPropagation();
+                break;
+            }
 
-    dialogComanda.showModal();
+            event.preventDefault();
 
-    setTimeout(() => {
-        inputComanda.focus();
-        inputComanda.setSelectionRange(
-            inputComanda.value.length,
-            inputComanda.value.length
-        );
-    }, 50);
+            dialogComanda.showModal();
 
-    break;
+            setTimeout(() => {
+
+                inputComanda?.focus();
+
+                if (inputComanda) {
+                    inputComanda.setSelectionRange(
+                        inputComanda.value.length,
+                        inputComanda.value.length
+                    );
+                }
+
+            }, 50);
+
+            break;
     }
 });
-// ===== CONTROLE DO MODAL DE DINHEIRO =====
-const pgDinheiroBtn = document.getElementById("pg_dinheiro");
+// =====================================================
+// CONTROLE DOS MODAIS DE PAGAMENTO
+// =====================================================
+
 const dialogDinheiro = document.getElementById("dialogDinheiro");
 const lblDinheiroTotal = document.getElementById("lbl_dinheiro_total");
 const inpValorPago = document.getElementById("inp_valor_pago");
 const lblTroco = document.getElementById("lbl_troco");
 const bConfirmarDinheiro = document.getElementById("b_confirmar_dinheiro");
+const bFecharDinheiro = document.getElementById("b_fechar_dinheiro");
 
-// Abrir Modal de Dinheiro e carregar Total da Compra
+const dialogCredito = document.getElementById("dialogCredito");
+const selParcelasCredito = document.getElementById("sel_parcelas_credito");
+const lblCreditoTotal = document.getElementById("lbl_credito_total");
+const lblValorParcela = document.getElementById("lbl_valor_parcela");
+const bFecharCredito = document.getElementById("b_fechar_credito");
+const bConfirmarCredito = document.getElementById("b_confirmar_credito");
+
+
+function totalAtualPDV() {
+
+    return carrinho.reduce(
+        (soma, item) =>
+            soma + (Number(item.preco) * Number(item.qtd)),
+        0
+    );
+
+}
+
+
+// =====================================================
+// DINHEIRO
+// =====================================================
+
+function abrirModalDinheiro() {
+
+    const totalReal = totalAtualPDV();
+
+    lblDinheiroTotal.innerText =
+        "R$ " + formatar(totalReal);
+
+    inpValorPago.value = "";
+
+    lblTroco.innerText =
+        "R$ 0,00";
+
+    /*
+     * IMPORTANTE:
+     * Não altera formaPagamento aqui.
+     * Só altera quando o pagamento for confirmado.
+     */
+
+    dialogDinheiro.showModal();
+
+    setTimeout(() => {
+        inpValorPago.focus();
+    }, 100);
+
+}
+
+
+// Fechar pelo X
+
+if (bFecharDinheiro) {
+
+    bFecharDinheiro.addEventListener("click", () => {
+
+        dialogDinheiro.close();
+
+        voltarFoco();
+
+    });
+
+}
+
+
+// Fechar dinheiro com ESC
+
+if (dialogDinheiro) {
+
+    dialogDinheiro.addEventListener("cancel", (event) => {
+
+        event.preventDefault();
+
+        dialogDinheiro.close();
+
+        voltarFoco();
+
+    });
+
+}
+
+
+// Calcular troco
+
+if (inpValorPago) {
+
+    inpValorPago.addEventListener("input", () => {
+
+        const valor =
+            parseFloat(
+                String(inpValorPago.value).replace(",", ".")
+            ) || 0;
+
+        const total =
+            totalAtualPDV();
+
+        lblTroco.innerText =
+            "R$ " +
+            formatar(
+                Math.max(0, valor - total)
+            );
+
+    });
+
+}
+
+
+// Confirmar dinheiro
+
+if (bConfirmarDinheiro) {
+
+    bConfirmarDinheiro.addEventListener("click", () => {
+
+        const valor =
+            parseFloat(
+                String(inpValorPago.value).replace(",", ".")
+            ) || 0;
+
+        const total =
+            totalAtualPDV();
+
+        if (valor < total) {
+
+            exibirAviso(
+                "O valor recebido é menor que o total da compra."
+            );
+
+            return;
+
+        }
+
+
+        // Só agora define o pagamento
+
+        formaPagamento = "Dinheiro";
+
+        atualizarSelecaoPagamento(
+            formaPagamento
+        );
+
+        atualizarFormaPagamentoFinal(
+            formaPagamento
+        );
+
+
+        dialogDinheiro.close();
+
+        nova_venda.disabled = false;
+
+        voltarFoco();
+
+    });
+
+}
+
 pgDinheiroBtn.addEventListener("click", () => {
-    if (comandaAtual && !pagamentoComandaDesbloqueado) {
+
+    if (comandaAtual && pagamentoComandaBloqueado) {
+        atualizarSelecaoPagamento(formaPagamentoComanda);
+        atualizarFormaPagamentoFinal(formaPagamentoComanda);
         return;
     }
+
     formaPagamento = "Dinheiro";
-    
-    // Calcula o total exato da compra
-    const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
-    
-    lblDinheiroTotal.innerText = "R$ " + formatar(totalReal);
+
+    const totalReal = carrinho.reduce(
+        (soma, item) => soma + (item.preco * item.qtd),
+        0
+    );
+
+    lblDinheiroTotal.innerText =
+        "R$ " + formatar(totalReal);
+
     inpValorPago.value = "";
     lblTroco.innerText = "R$ 0,00";
-    
+
     dialogDinheiro.showModal();
+
     setTimeout(() => inpValorPago.focus(), 100);
 });
+// =====================================================
+// CARTÃO DE CRÉDITO
+// =====================================================
+
+function atualizarParcelamentoCredito() {
+
+    const totalReal =
+        totalAtualPDV();
+
+    const valorSelecionado =
+        selParcelasCredito.value;
 
 
+    lblCreditoTotal.innerText =
+        "R$ " +
+        formatar(totalReal);
 
-// Atualizar cálculo de Troco e Valor do Botão ao digitar
-inpValorPago.addEventListener("input", () => {
-    const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
-    const valorRecebido = parseFloat(inpValorPago.value.replace(",", ".")) || 0;
-    
-    const troco = valorRecebido - totalReal;
-    
-    if (troco > 0) {
-        lblTroco.innerText = "R$ " + formatar(troco);
-    } else {
-        lblTroco.innerText = "R$ 0,00";
+
+    // Ainda não escolheu parcela
+
+    if (!valorSelecionado) {
+
+        parcelasCredito = null;
+
+        lblValorParcela.innerText =
+            "Selecione as parcelas";
+
+        selParcelasCredito.classList.add(
+            "parcela-nao-selecionada"
+        );
+
+        return;
+
     }
 
-    // Atualiza o valor recebido ou o total no botão de confirmação
-    const valorExibicao = valorRecebido > 0 ? valorRecebido : totalReal;
-});
 
-// Confirmar pagamento em dinheiro
-bConfirmarDinheiro.addEventListener("click", () => {
-    dialogDinheiro.close();
-    nova_venda.disabled = false; // Habilita o botão "Nova Venda (F11)"
-});
+    parcelasCredito =
+        Number(valorSelecionado);
 
-document.getElementById("btn_conta_fiado").onclick = () => {
-    document.getElementById("d_modal_fiado").showModal();
-};
+
+    lblValorParcela.innerText =
+        "R$ " +
+        formatar(
+            totalReal / parcelasCredito
+        );
+
+
+    selParcelasCredito.classList.remove(
+        "parcela-nao-selecionada"
+    );
+
+}
+
+
+// Abrir crédito
+
+function abrirModalCredito() {
+
+    const totalReal =
+        totalAtualPDV();
+
+
+    lblCreditoTotal.innerText =
+        "R$ " +
+        formatar(totalReal);
+
+
+    /*
+     * IMPORTANTE:
+     * começa sem nenhuma parcela selecionada.
+     */
+
+    selParcelasCredito.value = "";
+
+    parcelasCredito = null;
+
+    lblValorParcela.innerText =
+        "Selecione as parcelas";
+
+    selParcelasCredito.classList.remove(
+        "parcela-nao-selecionada"
+    );
+
+
+    /*
+     * NÃO define formaPagamento aqui.
+     *
+     * Se o usuário abrir crédito e desistir,
+     * continua com a forma de pagamento anterior.
+     */
+
+    dialogCredito.showModal();
+
+}
+
+
+// Atualização ao selecionar parcelas
+
+if (selParcelasCredito) {
+
+    selParcelasCredito.addEventListener(
+        "change",
+        atualizarParcelamentoCredito
+    );
+
+}
+
+
+// Fechar crédito pelo X
+
+if (bFecharCredito && dialogCredito) {
+
+    bFecharCredito.addEventListener("click", () => {
+
+        dialogCredito.close();
+
+        voltarFoco();
+
+    });
+
+}
+
+
+// Fechar crédito com ESC
+
+if (dialogCredito) {
+
+    dialogCredito.addEventListener("cancel", (event) => {
+
+        event.preventDefault();
+
+        dialogCredito.close();
+
+        voltarFoco();
+
+    });
+
+}
+
+
+// Confirmar crédito
+
+if (bConfirmarCredito && dialogCredito) {
+
+    bConfirmarCredito.addEventListener("click", () => {
+
+        /*
+         * NÃO permite confirmar sem escolher parcelas.
+         */
+
+        if (
+            !selParcelasCredito.value ||
+            !parcelasCredito
+        ) {
+
+            selParcelasCredito.classList.add(
+                "parcela-nao-selecionada"
+            );
+
+            exibirAviso(
+                "Selecione a quantidade de parcelas antes de confirmar o pagamento."
+            );
+
+            return;
+
+        }
+
+
+        formaPagamento =
+            "Cartão de Crédito";
+
+
+        atualizarSelecaoPagamento(
+            formaPagamento
+        );
+
+        atualizarFormaPagamentoFinal(
+            formaPagamento
+        );
+
+
+        dialogCredito.close();
+
+        nova_venda.disabled = false;
+
+        voltarFoco();
+
+    });
+
+}
+
 
 
 </script>
