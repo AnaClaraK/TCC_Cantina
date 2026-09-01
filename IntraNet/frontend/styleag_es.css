@@ -90,38 +90,29 @@
     border: 3px solid #1c1c1c;
     border-radius: 5px;
     background-color: #efac4a;
-    width: 100%;
-    /* 1. Aumentamos a largura máxima para dar mais folga */
-    max-width: 480px; 
-}
-
-.icone-busca {
-    position: absolute;
-    left: 10px;
-    width: 18px;
-    height: 18px;
-    pointer-events: none;
+    width: 315px;
+    max-width: 100%;
+    box-sizing: border-box;
+    height: 45px;
 }
 
 #inputBusca {
     width: 100%;
+    min-width: 0;
     background-color: transparent;
     border: none;
     outline: none;
-    /* 2. Reduzimos levemente o padding da direita e diminuímos o texto em 1px */
-    padding: 10px 8px 10px 36px; 
-    font-size: 14px; 
+    padding: 10px 8px 10px 36px;
+    font-size: 14px;
     color: #1c1c1c;
     box-sizing: border-box;
-
-    /* 3. Garante que se o texto for muito grande em telas pequenas, ele diminua sem cortar */
-    text-overflow: ellipsis; 
 }
 
 #inputBusca::placeholder {
     color: #573e1c;
-    font-size: 13.5px; /* Tamanho exato para encaixar com folga */
+    font-size: 13.5px;
     opacity: 0.85;
+    text-align: center;
 }
 /* ============================================================
    TABELA
@@ -632,22 +623,12 @@ td:last-child {
     width: 120px;
 }
 
-.select-prioridade {
-    width: 100%;
-}
+
 .select-tabela-prioridade {
     width: 100px;
     cursor: pointer;
 }
 
-.select-tabela-prioridade,
-.select-prioridade {
-    background: #1f1f1f;
-    color: white;
-    border: 1px solid #efac4a;
-    border-radius: 6px;
-    padding: 5px;
-}
 
 .select-tabela-prioridade option,
 .select-prioridade option {
@@ -1620,7 +1601,7 @@ BOTÕES
 
 /* --- PADRONIZAÇÃO DO MODAL DE RANKING --- */
 #modalRankingProdutos {
-    border: none;
+    border: 2px solid #efac4a;
     border-radius: 8px;
     padding: 0;
     background: transparent;
@@ -1760,141 +1741,192 @@ BOTÕES
     z-index: 3;
 }
 
-/*Reposição/*
 /* =========================================================
-   LISTA DE PRIORIDADES - REPOSIÇÃO
+   SELECT DE PRIORIDADE
+   MESMO ESTILO DO SELECT DE CATEGORIA
    ========================================================= */
 
-/* Botão/campo de prioridade */
-#prioridade,
-#selectPrioridade,
-#prioridadeBtn {
-    background-color: #efac4a !important;
-    color: #1c1c1c !important;
-    border: 2px solid #1c1c1c !important;
+.select-prioridade {
+    position: relative;
+    width: 102%;
+}
+
+/* Garante que o botão não seja afetado pelo estilo
+   geral dos botões do formulário */
+.select-prioridade .select-categoria-btn {
+    width: 100%;
+    height: 52px;
+
+    padding: 0 15px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: #fed89d;
+    color: #1c1c1c;
+    border: 2px solid #1c1c1c;
     border-radius: 10px;
-    font-size: 14px !important;
-    outline: none !important;
-    box-shadow: none !important;
-}
 
-/* Remove o azul padrão ao clicar/focar */
-#prioridade:focus,
-#selectPrioridade:focus,
-#prioridadeBtn:focus,
-#prioridade:active,
-#selectPrioridade:active {
-    outline: none !important;
-    border-color: #1c1c1c !important;
-    box-shadow: 0 0 0 2px rgba(239, 172, 74, 0.35) !important;
-}
+    font-size: 20px;
+    font-family: Arial, sans-serif;
+    font-weight: normal;
 
-/* Opções da lista */
-#prioridade option {
-    background-color: #1c1c1c !important;
-    color: #efac4a !important;
-    font-size: 14px !important;
-}
-
-/* Opção selecionada */
-#prioridade option:checked {
-    background-color: #efac4a !important;
-    color: #1c1c1c !important;
-}
-
-/* =========================================================
-   BOTÃO "ADICIONAR PRODUTO"
-   ========================================================= */
-
-#btnAdicionarProduto,
-.btn-adicionar-produto {
-    background-color: #1c1c1c !important;
-    color: #efac4a !important;
-    border: 2px solid #efac4a !important;
-    border-radius: 10px;
-    font-size: 14px !important;
-    font-weight: bold;
-    outline: none !important;
-    box-shadow: none !important;
     cursor: pointer;
+    outline: none;
+
+    box-sizing: border-box;
 }
 
-/* Tira o azul de foco do navegador */
-#btnAdicionarProduto:focus,
-.btn-adicionar-produto:focus {
-    outline: none !important;
-    box-shadow: 0 0 0 2px rgba(239, 172, 74, 0.35) !important;
-    border-color: #efac4a !important;
-}
-
-/* Hover */
-#btnAdicionarProduto:hover,
-.btn-adicionar-produto:hover {
-    background-color: #efac4a !important;
-    color: #1c1c1c !important;
-}
-
-/* =========================================================
-   LISTA PERSONALIZADA DE PRIORIDADES
-   ========================================================= */
-
-#listaPrioridades,
-.lista-prioridades {
-    background-color: #1c1c1c !important;
-    border: 2px solid #efac4a !important;
-    border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-    overflow-y: auto;
-}
-
-/* Itens */
-#listaPrioridades li,
-.lista-prioridades li,
-#listaPrioridades div,
-.lista-prioridades div {
-    background-color: #1c1c1c !important;
-    color: #efac4a !important;
-    font-size: 14px !important;
-    padding: 9px 12px !important;
-    border-bottom: 1px solid #333;
-    cursor: pointer;
-}
-
-/* Hover */
-#listaPrioridades li:hover,
-.lista-prioridades li:hover,
-#listaPrioridades div:hover,
-.lista-prioridades div:hover {
-    background-color: #efac4a !important;
-    color: #1c1c1c !important;
-}
-
-/* Selecionado */
-#listaPrioridades .selecionada,
-.lista-prioridades .selecionada {
-    background-color: #efac4a !important;
-    color: #1c1c1c !important;
-    font-weight: bold;
-}
-
-/* Scroll */
-#listaPrioridades::-webkit-scrollbar,
-.lista-prioridades::-webkit-scrollbar {
-    width: 7px;
-}
-
-#listaPrioridades::-webkit-scrollbar-track,
-.lista-prioridades::-webkit-scrollbar-track {
-    background: #1c1c1c;
-}
-
-#listaPrioridades::-webkit-scrollbar-thumb,
-.lista-prioridades::-webkit-scrollbar-thumb {
-    background: #efac4a;
-    border-radius: 10px;
-}
-
-#listaPrioridades::-webkit-scrollbar-thumb:hover,
-.lista-prioridades::-webkit-scrollbar-thumb:hover {
+.select-prioridade .select-categoria-btn:hover {
     background: #f8c471;
+}
+
+/* LISTA */
+.select-prioridade .select-categoria-lista {
+    display: none;
+
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+
+    width: 100%;
+
+    background: #1c1c1c;
+
+    border: 2px solid #efac4a;
+    border-radius: 10px;
+
+    overflow: hidden;
+
+    z-index: 999999;
+
+    box-sizing: border-box;
+
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+/* ABERTA */
+.select-prioridade.aberto .select-categoria-lista {
+    display: block;
+}
+
+/* SETA */
+.select-prioridade.aberto .select-seta {
+    transform: rotate(180deg);
+}
+
+/* OPÇÕES */
+.select-prioridade .categoria-opcao {
+    min-height: 42px;
+
+    padding: 0 15px;
+
+    display: flex;
+    align-items: center;
+
+    background: #1c1c1c;
+    color: #fed89d;
+    
+
+    border-bottom: 1px solid #333;
+
+    cursor: pointer;
+
+    font-size: 15px;
+
+    transition: 0.15s;
+}
+
+.select-prioridade .categoria-opcao:last-child {
+    border-bottom: none;
+}
+
+/* HOVER */
+.select-prioridade .categoria-opcao:hover {
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+}
+
+/* SELECIONADA */
+.select-prioridade .categoria-opcao.selecionada {
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+    font-weight: bold;
+}
+
+
+/* REMOVE A BORDA AMARELA DO CAMPO PRIORIDADE NO MODAL */
+#d_modal .select-prioridade {
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+
+
+/* Remove também qualquer borda amarela quando estiver focado */
+#d_modal .select-prioridade .select-categoria-btn:focus,
+#d_modal .select-prioridade .select-categoria-btn:active {
+    border-color: #1c1c1c !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+#d_modal input,
+#d_modal .inp_m,
+#d_modal .select-categoria-btn,
+#d_modal .select-prioridade .select-categoria-btn {
+    border-color: #efac4a !important;
+    border: 3px solid #efac4a;
+    font-size: 20px;
+}
+
+/* Borda do campo PRIORIDADE */
+#d_modal .select-prioridade .select-categoria-btn {
+    border: 3px solid #efac4a !important;
+    border-radius: 10px;
+    background: #fed89d;
+    color: #1c1c1c;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Mantém a borda quando clicar/focar */
+#d_modal .select-prioridade .select-categoria-btn:focus,
+#d_modal .select-prioridade .select-categoria-btn:active {
+    border: 3px solid #efac4a !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* =========================================================
+   TEXTO DAS CAIXINHAS - MODAL ADICIONAR PRODUTOS
+   ========================================================= */
+
+/* Caixa de busca */
+#d_modal_produtos #inp_busca_produto {
+    font-size: 20px !important;
+}
+
+/* Texto dentro da lista de produtos */
+#d_modal_produtos #lista_produtos li {
+    font-size: 20px !important;
+}
+
+/* Texto das caixas dos produtos selecionados */
+#d_modal_produtos .produto_item_modal {
+    font-size: 20px !important;
+}
+
+/* Qualquer texto dentro da caixinha do produto */
+#d_modal_produtos .produto_item_modal span,
+#d_modal_produtos .produto_item_modal p,
+#d_modal_produtos .produto_item_modal label {
+    font-size: 20px !important;
+}
+
+/* Campo de quantidade */
+#d_modal_produtos .inp_qtd_modal {
+    font-size: 20px !important;
 }
