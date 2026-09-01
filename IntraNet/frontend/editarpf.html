@@ -1,192 +1,319 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="sidebar_header.js"></script>
-    <link rel="stylesheet" href="layout.css">
-    <link rel="stylesheet" href="stylecadp.css">
-    <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
-    <title>Editar Perfil</title>
-    <script>
-        const token = localStorage.getItem("token");
-        if (!token) {
-            window.location.replace("login.html");
-        }
-    </script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="sidebar_header.js"></script>
+	<link rel="stylesheet" href="layout.css">
+	<link rel="stylesheet" href="stylecadp.css">
+	<link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
+	<title>Editar Perfil</title>
+	<script>
+		const token = localStorage.getItem("token");
+		if (!token) {
+			window.location.replace("login.html");
+		}
+	</script>
 </head>
 <body class="fundo-escuro">
+	<form id="formPerfil" enctype="multipart/form-data">
+		<h2 class="titulo">Editar Meu Perfil</h2>
 
-    <form id="formPerfil" enctype="multipart/form-data">
-        <h2 class="titulo">Editar Meu Perfil</h2>
-    
-        <div class="container-flex">
-            <div class="coluna">
-                <div class="user-photo-grande">
-                    <img id="preview-perfil" src=""/>
-                </div>
-    
-                
-    
-                <label class="label-amarela">Nome</label>
-                <input type="text" id="edit-nome" name="nome" class="inp_p" placeholder="Seu nome">
-    
-                <label class="label-amarela">E-mail</label>
-                <input type="email" id="edit-email" name="email" class="inp_p" placeholder="Seu e-mail">
-            </div>
-    
-            <div class="coluna">
-                <p id="titulo_seg">Segurança</p>
-                
-                <label class="label-amarela">Senha Atual</label>
-                <input type="password" id="senha_atual" name="senha_atual" class="inp_p" placeholder="Senha atual">
-                
-                <label class="label-amarela">Nova Senha</label>
-                <input type="password" id="nova_senha" name="nova_senha" class="inp_p" placeholder="Nova senha">
-                
-                <label class="label-amarela">Confirmar Senha</label>
-                <input type="password" id="conf_senha" name="conf_senha" class="inp_p" placeholder="Confirme a senha">
-            </div>
-        </div>
-    
-        <div class="botoes-fileira">
-            <label for="inputImagemPerfil" class="btn-p btn-trocar">
-        Trocar Imagem
-    </label>
-            <button type="submit" class="btn-p">Salvar</button>
-            <button type="button" onclick="window.location.href='index.html'" class="btn-p btn-cinza">Cancelar</button>
-            <button type="button" onclick="logout()" class="btn-p btn-vermelho">Desconectar</button>
-        </div>
-    </form>
+		<div class="container-flex">
+			<div class="coluna">
+				<div class="user-photo-grande">
+					<img id="preview-perfil" src="" alt="Foto de perfil">
+				</div>
 
-    <dialog id="d_aviso">
-        <div class="aviso_box">
-            <div id="msg_aviso"></div>
-            <div class="aviso_botoes">
-                <button id="b_confirmar_aviso">OK</button>
-                <button id="b_cancelar_aviso" style="display:none;">Cancelar</button>
-            </div>
-        </div>
-    </dialog>
+				<input
+					type="file"
+					id="inputImagemPerfil"
+					name="imagem"
+					accept="image/png,image/jpeg,image/jpg"
+					style="display: none;"
+				>
 
-    <script>
-        const modalAviso = document.getElementById("d_aviso");
-        const msgAviso = document.getElementById("msg_aviso");
-        const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
+				<label for="inputImagemPerfil" class="btn-p btn-trocar">
+					Trocar Imagem
+				</label>
 
-        function exibirAviso(mensagem, callback = null) {
-            msgAviso.innerHTML = mensagem;
-            modalAviso.showModal();
+				<label class="label-amarela">Nome</label>
+				<input
+					type="text"
+					id="edit-nome"
+					name="nome"
+					class="inp_p"
+					placeholder="Seu nome"
+				>
 
-            bConfirmarAviso.onclick = () => {
-                modalAviso.close();
-                if (callback) callback();
-            };
-        }
+				<label class="label-amarela">E-mail</label>
+				<input
+					type="email"
+					id="edit-email"
+					name="email"
+					class="inp_p"
+					placeholder="Seu e-mail"
+				>
+			</div>
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const nome = localStorage.getItem("usuarioNome");
-            const email = localStorage.getItem("usuarioEmail");
-            const foto = localStorage.getItem("usuarioFoto");
+			<div class="coluna">
+				<p id="titulo_seg">Segurança</p>
 
-            if(nome) document.getElementById('edit-nome').value = nome;
-            if(email) document.getElementById('edit-email').value = email;
-            
-            const preview = document.getElementById('preview-perfil');
+				<label class="label-amarela">Senha Atual</label>
+				<input
+					type="password"
+					id="senha_atual"
+					name="senha_atual"
+					class="inp_p"
+					placeholder="Senha atual"
+				>
 
-            if(foto && foto !== "null" && foto !== "undefined" && foto !== "") {
-                const caminhoTratado = foto.startsWith('/') ? foto : '/' + foto;
-                preview.src = "http://localhost:3000" + caminhoTratado;
-            } else {
-                preview.src = "images/def_avt.jpg";
-            }
-        });
+				<label class="label-amarela">Nova Senha</label>
+				<input
+					type="password"
+					id="nova_senha"
+					name="nova_senha"
+					class="inp_p"
+					placeholder="Nova senha"
+				>
 
-        const inputImagem = document.getElementById("inputImagemPerfil");
-        const preview = document.getElementById("preview-perfil");
+				<label class="label-amarela">Confirmar Senha</label>
+				<input
+					type="password"
+					id="conf_senha"
+					name="conf_senha"
+					class="inp_p"
+					placeholder="Confirme a senha"
+				>
+			</div>
+		</div>
 
-        inputImagem.addEventListener("change", () => {
-            const file = inputImagem.files[0];
-            if(file) preview.src = URL.createObjectURL(file);
-        });
+		<div class="botoes-fileira">
+			<button type="submit" class="btn-p">Salvar</button>
+			<button type="button" onclick="window.location.href='index.html'" class="btn-p btn-cinza">Cancelar</button>
+			<button type="button" onclick="logout()" class="btn-p btn-vermelho">Desconectar</button>
+		</div>
+	</form>
 
-        document.getElementById("formPerfil").addEventListener("submit", async (e) => {
-            e.preventDefault();
+	<dialog id="d_aviso">
+		<div class="aviso_box">
+			<div id="msg_aviso"></div>
 
-            const nome = document.getElementById("edit-nome").value.trim();
-            const email = document.getElementById("edit-email").value.trim();
-            const senhaAtual = document.getElementById("senha_atual").value;
-            const novaSenha = document.getElementById("nova_senha").value;
-            const confSenha = document.getElementById("conf_senha").value;
+			<div class="aviso_botoes">
+				<button id="b_confirmar_aviso">OK</button>
+				<button id="b_cancelar_aviso" style="display: none;">Cancelar</button>
+			</div>
+		</div>
+	</dialog>
 
-            // 1. Validação de Nome
-            if (!nome || nome.length < 3) {
-                exibirAviso("O nome deve ter pelo menos 3 caracteres.");
-                return;
-            }
-            if (/^\d+$/.test(nome)) {
-                exibirAviso("O nome não pode conter apenas números.");
-                return;
-            }
+	<script>
+		const modalAviso = document.getElementById("d_aviso");
+		const msgAviso = document.getElementById("msg_aviso");
+		const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
+		const inputImagem = document.getElementById("inputImagemPerfil");
+		const preview = document.getElementById("preview-perfil");
 
-            // 2. Validação de Email
-            if (!email) {
-                exibirAviso("Digite um e-mail válido.");
-                return;
-            }
+		function exibirAviso(mensagem, callback = null) {
+			msgAviso.innerHTML = mensagem;
+			modalAviso.showModal();
 
-            // 3. Validação da Nova Senha
-            if (novaSenha || confSenha || senhaAtual) {
-                if (!senhaAtual) {
-                    exibirAviso("Digite sua senha atual para alterar as credenciais.");
-                    return;
-                }
-                if (novaSenha.length < 8) {
-                    exibirAviso("A nova senha deve ter pelo menos 8 caracteres.");
-                    return;
-                }
+			bConfirmarAviso.onclick = () => {
+				modalAviso.close();
 
-                if (!/[!@#$%^&*(),.?":{}|<>_\-+=]/.test(novaSenha)) {
-                    exibirAviso("A nova senha deve conter pelo menos um caractere especial.");
-                    return;
-                }
-                if (novaSenha !== confSenha) {
-                    exibirAviso("A nova senha e a confirmação não coincidem.");
-                    return;
-                }
-            }
+				if (callback) {
+					callback();
+				}
+			};
+		}
 
-            const formData = new FormData(e.target);
-            formData.append("emailAntigo", localStorage.getItem("usuarioEmail"));
+		function montarUrlFoto(foto) {
+			if (!foto || foto === "null" || foto === "undefined" || foto === "") {
+				return "images/def_avt.jpg";
+			}
 
-            try {
-                const response = await apiFetch("http://localhost:3000/perfil/atualizar", {
-                    method: "PUT",
-                    body: formData
-                });
+			if (foto.startsWith("http://") || foto.startsWith("https://")) {
+				return foto;
+			}
 
-                const dados = await response.json();
+			const caminho = foto.startsWith("/") ? foto : "/" + foto;
 
-                if (response.ok) {
-                    localStorage.setItem("usuarioNome", dados.novoNome);
-                    localStorage.setItem("usuarioEmail", dados.novoEmail);
-                    
-                    // Atualiza a chave usuarioFoto com a nova foto enviada pelo backend
-                    if (dados.novaFoto) {
-                        localStorage.setItem("usuarioFoto", dados.novaFoto);
-                    }
-                    
-                    exibirAviso(dados.resposta || "Perfil atualizado com sucesso!", () => {
-                        window.location.reload(); 
-                    });
+			return "http://localhost:3000" + caminho;
+		}
 
-                } else {
-                    exibirAviso(dados.resposta || "Erro ao salvar.");
-                }
-            } catch (error) {
-                exibirAviso("Erro de conexão ao servidor.");
-            }
-        });
-    </script>
+		async function carregarPerfil() {
+			const token = localStorage.getItem("token");
+
+			if (!token) {
+				window.location.replace("login.html");
+				return;
+			}
+
+			const nomeLocal = localStorage.getItem("usuarioNome");
+			const emailLocal = localStorage.getItem("usuarioEmail");
+			const fotoLocal = localStorage.getItem("usuarioFoto");
+
+			if (nomeLocal) {
+				document.getElementById("edit-nome").value = nomeLocal;
+			}
+
+			if (emailLocal) {
+				document.getElementById("edit-email").value = emailLocal;
+			}
+
+			preview.src = montarUrlFoto(fotoLocal);
+
+			try {
+				const response = await fetch("http://localhost:3000/perfil/meus-dados", {
+					method: "GET",
+					headers: {
+						"Authorization": `Bearer ${token}`
+					}
+				});
+
+				if (response.status === 401 || response.status === 403) {
+					return;
+				}
+
+				if (!response.ok) {
+					return;
+				}
+
+				const dados = await response.json();
+
+				if (dados.nome) {
+					document.getElementById("edit-nome").value = dados.nome;
+					localStorage.setItem("usuarioNome", dados.nome);
+				}
+
+				if (dados.email) {
+					document.getElementById("edit-email").value = dados.email;
+					localStorage.setItem("usuarioEmail", dados.email);
+				}
+
+				if (dados.foto) {
+					localStorage.setItem("usuarioFoto", dados.foto);
+					preview.src = montarUrlFoto(dados.foto);
+				} else {
+					localStorage.removeItem("usuarioFoto");
+					preview.src = "images/def_avt.jpg";
+				}
+			} catch (erro) {
+				console.error("Erro ao carregar perfil:", erro);
+			}
+		}
+
+		inputImagem.addEventListener("change", function() {
+			const file = inputImagem.files[0];
+
+			if (!file) {
+				return;
+			}
+
+			if (!file.type.startsWith("image/")) {
+				exibirAviso("Selecione um arquivo de imagem válido.");
+				inputImagem.value = "";
+				return;
+			}
+
+			preview.src = URL.createObjectURL(file);
+		});
+
+		document.getElementById("formPerfil").addEventListener("submit", async function(e) {
+			e.preventDefault();
+
+			const nome = document.getElementById("edit-nome").value.trim();
+			const email = document.getElementById("edit-email").value.trim();
+			const senhaAtual = document.getElementById("senha_atual").value;
+			const novaSenha = document.getElementById("nova_senha").value;
+			const confSenha = document.getElementById("conf_senha").value;
+
+			if (!nome || nome.length < 3) {
+				exibirAviso("O nome deve ter pelo menos 3 caracteres.");
+				return;
+			}
+
+			if (/^\d+$/.test(nome)) {
+				exibirAviso("O nome não pode conter apenas números.");
+				return;
+			}
+
+			if (!email) {
+				exibirAviso("Digite um e-mail válido.");
+				return;
+			}
+
+			if (novaSenha || confSenha || senhaAtual) {
+				if (!senhaAtual) {
+					exibirAviso("Digite sua senha atual para alterar as credenciais.");
+					return;
+				}
+
+				if (novaSenha.length < 8) {
+					exibirAviso("A nova senha deve ter pelo menos 8 caracteres.");
+					return;
+				}
+
+				if (!/[!@#$%^&*(),.?":{}|<>\_\-+=]/.test(novaSenha)) {
+					exibirAviso("A nova senha deve conter pelo menos um caractere especial.");
+					return;
+				}
+
+				if (novaSenha !== confSenha) {
+					exibirAviso("A nova senha e a confirmação não coincidem.");
+					return;
+				}
+			}
+
+			const formData = new FormData(e.target);
+
+			formData.append(
+				"emailAntigo",
+				localStorage.getItem("usuarioEmail")
+			);
+
+			try {
+				const response = await apiFetch(
+					"http://localhost:3000/perfil/atualizar",
+					{
+						method: "PUT",
+						body: formData
+					}
+				);
+
+				const dados = await response.json();
+
+				if (response.ok) {
+					localStorage.setItem("usuarioNome", dados.novoNome);
+					localStorage.setItem("usuarioEmail", dados.novoEmail);
+
+					if (dados.novaFoto) {
+						localStorage.setItem("usuarioFoto", dados.novaFoto);
+						preview.src = montarUrlFoto(dados.novaFoto);
+					}
+
+					exibirAviso(
+						dados.resposta || "Perfil atualizado com sucesso!",
+						() => {
+							window.location.reload();
+						}
+					);
+				} else {
+					exibirAviso(
+						dados.resposta || "Erro ao salvar."
+					);
+				}
+			} catch (error) {
+				console.error("Erro ao atualizar perfil:", error);
+
+				exibirAviso(
+					"Erro de conexão ao servidor."
+				);
+			}
+		});
+
+		document.addEventListener("DOMContentLoaded", () => {
+			carregarPerfil();
+		});
+	</script>
 </body>
 </html>

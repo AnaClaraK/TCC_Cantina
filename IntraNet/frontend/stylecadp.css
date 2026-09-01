@@ -765,3 +765,30 @@ h2 { margin: 5px 0; font-size: 22px; }
 :disabled {
     cursor: not-allowed !important;
 }
+
+/*editar perfil------*/
+.btn-trocar {
+	background-color: #1c1c1c;
+	color: #f8c471;
+	border: none;
+	padding: 12px 24px;
+	cursor: pointer;
+	font-weight: bold;
+	border-radius: 12px;
+	font-size: 15px;
+	transition: 0.2s;
+	display: block;
+	width: fit-content;
+	margin: 15px auto 25px auto;
+	text-align: center;
+    margin-bottom: 2px;
+}
+
+.btn-trocar:hover {
+	background-color: #292929;
+	transform: translateY(-1px);
+}
+
+.btn-trocar:active {
+	transform: translateY(0);
+}

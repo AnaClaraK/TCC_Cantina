@@ -1,111 +1,366 @@
 <!DOCTYPE html>
+
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
+
     <title>Login</title>
+
     <link rel="stylesheet" href="stylelog.css">
 </head>
+
 <body>
+
     <div class="container">
+
         <div class="quadrado">
+
             <h1 class="lb_login">Login</h1>
+
             <div class="container-respostas">
+
                 <label for="email">E-mail</label>
-                <input type="email" id="email" class="input-field" placeholder="Digite seu email">
+
+                <input
+                    type="email"
+                    id="email"
+                    class="input-field"
+                    placeholder="Digite seu email"
+                >
+
                 <br>
+
                 <label for="senha">Senha</label>
-                <input type="password" id="senha" class="input-field" placeholder="Sua senha">
+
+                <input
+                    type="password"
+                    id="senha"
+                    class="input-field"
+                    placeholder="Sua senha"
+                >
+
             </div>
+
             <p class="link-recuperar">
                 <a href="rec_senha.html">Esqueceu a senha?</a>
             </p>
-    
+
             <div class="container-fim">
-                <p id="respostas" class="respostas"></p>
+
+                <p
+                    id="respostas"
+                    class="respostas"
+                ></p>
+
             </div>
-            <button id="btn_entrar" class="btn_entrar">Entrar</button>
-            
+
+            <button
+                id="btn_entrar"
+                class="btn_entrar"
+            >
+                Entrar
+            </button>
+
         </div>
+
     </div>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const btnEntrar = document.getElementById("btn_entrar");
-        const inputs = document.querySelectorAll(".input-field");
 
-        const realizarLogin = async (e) => {
-            if (e) e.preventDefault();
 
-            const email = document.getElementById("email").value;
-            const senha = document.getElementById("senha").value;
-            const pMessageEl = document.getElementById("respostas");
+    <script>
 
-            if (!email || !senha) {
-                pMessageEl.innerText = "Preencha todos os campos.";
-                pMessageEl.style.color = "red";
-                return;
+        document.addEventListener("DOMContentLoaded", () => {
+
+            const btnEntrar =
+                document.getElementById("btn_entrar");
+
+            const inputs =
+                document.querySelectorAll(".input-field");
+
+
+            // =====================================================
+            // NORMALIZAR FOTO
+            // =====================================================
+
+            function normalizarFoto(foto) {
+
+                if (
+                    !foto ||
+                    foto === "null" ||
+                    foto === "undefined"
+                ) {
+                    return "";
+                }
+
+                foto = String(foto).trim();
+
+                // Se já for uma URL completa
+                if (
+                    foto.startsWith("http://") ||
+                    foto.startsWith("https://")
+                ) {
+                    return foto;
+                }
+
+                // Se o backend já mandar /imagens/foto.jpg
+                if (foto.startsWith("/imagens/")) {
+                    return foto;
+                }
+
+                // Se mandar imagens/foto.jpg
+                if (foto.startsWith("imagens/")) {
+                    return "/" + foto;
+                }
+
+                // Se mandar somente o nome:
+                // 1788287557651.jpg
+                return "/imagens/" + foto;
             }
 
-            pMessageEl.innerText = "Validando...";
-            pMessageEl.style.color = "#333";
-            
-            try {
-                console.log("1. Enviando dados para o servidor...");
-                const resposta = await fetch(`http://localhost:3000/login`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email, senha })
-                });
 
-                console.log("2. Resposta recebida do servidor:", resposta.status);
-                const dados = await resposta.json();
-                console.log("3. Dados retornados:", dados);
+            // =====================================================
+            // LOGIN
+            // =====================================================
 
-                if (resposta.ok) {
-                    pMessageEl.innerText = "Login realizado! Redirecionando...";
-                    pMessageEl.style.color = "green";
+            const realizarLogin = async (e) => {
 
-                    // Grava os dados
-                    if (dados.token) localStorage.setItem("token", dados.token); 
-                    if (dados.usuario) {
-                        localStorage.setItem("usuarioNome", dados.usuario.nome || "");
-                        localStorage.setItem("usuarioFoto", dados.usuario.foto || "");
-                        localStorage.setItem("usuarioEmail", dados.usuario.email || "");
-                    }
+                if (e) {
+                    e.preventDefault();
+                }
 
-                    console.log("4. Token salvo no LocalStorage. Iniciando redirecionamento...");
+                const email =
+                    document.getElementById("email").value.trim();
 
-                    // Força o redirecionamento
-                    window.location.href = "index.html";
+                const senha =
+                    document.getElementById("senha").value;
 
-                } else {
-                    pMessageEl.innerText = dados.resposta || "Erro no login.";
+                const pMessageEl =
+                    document.getElementById("respostas");
+
+
+                // =================================================
+                // VALIDAÇÃO
+                // =================================================
+
+                if (!email || !senha) {
+
+                    pMessageEl.innerText =
+                        "Preencha todos os campos.";
+
                     pMessageEl.style.color = "red";
+
+                    return;
                 }
 
-            } catch (error) {
-                console.error("ERRO NO FETCH:", error);
-                pMessageEl.innerText = "Erro ao conectar com o servidor.";
-                pMessageEl.style.color = "red";
-            }
-        };
 
-        inputs.forEach((input, index) => {
-            input.addEventListener("keydown", (e) => {
-                if (e.key === "Enter") {
-                    e.preventDefault(); 
-                    if (index < inputs.length - 1) {
-                        inputs[index + 1].focus();
+                pMessageEl.innerText =
+                    "Validando...";
+
+                pMessageEl.style.color = "#333";
+
+
+                try {
+
+                    console.log(
+                        "1. Enviando dados para o servidor..."
+                    );
+
+
+                    const resposta = await fetch(
+                        "http://localhost:3000/login",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                email,
+                                senha
+                            })
+                        }
+                    );
+
+
+                    console.log(
+                        "2. Resposta recebida do servidor:",
+                        resposta.status
+                    );
+
+
+                    const dados =
+                        await resposta.json();
+
+
+                    console.log(
+                        "3. Dados retornados:",
+                        dados
+                    );
+
+
+                    // =================================================
+                    // LOGIN OK
+                    // =================================================
+
+                    if (resposta.ok) {
+
+                        pMessageEl.innerText =
+                            "Login realizado! Redirecionando...";
+
+                        pMessageEl.style.color = "green";
+
+
+                        // =================================================
+                        // TOKEN
+                        // =================================================
+
+                        if (dados.token) {
+
+                            localStorage.setItem(
+                                "token",
+                                dados.token
+                            );
+
+                        }
+
+
+                        // =================================================
+                        // DADOS DO USUÁRIO
+                        // =================================================
+
+                        if (dados.usuario) {
+
+                            localStorage.setItem(
+                                "usuarioNome",
+                                dados.usuario.nome || ""
+                            );
+
+
+                            localStorage.setItem(
+                                "usuarioEmail",
+                                dados.usuario.email || ""
+                            );
+
+
+                            // =============================================
+                            // FOTO
+                            // =============================================
+
+                            const fotoNormalizada =
+                                normalizarFoto(
+                                    dados.usuario.foto
+                                );
+
+
+                            localStorage.setItem(
+                                "usuarioFoto",
+                                fotoNormalizada
+                            );
+
+
+                            console.log(
+                                "Foto salva no LocalStorage:",
+                                fotoNormalizada
+                            );
+
+                        }
+
+
+                        console.log(
+                            "4. Token salvo no LocalStorage. Iniciando redirecionamento..."
+                        );
+
+
+                        window.location.href =
+                            "index.html";
+
+
                     } else {
-                        realizarLogin(e);
+
+                        pMessageEl.innerText =
+                            dados.resposta ||
+                            "Erro no login.";
+
+                        pMessageEl.style.color =
+                            "red";
+
                     }
+
+
+                } catch (error) {
+
+                    console.error(
+                        "ERRO NO FETCH:",
+                        error
+                    );
+
+                    pMessageEl.innerText =
+                        "Erro ao conectar com o servidor.";
+
+                    pMessageEl.style.color =
+                        "red";
+
                 }
+
+            };
+
+
+            // =====================================================
+            // ENTER NOS CAMPOS
+            // =====================================================
+
+            inputs.forEach((input, index) => {
+
+                input.addEventListener(
+                    "keydown",
+                    (e) => {
+
+                        if (e.key === "Enter") {
+
+                            e.preventDefault();
+
+
+                            if (
+                                index <
+                                inputs.length - 1
+                            ) {
+
+                                inputs[
+                                    index + 1
+                                ].focus();
+
+                            } else {
+
+                                realizarLogin(e);
+
+                            }
+
+                        }
+
+                    }
+                );
+
             });
+
+
+            // =====================================================
+            // BOTÃO ENTRAR
+            // =====================================================
+
+            btnEntrar.addEventListener(
+                "click",
+                realizarLogin
+            );
+
         });
 
-        btnEntrar.addEventListener("click", realizarLogin);
-    });
-</script>
+    </script>
+
 </body>
+
 </html>

@@ -240,33 +240,33 @@ router.get("/contas-fiado", async (req, res) => {
         // APLICAR JUROS AUTOMATICAMENTE
         // ==================================================
         await conexao.query(`
-            UPDATE contas_fiado
-            SET
-                valor_final = valor_original * POWER(
-                    1 + 0.10,
-                    DATEDIFF(CURDATE(), data_vencimento)
-                ),
-                juros_aplicado = TRUE,
-                status = 'Atrasado'
-            WHERE
-                CURDATE() > data_vencimento
-                AND LOWER(TRIM(status)) NOT IN (
-                    'finalizado',
-                    'concluido'
-                )
-        `);
-
+    UPDATE contas_fiado
+    SET
+        valor_final = valor_original * (
+            1 + (0.10 * DATEDIFF(CURDATE(), data_vencimento))
+        ),
+        juros_aplicado = TRUE,
+        status = 'Atrasado'
+    WHERE
+        CURDATE() > data_vencimento
+        AND LOWER(TRIM(status)) NOT IN (
+            'finalizado',
+            'concluido'
+        )
+`);
         // ==================================================
         // REMOVER JUROS DE CONTAS AINDA NÃO VENCIDAS
         // ==================================================
         await conexao.query(`
             UPDATE contas_fiado
             SET
-                valor_final = valor_original,
-                juros_aplicado = FALSE,
-                status = 'Pendente'
+                valor_final = valor_original * (
+                    1 + (0.10 * DATEDIFF(CURDATE(), data_vencimento))
+                ),
+                juros_aplicado = TRUE,
+                status = 'Atrasado'
             WHERE
-                CURDATE() <= data_vencimento
+                CURDATE() > data_vencimento
                 AND LOWER(TRIM(status)) NOT IN (
                     'finalizado',
                     'concluido'
