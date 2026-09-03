@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="layout.css">
     <link rel="stylesheet" href="styleag_es.css">
     <link rel="stylesheet" href="style_clientef.css">
-
     <script src="sidebar_header.js"></script>
 
     <script>
@@ -91,126 +90,24 @@
 
 </div>
 
-    <h2 class="titulo-contas">
-        Contas sem Juros
-    </h2>
-
-    <!-- ==================================================
-         CONTAS SEM JUROS
-    ================================================== -->
-
-    <table
-        class="tabela"
-        id="tabelaSemJuros"
-    >
-
-        <thead>
-
-            <tr>
-
-                <th>
-                    Nome
-                </th>
-
-                <th>
-                    Produtos
-                </th>
-
-                <th>
-                    Valor original
-                </th>
-
-                <th>
-                    Quantidade
-                </th>
-
-                <th>
-                    Origem
-                </th>
-
-                <th>
-                    Vencimento
-                </th>
-
-                <th>
-                    Atraso
-                </th>
-
-                <th>
-                    Ações
-                </th>
-
-            </tr>
-
-        </thead>
-
-
+<section id="sc_tabela" class="container mt-5">
+    <h2 class="titulo-contas">Contas sem Juros</h2>
+    <table class="tabela" id="tabelaSemJuros">
+        <thead><tr><th>Nome</th><th>Produtos</th><th>Valor original</th><th>Quantidade</th><th>Origem</th><th>Vencimento</th></tr></thead>
         <tbody id="tbodySemJuros"></tbody>
-
     </table>
 
-    <h2 class="titulo-contas">
-        Contas com Juros
-    </h2>
+    <h2 class="titulo-contas">Resumo de juros por cliente</h2>
+    <table class="tabela" id="tabelaJurosCliente">
+        <thead><tr><th>Nome</th><th>Produtos pendentes</th><th>Valor original</th><th>Juros</th><th>Total com juros</th><th>Porcentagem</th><th>Tipo</th></tr></thead>
+        <tbody id="tbodyJurosCliente"></tbody>
+    </table>
 
-    <!-- ==================================================
-         CONTAS COM JUROS
-    ================================================== -->
-
-    <table
-        class="tabela"
-        id="tabelaComJuros"
-    >
-
-        <thead>
-
-            <tr>
-
-                <th>
-                    Nome
-                </th>
-
-                <th>
-                    Produtos
-                </th>
-
-                <th>
-                    Valor original
-                </th>
-
-                <th>
-                    Valor atual
-                </th>
-
-                <th>
-                    Quantidade
-                </th>
-
-                <th>
-                    Origem
-                </th>
-
-                <th>
-                    Vencimento
-                </th>
-
-                <th>
-                    Atraso
-                </th>
-
-                <th>
-                    Ações
-                </th>
-
-            </tr>
-
-        </thead>
-
-
+    <h2 class="titulo-contas">Contas com Juros</h2>
+    <table class="tabela" id="tabelaComJuros">
+        <thead><tr><th>Nome</th><th>Produtos</th><th>Valor original</th><th>Quantidade</th><th>Origem</th><th>Vencimento</th></tr></thead>
         <tbody id="tbodyComJuros"></tbody>
-
     </table>
-
 </section>
 
 
@@ -406,16 +303,16 @@
         </label>
 
 
-        <input
-            type="text"
-            class="inp_m"
-            id="buscaClienteJuros"
-            placeholder="Buscar cliente..."
-            autocomplete="off"
-        >
-
-
-        <ul id="listaClientesJuros"></ul>
+        <div class="campo-busca-cliente-juros">
+            <input
+                type="text"
+                class="inp_m"
+                id="buscaClienteJuros"
+                placeholder="Buscar cliente..."
+                autocomplete="off"
+            >
+            <ul id="listaClientesJuros"></ul>
+        </div>
 
 
         <p class="pm">
@@ -476,7 +373,7 @@
                         id="porcentagemJuros"
                         min="0"
                         step="0.01"
-                        value="2"
+                        
                         placeholder="Ex: 2"
                     >
 
@@ -580,6 +477,8 @@
 
         <!-- BOTÕES -->
 
+        <p class="juros_escolha_hint">Depois de simular, escolha o que fazer com as contas selecionadas:</p>
+
         <div class="aviso_botoes juros_botoes">
 
 
@@ -619,7 +518,7 @@
                 id="btnConcluirSelecionados"
                 type="button"
             >
-                Concluir Selecionados
+                Concluir contas agora
             </button>
 
         </div>
@@ -815,115 +714,114 @@
 
 
 
+
 <!-- ======================================================
-     MODAL PAGAMENTO DE ITEM
+     MODAIS DE PAGAMENTO — MESMA BASE DO PDV
 ====================================================== -->
 
-<dialog id="modalPagamentoFiado">
-
-    <div class="modal_box">
-
+<dialog id="dialogDinheiro">
+    <div class="conteudo-dinheiro">
 
         <button
-            id="btnFecharPagamento"
             type="button"
-        >
-            x
-        </button>
+            id="b_fechar_dinheiro"
+            aria-label="Fechar"
+        >×</button>
 
+        <h2>PAGAMENTO EM DINHEIRO</h2>
 
-        <h2 class="modal_titulo">
-            Registrar pagamento
-        </h2>
+        <div class="linha-modal">
+            <span>Total a Pagar:</span>
+            <strong id="lbl_dinheiro_total">R$ 0,00</strong>
+        </div>
 
-
-        <p id="infoPagamentoFiado"></p>
-
-
-        <label for="valorPagamentoFiado">
-            Valor a pagar
-        </label>
-
-
-        <input
-            type="text"
-            class="inp_m"
-            id="valorPagamentoFiado"
-            readonly
-        >
-
-
-        <label for="dataPagamentoFiado">
-            Data do pagamento
-        </label>
-
-
-        <input
-            type="date"
-            class="inp_m"
-            id="dataPagamentoFiado"
-        >
-
-
-        <label for="formaPagamentoFiado">
-            Forma de pagamento
-        </label>
-
-
-        <select
-            class="inp_m"
-            id="formaPagamentoFiado"
-        >
-
-            <option value="">
-                Selecione
-            </option>
-
-            <option value="Dinheiro">
-                Dinheiro
-            </option>
-
-            <option value="Pix">
-                Pix
-            </option>
-
-            <option value="Cartão de Débito">
-                Cartão de Débito
-            </option>
-
-            <option value="Cartão de Crédito">
-                Cartão de Crédito
-            </option>
-
-        </select>
-
-
-        <div class="aviso_botoes">
-
-
-            <button
-                id="btnCancelarPagamento"
-                type="button"
+        <div class="linha-modal">
+            <label for="inp_valor_pago">Valor Recebido:</label>
+            <input
+                type="number"
+                step="0.01"
+                id="inp_valor_pago"
+                placeholder="0,00"
             >
-                Cancelar
+        </div>
+
+        <div class="box-troco">
+            <span>Troco:</span>
+            <strong id="lbl_troco">R$ 0,00</strong>
+        </div>
+
+        <div class="acoes-modal">
+            <button type="button" id="b_confirmar_dinheiro">
+                Confirmar
             </button>
-
-
-            <button
-                id="btnConfirmarPagamento"
-                type="button"
-            >
-                Confirmar pagamento
-            </button>
-
         </div>
 
     </div>
+</dialog>
 
+<dialog id="dialogCredito" class="modal-pagamento-credito">
+    <div class="conteudo-credito">
+
+        <button
+            type="button"
+            id="b_fechar_credito"
+            class="fechar-modal-pagamento"
+            aria-label="Fechar"
+        >×</button>
+
+        <h2>PAGAMENTO NO CARTÃO DE CRÉDITO</h2>
+
+        <div class="credito-total">
+            <span>Total da compra</span>
+            <strong id="lbl_credito_total">R$ 0,00</strong>
+        </div>
+
+        <div class="credito-campo">
+            <label for="sel_parcelas_credito">
+                Quantidade de parcelas
+            </label>
+
+            <select id="sel_parcelas_credito">
+                <option value="" selected>
+                    Selecione a quantidade de parcelas
+                </option>
+                <option value="1">1x</option>
+                <option value="2">2x</option>
+                <option value="3">3x</option>
+                <option value="4">4x</option>
+                <option value="5">5x</option>
+                <option value="6">6x</option>
+                <option value="7">7x</option>
+                <option value="8">8x</option>
+                <option value="9">9x</option>
+                <option value="10">10x</option>
+                <option value="11">11x</option>
+                <option value="12">12x</option>
+            </select>
+        </div>
+
+        <div class="credito-parcela">
+            <span>Valor de cada parcela</span>
+            <strong id="lbl_valor_parcela">
+                Selecione as parcelas
+            </strong>
+        </div>
+
+        <button
+            type="button"
+            id="b_confirmar_credito"
+            class="btn-confirmar-pagamento"
+        >
+            Confirmar pagamento
+        </button>
+
+    </div>
 </dialog>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+
+    const API = "http://localhost:3000";
 
     /* ======================================================
        ELEMENTOS
@@ -933,172 +831,106 @@ document.addEventListener("DOMContentLoaded", () => {
     const modalProdutos = document.getElementById("d_modal_produtos");
     const modalCliente = document.getElementById("modal_cliente");
     const modalAviso = document.getElementById("d_aviso");
-    const modalConclusaoFiado = document.getElementById("modalConclusaoFiado");
+    const modalConclusao = document.getElementById("modalConclusaoFiado");
+    const modalSimularJuros = document.getElementById("modalSimularJuros");
 
     const listaClientes = document.getElementById("lista_clientes");
     const listaProdutos = document.getElementById("lista_produtos");
+    const areaProdutosModal = document.getElementById("area_produtos_modal");
+    const areaProdutosPrincipal = document.getElementById("produtos_selecionados");
 
-    const areaProdutosModal =
-        document.getElementById("area_produtos_modal");
+    const msgAviso = document.getElementById("msg_aviso");
+    const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
+    const bCancelarAviso = document.getElementById("b_cancelar_aviso");
 
-    const areaProdutosPrincipal =
-        document.getElementById("produtos_selecionados");
+    const dataConclusao = document.getElementById("dataConclusaoFiado");
+    const formaConclusao = document.getElementById("formaPagamentoFiado");
 
-    const msgAviso =
-        document.getElementById("msg_aviso");
+    const btnFecharConclusao = document.getElementById("btnFecharConclusao");
+    const btnCancelarConclusao = document.getElementById("btnCancelarConclusao");
+    const btnConfirmarConclusao = document.getElementById("btnConfirmarConclusao");
 
-    const bConfirmarAviso =
-        document.getElementById("b_confirmar_aviso");
+    const modalDinheiro = document.getElementById("dialogDinheiro");
+    const lblDinheiroTotal = document.getElementById("lbl_dinheiro_total");
+    const inpValorPago = document.getElementById("inp_valor_pago");
+    const lblTroco = document.getElementById("lbl_troco");
+    const btnFecharDinheiro = document.getElementById("b_fechar_dinheiro");
+    const btnConfirmarDinheiro = document.getElementById("b_confirmar_dinheiro");
 
-    const bCancelarAviso =
-        document.getElementById("b_cancelar_aviso");
+    const modalCredito = document.getElementById("dialogCredito");
+    const btnFecharCredito = document.getElementById("b_fechar_credito");
+    const btnConfirmarCredito = document.getElementById("b_confirmar_credito");
+    const selParcelasCredito = document.getElementById("sel_parcelas_credito");
+    const lblCreditoTotal = document.getElementById("lbl_credito_total");
+    const lblValorParcela = document.getElementById("lbl_valor_parcela");
 
-    const dataConclusaoFiado =
-        document.getElementById("dataConclusaoFiado");
+    const tbodySemJuros = document.getElementById("tbodySemJuros");
+    const tbodyComJuros = document.getElementById("tbodyComJuros");
+    const tbodyJurosCliente = document.getElementById("tbodyJurosCliente");
 
-    const formaPagamentoFiado =
-        document.getElementById("formaPagamentoFiado");
+    const inputBusca = document.getElementById("inputBusca");
 
-    const btnCancelarConclusao =
-        document.getElementById("btnCancelarConclusao");
+    const btnSimularJurosAbrir = document.getElementById("b_simular_juros");
+    const btnFecharSimulacaoJuros = document.getElementById("btnFecharSimulacaoJuros");
+    const btnCancelarSimulacaoJuros = document.getElementById("btnCancelarSimulacaoJuros");
 
-    const btnConfirmarConclusao =
-        document.getElementById("btnConfirmarConclusao");
+    const buscaClienteJuros = document.getElementById("buscaClienteJuros");
+    const listaClientesJuros = document.getElementById("listaClientesJuros");
+    const clienteJurosSelecionado = document.getElementById("clienteJurosSelecionado");
 
-    const btnFecharConclusao =
-        document.getElementById("btnFecharConclusao");
+    const tipoJuros = document.getElementById("tipoJuros");
+    const porcentagemJuros = document.getElementById("porcentagemJuros");
 
+    const listaContasJuros = document.getElementById("listaContasJuros");
+    const btnSelecionarTodosJuros = document.getElementById("btnSelecionarTodosJuros");
+    const btnDesmarcarTodosJuros = document.getElementById("btnDesmarcarTodosJuros");
+    const btnSimularJuros = document.getElementById("btnSimularJuros");
+    const btnAplicarJuros = document.getElementById("btnAplicarJuros");
+    const btnConcluirSelecionados = document.getElementById("btnConcluirSelecionados");
 
-    /* ======================================================
-       ELEMENTOS - JUROS
-    ====================================================== */
-
-    const modalSimularJuros =
-        document.getElementById("modalSimularJuros");
-
-    const btnSimularJurosAbrir =
-        document.getElementById("b_simular_juros");
-
-    const btnFecharSimulacaoJuros =
-        document.getElementById("btnFecharSimulacaoJuros");
-
-    const btnCancelarSimulacaoJuros =
-        document.getElementById("btnCancelarSimulacaoJuros");
-
-    const buscaClienteJuros =
-        document.getElementById("buscaClienteJuros");
-
-    const listaClientesJuros =
-        document.getElementById("listaClientesJuros");
-
-    const clienteJurosSelecionado =
-        document.getElementById("clienteJurosSelecionado");
-
-    const tipoJuros =
-        document.getElementById("tipoJuros");
-
-    const porcentagemJuros =
-        document.getElementById("porcentagemJuros");
-
-    const listaContasJuros =
-        document.getElementById("listaContasJuros");
-
-    const btnSelecionarTodosJuros =
-        document.getElementById("btnSelecionarTodosJuros");
-
-    const btnDesmarcarTodosJuros =
-        document.getElementById("btnDesmarcarTodosJuros");
-
-    const btnSimularJuros =
-        document.getElementById("btnSimularJuros");
-
-    const btnAplicarJuros =
-        document.getElementById("btnAplicarJuros");
-
-    const btnConcluirSelecionados =
-        document.getElementById("btnConcluirSelecionados");
-
-    const resumoSimulacaoJuros =
-        document.getElementById("resumoSimulacaoJuros");
-
-    const jurosValorOriginal =
-        document.getElementById("jurosValorOriginal");
-
-    const jurosValorCalculado =
-        document.getElementById("jurosValorCalculado");
-
-    const jurosValorFinal =
-        document.getElementById("jurosValorFinal");
+    const resumoSimulacaoJuros = document.getElementById("resumoSimulacaoJuros");
+    const jurosValorOriginal = document.getElementById("jurosValorOriginal");
+    const jurosValorCalculado = document.getElementById("jurosValorCalculado");
+    const jurosValorFinal = document.getElementById("jurosValorFinal");
 
 
     /* ======================================================
        ESTADO
     ====================================================== */
 
-    let contaFiadoSelecionada = null;
-    let checkboxAtual = null;
-
     let clientesCache = [];
     let produtosCache = [];
-
-    let clienteSelecionado = null;
     let produtosSelecionados = [];
+    let clienteSelecionado = null;
 
-    let clientePendente = null;
-
-    /* JUROS */
-
+    let clientesJuros = [];
     let clienteSelecionadoJuros = null;
     let contasClienteJuros = [];
     let simulacaoJurosAtual = null;
 
-    /* ======================================================
-       VERIFICAÇÃO DOS ELEMENTOS
-    ====================================================== */
+    let indiceClienteJuros = -1;
 
-    const elementosObrigatorios = [
-        modalFiado,
-        modalProdutos,
-        modalCliente,
-        modalAviso,
-        modalConclusaoFiado,
-        listaClientes,
-        listaProdutos,
-        areaProdutosModal,
-        areaProdutosPrincipal,
-        msgAviso,
-        bConfirmarAviso,
-        bCancelarAviso,
-        dataConclusaoFiado,
-        formaPagamentoFiado,
-        btnCancelarConclusao,
-        btnConfirmarConclusao,
-        btnFecharConclusao,
-        modalSimularJuros,
-        btnSimularJurosAbrir,
-        btnFecharSimulacaoJuros,
-        btnCancelarSimulacaoJuros,
-        buscaClienteJuros,
-        listaClientesJuros,
-        clienteJurosSelecionado,
-        tipoJuros,
-        porcentagemJuros,
-        listaContasJuros,
-        btnSelecionarTodosJuros,
-        btnDesmarcarTodosJuros,
-        btnSimularJuros,
-        btnAplicarJuros,
-        btnConcluirSelecionados
-    ];
+    let contasAtuais = [];
 
-    if (elementosObrigatorios.some(elemento => !elemento)) {
-        console.error(
-            "Erro: um ou mais elementos obrigatórios do HTML não foram encontrados."
-        );
+    let contaParaConcluir = null;
+    let contasParaConcluir = [];
 
-        return;
+    let pagamentoTemporario = {
+        forma: "",
+        parcelas: null,
+        valorParcela: null,
+        confirmado: false
+    };
+
+    let jurosConfigPorConta = {};
+    try {
+        jurosConfigPorConta =
+            JSON.parse(
+                localStorage.getItem("contas_fiado_juros_config") || "{}"
+            );
+    } catch {
+        jurosConfigPorConta = {};
     }
-
 
     /* ======================================================
        UTILITÁRIOS
@@ -1109,7 +941,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function formatarMoeda(valor) {
-
         return Number(valor || 0).toLocaleString(
             "pt-BR",
             {
@@ -1119,15 +950,23 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     }
 
+    function obterDataHojeInput() {
+        const hoje = new Date();
 
-    function obterDataSemHorario(data) {
+        return [
+            hoje.getFullYear(),
+            String(hoje.getMonth() + 1).padStart(2, "0"),
+            String(hoje.getDate()).padStart(2, "0")
+        ].join("-");
+    }
 
-        if (!data) {
+    function dataLocalSemHora(valor) {
+        if (!valor) {
             return null;
         }
 
         const texto =
-            String(data)
+            String(valor)
                 .split("T")[0]
                 .split(" ")[0];
 
@@ -1141,26 +980,21 @@ document.addEventListener("DOMContentLoaded", () => {
         const mes = Number(partes[1]);
         const dia = Number(partes[2]);
 
-        if (
-            !Number.isFinite(ano) ||
-            !Number.isFinite(mes) ||
-            !Number.isFinite(dia)
-        ) {
-            return null;
-        }
+        const data =
+            new Date(
+                ano,
+                mes - 1,
+                dia
+            );
 
-        return new Date(
-            ano,
-            mes - 1,
-            dia
-        );
+        return Number.isNaN(data.getTime())
+            ? null
+            : data;
     }
 
-
     function calcularDiasAtraso(dataVencimento) {
-
         const vencimento =
-            obterDataSemHorario(dataVencimento);
+            dataLocalSemHora(dataVencimento);
 
         if (!vencimento) {
             return 0;
@@ -1175,73 +1009,78 @@ document.addEventListener("DOMContentLoaded", () => {
                 hoje.getDate()
             );
 
-        const vencimentoSemHora =
-            new Date(
-                vencimento.getFullYear(),
-                vencimento.getMonth(),
-                vencimento.getDate()
-            );
-
         return Math.max(
             0,
             Math.floor(
                 (
                     hojeSemHora -
-                    vencimentoSemHora
+                    vencimento
                 ) / 86400000
             )
         );
     }
 
-
-    function contaEstaVencida(dataVencimento) {
-
-        return calcularDiasAtraso(dataVencimento) > 0;
-    }
-
-
-    function obterDataHojeInput() {
-
-        const hoje = new Date();
-
-        const ano =
-            hoje.getFullYear();
-
-        const mes =
-            String(
-                hoje.getMonth() + 1
-            ).padStart(2, "0");
-
-        const dia =
-            String(
-                hoje.getDate()
-            ).padStart(2, "0");
-
-        return `${ano}-${mes}-${dia}`;
-    }
-
-
-    function formatarData(data) {
+    function formatarData(valor) {
+        const data =
+            dataLocalSemHora(valor);
 
         if (!data) {
             return "-";
         }
 
-        const texto =
-            String(data)
-                .split("T")[0]
-                .split(" ")[0];
-
-        const partes =
-            texto.split("-");
-
-        if (partes.length !== 3) {
-            return texto;
-        }
-
-        return partes.reverse().join("/");
+        return [
+            String(data.getDate()).padStart(2, "0"),
+            String(data.getMonth() + 1).padStart(2, "0"),
+            data.getFullYear()
+        ].join("/");
     }
 
+    function normalizarTexto(valor) {
+        return String(valor || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim()
+            .toLowerCase();
+    }
+
+    function salvarConfiguracoesJuros() {
+        localStorage.setItem(
+            "contas_fiado_juros_config",
+            JSON.stringify(
+                jurosConfigPorConta
+            )
+        );
+    }
+
+    function escaparHTML(valor) {
+        return String(valor ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    async function apiFetch(url, opcoes = {}) {
+        const headers = {
+            ...(opcoes.headers || {})
+        };
+
+        const token = obterToken();
+
+        if (token) {
+            headers.Authorization =
+                `Bearer ${token}`;
+        }
+
+        return fetch(
+            `${API}${url}`,
+            {
+                ...opcoes,
+                headers
+            }
+        );
+    }
 
     /* ======================================================
        AVISOS
@@ -1252,8 +1091,15 @@ document.addEventListener("DOMContentLoaded", () => {
         callback = null,
         mostrarCancelar = false
     ) {
+        if (!modalAviso) {
+            if (callback) {
+                callback();
+            }
+            return;
+        }
 
-        msgAviso.innerHTML = mensagem;
+        msgAviso.innerHTML =
+            mensagem;
 
         bCancelarAviso.style.display =
             mostrarCancelar
@@ -1267,7 +1113,6 @@ document.addEventListener("DOMContentLoaded", () => {
         modalAviso.showModal();
 
         bConfirmarAviso.onclick = () => {
-
             modalAviso.close();
 
             if (callback) {
@@ -1276,1143 +1121,123 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         bCancelarAviso.onclick = () => {
-
             modalAviso.close();
-
-            if (checkboxAtual) {
-
-                checkboxAtual.checked = false;
-
-                checkboxAtual.blur();
-
-                checkboxAtual = null;
-            }
-
-            clientePendente = null;
         };
     }
 
-
-    function redirecionarLogin(mensagem) {
-
+    function tratarSessaoExpirada() {
         exibirAviso(
-            mensagem,
+            "Sessão expirada. Faça login novamente.",
             () => {
-                window.location.replace("login.html");
+                window.location.href =
+                    "login.html";
             }
         );
     }
-
-
-    /* ======================================================
-       NOVA COMPRA
-    ====================================================== */
-
-    document.getElementById("b_nova_compra").onclick =
-        async () => {
-
-            limparCompra();
-
-            modalFiado.showModal();
-
-            await carregarClientesModal();
-        };
-
-
-    document.getElementById("b_addq").onclick =
-        () => {
-
-            modalCliente.showModal();
-        };
-
-
-    document.getElementById("b_close_modal").onclick =
-        () => modalFiado.close();
-
-
-    document.getElementById("b_close_produtos").onclick =
-        () => modalProdutos.close();
-
-
-    document.getElementById("b_close_modal_cliente").onclick =
-        () => modalCliente.close();
-
-
-    /* ======================================================
-       CLIENTES
-    ====================================================== */
-
-    async function carregarClientesModal() {
-
-        try {
-
-            const token = obterToken();
-
-            const res = await fetch(
-                "http://localhost:3000/clientes-fiado",
-                {
-                    headers: {
-                        Authorization:
-                            `Bearer ${token}`
-                    }
-                }
-            );
-
-            if (
-                res.status === 401 ||
-                res.status === 403
-            ) {
-
-                redirecionarLogin(
-                    "Sessão expirada. Faça login novamente."
-                );
-
-                return;
-            }
-
-            if (!res.ok) {
-
-                exibirAviso(
-                    "Erro ao buscar lista de clientes."
-                );
-
-                return;
-            }
-
-            const dados =
-                await res.json();
-
-            if (!Array.isArray(dados)) {
-
-                exibirAviso(
-                    "Resposta inválida do servidor."
-                );
-
-                return;
-            }
-
-            clientesCache = dados;
-
-        } catch (err) {
-
-            console.error(
-                "Erro ao carregar clientes:",
-                err
-            );
-
-            exibirAviso(
-                "Erro de conexão ao carregar clientes."
-            );
-        }
-    }
-
-
-    function renderClientes(clientes) {
-
-        listaClientes.innerHTML = "";
-
-        if (
-            !Array.isArray(clientes) ||
-            clientes.length === 0
-        ) {
-
-            listaClientes.style.display =
-                "none";
-
-            return;
-        }
-
-        listaClientes.style.display =
-            "block";
-
-        clientes
-            .slice(0, 10)
-            .forEach(cliente => {
-
-                const li =
-                    document.createElement("li");
-
-                li.innerText =
-                    cliente.nome_completo || "-";
-
-                li.onclick =
-                    () => tentarSelecionarCliente(cliente);
-
-                listaClientes.appendChild(li);
-            });
-    }
-
-
-    // ======================================================
-// SELECIONAR CLIENTE PARA JUROS
-// ======================================================
-
-async function selecionarClienteJuros(cliente) {
-
-    if (!cliente) {
-        return;
-    }
-
-    clienteSelecionadoJuros =
-        cliente;
-
-    buscaClienteJuros.value =
-        cliente.nome_completo || "";
-
-    clienteJurosSelecionado.innerText =
-        cliente.nome_completo || "---";
-
-    listaClientesJuros.innerHTML = "";
-
-    listaClientesJuros.style.display =
-        "none";
-
-    contasClienteJuros = [];
-
-    await carregarContasClienteJuros();
-}
-
-async function carregarProdutosPendentesCliente(idCliente) {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-        redirecionarLogin("Sua sessão expirou. Faça login novamente.");
-        return;
-    }
-
-    try {
-        const res = await fetch(
-            "http://localhost:3000/contas-fiado",
-            {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            }
-        );
-
-        if (res.status === 401 || res.status === 403) {
-            redirecionarLogin(
-                "Sessão expirada. Faça login novamente."
-            );
-            return;
-        }
-
-        const dados = await res.json();
-
-        if (!res.ok) {
-            console.error(
-                "Erro ao carregar contas fiado:",
-                dados
-            );
-
-            exibirAviso(
-                dados.erro ||
-                "Erro ao carregar os produtos pendentes do cliente."
-            );
-
-            return;
-        }
-
-        if (!Array.isArray(dados)) {
-            console.error(
-                "Resposta inválida do backend:",
-                dados
-            );
-
-            return;
-        }
-
-        const idClienteNumero = Number(idCliente);
-
-        // Pega somente as contas desse cliente
-        const contasCliente = dados.filter(conta =>
-            Number(conta.id_cliente) === idClienteNumero
-        );
-
-        // Junta todos os produtos pendentes das contas do cliente
-        const produtosPendentes = [];
-
-        contasCliente.forEach(conta => {
-            if (!Array.isArray(conta.itens)) {
-                return;
-            }
-
-            conta.itens.forEach(item => {
-                produtosPendentes.push({
-                    id_conta: Number(conta.id_conta),
-                    id_produto: Number(item.id_produto),
-                    nome: item.nome,
-                    qtd: Number(item.qtd || 0),
-                    valor_unit: Number(item.valor_unit || 0),
-                    valor_base: Number(item.valor_base || 0),
-                    valor_atual: Number(item.valor_atual || 0),
-                    juros_ativo: Number(item.juros_ativo || 0),
-                    tipo_juros: item.tipo_juros || null,
-                    taxa_juros:
-                        item.taxa_juros !== null &&
-                        item.taxa_juros !== undefined
-                            ? Number(item.taxa_juros)
-                            : null,
-                    data_inicio_juros:
-                        item.data_inicio_juros || null,
-                    dias_atraso:
-                        Number(item.dias_atraso || 0)
-                });
-            });
-        });
-
-        console.log(
-            "CLIENTE SELECIONADO:",
-            clienteSelecionado
-        );
-
-        console.log(
-            "CONTAS DO CLIENTE:",
-            contasCliente
-        );
-
-        console.log(
-            "PRODUTOS PENDENTES DO CLIENTE:",
-            produtosPendentes
-        );
-
-        // Guarda para o restante do sistema usar
-        clienteSelecionado.contas = contasCliente;
-        clienteSelecionado.produtosPendentes =
-            produtosPendentes;
-
-        /*
-         * Se existir uma área específica para mostrar
-         * os produtos pendentes do cliente, renderiza aqui.
-         *
-         * Se essa área ainda não existir, não quebra o sistema.
-         */
-        const areaPendentes =
-            document.getElementById(
-                "produtos_pendentes_cliente"
-            );
-
-        if (areaPendentes) {
-            renderProdutosPendentesCliente(
-                produtosPendentes,
-                areaPendentes
-            );
-        }
-
-    } catch (erro) {
-        console.error(
-            "Erro ao carregar produtos pendentes do cliente:",
-            erro
-        );
-
-        exibirAviso(
-            "Erro de conexão ao carregar os produtos do cliente."
-        );
-    }
-}
-function renderProdutosPendentesCliente(
-    produtos,
-    area
-) {
-    area.innerHTML = "";
-
-    if (!Array.isArray(produtos) || produtos.length === 0) {
-        area.innerHTML = `
-            <div class="produto_pendente_vazio">
-                Nenhum produto pendente para este cliente.
-            </div>
-        `;
-
-        return;
-    }
-
-    produtos.forEach(item => {
-        const valorBase =
-            Number(item.valor_base) ||
-            (
-                Number(item.qtd || 0) *
-                Number(item.valor_unit || 0)
-            );
-
-        const valorAtual =
-            Number(item.valor_atual) ||
-            valorBase;
-
-        const div =
-            document.createElement("div");
-
-        div.className =
-            "produto_pendente_cliente";
-
-        div.innerHTML = `
-            <div>
-                <strong>${item.nome}</strong>
-            </div>
-
-            <div>
-                Quantidade:
-                ${Number(item.qtd || 0)}
-            </div>
-
-            <div>
-                Valor:
-                R$ ${formatarMoeda(valorAtual)}
-            </div>
-
-            ${
-                Number(item.juros_ativo) === 1
-                    ? `
-                        <div>
-                            Juros ativos
-                        </div>
-                    `
-                    : ""
-            }
-        `;
-
-        area.appendChild(div);
-    });
-}
-
-
-    function selecionarCliente(cliente) {
-
-        clienteSelecionado =
-            cliente;
-
-        document.getElementById(
-            "s_cliente"
-        ).innerText =
-            cliente.nome_completo || "---";
-
-        document.getElementById(
-            "inp_busca_cliente"
-        ).value =
-            cliente.nome_completo || "";
-
-        listaClientes.innerHTML = "";
-
-        listaClientes.style.display =
-            "none";
-    }
-
-
-    document.getElementById(
-        "inp_busca_cliente"
-    ).addEventListener(
-        "input",
-        function () {
-
-            const termo =
-                this.value
-                    .toLowerCase()
-                    .trim();
-
-            if (!termo) {
-
-                listaClientes.style.display =
-                    "none";
-
-                return;
-            }
-
-            const filtrados =
-                clientesCache.filter(
-                    cliente =>
-                        String(
-                            cliente.nome_completo || ""
-                        )
-                        .toLowerCase()
-                        .includes(termo)
-                );
-
-            renderClientes(filtrados);
-        }
-    );
-
-
-    /* ======================================================
-       PRODUTOS
-    ====================================================== */
-
-    document.getElementById(
-        "b_abrir_produtos"
-    ).onclick = async () => {
-
-        if (!clienteSelecionado) {
-
-            exibirAviso(
-                "Selecione um cliente primeiro."
-            );
-
-            return;
-        }
-
-        modalProdutos.showModal();
-
-        if (
-            Array.isArray(produtosCache) &&
-            produtosCache.length > 0
-        ) {
-
-            renderProdutos(produtosCache);
-
-            return;
-        }
-
-        try {
-
-            const token = obterToken();
-
-            const res = await fetch(
-                "http://localhost:3000/produtos",
-                {
-                    headers: {
-                        Authorization:
-                            `Bearer ${token}`
-                    }
-                }
-            );
-
-            if (
-                res.status === 401 ||
-                res.status === 403
-            ) {
-
-                redirecionarLogin(
-                    "Sessão expirada. Faça login novamente."
-                );
-
-                return;
-            }
-
-            if (!res.ok) {
-
-                exibirAviso(
-                    "Erro ao carregar produtos."
-                );
-
-                return;
-            }
-
-            const dados =
-                await res.json();
-
-            if (!Array.isArray(dados)) {
-
-                exibirAviso(
-                    "Resposta inválida do servidor."
-                );
-
-                return;
-            }
-
-            produtosCache = dados;
-
-            renderProdutos(produtosCache);
-
-        } catch (err) {
-
-            console.error(
-                "Erro ao carregar produtos:",
-                err
-            );
-
-            exibirAviso(
-                "Erro de conexão com o servidor."
-            );
-        }
-    };
-
-
-    function renderProdutos(produtos) {
-
-        if (!Array.isArray(produtos)) {
-            return;
-        }
-
-        listaProdutos.innerHTML = "";
-
-        produtos
-            .slice(0, 10)
-            .forEach(produto => {
-
-                const li =
-                    document.createElement("li");
-
-                const nome =
-                    produto.nome || "Produto";
-
-                const preco =
-                    Number(produto.preco || 0);
-
-                li.innerHTML = `
-                    <span>${nome}</span>
-                    <span>
-                        R$ ${formatarMoeda(preco)}
-                    </span>
-                `;
-
-                li.onclick =
-                    () => adicionarProduto(produto);
-
-                listaProdutos.appendChild(li);
-            });
-    }
-
-
-    document.getElementById(
-        "inp_busca_produto"
-    ).addEventListener(
-        "input",
-        function () {
-
-            const termo =
-                this.value
-                    .toLowerCase()
-                    .trim();
-
-            const filtrados =
-                produtosCache.filter(
-                    produto =>
-                        String(
-                            produto.nome || ""
-                        )
-                        .toLowerCase()
-                        .includes(termo)
-                );
-
-            renderProdutos(filtrados);
-        }
-    );
-
-
-    function adicionarProduto(produto) {
-
-        const estoque =
-            Number(produto.qtd);
-
-        if (
-            !Number.isFinite(estoque) ||
-            estoque <= 0
-        ) {
-
-            exibirAviso(
-                "Produto sem estoque."
-            );
-
-            return;
-        }
-
-        const existe =
-            produtosSelecionados.find(
-                p =>
-                    p.id_produto ===
-                    produto.id_produto
-            );
-
-        if (existe) {
-
-            if (
-                existe.qtdSelecionada >=
-                estoque
-            ) {
-
-                exibirAviso(
-                    "Estoque máximo atingido."
-                );
-
-                return;
-            }
-
-            existe.qtdSelecionada++;
-
-        } else {
-
-            produtosSelecionados.push({
-
-                ...produto,
-
-                estoque: estoque,
-
-                qtdSelecionada: 1
-
-            });
-        }
-
-        renderProdutosSelecionados();
-    }
-
-
-    window.alterarQtd =
-        function (id, valor) {
-
-            const produto =
-                produtosSelecionados.find(
-                    item =>
-                        item.id_produto === id
-                );
-
-            if (!produto) {
-                return;
-            }
-
-            if (
-                valor > 0 &&
-                produto.qtdSelecionada >=
-                    produto.estoque
-            ) {
-
-                exibirAviso(
-                    "Limite do estoque atingido."
-                );
-
-                return;
-            }
-
-            produto.qtdSelecionada +=
-                valor;
-
-            if (
-                produto.qtdSelecionada <= 0
-            ) {
-
-                produtosSelecionados =
-                    produtosSelecionados.filter(
-                        item =>
-                            item.id_produto !== id
-                    );
-            }
-
-            renderProdutosSelecionados();
-        };
-
-
-    window.atualizarQtdManual =
-        function (id, valor) {
-
-            const produto =
-                produtosSelecionados.find(
-                    item =>
-                        item.id_produto === id
-                );
-
-            if (!produto) {
-                return;
-            }
-
-            valor =
-                Number(valor);
-
-            if (
-                !Number.isFinite(valor) ||
-                valor <= 0
-            ) {
-
-                produtosSelecionados =
-                    produtosSelecionados.filter(
-                        item =>
-                            item.id_produto !== id
-                    );
-
-                renderProdutosSelecionados();
-
-                return;
-            }
-
-            if (
-                valor > produto.estoque
-            ) {
-
-                valor =
-                    produto.estoque;
-
-                exibirAviso(
-                    "Quantidade ajustada ao limite do estoque."
-                );
-            }
-
-            produto.qtdSelecionada =
-                valor;
-
-            renderProdutosSelecionados();
-        };
-
-
-    function renderProdutosSelecionados() {
-
-        areaProdutosModal.innerHTML = "";
-
-        areaProdutosPrincipal.innerHTML = "";
-
-        let total = 0;
-
-        produtosSelecionados.forEach(
-            produto => {
-
-                total +=
-                    Number(produto.preco || 0) *
-                    Number(produto.qtdSelecionada || 0);
-
-                const html = `
-                    <div class="produto_item_modal">
-
-                        <div class="produto_nome_modal">
-                            ${produto.nome || "Produto"}
-                        </div>
-
-                        <div class="controles_qtd">
-
-                            <button
-                                class="btn_qtd"
-                                type="button"
-                                onclick="alterarQtd(
-                                    ${produto.id_produto},
-                                    -1
-                                )"
-                            >
-                                -
-                            </button>
-
-                            <input
-                                class="inp_qtd_modal"
-                                type="number"
-                                min="1"
-                                max="${produto.estoque}"
-                                value="${produto.qtdSelecionada}"
-                                onchange="atualizarQtdManual(
-                                    ${produto.id_produto},
-                                    this.value
-                                )"
-                            >
-
-                            <button
-                                class="btn_qtd"
-                                type="button"
-                                onclick="alterarQtd(
-                                    ${produto.id_produto},
-                                    1
-                                )"
-                            >
-                                +
-                            </button>
-
-                        </div>
-
-                    </div>
-                `;
-
-                areaProdutosModal.innerHTML +=
-                    html;
-
-                areaProdutosPrincipal.innerHTML +=
-                    html;
-            }
-        );
-
-        document.getElementById(
-            "s_total_fiado"
-        ).innerText =
-            `R$ ${formatarMoeda(total)}`;
-    }
-
-
-    document.getElementById(
-        "b_salvar_produtos"
-    ).onclick =
-        () => modalProdutos.close();
-
-
-    /* ======================================================
-       SALVAR COMPRA
-    ====================================================== */
-
-    document.getElementById(
-        "b_salvar_fiado"
-    ).onclick = async () => {
-
-        const data =
-            document.getElementById(
-                "inp_data_fiado"
-            ).value;
-
-        const origem =
-            document.getElementById(
-                "inp_origem_fiado"
-            ).value.trim();
-
-        if (!clienteSelecionado) {
-
-            exibirAviso(
-                "Por favor, selecione um cliente para a compra."
-            );
-
-            return;
-        }
-
-        if (
-            produtosSelecionados.length === 0
-        ) {
-
-            exibirAviso(
-                "Adicione ao menos um produto à compra."
-            );
-
-            return;
-        }
-
-        if (!origem) {
-
-            exibirAviso(
-                "Por favor, informe a origem da compra."
-            );
-
-            return;
-        }
-
-        if (!data) {
-
-            exibirAviso(
-                "Por favor, selecione uma data de vencimento."
-            );
-
-            return;
-        }
-
-        const total =
-            produtosSelecionados.reduce(
-                (acc, produto) =>
-                    acc +
-                    (
-                        Number(
-                            produto.preco || 0
-                        ) *
-                        Number(
-                            produto.qtdSelecionada || 0
-                        )
-                    ),
-                0
-            );
-
-        try {
-
-            const token =
-                obterToken();
-
-            const res =
-                await fetch(
-                    "http://localhost:3000/contas-fiado",
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json",
-
-                            "Authorization":
-                                `Bearer ${token}`
-                        },
-
-                        body: JSON.stringify({
-
-                            id_cliente:
-                                clienteSelecionado.id_cliente,
-
-                            valor:
-                                total,
-
-                            vencimento:
-                                data,
-
-                            origem:
-                                origem,
-
-                            produtos:
-                                produtosSelecionados
-
-                        })
-                    }
-                );
-
-            if (
-                res.status === 401 ||
-                res.status === 403
-            ) {
-
-                redirecionarLogin(
-                    "Sessão expirada. Faça login novamente."
-                );
-
-                return;
-            }
-
-            let resposta = {};
-
-            try {
-                resposta =
-                    await res.json();
-            } catch (e) {}
-
-            if (res.ok) {
-
-                modalFiado.close();
-
-                limparCompra();
-
-                await carregarContasFiado();
-
-                exibirAviso(
-                    "Compra salva com sucesso!"
-                );
-
-            } else {
-
-                exibirAviso(
-                    resposta.erro ||
-                    "Erro ao salvar compra no servidor."
-                );
-            }
-
-        } catch (err) {
-
-            console.error(
-                "Erro ao salvar compra:",
-                err
-            );
-
-            exibirAviso(
-                "Erro de conexão ao tentar salvar a compra."
-            );
-        }
-    };
-
 
     /* ======================================================
        NOVO CLIENTE
     ====================================================== */
 
     document.getElementById(
+        "b_addq"
+    )?.addEventListener(
+        "click",
+        () => {
+            modalCliente?.showModal();
+        }
+    );
+
+    document.getElementById(
+        "b_close_modal_cliente"
+    )?.addEventListener(
+        "click",
+        () => {
+            modalCliente?.close();
+        }
+    );
+
+    document.getElementById(
         "b_addf"
-    ).onclick = async () => {
+    )?.addEventListener(
+        "click",
+        async () => {
 
-        const nome =
-            document.getElementById(
-                "nome"
-            ).value.trim();
+            const nome =
+                document.getElementById(
+                    "nome"
+                ).value.trim();
 
-        const cpf =
-            document.getElementById(
-                "cpf"
-            ).value
-                .trim()
-                .replace(/\D/g, "");
+            const cpf =
+                document.getElementById(
+                    "cpf"
+                ).value
+                    .replace(/\D/g, "");
 
-        const telefone =
-            document.getElementById(
-                "telefone"
-            ).value
-                .trim()
-                .replace(/\D/g, "");
+            const telefone =
+                document.getElementById(
+                    "telefone"
+                ).value
+                    .replace(/\D/g, "");
 
-        const endereco =
-            document.getElementById(
-                "endereco"
-            ).value.trim();
-
-        if (
-            !nome ||
-            !cpf ||
-            !telefone ||
-            !endereco
-        ) {
-
-            exibirAviso(
-                "Por favor, preencha todos os campos do formulário."
-            );
-
-            return;
-        }
-
-        if (cpf.length !== 11) {
-
-            exibirAviso(
-                "CPF inválido! Digite os 11 números do CPF."
-            );
-
-            return;
-        }
-
-        if (
-            telefone.length < 10 ||
-            telefone.length > 11
-        ) {
-
-            exibirAviso(
-                "Telefone inválido! Digite o DDD + número."
-            );
-
-            return;
-        }
-
-        try {
-
-            const token =
-                obterToken();
-
-            const res =
-                await fetch(
-                    "http://localhost:3000/clientes-fiado",
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json",
-
-                            "Authorization":
-                                `Bearer ${token}`
-                        },
-
-                        body: JSON.stringify({
-
-                            nome_completo:
-                                nome,
-
-                            cpf:
-                                cpf,
-
-                            telefone:
-                                telefone,
-
-                            endereco:
-                                endereco
-                        })
-                    }
-                );
+            const endereco =
+                document.getElementById(
+                    "endereco"
+                ).value.trim();
 
             if (
-                res.status === 401 ||
-                res.status === 403
+                !nome ||
+                cpf.length !== 11 ||
+                telefone.length < 10 ||
+                telefone.length > 11 ||
+                !endereco
             ) {
-
-                redirecionarLogin(
-                    "Erro de autenticação! Você precisa refazer o login."
+                exibirAviso(
+                    "Preencha nome, CPF, telefone e endereço corretamente."
                 );
-
                 return;
             }
 
-            let resposta = {};
-
             try {
-                resposta =
+
+                const res =
+                    await apiFetch(
+                        "/clientes-fiado",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+                            body:
+                                JSON.stringify({
+                                    nome_completo:
+                                        nome,
+                                    cpf,
+                                    telefone,
+                                    endereco
+                                })
+                        }
+                    );
+
+                if (
+                    res.status === 401 ||
+                    res.status === 403
+                ) {
+                    tratarSessaoExpirada();
+                    return;
+                }
+
+                const dados =
                     await res.json();
-            } catch (e) {}
 
-            if (res.ok) {
-
-                modalCliente.close();
+                if (!res.ok) {
+                    exibirAviso(
+                        dados.erro ||
+                        "Erro ao cadastrar cliente."
+                    );
+                    return;
+                }
 
                 document.getElementById(
                     "nome"
@@ -2430,378 +1255,1063 @@ function renderProdutosPendentesCliente(
                     "endereco"
                 ).value = "";
 
-                await carregarClientesModal();
+                modalCliente.close();
+
+                await carregarClientes();
 
                 exibirAviso(
                     "Cliente cadastrado com sucesso!"
                 );
 
-            } else {
+            } catch (erro) {
+
+                console.error(
+                    erro
+                );
 
                 exibirAviso(
-                    resposta.erro ||
-                    "Erro ao cadastrar."
+                    "Erro de conexão ao cadastrar cliente."
                 );
             }
-
-        } catch (err) {
-
-            console.error(
-                "Erro ao cadastrar cliente:",
-                err
-            );
-
-            exibirAviso(
-                "Não foi possível conectar ao servidor."
-            );
         }
-    };
-
+    );
 
     /* ======================================================
-       CONTAS FIADO
+       NOVA COMPRA FIADO
     ====================================================== */
 
-    async function carregarContasFiado() {
+    document.getElementById(
+        "b_nova_compra"
+    )?.addEventListener(
+        "click",
+        async () => {
+
+            limparCompra();
+
+            modalFiado?.showModal();
+
+            await carregarClientes();
+
+        }
+    );
+
+    document.getElementById(
+        "b_close_modal"
+    )?.addEventListener(
+        "click",
+        () => {
+            modalFiado?.close();
+        }
+    );
+
+    async function carregarClientes() {
 
         try {
 
-            const token =
-                obterToken();
-
             const res =
-                await fetch(
-                    "http://localhost:3000/contas-fiado",
-                    {
-                        headers: {
-                            Authorization:
-                                `Bearer ${token}`
-                        }
-                    }
+                await apiFetch(
+                    "/clientes-fiado"
                 );
 
             if (
                 res.status === 401 ||
                 res.status === 403
             ) {
-
-                redirecionarLogin(
-                    "Sessão expirada. Faça login novamente."
-                );
-
+                tratarSessaoExpirada();
                 return;
             }
 
-            let dados = [];
-
-            try {
-                dados =
-                    await res.json();
-            } catch (e) {
-
-                console.error(
-                    "Resposta inválida do servidor."
-                );
-            }
-
-            if (!res.ok) {
-
-                exibirAviso(
-                    dados.erro ||
-                    "Erro ao carregar contas fiado."
-                );
-
-                return;
-            }
+            const dados =
+                await res.json();
 
             if (!Array.isArray(dados)) {
-
-                console.error(
-                    "Resposta inválida:",
-                    dados
+                throw new Error(
+                    "Resposta inválida."
                 );
-
-                return;
             }
 
-            const tbodySemJuros =
-                document.getElementById(
-                    "tbodySemJuros"
-                );
+            clientesCache =
+                dados;
 
-            const tbodyComJuros =
-                document.getElementById(
-                    "tbodyComJuros"
-                );
-
-            tbodySemJuros.innerHTML = "";
-
-            tbodyComJuros.innerHTML = "";
-
-            dados.forEach(conta => {
-
-                const qtd =
-                    Number(
-                        conta.quantidade_total || 0
-                    );
-
-                const dataFormatada =
-                    formatarData(
-                        conta.data_vencimento
-                    );
-
-                const valorOriginal =
-                    Number(
-                        conta.valor_original ??
-                        conta.valor ??
-                        0
-                    );
-
-                const diasBackend =
-                    Number(
-                        conta.dias_atraso
-                    );
-
-                const diasAtraso =
-                    Number.isFinite(diasBackend)
-                        ? Math.max(
-                            0,
-                            diasBackend
-                        )
-                        : calcularDiasAtraso(
-                            conta.data_vencimento
-                        );
-
-                /*
-                 * IMPORTANTE:
-                 *
-                 * Aqui não existe mais aquele
-                 * 10% fixo.
-                 *
-                 * O valor final que o backend
-                 * mandar será respeitado.
-                 */
-
-                const valorFinal =
-                    Number(
-                        conta.valor_final ??
-                        valorOriginal
-                    );
-
-                const temJuros =
-                    Boolean(
-                        conta.juros_aplicado
-                    ) ||
-                    valorFinal >
-                        valorOriginal;
-
-                const tr =
-                    document.createElement("tr");
-
-                const idConta =
-                    conta.id_conta ||
-                    conta.id;
-
-                if (temJuros) {
-
-                    tr.innerHTML = `
-
-                        <td>
-                            ${
-                                conta.nome_completo ||
-                                conta.cliente ||
-                                "-"
-                            }
-                        </td>
-
-                        <td>
-                            ${
-                                conta.produtos ||
-                                "-"
-                            }
-                        </td>
-
-                        <td>
-                            R$
-                            ${formatarMoeda(
-                                valorOriginal
-                            )}
-                        </td>
-
-                        <td>
-
-                            <strong>
-                                R$
-                                ${formatarMoeda(
-                                    valorFinal
-                                )}
-                            </strong>
-
-                        </td>
-
-                        <td>
-                            ${qtd}
-                        </td>
-
-                        <td>
-                            ${
-                                conta.origem ||
-                                "-"
-                            }
-                        </td>
-
-                        <td>
-
-                            ${dataFormatada}
-
-                            ${
-                                contaEstaVencida(
-                                    conta.data_vencimento
-                                )
-                                ? `
-                                    <small class="status-vencida">
-                                        Vencida
-                                    </small>
-                                `
-                                : ""
-                            }
-
-                        </td>
-
-                        <td>
-                            ${
-                                diasAtraso
-                            }
-                            ${
-                                diasAtraso === 1
-                                    ? "dia"
-                                    : "dias"
-                            }
-                        </td>
-
-                        <td>
-
-                            <input
-                                type="checkbox"
-                                class="chk-concluido"
-                                onchange="
-                                    abrirModalConclusaoFiado(
-                                        ${idConta},
-                                        this
-                                    )
-                                "
-                            >
-
-                        </td>
-                    `;
-
-                    tbodyComJuros.appendChild(
-                        tr
-                    );
-
-                } else {
-
-                    tr.innerHTML = `
-
-                        <td>
-                            ${
-                                conta.nome_completo ||
-                                conta.cliente ||
-                                "-"
-                            }
-                        </td>
-
-                        <td>
-                            ${
-                                conta.produtos ||
-                                "-"
-                            }
-                        </td>
-
-                        <td>
-                            R$
-                            ${formatarMoeda(
-                                valorOriginal
-                            )}
-                        </td>
-
-                        <td>
-                            ${qtd}
-                        </td>
-
-                        <td>
-                            ${
-                                conta.origem ||
-                                "-"
-                            }
-                        </td>
-
-                        <td>
-
-                            ${dataFormatada}
-
-                            ${
-                                contaEstaVencida(
-                                    conta.data_vencimento
-                                )
-                                ? `
-                                    <small class="status-vencida">
-                                        Vencida
-                                    </small>
-                                `
-                                : ""
-                            }
-
-                        </td>
-
-                        <td>
-
-                            <input
-                                type="checkbox"
-                                class="chk-concluido"
-                                onchange="
-                                    abrirModalConclusaoFiado(
-                                        ${idConta},
-                                        this
-                                    )
-                                "
-                            >
-
-                        </td>
-                    `;
-
-                    tbodySemJuros.appendChild(
-                        tr
-                    );
-                }
-            });
-
-        } catch (err) {
+        } catch (erro) {
 
             console.error(
-                "Erro ao carregar contas fiado:",
-                err
+                "Erro ao carregar clientes:",
+                erro
             );
 
             exibirAviso(
-                "Erro ao carregar a lista de contas fiado."
+                "Erro ao carregar clientes."
             );
         }
     }
 
+    function renderClientesCompra(
+        clientes
+    ) {
+        listaClientes.innerHTML = "";
+
+        if (
+            !Array.isArray(clientes) ||
+            clientes.length === 0
+        ) {
+            listaClientes.style.display =
+                "none";
+            return;
+        }
+
+        listaClientes.style.display =
+            "block";
+
+        clientes
+            .slice(0, 10)
+            .forEach(cliente => {
+
+                const li =
+                    document.createElement(
+                        "li"
+                    );
+
+                li.innerText =
+                    cliente.nome_completo ||
+                    "-";
+
+                li.addEventListener(
+                    "click",
+                    () => {
+                        selecionarCliente(
+                            cliente
+                        );
+                    }
+                );
+
+                listaClientes.appendChild(
+                    li
+                );
+            });
+    }
+
+    function selecionarCliente(
+        cliente
+    ) {
+
+        clienteSelecionado =
+            cliente;
+
+        document.getElementById(
+            "s_cliente"
+        ).innerText =
+            cliente.nome_completo ||
+            "---";
+
+        document.getElementById(
+            "inp_busca_cliente"
+        ).value =
+            cliente.nome_completo ||
+            "";
+
+        listaClientes.innerHTML = "";
+        listaClientes.style.display =
+            "none";
+    }
+
+    document.getElementById(
+        "inp_busca_cliente"
+    )?.addEventListener(
+        "input",
+        function () {
+
+            const termo =
+                normalizarTexto(
+                    this.value
+                );
+
+            if (!termo) {
+                listaClientes.style.display =
+                    "none";
+                return;
+            }
+
+            renderClientesCompra(
+                clientesCache.filter(
+                    cliente =>
+                        normalizarTexto(
+                            cliente.nome_completo
+                        ).includes(termo)
+                )
+            );
+        }
+    );
 
     /* ======================================================
-       ======================================================
-       SIMULAÇÃO DE JUROS POR CLIENTE
-       ======================================================
-       ====================================================== */
+       PRODUTOS
+    ====================================================== */
 
+    document.getElementById(
+        "b_abrir_produtos"
+    )?.addEventListener(
+        "click",
+        async () => {
 
-    /* ------------------------------------------------------
-       ABRIR MODAL
-    ------------------------------------------------------ */
+            if (!clienteSelecionado) {
+                exibirAviso(
+                    "Selecione um cliente primeiro."
+                );
+                return;
+            }
 
-    btnSimularJurosAbrir.onclick =
+            modalProdutos?.showModal();
+
+            if (
+                produtosCache.length > 0
+            ) {
+                renderProdutos(
+                    produtosCache
+                );
+                return;
+            }
+
+            try {
+
+                const res =
+                    await apiFetch(
+                        "/produtos"
+                    );
+
+                if (
+                    res.status === 401 ||
+                    res.status === 403
+                ) {
+                    tratarSessaoExpirada();
+                    return;
+                }
+
+                if (!res.ok) {
+                    throw new Error(
+                        "Falha ao carregar produtos."
+                    );
+                }
+
+                const dados =
+                    await res.json();
+
+                if (!Array.isArray(dados)) {
+                    throw new Error(
+                        "Resposta inválida."
+                    );
+                }
+
+                produtosCache =
+                    dados;
+
+                renderProdutos(
+                    produtosCache
+                );
+
+            } catch (erro) {
+
+                console.error(
+                    erro
+                );
+
+                exibirAviso(
+                    "Erro ao carregar produtos."
+                );
+            }
+        }
+    );
+
+    document.getElementById(
+        "b_close_produtos"
+    )?.addEventListener(
+        "click",
+        () => {
+            modalProdutos?.close();
+        }
+    );
+
+    function renderProdutos(
+        produtos
+    ) {
+
+        listaProdutos.innerHTML = "";
+
+        produtos
+            .slice(0, 20)
+            .forEach(produto => {
+
+                const li =
+                    document.createElement(
+                        "li"
+                    );
+
+                li.innerHTML = `
+                    <span>
+                        ${escaparHTML(
+                            produto.nome ||
+                            "Produto"
+                        )}
+                    </span>
+
+                    <span>
+                        R$
+                        ${formatarMoeda(
+                            produto.preco
+                        )}
+                    </span>
+                `;
+
+                li.addEventListener(
+                    "click",
+                    () => {
+                        adicionarProduto(
+                            produto
+                        );
+                    }
+                );
+
+                listaProdutos.appendChild(
+                    li
+                );
+            });
+    }
+
+    document.getElementById(
+        "inp_busca_produto"
+    )?.addEventListener(
+        "input",
+        function () {
+
+            const termo =
+                normalizarTexto(
+                    this.value
+                );
+
+            renderProdutos(
+                produtosCache.filter(
+                    produto =>
+                        normalizarTexto(
+                            produto.nome
+                        ).includes(termo)
+                )
+            );
+        }
+    );
+
+    function adicionarProduto(
+        produto
+    ) {
+
+        const estoque =
+            Number(
+                produto.qtd || 0
+            );
+
+        if (estoque <= 0) {
+            exibirAviso(
+                "Produto sem estoque."
+            );
+            return;
+        }
+
+        const existente =
+            produtosSelecionados.find(
+                item =>
+                    Number(
+                        item.id_produto
+                    ) ===
+                    Number(
+                        produto.id_produto
+                    )
+            );
+
+        if (existente) {
+
+            if (
+                existente.qtdSelecionada >=
+                estoque
+            ) {
+                exibirAviso(
+                    "Estoque máximo atingido."
+                );
+                return;
+            }
+
+            existente.qtdSelecionada++;
+
+        } else {
+
+            produtosSelecionados.push({
+                ...produto,
+                estoque,
+                qtdSelecionada: 1
+            });
+        }
+
+        renderProdutosSelecionados();
+    }
+
+    window.alterarQtd =
+        function (
+            id,
+            valor
+        ) {
+
+            const produto =
+                produtosSelecionados.find(
+                    item =>
+                        Number(
+                            item.id_produto
+                        ) ===
+                        Number(id)
+                );
+
+            if (!produto) {
+                return;
+            }
+
+            const novaQtd =
+                Number(
+                    produto.qtdSelecionada
+                ) +
+                Number(valor);
+
+            if (
+                novaQtd <= 0
+            ) {
+
+                produtosSelecionados =
+                    produtosSelecionados.filter(
+                        item =>
+                            Number(
+                                item.id_produto
+                            ) !==
+                            Number(id)
+                    );
+
+            } else if (
+                novaQtd <=
+                Number(produto.estoque)
+            ) {
+
+                produto.qtdSelecionada =
+                    novaQtd;
+
+            } else {
+
+                exibirAviso(
+                    "Limite do estoque atingido."
+                );
+            }
+
+            renderProdutosSelecionados();
+        };
+
+    window.atualizarQtdManual =
+        function (
+            id,
+            valor
+        ) {
+
+            const produto =
+                produtosSelecionados.find(
+                    item =>
+                        Number(
+                            item.id_produto
+                        ) ===
+                        Number(id)
+                );
+
+            if (!produto) {
+                return;
+            }
+
+            const qtd =
+                Number(valor);
+
+            if (
+                !Number.isFinite(qtd) ||
+                qtd <= 0
+            ) {
+
+                produtosSelecionados =
+                    produtosSelecionados.filter(
+                        item =>
+                            Number(
+                                item.id_produto
+                            ) !==
+                            Number(id)
+                    );
+
+                renderProdutosSelecionados();
+                return;
+            }
+
+            produto.qtdSelecionada =
+                Math.min(
+                    qtd,
+                    Number(
+                        produto.estoque
+                    )
+                );
+
+            renderProdutosSelecionados();
+        };
+
+    function htmlProdutoSelecionado(
+        produto
+    ) {
+
+        return `
+            <div class="produto_item_modal">
+
+                <div class="produto_nome_modal">
+                    ${escaparHTML(
+                        produto.nome ||
+                        "Produto"
+                    )}
+                </div>
+
+                <div class="controles_qtd">
+
+                    <button
+                        class="btn_qtd"
+                        type="button"
+                        onclick="
+                            alterarQtd(
+                                ${Number(produto.id_produto)},
+                                -1
+                            )
+                        "
+                    >
+                        -
+                    </button>
+
+                    <input
+                        class="inp_qtd_modal"
+                        type="number"
+                        min="1"
+                        max="${Number(produto.estoque)}"
+                        value="${Number(produto.qtdSelecionada)}"
+                        onchange="
+                            atualizarQtdManual(
+                                ${Number(produto.id_produto)},
+                                this.value
+                            )
+                        "
+                    >
+
+                    <button
+                        class="btn_qtd"
+                        type="button"
+                        onclick="
+                            alterarQtd(
+                                ${Number(produto.id_produto)},
+                                1
+                            )
+                        "
+                    >
+                        +
+                    </button>
+
+                </div>
+            </div>
+        `;
+    }
+
+    function renderProdutosSelecionados() {
+
+        areaProdutosModal.innerHTML = "";
+        areaProdutosPrincipal.innerHTML = "";
+
+        let total = 0;
+
+        produtosSelecionados.forEach(
+            produto => {
+
+                total +=
+                    Number(produto.preco || 0) *
+                    Number(produto.qtdSelecionada || 0);
+
+                const html =
+                    htmlProdutoSelecionado(
+                        produto
+                    );
+
+                areaProdutosModal.innerHTML +=
+                    html;
+
+                areaProdutosPrincipal.innerHTML +=
+                    html;
+            }
+        );
+
+        document.getElementById(
+            "s_total_fiado"
+        ).innerText =
+            `R$ ${formatarMoeda(total)}`;
+    }
+
+    /* ======================================================
+       SALVAR COMPRA
+    ====================================================== */
+
+    document.getElementById(
+        "b_salvar_fiado"
+    )?.addEventListener(
+        "click",
+        async () => {
+
+            const data =
+                document.getElementById(
+                    "inp_data_fiado"
+                ).value;
+
+            const origem =
+                document.getElementById(
+                    "inp_origem_fiado"
+                ).value.trim();
+
+            if (!clienteSelecionado) {
+                exibirAviso(
+                    "Selecione um cliente."
+                );
+                return;
+            }
+
+            if (
+                produtosSelecionados.length === 0
+            ) {
+                exibirAviso(
+                    "Adicione pelo menos um produto."
+                );
+                return;
+            }
+
+            if (!origem) {
+                exibirAviso(
+                    "Informe a origem da compra."
+                );
+                return;
+            }
+
+            if (!data) {
+                exibirAviso(
+                    "Informe a data de vencimento."
+                );
+                return;
+            }
+
+            const total =
+                produtosSelecionados.reduce(
+                    (
+                        soma,
+                        produto
+                    ) =>
+                        soma +
+                        Number(
+                            produto.preco || 0
+                        ) *
+                        Number(
+                            produto.qtdSelecionada || 0
+                        ),
+                    0
+                );
+
+            try {
+
+                const res =
+                    await apiFetch(
+                        "/contas-fiado",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+                            body:
+                                JSON.stringify({
+                                    id_cliente:
+                                        clienteSelecionado.id_cliente,
+
+                                    valor:
+                                        total,
+
+                                    vencimento:
+                                        data,
+
+                                    origem:
+                                        origem,
+
+                                    produtos:
+                                        produtosSelecionados
+                                })
+                        }
+                    );
+
+                if (
+                    res.status === 401 ||
+                    res.status === 403
+                ) {
+                    tratarSessaoExpirada();
+                    return;
+                }
+
+                const dados =
+                    await res.json();
+
+                if (!res.ok) {
+
+                    exibirAviso(
+                        dados.erro ||
+                        "Erro ao salvar a compra."
+                    );
+
+                    return;
+                }
+
+                modalFiado.close();
+
+                limparCompra();
+
+                await carregarContasFiado();
+
+                exibirAviso(
+                    "Compra salva com sucesso!"
+                );
+
+            } catch (erro) {
+
+                console.error(
+                    "Erro ao salvar compra:",
+                    erro
+                );
+
+                exibirAviso(
+                    "Erro de conexão ao salvar a compra."
+                );
+            }
+        }
+    );
+
+    function limparCompra() {
+
+        clienteSelecionado = null;
+        produtosSelecionados = [];
+
+        document.getElementById(
+            "s_cliente"
+        ).innerText = "---";
+
+        document.getElementById(
+            "inp_busca_cliente"
+        ).value = "";
+
+        document.getElementById(
+            "inp_origem_fiado"
+        ).value = "";
+
+        document.getElementById(
+            "inp_data_fiado"
+        ).value =
+            obterDataHojeInput();
+
+        document.getElementById(
+            "inp_busca_produto"
+        ).value = "";
+
+        areaProdutosModal.innerHTML = "";
+        areaProdutosPrincipal.innerHTML = "";
+
+        document.getElementById(
+            "s_total_fiado"
+        ).innerText =
+            "R$ 0,00";
+
+        listaClientes.innerHTML = "";
+        listaClientes.style.display =
+            "none";
+
+        listaProdutos.innerHTML = "";
+    }
+
+    /* ======================================================
+       TABELAS PRINCIPAIS
+    ====================================================== */
+
+    function normalizarProdutosConta(conta) {
+        const entrada = conta?.produtos;
+        if (Array.isArray(entrada)) {
+            return entrada.map(item => {
+                if (item && typeof item === "object") {
+                    return {
+                        nome: item.nome || item.produto || "Produto",
+                        quantidade: Number(item.quantidade ?? item.qtd ?? 0),
+                        valorUnitario: Number(item.valor_unitario ?? item.valor_unit ?? item.preco ?? 0),
+                        jurosAtivo: Number(item.juros_ativo ?? 0) === 1,
+                        taxa: Number(item.taxa_juros ?? 0),
+                        tipo: item.tipo_juros || ""
+                    };
+                }
+                return {nome:String(item || "Produto"),quantidade:0,valorUnitario:0,jurosAtivo:false,taxa:0,tipo:""};
+            }).filter(p => p.nome);
+        }
+        if (typeof entrada === "string") {
+            return entrada.split(",").map(n => n.trim()).filter(Boolean).map(nome => ({nome,quantidade:0,valorUnitario:0,jurosAtivo:false,taxa:0,tipo:""}));
+        }
+        return [];
+    }
+
+    function calcularJurosAtualConta(conta) {
+        const original = Number(conta?.valor_original ?? conta?.valor ?? 0);
+        const jurosBanco = Number(conta?.juros_atual);
+        if (Number.isFinite(jurosBanco) && jurosBanco >= 0) return {juros:jurosBanco,total:valueRound(original + jurosBanco)};
+        if (!Number(conta?.juros_aplicado)) return {juros:0,total:original};
+        const cfg = jurosConfigPorConta[String(conta.id_conta)];
+        const taxa = Number(cfg?.percentual);
+        const dias = calcularDiasAtraso(conta.data_vencimento);
+        if (!Number.isFinite(taxa) || taxa <= 0 || dias <= 0) return {juros:0,total:original};
+        const periodos = (cfg?.tipo || "dia") === "mes" ? dias / 30 : dias;
+        const juros = original * (taxa / 100) * periodos;
+        return {juros,total:valueRound(original + juros)};
+    }
+
+    function renderVencimentoComAtraso(data) {
+        const dias = calcularDiasAtraso(data);
+        return `<div class="vencimento-celula"><span>${formatarData(data)}</span>${dias > 0 ? `<span class="dias-atraso">${dias} ${dias === 1 ? "dia" : "dias"}</span>` : ""}</div>`;
+    }
+
+    function renderLinhaConta(conta) {
+        const valorOriginal = Number(conta.valor_original ?? conta.valor ?? 0);
+        const qtd = Number(conta.quantidade_total || 0);
+        const produtos = normalizarProdutosConta(conta);
+        const produtosHtml = produtos.length ? `<div class="produtos-resumo">${produtos.map(p => `<span class="produto-pill">${escaparHTML(p.nome)}${p.quantidade > 0 ? ` <small>×${p.quantidade}</small>` : ""}</span>`).join("")}</div>` : "-";
+        return `<tr><td>${escaparHTML(conta.nome_completo || conta.cliente || "-")}</td><td>${produtosHtml}</td><td>R$ ${formatarMoeda(valorOriginal)}</td><td>${qtd}</td><td>${escaparHTML(conta.origem || "-")}</td><td>${renderVencimentoComAtraso(conta.data_vencimento)}</td></tr>`;
+    }
+
+    function renderTabelas(
+        dados
+    ) {
+
+        contasAtuais =
+            Array.isArray(dados)
+                ? dados
+                : [];
+
+        const semJuros =
+            contasAtuais.filter(
+                conta =>
+                    !(
+                        Number(
+                            conta.juros_aplicado
+                        ) === 1 ||
+                        conta.juros_aplicado === true ||
+                        Number(
+                            conta.valor_final
+                        ) >
+                        Number(
+                            conta.valor_original
+                        )
+                    )
+            );
+
+        const comJuros =
+            contasAtuais.filter(
+                conta =>
+                    Number(
+                        conta.juros_aplicado
+                    ) === 1 ||
+                    conta.juros_aplicado === true
+            );
+
+        tbodySemJuros.innerHTML =
+            semJuros.length
+                ? semJuros
+                    .map(
+                        renderLinhaConta
+                    )
+                    .join("")
+                : `
+                    <tr>
+                        <td colspan="6">
+                            Nenhuma conta sem juros.
+                        </td>
+                    </tr>
+                `;
+
+        tbodyComJuros.innerHTML =
+            comJuros.length
+                ? comJuros
+                    .map(
+                        renderLinhaConta
+                    )
+                    .join("")
+                : `
+                    <tr>
+                        <td colspan="6">
+                            Nenhuma conta com juros.
+                        </td>
+                    </tr>
+                `;
+
+        renderResumoJurosPorCliente(
+            comJuros
+        );
+    }
+
+    async function carregarContasFiado() {
+
+        try {
+
+            const res =
+                await apiFetch(
+                    "/contas-fiado"
+                );
+
+            if (
+                res.status === 401 ||
+                res.status === 403
+            ) {
+                tratarSessaoExpirada();
+                return;
+            }
+
+            const dados =
+                await res.json();
+
+            if (!res.ok) {
+                throw new Error(
+                    dados.erro ||
+                    "Erro ao carregar contas."
+                );
+            }
+
+            renderTabelas(
+                dados
+            );
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao carregar contas fiado:",
+                erro
+            );
+
+            tbodySemJuros.innerHTML = `
+                <tr>
+                    <td colspan="6">
+                        Erro ao carregar as contas.
+                    </td>
+                </tr>
+            `;
+
+            tbodyComJuros.innerHTML = `
+                <tr>
+                    <td colspan="6">
+                        Erro ao carregar as contas.
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    /* ======================================================
+       BUSCA DA TABELA
+    ====================================================== */
+
+    inputBusca?.addEventListener(
+        "input",
+        function () {
+
+            const termo =
+                normalizarTexto(
+                    this.value
+                );
+
+            document
+                .querySelectorAll(
+                    "#tbodySemJuros tr, #tbodyComJuros tr, #tbodyJurosCliente tr"
+                )
+                .forEach(
+                    linha => {
+
+                        const texto =
+                            normalizarTexto(
+                                linha.innerText
+                            );
+
+                        linha.style.display =
+                            !termo ||
+                            texto.includes(
+                                termo
+                            )
+                                ? ""
+                                : "none";
+                    }
+                );
+        }
+    );
+
+    /* ======================================================
+       SIMULAÇÃO DE JUROS
+    ====================================================== */
+
+    function limparModalJuros() {
+
+        clienteSelecionadoJuros =
+            null;
+
+        contasClienteJuros =
+            [];
+
+        simulacaoJurosAtual =
+            null;
+
+        indiceClienteJuros =
+            -1;
+
+        buscaClienteJuros.value =
+            "";
+
+        clienteJurosSelecionado.innerText =
+            "---";
+
+        listaClientesJuros.innerHTML =
+            "";
+
+        listaClientesJuros.style.display =
+            "none";
+
+        listaContasJuros.innerHTML = `
+            <p class="juros_vazio">
+                Digite ou selecione o cliente para visualizar as compras e produtos pendentes.
+            </p>
+        `;
+
+        resumoSimulacaoJuros.style.display =
+            "none";
+
+        jurosValorOriginal.innerText =
+            "R$ 0,00";
+
+        jurosValorCalculado.innerText =
+            "R$ 0,00";
+
+        jurosValorFinal.innerText =
+            "R$ 0,00";
+
+        btnAplicarJuros.disabled =
+            true;
+
+        porcentagemJuros.value =
+            "";
+
+        tipoJuros.value =
+            "dia";
+    }
+
+    btnSimularJurosAbrir?.addEventListener(
+        "click",
         async () => {
 
             limparModalJuros();
@@ -2809,240 +2319,295 @@ function renderProdutosPendentesCliente(
             modalSimularJuros.showModal();
 
             await carregarClientesJuros();
-        };
 
-
-    /* ------------------------------------------------------
-       FECHAR MODAL
-    ------------------------------------------------------ */
+            setTimeout(
+                () => buscaClienteJuros.focus(),
+                50
+            );
+        }
+    );
 
     function fecharModalJuros() {
 
         if (
             modalSimularJuros.open
         ) {
-
             modalSimularJuros.close();
         }
 
         limparModalJuros();
     }
 
+    btnFecharSimulacaoJuros?.addEventListener(
+        "click",
+        fecharModalJuros
+    );
 
-    btnFecharSimulacaoJuros.onclick =
-        fecharModalJuros;
+    btnCancelarSimulacaoJuros?.addEventListener(
+        "click",
+        fecharModalJuros
+    );
 
-
-    btnCancelarSimulacaoJuros.onclick =
-        fecharModalJuros;
-
-
-    /* ------------------------------------------------------
-       CARREGAR CLIENTES PARA O MODAL DE JUROS
-    ------------------------------------------------------ */
-// ======================================================
-// CARREGAR TODAS AS CONTAS ABERTAS DO CLIENTE
-// COM TODOS OS PRODUTOS
-// ======================================================
-
-async function carregarContasClienteJuros() {
-
-    if (!clienteSelecionadoJuros) {
-        return;
-    }
-
-    listaContasJuros.innerHTML = `
-        <p class="juros_carregando">
-            Carregando contas e produtos...
-        </p>
-    `;
-
-    resumoSimulacaoJuros.style.display = "none";
-
-    btnAplicarJuros.disabled = true;
-
-    simulacaoJurosAtual = null;
-
-    try {
-
-        const token = obterToken();
-
-        const idCliente =
-            clienteSelecionadoJuros.id_cliente;
-
-        if (!idCliente) {
-
-            listaContasJuros.innerHTML = `
-                <p class="juros_vazio">
-                    Cliente inválido.
-                </p>
-            `;
-
-            return;
-        }
-
-        const res = await fetch(
-            `http://localhost:3000/contas-fiado/cliente/${idCliente}`,
-            {
-                method: "GET",
-
-                headers: {
-                    "Authorization":
-                        `Bearer ${token}`
-                }
-            }
-        );
-
-        if (
-            res.status === 401 ||
-            res.status === 403
-        ) {
-
-            fecharModalJuros();
-
-            redirecionarLogin(
-                "Sessão expirada. Faça login novamente."
-            );
-
-            return;
-        }
-
-        let dados = [];
+    async function carregarClientesJuros() {
 
         try {
-            dados = await res.json();
-        } catch (e) {
-            dados = [];
-        }
 
-        if (!res.ok) {
-
-            listaContasJuros.innerHTML = `
-                <p class="juros_vazio">
-                    ${
-                        dados.erro ||
-                        "Erro ao carregar as contas."
-                    }
-                </p>
-            `;
-
-            return;
-        }
-
-        if (!Array.isArray(dados)) {
-
-            console.error(
-                "Resposta inválida do backend:",
-                dados
-            );
-
-            listaContasJuros.innerHTML = `
-                <p class="juros_vazio">
-                    Resposta inválida do servidor.
-                </p>
-            `;
-
-            return;
-        }
-
-        // --------------------------------------------------
-        // Guarda todas as contas abertas
-        // --------------------------------------------------
-
-        contasClienteJuros = dados;
-
-        renderizarContasClienteJuros();
-
-    } catch (err) {
-
-        console.error(
-            "Erro ao carregar contas do cliente:",
-            err
-        );
-
-        listaContasJuros.innerHTML = `
-            <p class="juros_vazio">
-                Erro de conexão com o servidor.
-            </p>
-        `;
-    }
-}
-
-
-    /* ------------------------------------------------------
-       BUSCAR CLIENTE
-    ------------------------------------------------------ */
-
-    buscaClienteJuros.addEventListener(
-        "input",
-        function () {
-
-            const termo =
-                this.value
-                    .toLowerCase()
-                    .trim();
-
-            listaClientesJuros.innerHTML = "";
-
-            if (!termo) {
-
-                listaClientesJuros.style.display =
-                    "none";
-
-                return;
-            }
-
-            const encontrados =
-                clientesCache.filter(
-                    cliente =>
-                        String(
-                            cliente.nome_completo || ""
-                        )
-                        .toLowerCase()
-                        .includes(termo)
+            const res =
+                await apiFetch(
+                    "/clientes-fiado?pendentes=1"
                 );
 
             if (
-                encontrados.length === 0
+                res.status === 401 ||
+                res.status === 403
+            ) {
+                tratarSessaoExpirada();
+                return;
+            }
+
+            const dados =
+                await res.json();
+
+            if (!Array.isArray(dados)) {
+                throw new Error(
+                    "Resposta inválida."
+                );
+            }
+
+            clientesJuros =
+                dados;
+
+        } catch (erro) {
+
+            console.error(
+                erro
+            );
+
+            clientesJuros =
+                [];
+
+            exibirAviso(
+                "Erro ao carregar a lista de clientes."
+            );
+        }
+    }
+
+    function renderListaClientesJuros() {
+
+        listaClientesJuros.innerHTML =
+            "";
+
+        const termo =
+            normalizarTexto(
+                buscaClienteJuros.value
+            );
+
+        const encontrados =
+            clientesJuros
+                .filter(
+                    cliente =>
+                        normalizarTexto(
+                            cliente.nome_completo
+                        ).includes(
+                            termo
+                        )
+                )
+                .slice(0, 10);
+
+        if (
+            encontrados.length === 0
+        ) {
+
+            listaClientesJuros.style.display =
+                "none";
+
+            indiceClienteJuros =
+                -1;
+
+            return;
+        }
+
+        encontrados.forEach(
+            (
+                cliente,
+                indice
+            ) => {
+
+                const li =
+                    document.createElement(
+                        "li"
+                    );
+
+                li.dataset.index =
+                    indice;
+
+                li.tabIndex = -1;
+
+                li.innerText =
+                    cliente.nome_completo ||
+                    "-";
+
+                li.addEventListener(
+                    "mousedown",
+                    event => {
+                        event.preventDefault();
+                    }
+                );
+
+                li.addEventListener(
+                    "click",
+                    () => {
+                        selecionarClienteJuros(
+                            cliente
+                        );
+                    }
+                );
+
+                listaClientesJuros.appendChild(
+                    li
+                );
+            }
+        );
+
+        indiceClienteJuros =
+            Math.min(
+                indiceClienteJuros,
+                encontrados.length - 1
+            );
+
+        listaClientesJuros.style.display =
+            "block";
+
+        atualizarClienteJurosAtivo();
+    }
+
+    function atualizarClienteJurosAtivo() {
+
+        const itens =
+            [
+                ...listaClientesJuros
+                    .querySelectorAll("li")
+            ];
+
+        itens.forEach(
+            (
+                item,
+                indice
+            ) => {
+
+                item.classList.toggle(
+                    "cliente-ativo",
+                    indice ===
+                    indiceClienteJuros
+                );
+
+                if (
+                    indice ===
+                    indiceClienteJuros
+                ) {
+                    item.scrollIntoView({
+                        block: "nearest"
+                    });
+                }
+            }
+        );
+    }
+
+    buscaClienteJuros?.addEventListener(
+        "input",
+        () => {
+
+            indiceClienteJuros =
+                -1;
+
+            renderListaClientesJuros();
+        }
+    );
+
+    buscaClienteJuros?.addEventListener(
+        "focus",
+        () => {
+            renderListaClientesJuros();
+        }
+    );
+
+    buscaClienteJuros?.addEventListener(
+        "keydown",
+        event => {
+
+            const itens =
+                [
+                    ...listaClientesJuros
+                        .querySelectorAll("li")
+                ];
+
+            if (
+                !itens.length
+            ) {
+                return;
+            }
+
+            if (
+                event.key === "ArrowDown"
+            ) {
+
+                event.preventDefault();
+
+                indiceClienteJuros =
+                    (
+                        indiceClienteJuros +
+                        1
+                    ) %
+                    itens.length;
+
+                atualizarClienteJurosAtivo();
+
+            } else if (
+                event.key === "ArrowUp"
+            ) {
+
+                event.preventDefault();
+
+                indiceClienteJuros =
+                    indiceClienteJuros <= 0
+                        ? itens.length - 1
+                        : indiceClienteJuros - 1;
+
+                atualizarClienteJurosAtivo();
+
+            } else if (
+                event.key === "Enter"
+            ) {
+
+                event.preventDefault();
+
+                if (
+                    itens[
+                        indiceClienteJuros
+                    ]
+                ) {
+
+                    itens[
+                        indiceClienteJuros
+                    ].click();
+
+                } else if (
+                    itens.length === 1
+                ) {
+
+                    itens[0].click();
+                }
+            } else if (
+                event.key === "Escape"
             ) {
 
                 listaClientesJuros.style.display =
                     "none";
-
-                return;
             }
-
-            encontrados
-                .slice(0, 10)
-                .forEach(cliente => {
-
-                    const li =
-                        document.createElement("li");
-
-                    li.innerText =
-                        cliente.nome_completo;
-
-                    li.onclick =
-                        () => selecionarClienteJuros(
-                            cliente
-                        );
-
-                    listaClientesJuros.appendChild(
-                        li
-                    );
-                });
-
-            listaClientesJuros.style.display =
-                "block";
         }
     );
 
-
-    /* ------------------------------------------------------
-       SELECIONAR CLIENTE
-    ------------------------------------------------------ */
-
-    async function selecionarClienteJuros(
+    function selecionarClienteJuros(
         cliente
     ) {
 
@@ -3050,36 +2615,36 @@ async function carregarContasClienteJuros() {
             cliente;
 
         buscaClienteJuros.value =
-            cliente.nome_completo;
+            cliente.nome_completo ||
+            "";
 
         clienteJurosSelecionado.innerText =
-            cliente.nome_completo;
+            cliente.nome_completo ||
+            "---";
 
-        listaClientesJuros.innerHTML = "";
+        listaClientesJuros.innerHTML =
+            "";
 
         listaClientesJuros.style.display =
             "none";
 
-        await carregarContasClienteJuros();
+        indiceClienteJuros =
+            -1;
+
+        carregarContasClienteJuros();
     }
-
-
-    /* ------------------------------------------------------
-       CARREGAR TODAS AS CONTAS ABERTAS DO CLIENTE
-    ------------------------------------------------------ */
 
     async function carregarContasClienteJuros() {
 
         if (
             !clienteSelecionadoJuros
         ) {
-
             return;
         }
 
         listaContasJuros.innerHTML = `
             <p class="juros_carregando">
-                Carregando contas...
+                Carregando contas e produtos pendentes...
             </p>
         `;
 
@@ -3094,469 +2659,286 @@ async function carregarContasClienteJuros() {
 
         try {
 
-            const token =
-                obterToken();
-
-            /*
-             * O backend deve devolver as contas
-             * abertas daquele cliente.
-             *
-             * Endpoint:
-             * GET /contas-fiado/cliente/:id
-             */
+            const idCliente =
+                Number(
+                    clienteSelecionadoJuros.id_cliente
+                );
 
             const res =
-                await fetch(
-                    `http://localhost:3000/contas-fiado/cliente/${clienteSelecionadoJuros.id_cliente}`,
-                    {
-                        headers: {
-                            Authorization:
-                                `Bearer ${token}`
-                        }
-                    }
+                await apiFetch(
+                    `/contas-fiado/cliente/${idCliente}`
                 );
 
             if (
                 res.status === 401 ||
                 res.status === 403
             ) {
-
-                redirecionarLogin(
-                    "Sessão expirada. Faça login novamente."
-                );
-
+                tratarSessaoExpirada();
                 return;
             }
 
-            let dados = [];
-
-            try {
-                dados =
-                    await res.json();
-            } catch (e) {}
+            const dados =
+                await res.json();
 
             if (!res.ok) {
-
-                listaContasJuros.innerHTML = `
-                    <p class="juros_vazio">
-                        ${
-                            dados.erro ||
-                            "Erro ao carregar as contas."
-                        }
-                    </p>
-                `;
-
-                return;
+                throw new Error(
+                    dados.erro ||
+                    "Erro ao carregar as contas."
+                );
             }
-
-            if (!Array.isArray(dados)) {
-
-                listaContasJuros.innerHTML = `
-                    <p class="juros_vazio">
-                        Nenhuma conta encontrada.
-                    </p>
-                `;
-
-                return;
-            }
-
-            /*
-             * Somente contas abertas.
-             */
 
             contasClienteJuros =
-                dados.filter(
-                    conta =>
-                        ![
-                            "finalizado",
-                            "concluido",
-                            "pago"
-                        ].includes(
-                            String(
-                                conta.status || ""
+                Array.isArray(dados)
+                    ? dados.filter(
+                        conta =>
+                            ![
+                                "finalizado",
+                                "concluido",
+                                "pago"
+                            ].includes(
+                                normalizarTexto(
+                                    conta.status
+                                )
                             )
-                            .trim()
-                            .toLowerCase()
-                        )
-                );
+                    )
+                    : [];
 
-            renderizarContasClienteJuros();
+            renderContasParaJuros();
 
-        } catch (err) {
+        } catch (erro) {
 
             console.error(
                 "Erro ao carregar contas do cliente:",
-                err
+                erro
             );
 
             listaContasJuros.innerHTML = `
                 <p class="juros_vazio">
-                    Erro de conexão com o servidor.
+                    ${escaparHTML(
+                        erro.message ||
+                        "Erro ao carregar as contas."
+                    )}
                 </p>
             `;
         }
     }
 
+    function renderContasParaJuros() {
 
-    /* ------------------------------------------------------
-       RENDERIZAR CONTAS
-    ------------------------------------------------------ */
+        listaContasJuros.innerHTML =
+            "";
 
-   // ======================================================
-// RENDERIZAR CONTAS E TODOS OS PRODUTOS
-// ======================================================
+        if (
+            contasClienteJuros.length === 0
+        ) {
 
-function renderizarContasClienteJuros() {
-
-    listaContasJuros.innerHTML = "";
-
-    if (
-        !Array.isArray(contasClienteJuros) ||
-        contasClienteJuros.length === 0
-    ) {
-
-        listaContasJuros.innerHTML = `
-            <p class="juros_vazio">
-                Este cliente não possui contas em aberto.
-            </p>
-        `;
-
-        return;
-    }
-
-    contasClienteJuros.forEach(conta => {
-
-        const idConta =
-            conta.id_conta ||
-            conta.id;
-
-        const valorOriginal =
-            Number(
-                conta.valor_original ??
-                conta.valor ??
-                0
-            );
-
-        const valorFinal =
-            Number(
-                conta.valor_final ??
-                valorOriginal
-            );
-
-        const diasAtraso =
-            Number(
-                conta.dias_atraso ??
-                calcularDiasAtraso(
-                    conta.data_vencimento
-                ) ??
-                0
-            );
-
-        const vencida =
-            diasAtraso > 0;
-
-        const produtos =
-            Array.isArray(conta.produtos)
-                ? conta.produtos
-                : [];
-
-        const div =
-            document.createElement("div");
-
-        div.className =
-            "conta_juros_item";
-
-        div.dataset.idConta =
-            idConta;
-
-        // --------------------------------------------------
-        // PRODUTOS
-        // --------------------------------------------------
-
-        let produtosHTML = "";
-
-        if (produtos.length > 0) {
-
-            produtosHTML = `
-                <div class="conta_juros_produtos_lista">
-                    ${produtos.map(produto => `
-                        <div class="conta_juros_produto">
-                            
-                            <span class="produto_nome">
-                                ${produto.nome}
-                            </span>
-
-                            <span class="produto_quantidade">
-                                Qtd: ${produto.quantidade}
-                            </span>
-
-                            <span class="produto_valor">
-                                R$ ${formatarMoeda(
-                                    produto.valor_unitario
-                                )}
-                            </span>
-
-                        </div>
-                    `).join("")}
-                </div>
+            listaContasJuros.innerHTML = `
+                <p class="juros_vazio">
+                    Este cliente não possui contas pendentes.
+                </p>
             `;
 
-        } else {
-
-            produtosHTML = `
-                <div class="conta_juros_produtos">
-                    Produtos não informados
-                </div>
-            `;
+            return;
         }
 
-        // --------------------------------------------------
-        // CONTA
-        // --------------------------------------------------
+        contasClienteJuros.forEach(
+            conta => {
 
-        div.innerHTML = `
+                const idConta =
+                    Number(
+                        conta.id_conta
+                    );
 
-            <div class="conta_juros_check">
+                const produtos =
+                    normalizarProdutosConta(
+                        conta
+                    );
 
-                <input
-                    type="checkbox"
-                    class="checkbox-conta-juros"
-                    data-id="${idConta}"
-                    data-valor="${valorOriginal}"
-                >
+                const valorOriginal =
+                    Number(
+                        conta.valor_original ??
+                        conta.valor ??
+                        0
+                    );
 
-            </div>
+                const div =
+                    document.createElement(
+                        "div"
+                    );
 
-            <div class="conta_juros_info">
+                div.className =
+                    "conta_juros_item";
 
-                <div class="conta_juros_titulo">
+                div.innerHTML = `
+                    <div class="conta_juros_check">
 
-                    <strong>
-                        Conta #${idConta}
-                    </strong>
+                        <input
+                            type="checkbox"
+                            class="checkbox-conta-juros"
+                            data-id="${idConta}"
+                        >
 
-                    ${
-                        vencida
-                            ? `
-                                <span class="badge-atrasada">
-                                    ${diasAtraso}
-                                    ${
-                                        diasAtraso === 1
-                                            ? "dia"
-                                            : "dias"
-                                    }
-                                    de atraso
-                                </span>
-                            `
-                            : `
-                                <span class="badge-em-dia">
-                                    Em dia
-                                </span>
-                            `
-                    }
+                    </div>
 
-                </div>
+                    <div class="conta_juros_info">
 
+                        <div class="conta_juros_titulo">
 
-                <div class="conta_juros_produtos">
+                            <strong>
+                                Compra #${idConta}
+                            </strong>
 
-                    <strong>
-                        Produtos:
-                    </strong>
+                        </div>
 
-                    ${produtosHTML}
+                        <div class="conta_juros_produtos">
 
-                </div>
+                            <strong>
+                                Produtos pendentes:
+                            </strong>
 
+                            <div class="conta_juros_produtos_lista">
+                                ${produtos.length ? produtos.map(produto => `
+                                    <div class="conta-juros-produto-card">
+                                        <div class="produto-card-nome">${escaparHTML(produto.nome)}</div>
+                                        <div class="produto-card-meta">${produto.quantidade > 0 ? `<span>×${produto.quantidade}</span>` : ""}${produto.valorUnitario > 0 ? `<span>R$ ${formatarMoeda(produto.valorUnitario)} un.</span>` : ""}</div>
+                                    </div>`).join("") : `<div class="conta_juros_produto">Produtos não informados</div>`}
+                            </div>
 
-                <div class="conta_juros_detalhes">
+                        </div>
 
-                    <span>
+                        <div class="conta_juros_detalhes">
 
-                        Vencimento:
+                            <span>
+                                Vencimento:
+                                <strong>
+                                    ${formatarData(conta.data_vencimento)}${calcularDiasAtraso(conta.data_vencimento) > 0 ? ` <em class="atraso-inline">${calcularDiasAtraso(conta.data_vencimento)} ${calcularDiasAtraso(conta.data_vencimento) === 1 ? "dia" : "dias"}</em>` : ""}
+                                </strong>
+                            </span>
 
-                        <strong>
+                            <span>
+                                Valor original:
+                                <strong>
+                                    R$
+                                    ${formatarMoeda(
+                                        valorOriginal
+                                    )}
+                                </strong>
+                            </span>
+
                             ${
-                                formatarData(
-                                    conta.data_vencimento
-                                )
-                            }
-                        </strong>
-
-                    </span>
-
-
-                    <span>
-
-                        Valor original:
-
-                        <strong>
-                            R$
-                            ${formatarMoeda(
+                                Number(
+                                    conta.juros_aplicado
+                                ) === 1 &&
+                                valorSalvo >
                                 valorOriginal
-                            )}
-                        </strong>
-
-                    </span>
-
-
-                    ${
-                        vencida
-                            ? `
-                                <span>
-
-                                    Valor atual:
-
-                                    <strong>
-                                        R$
-                                        ${formatarMoeda(
-                                            valorFinal
-                                        )}
-                                    </strong>
-
-                                </span>
-                            `
-                            : ""
-                    }
-
-
-                    <span>
-
-                        Atraso:
-
-                        <strong>
-
-                            ${diasAtraso}
-
-                            ${
-                                diasAtraso === 1
-                                    ? "dia"
-                                    : "dias"
+                                    ? `
+                                        <span>
+                                            Juros já aplicados:
+                                            <strong>
+                                                R$
+                                                ${formatarMoeda(
+                                                    valorSalvo -
+                                                    valorOriginal
+                                                )}
+                                            </strong>
+                                        </span>
+                                    `
+                                    : ""
                             }
 
-                        </strong>
+                        </div>
 
-                    </span>
+                    </div>
+                `;
 
-                </div>
+                const checkbox =
+                    div.querySelector(
+                        ".checkbox-conta-juros"
+                    );
 
-            </div>
-        `;
-
-        listaContasJuros.appendChild(div);
-    });
-
-    // --------------------------------------------------
-    // EVENTOS DOS CHECKBOXES
-    // --------------------------------------------------
-
-    document
-        .querySelectorAll(
-            ".checkbox-conta-juros"
-        )
-        .forEach(checkbox => {
-
-            checkbox.addEventListener(
-                "change",
-                () => {
-
-                    limparResultadoSimulacao();
-
-                }
-            );
-
-        });
-}
-
-    /* ------------------------------------------------------
-       SELECIONAR TODOS
-    ------------------------------------------------------ */
-
-    btnSelecionarTodosJuros.onclick =
-        () => {
-
-            document
-                .querySelectorAll(
-                    ".checkbox-conta-juros"
-                )
-                .forEach(
-                    checkbox => {
-                        checkbox.checked = true;
-                    }
+                checkbox.addEventListener(
+                    "change",
+                    atualizarBotaoSelecionados
                 );
 
-            limparResultadoSimulacao();
-        };
-
-
-    /* ------------------------------------------------------
-       DESMARCAR TODOS
-    ------------------------------------------------------ */
-
-    btnDesmarcarTodosJuros.onclick =
-        () => {
-
-            document
-                .querySelectorAll(
-                    ".checkbox-conta-juros"
-                )
-                .forEach(
-                    checkbox => {
-                        checkbox.checked = false;
-                    }
-                );
-
-            limparResultadoSimulacao();
-        };
-
-
-    /* ------------------------------------------------------
-       OBTER CONTAS SELECIONADAS
-    ------------------------------------------------------ */
-
-    // ======================================================
-// OBTER CONTAS SELECIONADAS
-// ======================================================
-
-function obterContasSelecionadasJuros() {
-
-    const selecionadas = [];
-
-    document
-        .querySelectorAll(
-            ".checkbox-conta-juros:checked"
-        )
-        .forEach(checkbox => {
-
-            const idConta =
-                Number(
-                    checkbox.dataset.id
-                );
-
-            const conta =
-                contasClienteJuros.find(
-                    item =>
-                        Number(
-                            item.id_conta ||
-                            item.id
-                        ) === idConta
-                );
-
-            if (conta) {
-
-                selecionadas.push(
-                    conta
+                listaContasJuros.appendChild(
+                    div
                 );
             }
-        });
+        );
 
-    return selecionadas;
-}
+        atualizarBotaoSelecionados();
+    }
 
+    function atualizarBotaoSelecionados() {
 
-    /* ======================================================
-       CÁLCULO DOS JUROS
-    ====================================================== */
+        const quantidade =
+            obterContasSelecionadasJuros()
+                .length;
+
+    }
+
+    function obterContasSelecionadasJuros() {
+
+        const ids =
+            [
+                ...document.querySelectorAll(
+                    ".checkbox-conta-juros:checked"
+                )
+            ].map(
+                checkbox =>
+                    Number(
+                        checkbox.dataset.id
+                    )
+            );
+
+        return contasClienteJuros.filter(
+            conta =>
+                ids.includes(
+                    Number(
+                        conta.id_conta
+                    )
+                )
+        );
+    }
+
+    btnSelecionarTodosJuros?.addEventListener(
+        "click",
+        () => {
+
+            document
+                .querySelectorAll(
+                    ".checkbox-conta-juros"
+                )
+                .forEach(
+                    checkbox =>
+                        checkbox.checked = true
+                );
+
+            atualizarBotaoSelecionados();
+
+            limparResultadoSimulacao();
+        }
+    );
+
+    btnDesmarcarTodosJuros?.addEventListener(
+        "click",
+        () => {
+
+            document
+                .querySelectorAll(
+                    ".checkbox-conta-juros"
+                )
+                .forEach(
+                    checkbox =>
+                        checkbox.checked = false
+                );
+
+            atualizarBotaoSelecionados();
+
+            limparResultadoSimulacao();
+        }
+    );
 
     function calcularJurosConta(
         conta,
@@ -3582,870 +2964,41 @@ function obterContasSelecionadasJuros() {
         ) {
 
             return {
-                valorOriginal:
-                    valorOriginal,
-
-                juros:
-                    0,
-
-                valorFinal:
-                    valorOriginal,
-
-                diasAtraso:
-                    diasAtraso
+                valorOriginal,
+                juros: 0,
+                valorFinal: valorOriginal,
+                diasAtraso
             };
         }
 
-        let juros = 0;
+        const periodo =
+            tipo === "mes"
+                ? diasAtraso / 30
+                : diasAtraso;
 
-        /*
-         * JUROS AO DIA
-         *
-         * Exemplo:
-         * 2% ao dia
-         * 5 dias atrasado
-         *
-         * 2% x 5 = 10%
-         */
-
-        if (tipo === "dia") {
-
-            juros =
-                valorOriginal *
-                (
-                    percentual / 100
-                ) *
-                diasAtraso;
-        }
-
-        /*
-         * JUROS AO MÊS
-         *
-         * Aqui consideramos os meses
-         * proporcionais aos dias.
-         *
-         * Exemplo:
-         * 3% ao mês
-         * 15 dias
-         *
-         * 15 / 30 = 0,5 mês
-         */
-
-        if (tipo === "mes") {
-
-            const meses =
-                diasAtraso / 30;
-
-            juros =
-                valorOriginal *
-                (
-                    percentual / 100
-                ) *
-                meses;
-        }
+        const juros =
+            valorOriginal *
+            (
+                Number(percentual) /
+                100
+            ) *
+            periodo;
 
         const valorFinal =
-            valorOriginal +
-            juros;
+            Math.round(
+                (
+                    valorOriginal +
+                    juros
+                ) * 100
+            ) / 100;
 
         return {
-
-            valorOriginal:
-                valorOriginal,
-
-            juros:
-                juros,
-
-            valorFinal:
-                valorFinal,
-
-            diasAtraso:
-                diasAtraso
+            valorOriginal,
+            juros,
+            valorFinal,
+            diasAtraso
         };
     }
-
-
-    /* ======================================================
-       SIMULAR
-    ====================================================== */
-
-    btnSimularJuros.onclick =
-        () => {
-
-            if (
-                !clienteSelecionadoJuros
-            ) {
-
-                exibirAviso(
-                    "Selecione um cliente."
-                );
-
-                return;
-            }
-
-            const contasSelecionadas =
-                obterContasSelecionadasJuros();
-
-            if (
-                contasSelecionadas.length === 0
-            ) {
-
-                exibirAviso(
-                    "Selecione pelo menos uma conta."
-                );
-
-                return;
-            }
-
-            const percentual =
-                Number(
-                    porcentagemJuros.value
-                );
-
-            if (
-                !Number.isFinite(percentual) ||
-                percentual <= 0
-            ) {
-
-                exibirAviso(
-                    "Informe uma porcentagem de juros válida."
-                );
-
-                return;
-            }
-
-            const tipo =
-                tipoJuros.value;
-
-            let valorOriginalTotal =
-                0;
-
-            let jurosTotal =
-                0;
-
-            let valorFinalTotal =
-                0;
-
-            const detalhes =
-                [];
-
-            contasSelecionadas.forEach(
-                conta => {
-
-                    const resultado =
-                        calcularJurosConta(
-                            conta,
-                            percentual,
-                            tipo
-                        );
-
-                    valorOriginalTotal +=
-                        resultado.valorOriginal;
-
-                    jurosTotal +=
-                        resultado.juros;
-
-                    valorFinalTotal +=
-                        resultado.valorFinal;
-
-                    detalhes.push({
-
-                        id_conta:
-                            conta.id_conta ||
-                            conta.id,
-
-                        ...resultado
-
-                    });
-                }
-            );
-
-            simulacaoJurosAtual = {
-
-                cliente:
-                    clienteSelecionadoJuros.id_cliente,
-
-                tipo:
-                    tipo,
-
-                percentual:
-                    percentual,
-
-                contas:
-                    detalhes,
-
-                valorOriginal:
-                    valorOriginalTotal,
-
-                juros:
-                    jurosTotal,
-
-                valorFinal:
-                    valorFinalTotal
-            };
-
-            jurosValorOriginal.innerText =
-                `R$ ${formatarMoeda(
-                    valorOriginalTotal
-                )}`;
-
-            jurosValorCalculado.innerText =
-                `R$ ${formatarMoeda(
-                    jurosTotal
-                )}`;
-
-            jurosValorFinal.innerText =
-                `R$ ${formatarMoeda(
-                    valorFinalTotal
-                )}`;
-
-            resumoSimulacaoJuros.style.display =
-                "block";
-
-            btnAplicarJuros.disabled =
-                false;
-        };
-
-
-    /* ======================================================
-       APLICAR JUROS
-    ====================================================== */
-
-    btnAplicarJuros.onclick =
-        async () => {
-
-            if (
-                !simulacaoJurosAtual
-            ) {
-
-                exibirAviso(
-                    "Faça a simulação antes de aplicar os juros."
-                );
-
-                return;
-            }
-
-            const confirmacao =
-                confirm(
-                    "Deseja realmente aplicar os juros às contas selecionadas?"
-                );
-
-            if (!confirmacao) {
-                return;
-            }
-
-            try {
-
-                const token =
-                    obterToken();
-
-                /*
-                 * O backend recebe todas as contas
-                 * selecionadas de uma vez.
-                 */
-
-                const res =
-                    await fetch(
-                        "http://localhost:3000/contas-fiado/juros/aplicar",
-                        {
-                            method: "PUT",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json",
-
-                                "Authorization":
-                                    `Bearer ${token}`
-                            },
-
-                            body:
-                                JSON.stringify(
-                                    simulacaoJurosAtual
-                                )
-                        }
-                    );
-
-                if (
-                    res.status === 401 ||
-                    res.status === 403
-                ) {
-
-                    fecharModalJuros();
-
-                    redirecionarLogin(
-                        "Sessão expirada. Faça login novamente."
-                    );
-
-                    return;
-                }
-
-                let resposta = {};
-
-                try {
-
-                    resposta =
-                        await res.json();
-
-                } catch (e) {}
-
-                if (!res.ok) {
-
-                    exibirAviso(
-                        resposta.erro ||
-                        "Erro ao aplicar os juros."
-                    );
-
-                    return;
-                }
-
-                fecharModalJuros();
-
-                await carregarContasFiado();
-
-                exibirAviso(
-                    "Juros aplicados com sucesso!"
-                );
-
-            } catch (err) {
-
-                console.error(
-                    "Erro ao aplicar juros:",
-                    err
-                );
-
-                exibirAviso(
-                    "Erro de conexão ao aplicar os juros."
-                );
-            }
-        };
-
-
-    /* ======================================================
-       CONCLUIR SELECIONADOS
-    ====================================================== */
-
-    btnConcluirSelecionados.onclick =
-        async () => {
-
-            if (
-                !clienteSelecionadoJuros
-            ) {
-
-                exibirAviso(
-                    "Selecione um cliente."
-                );
-
-                return;
-            }
-
-            const contasSelecionadas =
-                obterContasSelecionadasJuros();
-
-            if (
-                contasSelecionadas.length === 0
-            ) {
-
-                exibirAviso(
-                    "Selecione pelo menos uma conta para concluir."
-                );
-
-                return;
-            }
-
-            /*
-             * Guarda as contas selecionadas.
-             */
-
-            window.contasParaConcluir =
-                contasSelecionadas;
-
-            /*
-             * Para várias contas, abre o modal
-             * de pagamento.
-             */
-
-            contaFiadoSelecionada =
-                null;
-
-            checkboxAtual =
-                null;
-
-            abrirModalConclusaoMultiplas();
-        };
-
-
-    /* ======================================================
-       CONCLUSÃO DE VÁRIAS CONTAS
-    ====================================================== */
-
-    function abrirModalConclusaoMultiplas() {
-
-        const contas =
-            window.contasParaConcluir || [];
-
-        if (
-            contas.length === 0
-        ) {
-
-            return;
-        }
-
-        const total =
-            contas.reduce(
-                (soma, conta) =>
-                    soma +
-                    Number(
-                        conta.valor_final ??
-                        conta.valor_original ??
-                        conta.valor ??
-                        0
-                    ),
-                0
-            );
-
-        const mensagem =
-            `
-                <strong>
-                    ${contas.length}
-                    ${
-                        contas.length === 1
-                            ? "conta selecionada"
-                            : "contas selecionadas"
-                    }.
-                </strong>
-                <br><br>
-                Valor total atual:
-                <strong>
-                    R$ ${formatarMoeda(total)}
-                </strong>
-                <br><br>
-                Informe a forma de pagamento para concluir.
-            `;
-
-        /*
-         * Usa o próprio modal de aviso apenas
-         * para confirmar antes do modal de pagamento.
-         */
-
-        exibirAviso(
-            mensagem,
-            () => {
-
-                if (
-                    modalSimularJuros.open
-                ) {
-
-                    modalSimularJuros.close();
-                }
-
-                dataConclusaoFiado.value =
-                    obterDataHojeInput();
-
-                formaPagamentoFiado.value =
-                    "";
-
-                modalConclusaoFiado.showModal();
-            },
-            true
-        );
-    }
-
-
-    /* ======================================================
-       MODAL DE CONCLUSÃO INDIVIDUAL
-    ====================================================== */
-
-    window.abrirModalConclusaoFiado =
-        function (
-            idConta,
-            checkbox
-        ) {
-
-            /*
-             * Se estiver dentro do modal de juros,
-             * não usamos esse fluxo.
-             */
-
-            contaFiadoSelecionada =
-                idConta;
-
-            checkboxAtual =
-                checkbox;
-
-            dataConclusaoFiado.value =
-                obterDataHojeInput();
-
-            formaPagamentoFiado.value =
-                "";
-
-            modalConclusaoFiado.showModal();
-        };
-
-
-    function fecharModalConclusao() {
-
-        if (
-            modalConclusaoFiado.open
-        ) {
-
-            modalConclusaoFiado.close();
-        }
-
-        if (checkboxAtual) {
-
-            checkboxAtual.checked =
-                false;
-        }
-
-        checkboxAtual =
-            null;
-
-        contaFiadoSelecionada =
-            null;
-
-        window.contasParaConcluir =
-            null;
-    }
-
-
-    btnFecharConclusao.onclick =
-        fecharModalConclusao;
-
-
-    btnCancelarConclusao.onclick =
-        fecharModalConclusao;
-
-
-    /* ======================================================
-       CONFIRMAR PAGAMENTO
-    ====================================================== */
-
-    btnConfirmarConclusao.onclick =
-        async () => {
-
-            const dataVal =
-                dataConclusaoFiado.value;
-
-            const formaPagamento =
-                formaPagamentoFiado.value;
-
-            if (!dataVal) {
-
-                exibirAviso(
-                    "Por favor, informe a data do pagamento."
-                );
-
-                return;
-            }
-
-            if (!formaPagamento) {
-
-                exibirAviso(
-                    "Por favor, selecione a forma de pagamento."
-                );
-
-                return;
-            }
-
-            const contasMultiplas =
-                window.contasParaConcluir;
-
-            try {
-
-                const token =
-                    obterToken();
-
-                /*
-                 * VÁRIAS CONTAS
-                 */
-
-                if (
-                    Array.isArray(
-                        contasMultiplas
-                    ) &&
-                    contasMultiplas.length > 0
-                ) {
-
-                    for (
-                        const conta
-                        of contasMultiplas
-                    ) {
-
-                        const idConta =
-                            conta.id_conta ||
-                            conta.id;
-
-                        const res =
-                            await fetch(
-                                `http://localhost:3000/contas-fiado/${idConta}/finalizar`,
-                                {
-                                    method: "PUT",
-
-                                    headers: {
-
-                                        "Content-Type":
-                                            "application/json",
-
-                                        "Authorization":
-                                            `Bearer ${token}`
-                                    },
-
-                                    body:
-                                        JSON.stringify({
-
-                                            data_conclusao:
-                                                dataVal,
-
-                                            forma_pagamento:
-                                                formaPagamento
-
-                                        })
-                                }
-                            );
-
-                        if (
-                            res.status === 401 ||
-                            res.status === 403
-                        ) {
-
-                            fecharModalConclusao();
-
-                            redirecionarLogin(
-                                "Sessão expirada. Faça login novamente."
-                            );
-
-                            return;
-                        }
-
-                        if (!res.ok) {
-
-                            let resposta =
-                                {};
-
-                            try {
-                                resposta =
-                                    await res.json();
-                            } catch (e) {}
-
-                            exibirAviso(
-                                resposta.erro ||
-                                `Erro ao finalizar a conta ${idConta}.`
-                            );
-
-                            return;
-                        }
-                    }
-
-                    if (
-                        modalConclusaoFiado.open
-                    ) {
-
-                        modalConclusaoFiado.close();
-                    }
-
-                    window.contasParaConcluir =
-                        null;
-
-                    checkboxAtual =
-                        null;
-
-                    contaFiadoSelecionada =
-                        null;
-
-                    await carregarContasFiado();
-
-                    if (
-                        clienteSelecionadoJuros
-                    ) {
-
-                        await carregarContasClienteJuros();
-                    }
-
-                    exibirAviso(
-                        "Contas selecionadas foram pagas com sucesso!"
-                    );
-
-                    return;
-                }
-
-
-                /*
-                 * UMA CONTA
-                 */
-
-                if (
-                    !contaFiadoSelecionada
-                ) {
-
-                    exibirAviso(
-                        "Nenhuma conta foi selecionada."
-                    );
-
-                    return;
-                }
-
-                const idConta =
-                    contaFiadoSelecionada;
-
-                const res =
-                    await fetch(
-                        `http://localhost:3000/contas-fiado/${idConta}/finalizar`,
-                        {
-                            method: "PUT",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json",
-
-                                "Authorization":
-                                    `Bearer ${token}`
-                            },
-
-                            body:
-                                JSON.stringify({
-
-                                    data_conclusao:
-                                        dataVal,
-
-                                    forma_pagamento:
-                                        formaPagamento
-                                })
-                        }
-                    );
-
-                if (
-                    res.status === 401 ||
-                    res.status === 403
-                ) {
-
-                    fecharModalConclusao();
-
-                    redirecionarLogin(
-                        "Sessão expirada. Faça login novamente."
-                    );
-
-                    return;
-                }
-
-                let resposta = {};
-
-                try {
-                    resposta =
-                        await res.json();
-                } catch (e) {}
-
-                if (!res.ok) {
-
-                    if (checkboxAtual) {
-
-                        checkboxAtual.checked =
-                            false;
-                    }
-
-                    exibirAviso(
-                        resposta.erro ||
-                        "Erro ao finalizar a conta."
-                    );
-
-                    return;
-                }
-
-                if (
-                    modalConclusaoFiado.open
-                ) {
-
-                    modalConclusaoFiado.close();
-                }
-
-                checkboxAtual =
-                    null;
-
-                contaFiadoSelecionada =
-                    null;
-
-                await carregarContasFiado();
-
-                exibirAviso(
-                    "Pagamento registrado e conta finalizada com sucesso!"
-                );
-
-            } catch (err) {
-
-                console.error(
-                    "ERRO DE CONEXÃO:",
-                    err
-                );
-
-                if (checkboxAtual) {
-
-                    checkboxAtual.checked =
-                        false;
-                }
-
-                exibirAviso(
-                    "Erro de conexão ao tentar finalizar o pagamento."
-                );
-            }
-        };
-
-
-    /* ======================================================
-       LIMPAR MODAL DE JUROS
-    ====================================================== */
-
-    function limparModalJuros() {
-
-        clienteSelecionadoJuros =
-            null;
-
-        contasClienteJuros =
-            [];
-
-        simulacaoJurosAtual =
-            null;
-
-        buscaClienteJuros.value =
-            "";
-
-        clienteJurosSelecionado.innerText =
-            "---";
-
-        listaClientesJuros.innerHTML =
-            "";
-
-        listaClientesJuros.style.display =
-            "none";
-
-        listaContasJuros.innerHTML = `
-            <p class="juros_vazio">
-                Selecione um cliente para visualizar as contas.
-            </p>
-        `;
-
-        resumoSimulacaoJuros.style.display =
-            "none";
-
-        jurosValorOriginal.innerText =
-            "R$ 0,00";
-
-        jurosValorCalculado.innerText =
-            "R$ 0,00";
-
-        jurosValorFinal.innerText =
-            "R$ 0,00";
-
-        btnAplicarJuros.disabled =
-            true;
-
-        porcentagemJuros.value =
-            "2";
-
-        tipoJuros.value =
-            "dia";
-    }
-
 
     function limparResultadoSimulacao() {
 
@@ -4468,158 +3021,945 @@ function obterContasSelecionadasJuros() {
             "R$ 0,00";
     }
 
+    btnSimularJuros?.addEventListener(
+        "click",
+        () => {
 
-    /* ======================================================
-       AUXILIARES
-    ====================================================== */
+            if (
+                !clienteSelecionadoJuros
+            ) {
+                exibirAviso(
+                    "Selecione um cliente."
+                );
+                return;
+            }
 
-    function preencherDataAtual() {
+            const contasSelecionadas =
+                obterContasSelecionadasJuros();
 
-        document.getElementById(
-            "inp_data_fiado"
-        ).value =
-            obterDataHojeInput();
-    }
+            if (
+                contasSelecionadas.length === 0
+            ) {
+                exibirAviso(
+                    "Selecione pelo menos uma conta."
+                );
+                return;
+            }
 
-
-    function limparCompra() {
-
-        clienteSelecionado =
-            null;
-
-        clientePendente =
-            null;
-
-        produtosSelecionados =
-            [];
-
-        document.getElementById(
-            "s_cliente"
-        ).innerText =
-            "---";
-
-        document.getElementById(
-            "inp_busca_cliente"
-        ).value =
-            "";
-
-        preencherDataAtual();
-
-        document.getElementById(
-            "s_total_fiado"
-        ).innerText =
-            "R$ 0,00";
-
-        document.getElementById(
-            "inp_origem_fiado"
-        ).value =
-            "";
-
-        document.getElementById(
-            "inp_busca_produto"
-        ).value =
-            "";
-
-        areaProdutosModal.innerHTML =
-            "";
-
-        areaProdutosPrincipal.innerHTML =
-            "";
-
-        listaClientes.innerHTML =
-            "";
-
-        listaClientes.style.display =
-            "none";
-    }
-
-
-    /* ======================================================
-       BUSCA DA TABELA
-    ====================================================== */
-
-    document.getElementById(
-        "inputBusca"
-    ).addEventListener(
-        "input",
-        function () {
-
-            const termo =
-                this.value
-                    .toLowerCase()
-                    .trim();
-
-            const todasAsLinhas =
-                document.querySelectorAll(
-                    "#tbodySemJuros tr, #tbodyComJuros tr"
+            const percentual =
+                Number(
+                    porcentagemJuros.value
                 );
 
-            todasAsLinhas.forEach(
-                linha => {
+            if (
+                !Number.isFinite(
+                    percentual
+                ) ||
+                percentual <= 0
+            ) {
+                exibirAviso(
+                    "Digite a porcentagem de juros antes de simular."
+                );
+                return;
+            }
 
-                    const texto =
-                        linha.innerText
-                            .toLowerCase();
+            const tipo =
+                tipoJuros.value;
 
-                    linha.style.display =
-                        texto.includes(termo)
-                            ? ""
-                            : "none";
+            let valorOriginalTotal = 0;
+            let jurosTotal = 0;
+            let valorFinalTotal = 0;
+
+            const detalhes = [];
+
+            contasSelecionadas.forEach(
+                conta => {
+
+                    const resultado =
+                        calcularJurosConta(
+                            conta,
+                            percentual,
+                            tipo
+                        );
+
+                    valorOriginalTotal +=
+                        resultado.valorOriginal;
+
+                    jurosTotal +=
+                        resultado.juros;
+
+                    valorFinalTotal +=
+                        resultado.valorFinal;
+
+                    detalhes.push({
+                        id_conta:
+                            Number(
+                                conta.id_conta
+                            ),
+                        ...resultado
+                    });
                 }
+            );
+
+            simulacaoJurosAtual = {
+                cliente:
+                    Number(
+                        clienteSelecionadoJuros.id_cliente
+                    ),
+
+                tipo,
+
+                percentual,
+
+                contas:
+                    detalhes,
+
+                valorOriginal:
+                    valorOriginalTotal,
+
+                juros:
+                    jurosTotal,
+
+                valorFinal:
+                    valueRound(
+                        valorFinalTotal
+                    )
+            };
+
+            jurosValorOriginal.innerText =
+                `R$ ${formatarMoeda(
+                    valorOriginalTotal
+                )}`;
+
+            jurosValorCalculado.innerText =
+                `R$ ${formatarMoeda(
+                    jurosTotal
+                )}`;
+
+            jurosValorFinal.innerText =
+                `R$ ${formatarMoeda(
+                    valueRound(
+                        valorFinalTotal
+                    )
+                )}`;
+
+            resumoSimulacaoJuros.style.display =
+                "block";
+
+            btnAplicarJuros.disabled =
+                false;
+        }
+    );
+
+    function valueRound(
+        valor
+    ) {
+        return Math.round(
+            Number(valor || 0) * 100
+        ) / 100;
+    }
+
+    /* ======================================================
+       APLICAR JUROS
+    ====================================================== */
+
+    btnAplicarJuros?.addEventListener(
+        "click",
+        async () => {
+
+            if (
+                !simulacaoJurosAtual
+            ) {
+                exibirAviso(
+                    "Faça a simulação antes de aplicar os juros."
+                );
+                return;
+            }
+
+            exibirAviso(
+                "Deseja realmente aplicar os juros às contas selecionadas?",
+                async () => { await executarAplicacaoDeJuros(); },
+                true
             );
         }
     );
 
+    async function executarAplicacaoDeJuros() {
+            try {
+
+                const res =
+                    await apiFetch(
+                        "/contas-fiado/juros/aplicar",
+                        {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+                            body:
+                                JSON.stringify(
+                                    simulacaoJurosAtual
+                                )
+                        }
+                    );
+
+                if (
+                    res.status === 401 ||
+                    res.status === 403
+                ) {
+                    tratarSessaoExpirada();
+                    return;
+                }
+
+                const resposta =
+                    await res.json();
+
+                if (!res.ok) {
+
+                    exibirAviso(
+                        resposta.erro ||
+                        "Erro ao aplicar os juros."
+                    );
+
+                    return;
+                }
+
+                simulacaoJurosAtual.contas
+                    .forEach(
+                        conta => {
+
+                            jurosConfigPorConta[
+                                String(
+                                    conta.id_conta
+                                )
+                            ] = {
+                                percentual:
+                                    simulacaoJurosAtual.percentual,
+                                tipo:
+                                    simulacaoJurosAtual.tipo
+                            };
+                        }
+                    );
+
+                salvarConfiguracoesJuros();
+
+                fecharModalJuros();
+
+                await carregarContasFiado();
+
+                exibirAviso(
+                    "Juros aplicados com sucesso!"
+                );
+
+            } catch (erro) {
+                console.error("Erro ao aplicar juros:", erro);
+                exibirAviso(erro.message || "Erro ao aplicar os juros.");
+            }
+    }
 
     /* ======================================================
-       FECHAR LISTAS AO CLICAR FORA
+       TABELA AGRUPADA POR CLIENTE
     ====================================================== */
 
-    document.addEventListener(
+    function renderResumoJurosPorCliente(contasComJuros) {
+        const grupos = new Map();
+        contasComJuros.forEach(conta => {
+            const id = Number(conta.id_cliente);
+            if (!grupos.has(id)) grupos.set(id,{nome:conta.nome_completo || "-",produtos:new Map(),original:0,juros:0,total:0,taxas:new Set(),tipos:new Set()});
+            const g=grupos.get(id);
+            const original=Number(conta.valor_original ?? conta.valor ?? 0);
+            const atual=calcularJurosAtualConta(conta);
+            g.original+=original; g.juros+=atual.juros; g.total+=atual.total;
+            normalizarProdutosConta(conta).forEach(p=>{const q=Number(p.quantidade||0);g.produtos.set(p.nome,(g.produtos.get(p.nome)||0)+q);if(p.jurosAtivo && p.taxa>0){g.taxas.add(p.taxa);if(p.tipo)g.tipos.add(p.tipo);}});
+            const cfg=jurosConfigPorConta[String(conta.id_conta)];
+            if(cfg){if(Number.isFinite(Number(cfg.percentual)))g.taxas.add(Number(cfg.percentual));if(cfg.tipo)g.tipos.add(cfg.tipo);}
+            if(Number(conta.taxa_juros)>0)g.taxas.add(Number(conta.taxa_juros));
+            if(conta.tipo_juros)g.tipos.add(String(conta.tipo_juros));
+        });
+        tbodyJurosCliente.innerHTML="";
+        if(!grupos.size){tbodyJurosCliente.innerHTML='<tr><td colspan="7">Nenhum cliente possui juros aplicados.</td></tr>';return;}
+        grupos.forEach(g=>{
+            const taxas=[...g.taxas].filter(Number.isFinite); const tipos=[...g.tipos].filter(Boolean);
+            const percentual=taxas.length===1?`${formatarNumero(taxas[0])}%`:(taxas.length?"Variável":"-");
+            const tipo=tipos.length===1?(tipos[0]==="dia"?"Ao dia":"Ao mês"):(tipos.length?"Variável":"-");
+            const produtos=[...g.produtos.entries()].map(([n,q])=>q>0?`${n} ×${q}`:n).join(", ");
+            const tr=document.createElement('tr');
+            tr.innerHTML=`<td>${escaparHTML(g.nome)}</td><td><div class="produtos-resumo">${escaparHTML(produtos || "-")}</div></td><td>R$ ${formatarMoeda(g.original)}</td><td class="valor-juros">R$ ${formatarMoeda(g.juros)}</td><td><strong class="valor-total-juros">R$ ${formatarMoeda(g.total)}</strong></td><td>${escaparHTML(percentual)}</td><td>${escaparHTML(tipo)}</td>`;
+            tbodyJurosCliente.appendChild(tr);
+        });
+    }
+
+    function formatarNumero(
+        valor
+    ) {
+
+        return Number(
+            valor || 0
+        ).toLocaleString(
+            "pt-BR",
+            {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            }
+        );
+    }
+
+    /* ======================================================
+       CONCLUSÃO / PAGAMENTO
+    ====================================================== */
+
+    function obterContasParaConcluir() {
+
+        return obterContasSelecionadasJuros();
+    }
+
+    function calcularTotalContas(contas) {
+        return contas.reduce((total, conta) => total + calcularJurosAtualConta(conta).total, 0);
+    }
+
+    function abrirModalConclusao(
+        contas
+    ) {
+
+        if (
+            !Array.isArray(
+                contas
+            ) ||
+            contas.length === 0
+        ) {
+            exibirAviso(
+                "Selecione pelo menos uma conta."
+            );
+            return;
+        }
+
+        contasParaConcluir =
+            contas;
+
+        contaParaConcluir =
+            contas.length === 1
+                ? contas[0]
+                : null;
+
+        const total =
+            calcularTotalContas(
+                contas
+            );
+
+        dataConclusao.value =
+            obterDataHojeInput();
+
+        formaConclusao.value =
+            "";
+
+        pagamentoTemporario = {
+            forma: "",
+            parcelas: null,
+            valorParcela: null,
+            confirmado: false
+        };
+
+        document.getElementById(
+            "infoConclusaoFiado"
+        ).innerHTML =
+            `
+                ${contas.length}
+                ${
+                    contas.length === 1
+                        ? "conta selecionada"
+                        : "contas selecionadas"
+                }.
+                <br><br>
+                Valor total para pagamento:
+                <strong>
+                    R$ ${formatarMoeda(total)}
+                </strong>
+            `;
+
+        modalConclusao.showModal();
+    }
+
+    btnConcluirSelecionados?.addEventListener(
         "click",
-        event => {
+        () => {
 
             if (
-                !listaClientes.contains(
-                    event.target
-                ) &&
-                event.target.id !==
-                    "inp_busca_cliente"
+                !clienteSelecionadoJuros
             ) {
+                exibirAviso(
+                    "Selecione um cliente."
+                );
+                return;
+            }
 
-                listaClientes.style.display =
-                    "none";
+            const contas =
+                obterContasParaConcluir();
+
+            if (
+                contas.length === 0
+            ) {
+                exibirAviso(
+                    "Selecione pelo menos uma conta."
+                );
+                return;
             }
 
             if (
-                !listaClientesJuros.contains(
-                    event.target
-                ) &&
-                event.target.id !==
-                    "buscaClienteJuros"
+                modalSimularJuros.open
+            ) {
+                modalSimularJuros.close();
+            }
+
+            abrirModalConclusao(
+                contas
+            );
+        }
+    );
+
+    function fecharConclusao() {
+
+        if (
+            modalConclusao.open
+        ) {
+            modalConclusao.close();
+        }
+
+        contasParaConcluir =
+            [];
+
+        contaParaConcluir =
+            null;
+
+        pagamentoTemporario = {
+            forma: "",
+            parcelas: null,
+            valorParcela: null,
+            confirmado: false
+        };
+    }
+
+    btnFecharConclusao?.addEventListener(
+        "click",
+        fecharConclusao
+    );
+
+    btnCancelarConclusao?.addEventListener(
+        "click",
+        fecharConclusao
+    );
+
+    /* ======================================================
+       MODAL DINHEIRO — MESMO FLUXO DO PDV
+    ====================================================== */
+
+    function abrirModalDinheiro(
+        total
+    ) {
+
+        lblDinheiroTotal.innerText =
+            `R$ ${formatarMoeda(total)}`;
+
+        inpValorPago.value =
+            "";
+
+        lblTroco.innerText =
+            "R$ 0,00";
+
+        modalDinheiro.showModal();
+
+        setTimeout(
+            () =>
+                inpValorPago.focus(),
+            100
+        );
+    }
+
+    btnFecharDinheiro?.addEventListener(
+        "click",
+        () => {
+            modalDinheiro.close();
+        }
+    );
+
+    modalDinheiro?.addEventListener(
+        "cancel",
+        event => {
+            event.preventDefault();
+            modalDinheiro.close();
+        }
+    );
+
+    inpValorPago?.addEventListener(
+        "input",
+        () => {
+
+            const total =
+                calcularTotalContas(
+                    contasParaConcluir
+                );
+
+            const valor =
+                Number(
+                    String(
+                        inpValorPago.value
+                    ).replace(
+                        ",",
+                        "."
+                    )
+                ) || 0;
+
+            lblTroco.innerText =
+                `R$ ${formatarMoeda(
+                    Math.max(
+                        0,
+                        valor - total
+                    )
+                )}`;
+        }
+    );
+
+    btnConfirmarDinheiro?.addEventListener(
+        "click",
+        () => {
+
+            const total =
+                calcularTotalContas(
+                    contasParaConcluir
+                );
+
+            const valor =
+                Number(
+                    String(
+                        inpValorPago.value
+                    ).replace(
+                        ",",
+                        "."
+                    )
+                ) || 0;
+
+            if (
+                valor < total
+            ) {
+                exibirAviso(
+                    "O valor recebido é menor que o total."
+                );
+                return;
+            }
+
+            pagamentoTemporario = {
+                forma:
+                    "Dinheiro",
+
+                parcelas:
+                    null,
+
+                valorParcela:
+                    null,
+
+                confirmado:
+                    true
+            };
+
+            formaConclusao.value =
+                "Dinheiro";
+
+            modalDinheiro.close();
+
+            modalConclusao.showModal();
+        }
+    );
+
+    /* ======================================================
+       MODAL CRÉDITO — MESMO FLUXO DO PDV
+    ====================================================== */
+
+    function atualizarParcelamentoCredito() {
+
+        const total =
+            calcularTotalContas(
+                contasParaConcluir
+            );
+
+        lblCreditoTotal.innerText =
+            `R$ ${formatarMoeda(total)}`;
+
+        const parcelas =
+            Number(
+                selParcelasCredito.value
+            );
+
+        if (
+            !Number.isInteger(
+                parcelas
+            ) ||
+            parcelas <= 0
+        ) {
+
+            pagamentoTemporario.parcelas =
+                null;
+
+            pagamentoTemporario.valorParcela =
+                null;
+
+            lblValorParcela.innerText =
+                "Selecione as parcelas";
+
+            return;
+        }
+
+        const valorParcela =
+            valueRound(
+                total /
+                parcelas
+            );
+
+        pagamentoTemporario.parcelas =
+            parcelas;
+
+        pagamentoTemporario.valorParcela =
+            valorParcela;
+
+        lblValorParcela.innerText =
+            `R$ ${formatarMoeda(
+                valorParcela
+            )}`;
+    }
+
+    function abrirModalCredito(
+        total
+    ) {
+
+        lblCreditoTotal.innerText =
+            `R$ ${formatarMoeda(total)}`;
+
+        selParcelasCredito.value =
+            "";
+
+        pagamentoTemporario.parcelas =
+            null;
+
+        pagamentoTemporario.valorParcela =
+            null;
+
+        pagamentoTemporario.confirmado =
+            false;
+
+        lblValorParcela.innerText =
+            "Selecione as parcelas";
+
+        modalCredito.showModal();
+    }
+
+    selParcelasCredito?.addEventListener(
+        "change",
+        atualizarParcelamentoCredito
+    );
+
+    btnFecharCredito?.addEventListener(
+        "click",
+        () => {
+            modalCredito.close();
+        }
+    );
+
+    modalCredito?.addEventListener(
+        "cancel",
+        event => {
+            event.preventDefault();
+            modalCredito.close();
+        }
+    );
+
+    btnConfirmarCredito?.addEventListener(
+        "click",
+        () => {
+
+            if (
+                !pagamentoTemporario.parcelas
+            ) {
+                exibirAviso(
+                    "Selecione a quantidade de parcelas."
+                );
+                return;
+            }
+
+            pagamentoTemporario.forma =
+                "Cartão de Crédito";
+
+            pagamentoTemporario.confirmado =
+                true;
+
+            formaConclusao.value =
+                "Cartão de Crédito";
+
+            modalCredito.close();
+
+            modalConclusao.showModal();
+        }
+    );
+
+    /* ======================================================
+       FORMA DE PAGAMENTO
+    ====================================================== */
+
+    formaConclusao?.addEventListener(
+        "change",
+        () => {
+
+            const forma =
+                formaConclusao.value;
+
+            if (
+                !forma
+            ) {
+                return;
+            }
+
+            const total =
+                calcularTotalContas(
+                    contasParaConcluir
+                );
+
+            if (
+                forma ===
+                "Dinheiro"
             ) {
 
-                listaClientesJuros.style.display =
-                    "none";
+                pagamentoTemporario.forma =
+                    "Dinheiro";
+
+                pagamentoTemporario.confirmado =
+                    false;
+
+                abrirModalDinheiro(
+                    total
+                );
+
+                return;
+            }
+
+            if (
+                forma ===
+                "Cartão de Crédito"
+            ) {
+
+                pagamentoTemporario.forma =
+                    "Cartão de Crédito";
+
+                pagamentoTemporario.confirmado =
+                    false;
+
+                abrirModalCredito(
+                    total
+                );
+
+                return;
+            }
+
+            if (
+                forma === "Pix" ||
+                forma ===
+                    "Cartão de Débito"
+            ) {
+
+                pagamentoTemporario = {
+                    forma,
+                    parcelas: null,
+                    valorParcela: null,
+                    confirmado: true
+                };
             }
         }
     );
 
+    /* ======================================================
+       CONFIRMAR CONCLUSÃO
+    ====================================================== */
+
+    btnConfirmarConclusao?.addEventListener(
+        "click",
+        async () => {
+
+            const data =
+                dataConclusao.value;
+
+            const forma =
+                formaConclusao.value;
+
+            if (!data) {
+                exibirAviso(
+                    "Informe a data do pagamento."
+                );
+                return;
+            }
+
+            if (!forma) {
+                exibirAviso(
+                    "Selecione a forma de pagamento."
+                );
+                return;
+            }
+
+            if (
+                (
+                    forma === "Dinheiro" ||
+                    forma ===
+                        "Cartão de Crédito"
+                ) &&
+                !pagamentoTemporario.confirmado
+            ) {
+
+                exibirAviso(
+                    "Conclua o controle do pagamento antes de confirmar."
+                );
+
+                return;
+            }
+
+            if (
+                forma ===
+                    "Cartão de Crédito" &&
+                !pagamentoTemporario.parcelas
+            ) {
+
+                exibirAviso(
+                    "Selecione a quantidade de parcelas."
+                );
+
+                return;
+            }
+
+            if (
+                !Array.isArray(
+                    contasParaConcluir
+                ) ||
+                contasParaConcluir.length ===
+                    0
+            ) {
+
+                exibirAviso(
+                    "Nenhuma conta selecionada."
+                );
+
+                return;
+            }
+
+            try {
+
+                for (
+                    const conta
+                    of contasParaConcluir
+                ) {
+
+                    const idConta =
+                        Number(
+                            conta.id_conta
+                        );
+
+                    const corpo = {
+                        data_conclusao:
+                            data,
+
+                        forma_pagamento:
+                            forma
+                    };
+
+                    if (
+                        forma ===
+                        "Cartão de Crédito"
+                    ) {
+                        corpo.parcelas =
+                            pagamentoTemporario.parcelas;
+
+                        corpo.valor_parcela =
+                            pagamentoTemporario.valorParcela;
+                    }
+
+                    const res =
+                        await apiFetch(
+                            `/contas-fiado/${idConta}/finalizar`,
+                            {
+                                method: "PUT",
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+                                body:
+                                    JSON.stringify(
+                                        corpo
+                                    )
+                            }
+                        );
+
+                    if (
+                        res.status === 401 ||
+                        res.status === 403
+                    ) {
+                        fecharConclusao();
+                        tratarSessaoExpirada();
+                        return;
+                    }
+
+                    const dados =
+                        await res.json();
+
+                    if (!res.ok) {
+
+                        exibirAviso(
+                            dados.erro ||
+                            `Erro ao finalizar a conta ${idConta}.`
+                        );
+
+                        return;
+                    }
+                }
+
+                const quantidadeConcluida =
+                    contasParaConcluir.length;
+
+                fecharConclusao();
+
+                await carregarContasFiado();
+
+                if (
+                    clienteSelecionadoJuros
+                ) {
+                    await carregarContasClienteJuros();
+                }
+
+                exibirAviso(
+                    quantidadeConcluida === 1
+                        ? "Pagamento registrado e conta finalizada com sucesso!"
+                        : "Contas selecionadas foram pagas com sucesso!"
+                );
+
+            } catch (erro) {
+
+                console.error(
+                    "Erro ao finalizar contas:",
+                    erro
+                );
+
+                exibirAviso(
+                    "Erro de conexão ao finalizar o pagamento."
+                );
+            }
+        }
+    );
 
     /* ======================================================
        INICIALIZAÇÃO
     ====================================================== */
 
-    preencherDataAtual();
+    document.getElementById(
+        "inp_data_fiado"
+    ).value =
+        obterDataHojeInput();
 
-    // ======================================================
-    // INICIALIZAÇÃO SEGURA
-    // ======================================================
-    // Se o token não existir, não tenta carregar dados.
-    // Isso evita chamadas inválidas e deixa a página redirecionar
-    // para o login pelo fluxo já existente.
     if (!obterToken()) {
-        redirecionarLogin("Sessão expirada. Faça login novamente.");
+        window.location.replace(
+            "login.html"
+        );
         return;
     }
 
@@ -4627,5 +3967,6 @@ function obterContasSelecionadasJuros() {
 
 });
 </script>
+
 </body>
 </html>

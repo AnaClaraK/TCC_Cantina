@@ -373,147 +373,182 @@ router.get('/contas-fiado', async (req, res) => {
 // Usado pelo modal:
 // GET /contas-fiado/cliente/:id
 //
-
 router.get(
     '/contas-fiado/cliente/:id',
     async (req, res) => {
-
         try {
+            const idCliente = Number(req.params.id);
 
-            const idCliente =
-                Number(
-                    req.params.id
-                );
-
-            if (
-                !Number.isInteger(
-                    idCliente
-                ) ||
-                idCliente <= 0
-            ) {
-
+            if (!Number.isInteger(idCliente) || idCliente <= 0) {
                 return res.status(400).json({
-                    erro:
-                        'Cliente inválido.'
+                    erro: 'Cliente inválido.'
                 });
             }
 
-            const [dados] =
+            // Sua versão do MariaDB não possui JSON_ARRAYAGG.
+            // Buscamos as contas primeiro e depois seus produtos.
+
+            const [dados] = await conexao.query(`
+                SELECT
+                    c.id_conta,
+                    c.id_cliente,
+                    cl.nome_completo,
+                    c.valor_original,
+                    c.valor_final,
+                    c.data_vencimento,
+
+                    CASE
+                        WHEN CURDATE() > c.data_vencimento
+                        THEN DATEDIFF(
+                            CURDATE(),
+                            c.data_vencimento
+                        )
+                        ELSE 0
+                    END AS dias_atraso,
+
+                    c.juros_aplicado,
+                    c.status,
+                    c.origem
+
+                FROM contas_fiado c
+
+                INNER JOIN clientes_fiado cl
+                    ON cl.id_cliente = c.id_cliente
+
+                WHERE c.id_cliente = ?
+
+                  AND LOWER(
+                      TRIM(c.status)
+                  ) NOT IN (
+                      'finalizado',
+                      'concluido',
+                      'pago'
+                  )
+
+                ORDER BY
+                    c.data_vencimento ASC,
+                    c.id_conta ASC
+            `, [idCliente]);
+
+            if (dados.length === 0) {
+                return res.json([]);
+            }
+
+            const idsContas =
+                dados.map(
+                    conta => Number(conta.id_conta)
+                );
+
+            const placeholders =
+                idsContas
+                    .map(() => '?')
+                    .join(',');
+
+            const [itens] =
                 await conexao.query(`
                     SELECT
-                        c.id_conta,
-                        c.id_cliente,
-                        cl.nome_completo,
-                        c.valor_original,
-                        c.valor_final,
-                        c.data_vencimento,
+                        cf.id_conta,
+                        cf.id_produto,
+                        p.nome,
+                        cf.qtd AS quantidade,
+                        cf.valor_unit AS valor_unitario
 
-                        CASE
-                            WHEN CURDATE() > c.data_vencimento
-                            THEN DATEDIFF(
-                                CURDATE(),
-                                c.data_vencimento
-                            )
-                            ELSE 0
-                        END AS dias_atraso,
+                    FROM conta_fiado_prod cf
 
-                        c.juros_aplicado,
-                        c.status,
-                        c.origem,
-
-                        COALESCE(
-                            JSON_ARRAYAGG(
-                                CASE
-                                    WHEN cf.id_produto IS NOT NULL
-                                    THEN JSON_OBJECT(
-                                        'id_produto',
-                                        cf.id_produto,
-
-                                        'nome',
-                                        p.nome,
-
-                                        'quantidade',
-                                        cf.qtd,
-
-                                        'valor_unitario',
-                                        cf.valor_unit
-                                    )
-
-                                    ELSE NULL
-                                END
-                            ),
-                            JSON_ARRAY()
-                        ) AS produtos
-
-                    FROM contas_fiado c
-
-                    JOIN clientes_fiado cl
-                        ON cl.id_cliente =
-                           c.id_cliente
-
-                    LEFT JOIN conta_fiado_prod cf
-                        ON cf.id_conta =
-                           c.id_conta
-
-                    LEFT JOIN produtos p
+                    INNER JOIN produtos p
                         ON p.id_produto =
                            cf.id_produto
 
-                    WHERE
-                        c.id_cliente = ?
-
-                        AND LOWER(
-                            TRIM(c.status)
-                        ) NOT IN (
-                            'finalizado',
-                            'concluido'
-                        )
-
-                    GROUP BY
-                        c.id_conta
+                    WHERE cf.id_conta
+                          IN (${placeholders})
 
                     ORDER BY
-                        c.data_vencimento ASC,
-                        c.id_conta ASC
+                        cf.id_conta ASC,
+                        p.nome ASC
+                `, idsContas);
 
-                `, [
-                    idCliente
-                ]);
+            const produtosPorConta =
+                new Map();
 
-            // ==================================================
-            // NORMALIZAR PRODUTOS
-            // ==================================================
+            for (const item of itens) {
+
+                const idConta =
+                    Number(item.id_conta);
+
+                if (
+                    !produtosPorConta.has(
+                        idConta
+                    )
+                ) {
+                    produtosPorConta.set(
+                        idConta,
+                        []
+                    );
+                }
+
+                produtosPorConta
+                    .get(idConta)
+                    .push({
+                        id_produto:
+                            Number(
+                                item.id_produto
+                            ),
+
+                        nome:
+                            item.nome ||
+                            'Produto',
+
+                        quantidade:
+                            Number(
+                                item.quantidade ||
+                                0
+                            ),
+
+                        valor_unitario:
+                            Number(
+                                item.valor_unitario ||
+                                0
+                            )
+                    });
+            }
 
             for (const conta of dados) {
 
-                if (
-                    typeof conta.produtos ===
-                    'string'
-                ) {
+                conta.id_conta =
+                    Number(
+                        conta.id_conta
+                    );
 
-                    try {
+                conta.id_cliente =
+                    Number(
+                        conta.id_cliente
+                    );
 
-                        conta.produtos =
-                            JSON.parse(
-                                conta.produtos
-                            );
+                conta.valor_original =
+                    Number(
+                        conta.valor_original ||
+                        0
+                    );
 
-                    } catch {
+                conta.valor_final =
+                    Number(
+                        conta.valor_final ??
+                        conta.valor_original
+                    );
 
-                        conta.produtos = [];
-                    }
-                }
+                conta.dias_atraso =
+                    Number(
+                        conta.dias_atraso ||
+                        0
+                    );
 
                 conta.produtos =
-                    Array.isArray(
-                        conta.produtos
-                    )
-                        ? conta.produtos
-                            .filter(Boolean)
-                        : [];
+                    produtosPorConta.get(
+                        conta.id_conta
+                    ) || [];
             }
 
-            res.json(dados);
+            return res.json(dados);
 
         } catch (err) {
 
@@ -522,13 +557,12 @@ router.get(
                 err
             );
 
-            res.status(500).json({
+            return res.status(500).json({
                 erro: err.message
             });
         }
     }
 );
-
 // ======================================================
 // APLICAR JUROS MANUALMENTE
 // ======================================================

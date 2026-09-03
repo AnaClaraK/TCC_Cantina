@@ -1,678 +1,630 @@
-/* =========================================================
-STYLE CLIENTES FIADO
-========================================================= */
-
-.d_util{
-
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:20px;
-}
-
-#btn_novo_cliente{
-
-    height:55px;
-
-    padding:0 25px;
-
-    border:none;
-
-    border-radius:10px;
-
-    background:#efac4a;
-
-    color:#1c1c1c;
-
-    font-size:18px;
-
-    font-weight:bold;
-
-    cursor:pointer;
-}
-
-#btn_novo_cliente:hover{
-
-    filter:brightness(.95);
-}
-
-.btn-compra{
-
-    border:none;
-
-    background:#efac4a;
-
-    color:#1c1c1c;
-
-    padding:10px 18px;
-
-    border-radius:8px;
-
-    cursor:pointer;
-
-    font-weight:bold;
-}
-
-#modal_cliente,
-#modal_compra,
-#modal_produtos{
-
-    border-radius:16px;
-
-    padding:0;
-
-    background:#1c1c1c;
-
-    color:#f8c471;
-
-    width:600px;
-
-    max-width:95%;
-}
-
-#modal_cliente::backdrop,
-#modal_compra::backdrop,
-#modal_produtos::backdrop{
-
-    background:rgba(0,0,0,.8);
-}
-
-.modal_box{
-
-    padding:30px;
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:15px;
-
-    position:relative;
-}
-
-.modal_titulo{
-
-    text-align:center;
-
-    font-size:28px;
-}
-
-.inp_m{
-
-    height:50px;
-
-    border-radius:10px;
-
-    border:2px solid #efac4a;
-
-    background:#fed89d;
-
-    padding:0 12px;
-
-    font-size:18px;
-}
-
-#b_cadastrar,
-#abrir_modal_produtos,
-#salvar_produtos,
-.btn-form{
-
-    height:50px;
-
-    border:none;
-
-    border-radius:10px;
-
-    background:#efac4a;
-
-    color:#1c1c1c;
-
-    font-size:18px;
-
-    font-weight:bold;
-
-    cursor:pointer;
-}
-
-#fechar_modal_cliente,
-#fechar_modal_compra,
-#fechar_modal_produtos{
-
-    position:absolute;
-
-    right:15px;
-
-    top:10px;
-
-    border:none;
-
-    background:none;
-
-    color:#efac4a;
-
-    font-size:28px;
-
-    cursor:pointer;
-}
-
-#lista_produtos_modal{
-
-    list-style:none;
-
-    max-height:250px;
-
-    overflow-y:auto;
-
-    padding:0;
-}
-
-#lista_produtos_modal li{
-
-    background:#2b2b2b;
-
-    padding:12px;
-
-    border-radius:8px;
-
-    margin-bottom:8px;
-
-    cursor:pointer;
-}
-
-#lista_produtos_modal li:hover{
-
-    background:#efac4a;
-
-    color:#1c1c1c;
-}
-
-#produtos_selecionados,
-#preview_produtos{
-
-    display:flex;
-
-    flex-wrap:wrap;
-
-    gap:10px;
-}
-
-.tag-produto{
-
-    background:#efac4a;
-
-    color:#1c1c1c;
-
-    padding:8px 12px;
-
-    border-radius:20px;
-
-    font-weight:bold;
-}
-
-/* Modal concluir pagamento */
-#d_aviso{
-    border-radius: 12px;
-    padding: 0;
-    width: 500px;
-    border-width: 2px;
-
-}
-
-.aviso_box{
-    min-width: 350px;
-    max-width: 90vw;
-    padding: 25px;
-    border-radius: 12px;
-    overflow-x: hidden;
-}
-
-#msg_aviso{
-    width: 93%;
-}
-
-#msg_aviso input{
-    width: 100%;
-    margin-top: 10px;
-}
-
-#inp_origem_fiado{
-    width: 520px;
-    margin-left: 20px;
-}
-#modalConclusaoFiado {
-    border: none;
-    padding: 0;
-    background: transparent;
-}
-
-#modalConclusaoFiado::backdrop {
-    background: rgba(0, 0, 0, 0.65);
-}
-
-.modal-conclusao {
+/* CSS DO MODAL DE PAGAMENTO - CARTAO DE CREDITO */
+.modal-pagamento-credito {
     width: 420px;
-    max-width: 90vw;
+    max-width: 92%;
+    padding: 0;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    background: #1c1c1c;
+    color: #f8c471;
+    box-shadow: 0 10px 40px rgba(0,0,0,.65);
+}
 
-    background: #ffffff;
-    border-radius: 14px;
+.modal-pagamento-credito::backdrop {
+    background: rgba(0,0,0,.78);
+    backdrop-filter: blur(4px);
+}
 
-    padding: 28px;
-
+.conteudo-credito {
     position: relative;
-
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
-
-    font-family: Arial, sans-serif;
-}
-
-.modal-conclusao h3 {
-    margin: 0 0 24px;
-
-    font-size: 22px;
-    font-weight: 700;
-
-    color: #222;
-}
-
-.btn-fechar-conclusao {
-    position: absolute;
-
-    top: 12px;
-    right: 15px;
-
-    border: none;
-    background: transparent;
-
-    font-size: 26px;
-    color: #777;
-
-    cursor: pointer;
-}
-
-.btn-fechar-conclusao:hover {
-    color: #222;
-}
-
-.campo-conclusao {
+    padding: 28px;
     display: flex;
     flex-direction: column;
-
-    gap: 7px;
-
-    margin-bottom: 18px;
-}
-
-.campo-conclusao label {
-    font-size: 14px;
-    font-weight: 600;
-
-    color: #444;
-}
-
-.campo-conclusao input,
-.campo-conclusao select {
-    width: 100%;
+    gap: 18px;
     box-sizing: border-box;
-
-    height: 44px;
-
-    padding: 0 12px;
-
-    border: 1px solid #d4d4d4;
-    border-radius: 8px;
-
-    background: #fff;
-
-    font-size: 14px;
-
-    outline: none;
 }
 
-.campo-conclusao input:focus,
-.campo-conclusao select:focus {
-    border-color: #555;
+.conteudo-credito h2 {
+    margin: 0 35px 4px 0;
+    text-align: center;
+    color: #efac4a;
+    font-size: 20px;
 }
 
-.botoes-conclusao {
-    display: flex;
-    justify-content: flex-end;
-
-    gap: 10px;
-
-    margin-top: 25px;
-}
-
-.botoes-conclusao button {
-    height: 42px;
-
-    padding: 0 18px;
-
+.fechar-modal-pagamento {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
     border: none;
     border-radius: 8px;
-
-    font-size: 14px;
-    font-weight: 600;
-
+    background: #efac4a;
+    color: #1c1c1c;
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 1;
     cursor: pointer;
 }
 
-.btn-cancelar-conclusao {
-    background: #e8e8e8;
-    color: #333;
-}
-
-.btn-cancelar-conclusao:hover {
-    background: #dcdcdc;
-}
-
-.btn-confirmar-conclusao {
-    background: #222;
-    color: white;
-}
-
-.btn-confirmar-conclusao:hover {
-    background: #000;
-}
-/* ======================================================
-   MODAL DE JUROS
-====================================================== */
-
-.modal_juros_box {
-    width: min(950px, 95vw);
-    max-height: 90vh;
-    overflow-y: auto;
-}
-
-
-/* ======================================================
-   CONFIGURAÇÃO DOS JUROS
-====================================================== */
-
-.juros_config {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-top: 15px;
-    margin-bottom: 15px;
-}
-
-.juros_campo {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.juros_campo label {
-    font-weight: 600;
-}
-
-.campo_porcentagem {
+.credito-total,
+.credito-parcela {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 14px 16px;
+    border: 1px solid #efac4a;
+    border-radius: 10px;
+    background: #242424;
+}
+
+.credito-total strong {
+    color: #efac4a;
+    font-size: 22px;
+}
+
+.credito-parcela strong {
+    color: #efac4a;
+    font-size: 20px;
+}
+
+.credito-campo {
+    display: flex;
+    flex-direction: column;
     gap: 8px;
 }
 
-.campo_porcentagem .inp_m {
-    margin: 0;
-    flex: 1;
+.credito-campo label {
+    color: #efac4a;
+    font-size: 14px;
+    font-weight: bold;
 }
 
-.campo_porcentagem span {
-    font-size: 18px;
+.credito-campo select {
+    width: 100%;
+    height: 44px;
+    padding: 0 12px;
+    border: 2px solid #efac4a;
+    border-radius: 8px;
+    background: #242424;
+    color: #f8c471;
+    font-size: 16px;
+    outline: none;
+}
+
+.credito-campo select:focus {
+    border-color: #efac4a;
+    box-shadow: 0 0 0 2px rgba(239,172,74,.2);
+}
+
+.btn-confirmar-pagamento {
+    width: 100%;
+    min-height: 46px;
+    border: none;
+    border-radius: 9px;
+    background: #efac4a;
+    color: #1c1c1c;
+    font-size: 16px;
     font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-confirmar-pagamento:hover,
+.fechar-modal-pagamento:hover {
+    filter: brightness(1.08);
+}
+
+/* O cadeado só existe visualmente quando o pedido veio da comanda. */
+#b_desbloquear_pagamento {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    margin-bottom: 8px;
+    border: 1px solid #efac4a;
+    border-radius: 8px;
+    background: #1c1c1c;
+    color: #efac4a;
+    cursor: pointer;
 }
 
 
 /* ======================================================
-   LISTA DE CLIENTES
+   COMPATIBILIDADE COM CONTA_FIADO
 ====================================================== */
 
-#listaClientesJuros {
-    display: none;
-    list-style: none;
+#dialogCredito {
+    width: 420px;
+    max-width: 92vw;
     padding: 0;
-    margin: -8px 0 15px 0;
-    max-height: 180px;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    background: #1c1c1c;
+    color: #f8c471;
+    box-shadow: 0 10px 40px rgba(0,0,0,.65);
+}
+
+#dialogCredito::backdrop {
+    background: rgba(0,0,0,.78);
+    backdrop-filter: blur(4px);
+}
+
+#b_fechar_credito {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 20;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: #efac4a;
+    color: #1c1c1c;
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 34px;
+    cursor: pointer;
+}
+
+#b_fechar_credito:hover,
+#b_fechar_credito:focus-visible {
+    filter: brightness(1.08);
+    outline: none;
+}
+
+.conteudo-credito {
+    position: relative;
+}
+
+#dialogDinheiro {
+    z-index: 20000;
+}
+
+#dialogDinheiro::backdrop {
+    background: rgba(0,0,0,.78);
+    backdrop-filter: blur(4px);
+}
+
+#b_fechar_dinheiro {
+    z-index: 20;
+}
+
+#btnFecharConclusao,
+#btnFecharPagamento,
+#btnFecharSimulacaoJuros {
+    cursor: pointer;
+}
+
+#listaClientesJuros {
+    position: relative;
+    z-index: 10050;
+    width: 100%;
+    max-height: 220px;
     overflow-y: auto;
-    border-radius: 6px;
+    box-sizing: border-box;
 }
 
 #listaClientesJuros li {
-    padding: 10px 12px;
     cursor: pointer;
-    transition: 0.2s;
 }
 
+#listaClientesJuros li.cliente-ativo,
 #listaClientesJuros li:hover {
-    opacity: 0.8;
+    background: rgba(239,172,74,.18);
 }
 
 
-/* ======================================================
-   SELEÇÃO
-====================================================== */
+/*ARRUMAR ISSO DEPOIS*/
+/* ============================================================
+   AJUSTES ESPECÍFICOS DA PÁGINA CONTA FIADO
+   Carregado por último, sem substituir os CSS gerais do projeto.
+   ============================================================ */
 
-.juros_acoes_selecao {
-    display: flex;
-    gap: 10px;
-    margin: 15px 0;
-    flex-wrap: wrap;
+body.fundo-escuro {
+    overflow-x: hidden !important;
 }
 
-.juros_acoes_selecao button {
-    padding: 8px 14px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
+/* ---------- CABEÇALHO ---------- */
+body.fundo-escuro > .d_util {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    width: min(1400px, 94vw) !important;
+    margin: 24px auto !important;
+    padding: 0 !important;
+    float: none !important;
+    clear: both !important;
+    box-sizing: border-box !important;
 }
 
-
-/* ======================================================
-   LISTA DE CONTAS
-====================================================== */
-
-#listaContasJuros {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 15px;
-    max-height: 400px;
-    overflow-y: auto;
+body.fundo-escuro > .d_util .h_ag {
+    flex: 0 0 auto !important;
+    margin: 0 8px 0 0 !important;
+    float: none !important;
 }
 
-.conta_juros_item {
-    display: grid;
-    grid-template-columns: 35px 1fr;
-    gap: 12px;
-    padding: 14px;
-    border-radius: 8px;
-    border: 1px solid rgba(128, 128, 128, 0.3);
+body.fundo-escuro > .d_util > button,
+body.fundo-escuro > .d_util > a {
+    flex: 0 0 auto !important;
+    float: none !important;
+    position: static !important;
 }
 
-.conta_juros_check {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding-top: 4px;
+body.fundo-escuro > .d_util > #d_inp {
+    flex: 1 1 300px !important;
+    min-width: 260px !important;
+    margin-left: auto !important;
+    float: none !important;
+    position: static !important;
 }
 
-.checkbox-conta-juros {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
+body.fundo-escuro > .d_util #d_inp .busca-box {
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
-.conta_juros_info {
-    min-width: 0;
+/* ---------- ÁREA DAS TABELAS ---------- */
+body.fundo-escuro > #sc_tabela,
+#sc_tabela {
+    display: block !important;
+    position: relative !important;
+    float: none !important;
+    clear: both !important;
+    width: min(1400px, 94vw) !important;
+    max-width: min(1400px, 94vw) !important;
+    margin: 0 auto 48px !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
 }
 
-.conta_juros_titulo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
+#sc_tabela .titulo-contas {
+    display: block !important;
+    width: 100% !important;
+    clear: both !important;
+    float: none !important;
+    margin: 28px 0 12px !important;
+    padding: 0 !important;
 }
 
-.conta_juros_produtos {
-    margin-top: 6px;
-    opacity: 0.8;
+#sc_tabela table.tabela {
+    display: table !important;
+    width: 100% !important;
+    max-width: none !important;
+    table-layout: auto !important;
+    float: none !important;
+    clear: both !important;
+    margin: 0 0 30px !important;
+    box-sizing: border-box !important;
 }
 
-.conta_juros_detalhes {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-top: 10px;
-    font-size: 14px;
+#sc_tabela table.tabela thead,
+#sc_tabela table.tabela tbody,
+#sc_tabela table.tabela tr {
+    width: auto !important;
+    float: none !important;
 }
 
-.conta_juros_detalhes span {
-    display: inline-flex;
-    gap: 4px;
+#sc_tabela table.tabela th,
+#sc_tabela table.tabela td {
+    vertical-align: middle !important;
 }
 
-
-/* ======================================================
-   STATUS
-====================================================== */
-
-.badge-atrasada {
-    padding: 3px 8px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: bold;
+/* ---------- PRODUTOS NAS TABELAS ---------- */
+.produtos-resumo {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    align-items: center !important;
 }
 
-.badge-em-dia {
-    padding: 3px 8px;
-    border-radius: 20px;
-    font-size: 12px;
+.produto-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    max-width: 100% !important;
+    padding: 5px 9px !important;
+    border-radius: 999px !important;
+    line-height: 1.15 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
 }
 
-.status-vencida {
-    display: block;
-    margin-top: 3px;
+.produto-pill small {
+    opacity: .78 !important;
+    font-weight: 700 !important;
 }
 
-
-/* ======================================================
-   RESUMO DA SIMULAÇÃO
-====================================================== */
-
-.resumo_juros {
-    margin-top: 20px;
-    padding: 18px;
-    border-radius: 8px;
-    border: 1px solid rgba(128, 128, 128, 0.3);
+.vencimento-celula {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 7px !important;
+    white-space: nowrap !important;
 }
 
-.resumo_juros > div {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 7px 0;
+.dias-atraso {
+    display: inline-flex !important;
+    align-items: center !important;
+    min-height: 20px !important;
+    padding: 2px 7px !important;
+    border-radius: 999px !important;
+    font-size: .74rem !important;
+    font-weight: 700 !important;
+    opacity: .72 !important;
+    filter: grayscale(.85) !important;
 }
 
-.resumo_total {
-    margin-top: 8px;
-    padding-top: 12px !important;
-    border-top: 1px solid rgba(128, 128, 128, 0.3);
-    font-size: 18px;
+/* ---------- MODAL DE SIMULAÇÃO ---------- */
+#modalSimularJuros {
+    position: fixed !important;
+    inset: 0 !important;
+    width: min(940px, 94vw) !important;
+    max-width: min(940px, 94vw) !important;
+    height: auto !important;
+    max-height: 80vh !important;
+    margin: auto !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-sizing: border-box !important;
 }
 
-
-/* ======================================================
-   BOTÕES
-====================================================== */
-
-.juros_botoes {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    margin-top: 20px;
+#modalSimularJuros::backdrop {
+    background: rgba(0,0,0,.76) !important;
+    backdrop-filter: blur(2px) !important;
 }
 
-.juros_botoes button {
-    cursor: pointer;
+#modalSimularJuros .modal_juros_box {
+    position: relative !important;
+    width: 100% !important;
+    max-height: 80vh !important;
+    overflow-y: auto !important;
+    overflow-x: visible !important;
+    box-sizing: border-box !important;
+    padding: 24px 26px 20px !important;
+}
+
+#modalSimularJuros .modal_titulo {
+    margin: 0 42px 16px 0 !important;
+}
+
+#modalSimularJuros .campo-busca-cliente-juros {
+    position: relative !important;
+    width: 100% !important;
+    z-index: 100 !important;
+}
+
+#modalSimularJuros #buscaClienteJuros {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* dropdown sobre o conteúdo: não aumenta a altura do modal */
+#modalSimularJuros #listaClientesJuros {
+    position: absolute !important;
+    top: calc(100% + 5px) !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-height: 220px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-y: auto !important;
+    display: none !important;
+    list-style: none !important;
+    z-index: 99999 !important;
+    box-sizing: border-box !important;
+    border-radius: 9px !important;
+    box-shadow: 0 14px 32px rgba(0,0,0,.55) !important;
+}
+
+#modalSimularJuros #listaClientesJuros li {
+    margin: 0 !important;
+    padding: 10px 13px !important;
+    cursor: pointer !important;
+    border-bottom: 1px solid rgba(255,255,255,.06) !important;
+}
+
+#modalSimularJuros #listaClientesJuros li:last-child {
+    border-bottom: 0 !important;
+}
+
+#modalSimularJuros #listaClientesJuros li:hover,
+#modalSimularJuros #listaClientesJuros li.cliente-ativo {
+    background: rgba(239,172,74,.16) !important;
+}
+
+#modalSimularJuros .juros_config {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 14px !important;
+    align-items: end !important;
+    margin-top: 12px !important;
+}
+
+#modalSimularJuros .juros_campo {
+    min-width: 0 !important;
+}
+
+#modalSimularJuros .juros_campo .inp_m,
+#modalSimularJuros .campo_porcentagem .inp_m {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+#modalSimularJuros .campo_porcentagem {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+#modalSimularJuros #listaContasJuros {
+    max-height: 245px !important;
+    overflow-y: auto !important;
+    margin-top: 12px !important;
+    padding: 4px 2px !important;
+    box-sizing: border-box !important;
+}
+
+#modalSimularJuros .conta_juros_item {
+    display: grid !important;
+    grid-template-columns: 28px minmax(0, 1fr) !important;
+    gap: 12px !important;
+    align-items: start !important;
+    margin: 0 0 10px !important;
+    padding: 12px !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+}
+
+#modalSimularJuros .conta_juros_check {
+    padding-top: 3px !important;
+}
+
+#modalSimularJuros .conta_juros_info {
+    min-width: 0 !important;
+}
+
+#modalSimularJuros .conta_juros_titulo {
+    margin-bottom: 7px !important;
+}
+
+#modalSimularJuros .conta_juros_produtos_lista {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+    gap: 7px !important;
+    margin-top: 7px !important;
+}
+
+.conta-juros-produto-card {
+    min-width: 0 !important;
+    padding: 8px 10px !important;
+    border-radius: 9px !important;
+    box-sizing: border-box !important;
+}
+
+.produto-card-nome {
+    font-weight: 700 !important;
+    overflow-wrap: anywhere !important;
+}
+
+.produto-card-meta {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 7px !important;
+    margin-top: 4px !important;
+    font-size: .78rem !important;
+    opacity: .75 !important;
+}
+
+#modalSimularJuros .conta_juros_detalhes {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px 18px !important;
+    margin-top: 10px !important;
+    font-size: .84rem !important;
+}
+
+.atraso-inline {
+    margin-left: 6px !important;
+    font-style: normal !important;
+    font-size: .76rem !important;
+    opacity: .72 !important;
+    filter: grayscale(.8) !important;
+}
+
+#modalSimularJuros .resumo_juros {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    margin-top: 12px !important;
+}
+
+#modalSimularJuros .resumo_juros > div {
+    padding: 10px 12px !important;
+    border-radius: 10px !important;
+    box-sizing: border-box !important;
+}
+
+#modalSimularJuros .juros_escolha_hint {
+    margin: 12px 0 6px !important;
+    font-size: .86rem !important;
+    opacity: .76 !important;
+}
+
+#modalSimularJuros .juros_botoes {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    margin-top: 8px !important;
+}
+
+#modalSimularJuros .juros_botoes button {
+    min-height: 40px !important;
 }
 
 #btnAplicarJuros:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+    opacity: .45 !important;
+    cursor: not-allowed !important;
 }
 
-
-/* ======================================================
-   MENSAGENS
-====================================================== */
-
-.juros_vazio,
-.juros_carregando {
-    text-align: center;
-    padding: 25px;
-    opacity: 0.7;
+/* ---------- TABELA DE RESUMO ---------- */
+#tabelaJurosCliente .valor-juros {
+    font-weight: 700 !important;
 }
 
+#tabelaJurosCliente .valor-total-juros {
+    font-weight: 800 !important;
+}
 
-/* ======================================================
-   RESPONSIVO
-====================================================== */
+/* ---------- MODAIS DE PAGAMENTO (somente posicionamento) ---------- */
+#dialogDinheiro,
+#dialogCredito,
+#modalConclusaoFiado {
+    position: fixed !important;
+    margin: auto !important;
+    z-index: 20000 !important;
+}
 
-@media (max-width: 700px) {
+#dialogDinheiro::backdrop,
+#dialogCredito::backdrop,
+#modalConclusaoFiado::backdrop {
+    background: rgba(0,0,0,.78) !important;
+}
 
-    .modal_juros_box {
-        width: 94vw;
+/* ---------- RESPONSIVO ---------- */
+@media (max-width: 760px) {
+    body.fundo-escuro > .d_util {
+        align-items: stretch !important;
     }
 
-    .juros_config {
-        grid-template-columns: 1fr;
+    body.fundo-escuro > .d_util > #d_inp {
+        flex-basis: 100% !important;
+        margin-left: 0 !important;
     }
 
-    .conta_juros_detalhes {
-        flex-direction: column;
-        gap: 5px;
+    #modalSimularJuros {
+        width: 96vw !important;
+        max-width: 96vw !important;
+        max-height: 86vh !important;
     }
 
-    .juros_botoes {
-        flex-direction: column;
+    #modalSimularJuros .modal_juros_box {
+        max-height: 86vh !important;
+        padding: 20px 16px 16px !important;
     }
 
-    .juros_botoes button {
-        width: 100%;
+    #modalSimularJuros .juros_config,
+    #modalSimularJuros .resumo_juros {
+        grid-template-columns: 1fr !important;
     }
-}
-/* ======================================================
-   PRODUTOS DAS CONTAS DE JUROS
-   ====================================================== */
-
-.conta_juros_produtos_lista {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-top: 8px;
-}
-
-.conta_juros_produto {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 10px;
-    border-radius: 6px;
-    background: #f5f5f5;
-}
-
-.conta_juros_produto .produto_nome {
-    flex: 1;
-    font-weight: 600;
-}
-
-.conta_juros_produto .produto_quantidade {
-    font-size: 13px;
-    opacity: 0.75;
-}
-
-.conta_juros_produto .produto_valor {
-    font-weight: 600;
-    white-space: nowrap;
 }
