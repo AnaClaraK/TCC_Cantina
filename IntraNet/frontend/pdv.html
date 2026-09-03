@@ -114,7 +114,7 @@
                     <h2 class="label-pagamento">Forma de Pagamento</h2> 
                     <div class="area_pagamento">
                         <!-- Só aparece quando a venda veio do APP -->
-        <button type="button" id="b_desbloquear_pagamento" title="Desbloquear forma de pagamento">🔒</button>
+        <button type="button" id="b_desbloquear_pagamento" title="Desbloquear forma de pagamento" style="display: none;">🔒</button>
                         <button class="pagamento" id="pg_dinheiro">Dinheiro (F2)</button>
                         <button class="pagamento" id="pg_credito">Cartão de Crédito (F3)</button>
                         <button class="pagamento" id="pg_debito">Cartão de Débito (F4)</button>
@@ -145,6 +145,7 @@
 </div>
 <dialog id="d_fiado">
     <div class="modal_titulo">
+        <button type="button" id="b_fechar_fiado" aria-label="Fechar modal" class="fechar-modal-pagamento" onclick="document.getElementById('d_fiado').close();">×</button>
         <h2>Venda Fiado</h2>
         <select id="sl_cliente" class="inp_m"></select>
         <input
@@ -233,7 +234,7 @@
 
 <dialog id="dialogCredito" class="modal-pagamento-credito">
     <div class="conteudo-credito">
-        <button type="button" id="b_fechar_credito" class="fechar-modal-pagamento">×</button>
+        <button type="button" id="b_fechar_credito" class="fechar-modal-pagamento" onclick="document.getElementById('dialogCredito').close();">×</button>
         <h2>PAGAMENTO NO CARTÃO DE CRÉDITO</h2>
         <div class="credito-total"><span>Total da compra</span><strong id="lbl_credito_total">R$ 0,00</strong></div>
         <div class="credito-campo">
@@ -488,19 +489,20 @@ function atualizarBloqueioPagamento() {
     const botaoDesbloquear =
         document.getElementById("b_desbloquear_pagamento");
 
+    // O bloqueio só existe quando uma COMANDA DO APP
+    // foi carregada e realmente trouxe uma forma de pagamento.
     const bloqueado =
         comandaAtual !== null &&
-        pagamentoComandaBloqueado === true;
+        pagamentoComandaBloqueado === true &&
+        normalizarFormaPagamento(formaPagamentoComanda) !== "";
 
-    // Bloqueia/desbloqueia os pagamentos
     botoesPagamento.forEach(botao => {
         botao.disabled = bloqueado;
     });
 
-    // O botão de desbloqueio só existe visualmente
-    // quando há uma COMANDA DO APP bloqueada
+    // Venda normal do PDV: botão fica escondido.
+    // Comanda APP bloqueada: mostra o cadeado.
     if (botaoDesbloquear) {
-
         botaoDesbloquear.style.display =
             bloqueado ? "block" : "none";
 
@@ -508,6 +510,7 @@ function atualizarBloqueioPagamento() {
             bloqueado ? "🔒" : "";
     }
 }
+
 function normalizarFormaPagamento(valor) {
     return String(valor || "")
         .normalize("NFD")
@@ -2380,6 +2383,9 @@ const lblTroco = document.getElementById("lbl_troco");
 const bConfirmarDinheiro = document.getElementById("b_confirmar_dinheiro");
 const bFecharDinheiro = document.getElementById("b_fechar_dinheiro");
 
+const dialogFiado = document.getElementById("d_fiado");
+const bFecharFiado = document.getElementById("b_fechar_fiado");
+
 const dialogCredito = document.getElementById("dialogCredito");
 const selParcelasCredito = document.getElementById("sel_parcelas_credito");
 const lblCreditoTotal = document.getElementById("lbl_credito_total");
@@ -2535,31 +2541,6 @@ if (bConfirmarDinheiro) {
 
 }
 
-pgDinheiroBtn.addEventListener("click", () => {
-
-    if (comandaAtual && pagamentoComandaBloqueado) {
-        atualizarSelecaoPagamento(formaPagamentoComanda);
-        atualizarFormaPagamentoFinal(formaPagamentoComanda);
-        return;
-    }
-
-    formaPagamento = "Dinheiro";
-
-    const totalReal = carrinho.reduce(
-        (soma, item) => soma + (item.preco * item.qtd),
-        0
-    );
-
-    lblDinheiroTotal.innerText =
-        "R$ " + formatar(totalReal);
-
-    inpValorPago.value = "";
-    lblTroco.innerText = "R$ 0,00";
-
-    dialogDinheiro.showModal();
-
-    setTimeout(() => inpValorPago.focus(), 100);
-});
 // =====================================================
 // CARTÃO DE CRÉDITO
 // =====================================================
@@ -2692,6 +2673,36 @@ if (dialogCredito) {
         event.preventDefault();
 
         dialogCredito.close();
+
+        voltarFoco();
+
+    });
+
+}
+
+// =====================================================
+// FIADO
+// =====================================================
+
+if (bFecharFiado && dialogFiado) {
+
+    bFecharFiado.addEventListener("click", () => {
+
+        dialogFiado.close();
+
+        voltarFoco();
+
+    });
+
+}
+
+if (dialogFiado) {
+
+    dialogFiado.addEventListener("cancel", (event) => {
+
+        event.preventDefault();
+
+        dialogFiado.close();
 
         voltarFoco();
 

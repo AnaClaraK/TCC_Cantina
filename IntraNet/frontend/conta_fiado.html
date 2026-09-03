@@ -91,42 +91,14 @@
 
 </div>
 
-
-
-<!-- ======================================================
-     TABELA
-====================================================== -->
-
-<section
-    id="sc_tabela"
-    class="container mt-5"
->
-
-
-    <div class="acoes-topo-fiado">
-
-        <button
-            id="btnSimularSelecionados"
-            class="btn-fiado btn-juros"
-            type="button"
-            disabled
-        >
-            Simular juros dos selecionados
-        </button>
-
-    </div>
-
-
     <h2 class="titulo-contas">
-        Contas fiado
+        Contas sem Juros
     </h2>
-
-
 
     <!-- ==================================================
          CONTAS SEM JUROS
     ================================================== -->
-    <h1>Compras Em dia</h1>
+
     <table
         class="tabela"
         id="tabelaSemJuros"
@@ -177,12 +149,14 @@
 
     </table>
 
-
+    <h2 class="titulo-contas">
+        Contas com Juros
+    </h2>
 
     <!-- ==================================================
          CONTAS COM JUROS
     ================================================== -->
-    <h1>Compras Atrasadas</h1>
+
     <table
         class="tabela"
         id="tabelaComJuros"
@@ -1473,17 +1447,14 @@ document.addEventListener("DOMContentLoaded", () => {
 // SELECIONAR CLIENTE PARA JUROS
 // ======================================================
 
-a// ======================================================
-// SELECIONAR CLIENTE PARA JUROS
-// ======================================================
-
 async function selecionarClienteJuros(cliente) {
 
     if (!cliente) {
         return;
     }
 
-    clienteSelecionadoJuros = cliente;
+    clienteSelecionadoJuros =
+        cliente;
 
     buscaClienteJuros.value =
         cliente.nome_completo || "";
@@ -1498,11 +1469,148 @@ async function selecionarClienteJuros(cliente) {
 
     contasClienteJuros = [];
 
-    limparResultadoSimulacao();
-
     await carregarContasClienteJuros();
 }
 
+async function carregarProdutosPendentesCliente(idCliente) {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        redirecionarLogin("Sua sessão expirou. Faça login novamente.");
+        return;
+    }
+
+    try {
+        const res = await fetch(
+            "http://localhost:3000/contas-fiado",
+            {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            }
+        );
+
+        if (res.status === 401 || res.status === 403) {
+            redirecionarLogin(
+                "Sessão expirada. Faça login novamente."
+            );
+            return;
+        }
+
+        const dados = await res.json();
+
+        if (!res.ok) {
+            console.error(
+                "Erro ao carregar contas fiado:",
+                dados
+            );
+
+            exibirAviso(
+                dados.erro ||
+                "Erro ao carregar os produtos pendentes do cliente."
+            );
+
+            return;
+        }
+
+        if (!Array.isArray(dados)) {
+            console.error(
+                "Resposta inválida do backend:",
+                dados
+            );
+
+            return;
+        }
+
+        const idClienteNumero = Number(idCliente);
+
+        // Pega somente as contas desse cliente
+        const contasCliente = dados.filter(conta =>
+            Number(conta.id_cliente) === idClienteNumero
+        );
+
+        // Junta todos os produtos pendentes das contas do cliente
+        const produtosPendentes = [];
+
+        contasCliente.forEach(conta => {
+            if (!Array.isArray(conta.itens)) {
+                return;
+            }
+
+            conta.itens.forEach(item => {
+                produtosPendentes.push({
+                    id_conta: Number(conta.id_conta),
+                    id_produto: Number(item.id_produto),
+                    nome: item.nome,
+                    qtd: Number(item.qtd || 0),
+                    valor_unit: Number(item.valor_unit || 0),
+                    valor_base: Number(item.valor_base || 0),
+                    valor_atual: Number(item.valor_atual || 0),
+                    juros_ativo: Number(item.juros_ativo || 0),
+                    tipo_juros: item.tipo_juros || null,
+                    taxa_juros:
+                        item.taxa_juros !== null &&
+                        item.taxa_juros !== undefined
+                            ? Number(item.taxa_juros)
+                            : null,
+                    data_inicio_juros:
+                        item.data_inicio_juros || null,
+                    dias_atraso:
+                        Number(item.dias_atraso || 0)
+                });
+            });
+        });
+
+        console.log(
+            "CLIENTE SELECIONADO:",
+            clienteSelecionado
+        );
+
+        console.log(
+            "CONTAS DO CLIENTE:",
+            contasCliente
+        );
+
+        console.log(
+            "PRODUTOS PENDENTES DO CLIENTE:",
+            produtosPendentes
+        );
+
+        // Guarda para o restante do sistema usar
+        clienteSelecionado.contas = contasCliente;
+        clienteSelecionado.produtosPendentes =
+            produtosPendentes;
+
+        /*
+         * Se existir uma área específica para mostrar
+         * os produtos pendentes do cliente, renderiza aqui.
+         *
+         * Se essa área ainda não existir, não quebra o sistema.
+         */
+        const areaPendentes =
+            document.getElementById(
+                "produtos_pendentes_cliente"
+            );
+
+        if (areaPendentes) {
+            renderProdutosPendentesCliente(
+                produtosPendentes,
+                areaPendentes
+            );
+        }
+
+    } catch (erro) {
+        console.error(
+            "Erro ao carregar produtos pendentes do cliente:",
+            erro
+        );
+
+        exibirAviso(
+            "Erro de conexão ao carregar os produtos do cliente."
+        );
+    }
+}
 function renderProdutosPendentesCliente(
     produtos,
     area
@@ -2960,194 +3068,134 @@ async function carregarContasClienteJuros() {
        CARREGAR TODAS AS CONTAS ABERTAS DO CLIENTE
     ------------------------------------------------------ */
 
-    // ======================================================
-// CARREGAR TODAS AS CONTAS ABERTAS DO CLIENTE
-// COM TODOS OS PRODUTOS
-// ======================================================
-
-async function carregarContasClienteJuros() {
-
-    if (!clienteSelecionadoJuros) {
-        return;
-    }
-
-    listaContasJuros.innerHTML = `
-        <p class="juros_carregando">
-            Carregando contas e produtos...
-        </p>
-    `;
-
-    resumoSimulacaoJuros.style.display =
-        "none";
-
-    btnAplicarJuros.disabled =
-        true;
-
-    simulacaoJurosAtual =
-        null;
-
-    try {
-
-        const token =
-            obterToken();
-
-        if (!token) {
-
-            redirecionarLogin(
-                "Sessão expirada. Faça login novamente."
-            );
-
-            return;
-        }
-
-
-        const idCliente =
-            Number(
-                clienteSelecionadoJuros.id_cliente
-            );
-
-
-        if (!idCliente) {
-
-            listaContasJuros.innerHTML = `
-                <p class="juros_vazio">
-                    Cliente inválido.
-                </p>
-            `;
-
-            return;
-        }
-
-
-        // ==================================================
-        // BUSCA TODAS AS CONTAS + TODOS OS PRODUTOS
-        // ==================================================
-
-        const res = await fetch(
-            `http://localhost:3000/contas-fiado/cliente/${idCliente}`,
-            {
-                method: "GET",
-
-                headers: {
-                    "Authorization":
-                        `Bearer ${token}`
-                }
-            }
-        );
-
+    async function carregarContasClienteJuros() {
 
         if (
-            res.status === 401 ||
-            res.status === 403
+            !clienteSelecionadoJuros
         ) {
 
-            fecharModalJuros();
-
-            redirecionarLogin(
-                "Sessão expirada. Faça login novamente."
-            );
-
             return;
         }
-
-
-        let dados = {};
-
-        try {
-            dados = await res.json();
-        } catch (e) {
-            dados = {};
-        }
-
-
-        if (!res.ok) {
-
-            listaContasJuros.innerHTML = `
-                <p class="juros_vazio">
-                    ${
-                        dados.erro ||
-                        "Erro ao carregar as contas."
-                    }
-                </p>
-            `;
-
-            return;
-        }
-
-
-        if (!Array.isArray(dados)) {
-
-            console.error(
-                "Resposta inválida do backend:",
-                dados
-            );
-
-            listaContasJuros.innerHTML = `
-                <p class="juros_vazio">
-                    Resposta inválida do servidor.
-                </p>
-            `;
-
-            return;
-        }
-
-
-        // ==================================================
-        // GARANTE QUE TODAS AS CONTAS TENHAM ARRAY PRODUTOS
-        // ==================================================
-
-        contasClienteJuros =
-            dados.map(conta => ({
-
-                ...conta,
-
-                id_conta:
-                    Number(
-                        conta.id_conta ??
-                        conta.id
-                    ),
-
-                valor_original:
-                    Number(
-                        conta.valor_original ??
-                        conta.valor ??
-                        0
-                    ),
-
-                valor_final:
-                    Number(
-                        conta.valor_final ??
-                        conta.valor_original ??
-                        conta.valor ??
-                        0
-                    ),
-
-                produtos:
-                    Array.isArray(
-                        conta.produtos
-                    )
-                        ? conta.produtos
-                        : []
-
-            }));
-
-
-        renderizarContasClienteJuros();
-
-    } catch (err) {
-
-        console.error(
-            "Erro ao carregar contas do cliente:",
-            err
-        );
 
         listaContasJuros.innerHTML = `
-            <p class="juros_vazio">
-                Erro de conexão com o servidor.
+            <p class="juros_carregando">
+                Carregando contas...
             </p>
         `;
+
+        resumoSimulacaoJuros.style.display =
+            "none";
+
+        btnAplicarJuros.disabled =
+            true;
+
+        simulacaoJurosAtual =
+            null;
+
+        try {
+
+            const token =
+                obterToken();
+
+            /*
+             * O backend deve devolver as contas
+             * abertas daquele cliente.
+             *
+             * Endpoint:
+             * GET /contas-fiado/cliente/:id
+             */
+
+            const res =
+                await fetch(
+                    `http://localhost:3000/contas-fiado/cliente/${clienteSelecionadoJuros.id_cliente}`,
+                    {
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`
+                        }
+                    }
+                );
+
+            if (
+                res.status === 401 ||
+                res.status === 403
+            ) {
+
+                redirecionarLogin(
+                    "Sessão expirada. Faça login novamente."
+                );
+
+                return;
+            }
+
+            let dados = [];
+
+            try {
+                dados =
+                    await res.json();
+            } catch (e) {}
+
+            if (!res.ok) {
+
+                listaContasJuros.innerHTML = `
+                    <p class="juros_vazio">
+                        ${
+                            dados.erro ||
+                            "Erro ao carregar as contas."
+                        }
+                    </p>
+                `;
+
+                return;
+            }
+
+            if (!Array.isArray(dados)) {
+
+                listaContasJuros.innerHTML = `
+                    <p class="juros_vazio">
+                        Nenhuma conta encontrada.
+                    </p>
+                `;
+
+                return;
+            }
+
+            /*
+             * Somente contas abertas.
+             */
+
+            contasClienteJuros =
+                dados.filter(
+                    conta =>
+                        ![
+                            "finalizado",
+                            "concluido",
+                            "pago"
+                        ].includes(
+                            String(
+                                conta.status || ""
+                            )
+                            .trim()
+                            .toLowerCase()
+                        )
+                );
+
+            renderizarContasClienteJuros();
+
+        } catch (err) {
+
+            console.error(
+                "Erro ao carregar contas do cliente:",
+                err
+            );
+
+            listaContasJuros.innerHTML = `
+                <p class="juros_vazio">
+                    Erro de conexão com o servidor.
+                </p>
+            `;
+        }
     }
-}
 
 
     /* ------------------------------------------------------
@@ -3158,14 +3206,9 @@ async function carregarContasClienteJuros() {
 // RENDERIZAR CONTAS E TODOS OS PRODUTOS
 // ======================================================
 
-f// ======================================================
-// RENDERIZAR CONTAS E TODOS OS PRODUTOS
-// ======================================================
-
 function renderizarContasClienteJuros() {
 
     listaContasJuros.innerHTML = "";
-
 
     if (
         !Array.isArray(contasClienteJuros) ||
@@ -3181,15 +3224,11 @@ function renderizarContasClienteJuros() {
         return;
     }
 
-
     contasClienteJuros.forEach(conta => {
 
         const idConta =
-            Number(
-                conta.id_conta ??
-                conta.id
-            );
-
+            conta.id_conta ||
+            conta.id;
 
         const valorOriginal =
             Number(
@@ -3198,13 +3237,11 @@ function renderizarContasClienteJuros() {
                 0
             );
 
-
         const valorFinal =
             Number(
                 conta.valor_final ??
                 valorOriginal
             );
-
 
         const diasAtraso =
             Number(
@@ -3215,74 +3252,52 @@ function renderizarContasClienteJuros() {
                 0
             );
 
-
         const vencida =
             diasAtraso > 0;
 
-
         const produtos =
-            Array.isArray(
-                conta.produtos
-            )
+            Array.isArray(conta.produtos)
                 ? conta.produtos
                 : [];
 
+        const div =
+            document.createElement("div");
 
-        // ==================================================
-        // MONTA LISTA DE PRODUTOS
-        // ==================================================
+        div.className =
+            "conta_juros_item";
+
+        div.dataset.idConta =
+            idConta;
+
+        // --------------------------------------------------
+        // PRODUTOS
+        // --------------------------------------------------
 
         let produtosHTML = "";
-
 
         if (produtos.length > 0) {
 
             produtosHTML = `
                 <div class="conta_juros_produtos_lista">
+                    ${produtos.map(produto => `
+                        <div class="conta_juros_produto">
+                            
+                            <span class="produto_nome">
+                                ${produto.nome}
+                            </span>
 
-                    ${produtos.map(produto => {
+                            <span class="produto_quantidade">
+                                Qtd: ${produto.quantidade}
+                            </span>
 
-                        const nome =
-                            produto.nome ||
-                            "Produto não informado";
+                            <span class="produto_valor">
+                                R$ ${formatarMoeda(
+                                    produto.valor_unitario
+                                )}
+                            </span>
 
-                        const quantidade =
-                            Number(
-                                produto.quantidade ??
-                                produto.qtd ??
-                                0
-                            );
-
-                        const valorUnitario =
-                            Number(
-                                produto.valor_unitario ??
-                                produto.valor_unit ??
-                                0
-                            );
-
-
-                        return `
-                            <div class="conta_juros_produto">
-
-                                <span class="produto_nome">
-                                    ${nome}
-                                </span>
-
-                                <span class="produto_quantidade">
-                                    Qtd: ${quantidade}
-                                </span>
-
-                                <span class="produto_valor">
-                                    R$ ${formatarMoeda(
-                                        valorUnitario
-                                    )}
-                                </span>
-
-                            </div>
-                        `;
-
-                    }).join("")}
-
+                        </div>
+                    `).join("")}
                 </div>
             `;
 
@@ -3295,20 +3310,9 @@ function renderizarContasClienteJuros() {
             `;
         }
 
-
-        // ==================================================
-        // CRIA CONTAINER DA CONTA
-        // ==================================================
-
-        const div =
-            document.createElement("div");
-
-        div.className =
-            "conta_juros_item";
-
-        div.dataset.idConta =
-            idConta;
-
+        // --------------------------------------------------
+        // CONTA
+        // --------------------------------------------------
 
         div.innerHTML = `
 
@@ -3323,7 +3327,6 @@ function renderizarContasClienteJuros() {
 
             </div>
 
-
             <div class="conta_juros_info">
 
                 <div class="conta_juros_titulo">
@@ -3334,7 +3337,6 @@ function renderizarContasClienteJuros() {
 
                     ${
                         vencida
-
                             ? `
                                 <span class="badge-atrasada">
                                     ${diasAtraso}
@@ -3346,7 +3348,6 @@ function renderizarContasClienteJuros() {
                                     de atraso
                                 </span>
                             `
-
                             : `
                                 <span class="badge-em-dia">
                                     Em dia
@@ -3357,13 +3358,21 @@ function renderizarContasClienteJuros() {
                 </div>
 
 
-                <!-- TODOS OS PRODUTOS -->
-                ${produtosHTML}
+                <div class="conta_juros_produtos">
+
+                    <strong>
+                        Produtos:
+                    </strong>
+
+                    ${produtosHTML}
+
+                </div>
 
 
                 <div class="conta_juros_detalhes">
 
                     <span>
+
                         Vencimento:
 
                         <strong>
@@ -3373,11 +3382,13 @@ function renderizarContasClienteJuros() {
                                 )
                             }
                         </strong>
+
                     </span>
 
 
                     <span>
-                        Valor:
+
+                        Valor original:
 
                         <strong>
                             R$
@@ -3385,13 +3396,36 @@ function renderizarContasClienteJuros() {
                                 valorOriginal
                             )}
                         </strong>
+
                     </span>
 
 
+                    ${
+                        vencida
+                            ? `
+                                <span>
+
+                                    Valor atual:
+
+                                    <strong>
+                                        R$
+                                        ${formatarMoeda(
+                                            valorFinal
+                                        )}
+                                    </strong>
+
+                                </span>
+                            `
+                            : ""
+                    }
+
+
                     <span>
+
                         Atraso:
 
                         <strong>
+
                             ${diasAtraso}
 
                             ${
@@ -3399,7 +3433,9 @@ function renderizarContasClienteJuros() {
                                     ? "dia"
                                     : "dias"
                             }
+
                         </strong>
+
                     </span>
 
                 </div>
@@ -3407,15 +3443,12 @@ function renderizarContasClienteJuros() {
             </div>
         `;
 
-
         listaContasJuros.appendChild(div);
-
     });
 
-
-    // ==================================================
+    // --------------------------------------------------
     // EVENTOS DOS CHECKBOXES
-    // ==================================================
+    // --------------------------------------------------
 
     document
         .querySelectorAll(
@@ -3434,6 +3467,53 @@ function renderizarContasClienteJuros() {
 
         });
 }
+
+    /* ------------------------------------------------------
+       SELECIONAR TODOS
+    ------------------------------------------------------ */
+
+    btnSelecionarTodosJuros.onclick =
+        () => {
+
+            document
+                .querySelectorAll(
+                    ".checkbox-conta-juros"
+                )
+                .forEach(
+                    checkbox => {
+                        checkbox.checked = true;
+                    }
+                );
+
+            limparResultadoSimulacao();
+        };
+
+
+    /* ------------------------------------------------------
+       DESMARCAR TODOS
+    ------------------------------------------------------ */
+
+    btnDesmarcarTodosJuros.onclick =
+        () => {
+
+            document
+                .querySelectorAll(
+                    ".checkbox-conta-juros"
+                )
+                .forEach(
+                    checkbox => {
+                        checkbox.checked = false;
+                    }
+                );
+
+            limparResultadoSimulacao();
+        };
+
+
+    /* ------------------------------------------------------
+       OBTER CONTAS SELECIONADAS
+    ------------------------------------------------------ */
+
     // ======================================================
 // OBTER CONTAS SELECIONADAS
 // ======================================================
@@ -4531,6 +4611,17 @@ function obterContasSelecionadasJuros() {
     ====================================================== */
 
     preencherDataAtual();
+
+    // ======================================================
+    // INICIALIZAÇÃO SEGURA
+    // ======================================================
+    // Se o token não existir, não tenta carregar dados.
+    // Isso evita chamadas inválidas e deixa a página redirecionar
+    // para o login pelo fluxo já existente.
+    if (!obterToken()) {
+        redirecionarLogin("Sessão expirada. Faça login novamente.");
+        return;
+    }
 
     carregarContasFiado();
 
