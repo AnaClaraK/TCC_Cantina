@@ -491,63 +491,21 @@ function atualizarBloqueioPagamento() {
         comandaAtual !== null &&
         pagamentoComandaBloqueado === true;
 
-    // =====================================================
-    // BLOQUEIA/DESBLOQUEIA OS PAGAMENTOS
-    // =====================================================
+    // Bloqueia/desbloqueia os pagamentos
     botoesPagamento.forEach(botao => {
-    botao.addEventListener("click", () => {
-
-        // =====================================================
-        // COMANDA DO APP BLOQUEADA
-        // NÃO PERMITE ALTERAR O PAGAMENTO
-        // =====================================================
-        if (
-            comandaAtual &&
-            pagamentoComandaBloqueado &&
-            !pagamentoComandaDesbloqueado
-        ) {
-            console.log(
-                "Forma de pagamento bloqueada:",
-                formaPagamentoComanda
-            );
-
-            return;
-        }
-
-        // =====================================================
-        // ALTERA A SELEÇÃO VISUAL
-        // =====================================================
-        botoesPagamento.forEach(b => {
-            b.classList.remove("selecionado");
-        });
-
-        botao.classList.add("selecionado");
-
-        // =====================================================
-        // SALVA SOMENTE O NOME DA FORMA DE PAGAMENTO
-        // =====================================================
-        formaPagamento =
-            botao.innerText
-                .replace(/\s*\(F\d+\)\s*/gi, "")
-                .trim();
-
-        console.log(
-            "Forma de pagamento selecionada:",
-            formaPagamento
-        );
+        botao.disabled = bloqueado;
     });
-});
 
-    // =====================================================
-    // BOTÃO DE DESBLOQUEIO
-    // SÓ EXISTE VISUALMENTE EM COMANDA BLOQUEADA
-    // =====================================================
+    // O botão de desbloqueio só existe visualmente
+    // quando há uma COMANDA DO APP bloqueada
     if (botaoDesbloquear) {
-    botaoDesbloquear.style.display =
-        (comandaAtual && pagamentoComandaBloqueado)
-            ? "block"
-            : "none";
-}
+
+        botaoDesbloquear.style.display =
+            bloqueado ? "block" : "none";
+
+        botaoDesbloquear.innerText =
+            bloqueado ? "🔒" : "";
+    }
 }
 function normalizarFormaPagamento(valor) {
     return String(valor || "")
@@ -1003,48 +961,127 @@ document.querySelectorAll(".pagamento").forEach(botao => {
     botao.addEventListener("click", () => {
 
         // =====================================================
-        // NUNCA permite alterar pagamento de comanda bloqueada
+        // 1. COMANDA DO APP BLOQUEADA
         // =====================================================
-        if (comandaAtual && pagamentoComandaBloqueado) {
+
+        if (
+            comandaAtual &&
+            pagamentoComandaBloqueado &&
+            !pagamentoComandaDesbloqueado
+        ) {
             console.log(
                 "Pagamento bloqueado. Mantendo:",
                 formaPagamentoComanda
             );
 
-            // Restaura visualmente a forma original
-            atualizarSelecaoPagamento(formaPagamentoComanda);
-            atualizarFormaPagamentoFinal(formaPagamentoComanda);
+            atualizarSelecaoPagamento(
+                formaPagamentoComanda
+            );
+
+            atualizarFormaPagamentoFinal(
+                formaPagamentoComanda
+            );
 
             return;
         }
 
         // =====================================================
-        // LIMPA A SELEÇÃO ANTERIOR
+        // 2. IDENTIFICA A FORMA DE PAGAMENTO
         // =====================================================
-        document.querySelectorAll(".pagamento").forEach(b => {
-            b.classList.remove("selecionado");
-        });
 
-        botao.classList.add("selecionado");
-
-        // =====================================================
-        // PEGA SOMENTE O NOME
-        // Remove "(F2)", "(F3)", "(F4)", "(F6)", "(F9)"
-        // =====================================================
-        const nomePagamento = botao.innerText
+        const forma = botao.innerText
             .replace(/\s*\(F\d+\)\s*/gi, "")
             .trim();
 
-        formaPagamento = nomePagamento;
-
-        atualizarFormaPagamentoFinal(formaPagamento);
-
         console.log(
-            "Forma de pagamento selecionada:",
+            "Forma de pagamento escolhida:",
+            forma
+        );
+
+        // =====================================================
+        // 3. DINHEIRO
+        // =====================================================
+
+        if (
+            forma
+                .toLowerCase()
+                .includes("dinheiro")
+        ) {
+
+            abrirModalDinheiro();
+
+            return;
+        }
+
+        // =====================================================
+        // 4. CARTÃO DE CRÉDITO
+        // =====================================================
+
+        if (
+            forma
+                .toLowerCase()
+                .includes("crédito")
+        ) {
+
+            abrirModalCredito();
+
+            return;
+        }
+
+        // =====================================================
+        // 5. FIADO
+        // =====================================================
+
+        if (
+            forma
+                .toLowerCase()
+                .includes("fiado")
+        ) {
+
+            formaPagamento = "Fiado";
+
+            atualizarSelecaoPagamento(
+                formaPagamento
+            );
+
+            atualizarFormaPagamentoFinal(
+                formaPagamento
+            );
+
+            modal.close();
+
+            const dFiado =
+                document.getElementById("d_fiado");
+
+            if (dFiado) {
+
+                inp_vencimento.value =
+                    new Date()
+                        .toISOString()
+                        .split("T")[0];
+
+                dFiado.showModal();
+            }
+
+            return;
+        }
+
+        // =====================================================
+        // 6. PIX / DÉBITO
+        // =====================================================
+
+        formaPagamento = forma;
+
+        atualizarSelecaoPagamento(
+            formaPagamento
+        );
+
+        atualizarFormaPagamentoFinal(
             formaPagamento
         );
 
         nova_venda.disabled = false;
+
     });
 
 });
