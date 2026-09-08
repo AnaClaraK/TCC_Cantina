@@ -606,7 +606,7 @@ td:last-child {
 }
 .input-reposicao {
     background: transparent;
-    border: 1px solid #efac4a;
+    border: 1px solid #000000;
     border-radius: 4px;
     color: inherit;
     font-size: inherit;

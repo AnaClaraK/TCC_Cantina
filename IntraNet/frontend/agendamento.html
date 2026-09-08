@@ -203,8 +203,17 @@ function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
 const inputBusca = document.getElementById("inputBusca");
 const filtroData = document.getElementById("filtroData");
 
+
+function normalizarTexto(texto) {
+    return (texto || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+}
+
 function filtrarAgendamentos() {
-    const termo = inputBusca.value.toLowerCase().trim();
+    const termo = normalizarTexto(inputBusca.value);
     const dataSelecionada = filtroData.value;
 
     const linhas = document.querySelectorAll("#tb_tbl_produtos tr");
@@ -216,9 +225,7 @@ function filtrarAgendamentos() {
         // Ignora a linha de mensagem
         if (colunas.length < 6) return;
 
-        const nomeCliente = colunas[0].textContent
-            .toLowerCase()
-            .trim();
+        const nomeCliente = normalizarTexto(colunas[0].textContent);
 
         // Data original que veio do banco
         const dataOriginal = linha.dataset.data;
@@ -243,7 +250,7 @@ function filtrarAgendamentos() {
 
         // Busca digitando a data
         const dataFormatada =
-            colunas[5].textContent.toLowerCase();
+    normalizarTexto(colunas[5].textContent);
 
         const correspondeBuscaData =
             dataFormatada.includes(termo);

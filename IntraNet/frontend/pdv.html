@@ -239,21 +239,45 @@
         <div class="credito-total"><span>Total da compra</span><strong id="lbl_credito_total">R$ 0,00</strong></div>
         <div class="credito-campo">
             <label for="sel_parcelas_credito">Quantidade de parcelas</label>
-            <select id="sel_parcelas_credito">
-                <option value="" selected>Selecione a quantidade de parcelas</option>
-                <option value="1">1x</option>
-                <option value="2">2x</option>
-                <option value="3">3x</option>
-                <option value="4">4x</option>
-                <option value="5">5x</option>
-                <option value="6">6x</option>
-                <option value="7">7x</option>
-                <option value="8">8x</option>
-                <option value="9">9x</option>
-                <option value="10">10x</option>
-                <option value="11">11x</option>
-                <option value="12">12x</option>
-            </select>
+            <div class="select-personalizado">
+    <div class="select-selecionado" id="selectParcelasVisual">
+        <span>Selecione a quantidade de parcelas</span>
+        <span class="seta-select">⌄</span>
+    </div>
+
+    <div class="opcoes-parcelas" id="opcoesParcelas">
+        <div data-value="">Selecione a quantidade de parcelas</div>
+        <div data-value="1">1x</div>
+        <div data-value="2">2x</div>
+        <div data-value="3">3x</div>
+        <div data-value="4">4x</div>
+        <div data-value="5">5x</div>
+        <div data-value="6">6x</div>
+        <div data-value="7">7x</div>
+        <div data-value="8">8x</div>
+        <div data-value="9">9x</div>
+        <div data-value="10">10x</div>
+        <div data-value="11">11x</div>
+        <div data-value="12">12x</div>
+    </div>
+
+    <!-- Continua existindo para o seu JavaScript -->
+    <select id="sel_parcelas_credito" class="select-original">
+        <option value="">Selecione a quantidade de parcelas</option>
+        <option value="1">1x</option>
+        <option value="2">2x</option>
+        <option value="3">3x</option>
+        <option value="4">4x</option>
+        <option value="5">5x</option>
+        <option value="6">6x</option>
+        <option value="7">7x</option>
+        <option value="8">8x</option>
+        <option value="9">9x</option>
+        <option value="10">10x</option>
+        <option value="11">11x</option>
+        <option value="12">12x</option>
+    </select>
+</div>
         </div>
         <div class="credito-parcela"><span>Valor de cada parcela</span><strong id="lbl_valor_parcela">R$ 0,00</strong></div>
         <button type="button" id="b_confirmar_credito" class="btn-confirmar-pagamento">Confirmar pagamento</button>
@@ -2785,6 +2809,69 @@ if (document.readyState === "complete" || document.readyState === "interactive")
     document.addEventListener("DOMContentLoaded", iniciarRelogioLinha);
 }
 
+
+/* =========================================================
+   SELECT PERSONALIZADO - PARCELAS
+========================================================= */
+
+const selectParcelasVisual =
+    document.getElementById("selectParcelasVisual");
+
+const opcoesParcelas =
+    document.getElementById("opcoesParcelas");
+
+const selectPersonalizado =
+    document.querySelector(".select-personalizado");
+
+
+selectParcelasVisual.addEventListener("click", () => {
+    selectPersonalizado.classList.toggle("aberto");
+});
+
+
+opcoesParcelas.querySelectorAll("div").forEach(opcao => {
+
+    opcao.addEventListener("click", () => {
+
+        const valor = opcao.dataset.value;
+        const texto = opcao.textContent;
+
+        /* Atualiza o select original */
+        selParcelasCredito.value = valor;
+
+        /* Faz o seu JavaScript atual perceber a mudança */
+        selParcelasCredito.dispatchEvent(
+            new Event("change", { bubbles: true })
+        );
+
+        /* Atualiza o visual */
+        selectParcelasVisual.querySelector("span").textContent =
+            texto;
+
+        /* Marca a opção */
+        opcoesParcelas
+            .querySelectorAll("div")
+            .forEach(item => {
+                item.classList.remove("selecionada");
+            });
+
+        opcao.classList.add("selecionada");
+
+        /* Fecha */
+        selectPersonalizado.classList.remove("aberto");
+    });
+
+});
+
+
+/* Fecha se clicar fora */
+document.addEventListener("click", (event) => {
+
+    if (!selectPersonalizado.contains(event.target)) {
+        selectPersonalizado.classList.remove("aberto");
+    }
+
+});
 </script>
 
 

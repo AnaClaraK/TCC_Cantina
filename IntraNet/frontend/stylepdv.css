@@ -1741,7 +1741,7 @@ MODAL FIADO / PRODUTOS
     border-radius: 50%;
 
     background: transparent;
-    color: #555;
+    color: #efac4a;
 
     font-size: 27px;
     font-weight: bold;
@@ -1752,10 +1752,7 @@ MODAL FIADO / PRODUTOS
     transition: 0.2s;
 }
 
-#b_fechar_credito:hover {
-    background: #eee;
-    color: #111;
-}
+
 
 
 /* Total */
@@ -1769,7 +1766,8 @@ MODAL FIADO / PRODUTOS
     padding: 14px;
 
     border-radius: 8px;
-    background: #f5f5f5;
+    background: #fed89d;
+    border: 3px solid #efac4a ;
 
     font-size: 17px;
 }
@@ -1793,6 +1791,7 @@ MODAL FIADO / PRODUTOS
     font-size: 16px;
     font-weight: bold;
     color: #efac4a;
+    
 }
 
 #sel_parcelas_credito {
@@ -1802,15 +1801,23 @@ MODAL FIADO / PRODUTOS
     border: 1px solid #ccc;
     border-radius: 6px;
 
-    background: #fff;
+    background: #fed89d;
+    border: 3px solid #efac4a ;
 
     font-size: 17px;
     cursor: pointer;
 }
 
+#sel_parcelas_credito option {
+    background: #1c1c1c;
+    color: #f8c471;
+}
+
+
+
 #sel_parcelas_credito:focus {
     outline: none;
-    border-color: #efac4a;
+    border-color: #fed89d;
     box-shadow: 0 0 0 2px rgba(239, 172, 74, 0.2);
 }
 
@@ -1826,7 +1833,8 @@ MODAL FIADO / PRODUTOS
     padding: 15px;
 
     border-radius: 8px;
-    background: #f5f5f5;
+    background: #fed89d;
+    border: 3px solid #efac4a ;
 
     font-size: 17px;
 }
@@ -1864,10 +1872,7 @@ MODAL FIADO / PRODUTOS
    PARCELAS AINDA NÃO SELECIONADAS
    ========================================================= */
 
-#sel_parcelas_credito.parcela-nao-selecionada {
-    border-color: #d9534f;
-    box-shadow: 0 0 0 2px rgba(217, 83, 79, 0.15);
-}
+
 .pagamento.selecionado {
     background: #efac4a !important;
     color: #1c1c1c !important;
@@ -1895,4 +1900,107 @@ MODAL FIADO / PRODUTOS
     border-radius: 10px;
 
     white-space: nowrap;
+}
+
+/* =========================================================
+   SELECT PERSONALIZADO - CARTÃO DE CRÉDITO
+========================================================= */
+
+.select-personalizado {
+    position: relative;
+    width: 100%;
+}
+
+/* Campo fechado */
+.select-selecionado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+    height: 48px;
+    padding: 0 14px;
+
+    background: #f1b869;
+    color: #1c1c1c;
+
+    border: 2px solid #efac4a;
+    border-radius: 8px;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.select-selecionado:hover {
+    background: #f8c471;
+}
+
+.seta-select {
+    font-size: 22px;
+    line-height: 1;
+}
+
+/* Lista */
+.opcoes-parcelas {
+    display: none;
+
+    position: absolute;
+    z-index: 9999;
+
+    top: calc(100% + 5px);
+    left: 0;
+
+    width: 100%;
+    max-height: 230px;
+
+    overflow-y: auto;
+
+    background: #f1b869;
+    border: 2px solid #efac4a;
+    border-radius: 8px;
+
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Lista aberta */
+.select-personalizado.aberto .opcoes-parcelas {
+    display: block;
+}
+
+/* Opções */
+.opcoes-parcelas div {
+    padding: 12px 14px;
+
+    color: #1c1c1c;
+    background: #f1b869;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.opcoes-parcelas div:hover {
+    background: #efac4a;
+}
+
+/* Opção selecionada */
+.opcoes-parcelas div.selecionada {
+    background: #efac4a;
+    color: #1c1c1c;
+}
+
+/* Esconde o select original */
+.select-original {
+    position: absolute !important;
+
+    width: 1px !important;
+    height: 1px !important;
+
+    opacity: 0 !important;
+
+    pointer-events: none !important;
 }
