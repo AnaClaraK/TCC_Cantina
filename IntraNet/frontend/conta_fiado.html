@@ -2352,41 +2352,74 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
 
-            const res =
-                await apiFetch(
-                    "/clientes-fiado?pendentes=1"
-                );
+            const [resClientes, resContas] =
+                await Promise.all([
+                    apiFetch("/clientes-fiado"),
+                    apiFetch("/contas-fiado")
+                ]);
 
             if (
-                res.status === 401 ||
-                res.status === 403
+                resClientes.status === 401 ||
+                resClientes.status === 403 ||
+                resContas.status === 401 ||
+                resContas.status === 403
             ) {
                 tratarSessaoExpirada();
                 return;
             }
 
-            const dados =
-                await res.json();
+            const clientes = await resClientes.json();
+            const contas = await resContas.json();
 
-            if (!Array.isArray(dados)) {
+            if (
+                !Array.isArray(clientes) ||
+                !Array.isArray(contas)
+            ) {
                 throw new Error(
-                    "Resposta inválida."
+                    "Resposta inválida ao carregar clientes e contas."
                 );
             }
 
-            clientesJuros =
-                dados;
+            const idsComContasPendentes = new Set(
+                contas
+                    .filter(conta => {
+                        const status =
+                            normalizarTexto(conta.status);
+
+                        return ![
+                            "finalizado",
+                            "concluido",
+                            "pago"
+                        ].includes(status);
+                    })
+                    .map(conta => Number(conta.id_cliente))
+                    .filter(Number.isInteger)
+            );
+
+            clientesJuros = clientes
+                .filter(cliente =>
+                    idsComContasPendentes.has(
+                        Number(cliente.id_cliente)
+                    )
+                )
+                .sort((a, b) =>
+                    String(a.nome_completo || "").localeCompare(
+                        String(b.nome_completo || ""),
+                        "pt-BR"
+                    )
+                );
 
         } catch (erro) {
 
             console.error(
+                "Erro ao carregar clientes para juros:",
                 erro
             );
 
-            clientesJuros =
-                [];
+            clientesJuros = [];
 
             exibirAviso(
+                erro.message ||
                 "Erro ao carregar a lista de clientes."
             );
         }
@@ -2759,6 +2792,12 @@ document.addEventListener("DOMContentLoaded", () => {
                         conta.valor_original ??
                         conta.valor ??
                         0
+                    );
+
+                const valorSalvo =
+                    Number(
+                        conta.valor_final ??
+                        valorOriginal
                     );
 
                 const div =

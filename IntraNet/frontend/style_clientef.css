@@ -418,7 +418,7 @@ body.fundo-escuro > #sc_tabela,
     margin: 0 !important;
     padding: 0 !important;
     overflow-y: auto !important;
-    display: none !important;
+    display: none;
     list-style: none !important;
     z-index: 99999 !important;
     box-sizing: border-box !important;
