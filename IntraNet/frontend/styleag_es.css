@@ -150,7 +150,7 @@
 
 /* ZEBRA */
 .tabela tbody tr:nth-child(even){
-    background-color: #e5b066;
+    background-color: #ddad6a;
 }
 
 .tabela tbody tr:nth-child(odd){
