@@ -197,3 +197,152 @@ function gerarPDFMensalPedidos() {
     // Download do arquivo PDF
     doc.save(`Relatorio_Pedidos_${mesNum}_${anoAtual}.pdf`);
 }
+
+// ===============================================
+// GERAR E BAIXAR PDF - LISTA DE REPOSIÇÃO
+// ===============================================
+function gerarPdfReposicao() {
+    const linhasTabela = Array.from(corpoTabela.querySelectorAll('tr'));
+
+    if (linhasTabela.length === 0) {
+        if (typeof exibirAviso === "function") {
+            exibirAviso("A lista de reposição está vazia.");
+        } else {
+            alert("A lista de reposição está vazia.");
+        }
+        return;
+    }
+
+    // Instancia o jsPDF
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Definindo Cores do Tema
+    const corFundoEscuro = [28, 28, 28];
+    const corLaranja = [239, 172, 74];
+    const corTextoEscuro = [31, 35, 41];
+
+    // Data e Hora de Emissão
+    const agora = new Date();
+    const dia = String(agora.getDate()).padStart(2, '0');
+    const mes = String(agora.getMonth() + 1).padStart(2, '0');
+    const ano = agora.getFullYear();
+    const horas = String(agora.getHours()).padStart(2, '0');
+    const minutos = String(agora.getMinutes()).padStart(2, '0');
+    const segundos = String(agora.getSeconds()).padStart(2, '0');
+
+    const dataHoraEmissao = `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
+
+    // Obtém Usuário Logado
+    let usuarioLogado = localStorage.getItem("usuarioNome");
+    if (!usuarioLogado || usuarioLogado === "null" || usuarioLogado.trim() === "") {
+        const token = localStorage.getItem("token");
+        if (token) {
+            try {
+                const payload = typeof parseJwt === "function" 
+                    ? parseJwt(token) 
+                    : JSON.parse(atob(token.split(".")[1]));
+                usuarioLogado = payload.nome || payload.nomeUsuario || payload.usuario || payload.email;
+            } catch (e) {
+                console.warn("Erro ao extrair usuário do token.");
+            }
+        }
+    }
+    if (!usuarioLogado || usuarioLogado === "null") {
+        usuarioLogado = "Usuário do Sistema";
+    }
+
+    // =============================================================
+    // MONTAGEM DO CABEÇALHO DO PDF
+    // =============================================================
+
+    // Banner Superior Laranja
+    doc.setFillColor(...corLaranja);
+    doc.rect(0, 0, 210, 30, "F");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(13);
+    doc.setTextColor(...corFundoEscuro);
+    doc.text("RELATÓRIO DE REPOSIÇÃO DE ESTOQUE", 14, 15);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8.5);
+    doc.setTextColor(50, 50, 50);
+    doc.text(`Lista de Compras / Controle de Insumos`, 14, 22);
+
+    // Metadados do documento
+    doc.setFontSize(8);
+    doc.text(`Gerado em: ${dataHoraEmissao}`, 196, 14, { align: "right" });
+    doc.text(`Emitido por: ${usuarioLogado}`, 196, 21, { align: "right" });
+
+    // =============================================================
+    // EXTRAÇÃO E TRATAMENTO DAS LINHAS
+    // =============================================================
+    const colunas = ["Produto", "Qtd Prevista", "Qtd Comprada", "Prioridade", "Local"];
+    const dadosTabela = [];
+
+    linhasTabela.forEach(linha => {
+        // Pula linhas ocultas pela busca do input
+        if (linha.style.display === "none") return;
+
+        const tds = linha.querySelectorAll('td');
+        const produto = tds[0]?.innerText?.trim() || "-";
+        const qtdPrevista = tds[1]?.innerText?.trim() || "0";
+
+        // Captura a quantidade digitada no input
+        const inputComprado = tds[2]?.querySelector('input');
+        const qtdCompradaVal = inputComprado ? inputComprado.value.trim() : "";
+        
+        // Se houver valor digitado usa ele, senão coloca uma linha limpa (_____) para preenchimento manual
+        const qtdCompradaExibicao = (qtdCompradaVal !== "" && qtdCompradaVal !== "0") 
+            ? qtdCompradaVal 
+            : "_______";
+
+        const prioridade = tds[3]?.innerText?.trim() || "Média";
+
+        // Captura o local digitado no input ou texto
+        const inputLocal = tds[4]?.querySelector('input');
+        const localVal = inputLocal ? inputLocal.value.trim() : tds[4]?.innerText?.trim() || "-";
+
+        dadosTabela.push([
+            produto,
+            qtdPrevista,
+            qtdCompradaExibicao,
+            prioridade,
+            localVal !== "" ? localVal : "-"
+        ]);
+    });
+
+    // =============================================================
+    // GERAÇÃO DA TABELA NO PDF
+    // =============================================================
+    doc.autoTable({
+        head: [colunas],
+        body: dadosTabela,
+        startY: 36,
+        theme: "grid",
+        headStyles: { 
+            fillColor: corFundoEscuro, 
+            textColor: corLaranja, 
+            fontStyle: "bold", 
+            halign: "left" 
+        },
+        alternateRowStyles: { fillColor: [250, 247, 242] },
+        bodyStyles: { textColor: corTextoEscuro, fontSize: 8.5 },
+        columnStyles: { 
+            1: { halign: "center", cellWidth: 30 }, // Qtd Prevista
+            2: { halign: "center", cellWidth: 35 }, // Qtd Comprada
+            3: { halign: "center", cellWidth: 30 }  // Prioridade
+        },
+        didDrawPage: function (data) {
+            const str = `Página ${doc.internal.getNumberOfPages()}`;
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(120, 120, 120);
+            doc.text(str, 196, 285, { align: "right" });
+        }
+    });
+
+    // Salva o arquivo baixando direto no navegador
+    doc.save(`Lista_Reposicao_${dia}_${mes}_${ano}.pdf`);
+}

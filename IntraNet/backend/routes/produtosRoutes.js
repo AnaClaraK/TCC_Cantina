@@ -206,4 +206,37 @@ console.log(req.headers["content-type"]);
         res.status(500).json({ erro: "Erro ao atualizar produto" });
       }
     });
+
+    // ROTA PARA ALTERNAR STATUS (ATIVO / INATIVO)
+router.put("/produtos/cod/:id/status", verificarToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { ativo } = req.body; // true ou false (1 ou 0)
+
+        await conexao.query(`
+            UPDATE produtos SET ativo = ? WHERE id_produto = ?
+        `, [ativo ? 1 : 0, id]);
+
+        res.json({ mensagem: "Status do produto atualizado com sucesso" });
+    } catch (erro) {
+        console.error("Erro ao alterar status do produto:", erro);
+        res.status(500).json({ erro: "Erro ao alterar status do produto" });
+    }
+});
+
+// LISTAGEM DE PRODUTOS (Trarando produtos inativos no final)
+router.get("/produtos", verificarToken, async (req, res) => {
+    try {
+        const [rows] = await conexao.query(`
+            SELECT p.*, c.nome AS categoria_nome 
+            FROM produtos p
+            LEFT JOIN categorias c ON p.id_categoria = c.id_categoria
+            ORDER BY p.ativo DESC, p.nome ASC
+        `);
+        res.json(rows);
+    } catch (erro) {
+        console.error("Erro ao listar produtos:", erro);
+        res.status(500).json({ erro: "Erro ao listar produtos" });
+    }
+});
     module.exports = router;
