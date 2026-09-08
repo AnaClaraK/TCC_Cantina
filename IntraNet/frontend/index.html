@@ -301,6 +301,7 @@ atualizarCalendario();
 window.addEventListener("load", () => {
     atualizarCalendario();
     carregarAgendamentosHome();
+    verificarEstoqueBaixo();
 });
 function mostrarAgendamentosDoDia(dataSelecionada) {
     const tbody = document.getElementById("tb_agendamentos_home");

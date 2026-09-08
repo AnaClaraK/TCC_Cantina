@@ -159,6 +159,14 @@ const bCancelarAviso = document.getElementById("b_cancelar_aviso");
 
 let produtosCache = [];
 
+function normalizarTexto(valor) {
+    return String(valor || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLowerCase();
+}
+
 // Criada para evitar repetição de código ao carregar e adicionar
 function adicionarLinhaTabela(
     nome,
@@ -463,7 +471,7 @@ async function carregarProdutos() {
 
 // Filtra a tabela procurando o texto digitado tanto no NOME (coluna 0) quanto na PRIORIDADE (coluna 3)
 inputBusca.addEventListener('keyup', function() {
-    const termoBusca = inputBusca.value.toLowerCase().trim();
+        const termoBusca = normalizarTexto(inputBusca.value);
     const linhas = document.querySelectorAll('#tb_tbl_estoque tr');
 
     linhas.forEach(linha => {
@@ -471,8 +479,8 @@ inputBusca.addEventListener('keyup', function() {
         const celulaPrioridade = linha.getElementsByTagName('td')[3];
 
         if (celulaProduto && celulaPrioridade) {
-            const textoProduto = celulaProduto.textContent.toLowerCase().trim();
-            const textoPrioridade = celulaPrioridade.textContent.toLowerCase().trim();
+            const textoProduto = normalizarTexto(celulaProduto.textContent);
+            const textoPrioridade = normalizarTexto(celulaPrioridade.textContent);
 
             // Exibe a linha se o termo pesquisado bater com o nome OU com a prioridade
             if (textoProduto.includes(termoBusca) || textoPrioridade.includes(termoBusca)) {
@@ -517,14 +525,14 @@ inpBuscaModal.addEventListener("keydown", (e) => {
 });
 
 inpBuscaModal.addEventListener("input", () => {
-    const termo = inpBuscaModal.value.toLowerCase().trim();
+        const termo = normalizarTexto(inpBuscaModal.value);
     lista.innerHTML = "";
     indexSelecionado = -1; 
 
     if (termo === "") return;
 
     const filtrados = produtosCache.filter(p => {
-        const nomeProd = (p.nome || p.nome_produto || "").toLowerCase();
+        const nomeProd = normalizarTexto(p.nome || p.nome_produto || "");
         const codProd = String(p.codigo_barras || p.codigo || "").toLowerCase();
         return nomeProd.includes(termo) || codProd.startsWith(termo);
     }).slice(0, 5);
