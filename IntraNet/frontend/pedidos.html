@@ -148,6 +148,19 @@
     
     let limpo = String(texto);
 
+    // Pagamento dividido: exibe cada forma com seu valor.
+    if (limpo.includes("=")) {
+        const partes = limpo.split(",").map(p => p.trim()).filter(Boolean);
+        const divididos = partes.map(parte => {
+            const idx = parte.lastIndexOf("=");
+            if (idx <= 0) return parte;
+            const forma = parte.slice(0, idx).trim();
+            const valor = Number(parte.slice(idx + 1).trim().replace(",", "."));
+            return Number.isFinite(valor) ? `${forma}: R$ ${valor.toFixed(2).replace(".", ",")}` : forma;
+        });
+        return divididos.join(" + ");
+    }
+
     // 1. Remove qualquer menção a F1 até F12 (ex: F2, [F2], (F2), F11, etc.)
     limpo = limpo.replace(/f(?:1[0-2]|[1-9])/gi, "");
 

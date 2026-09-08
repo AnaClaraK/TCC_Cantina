@@ -46,15 +46,16 @@ router.post("/produtos", verificarToken, uploadProdutos.single("imagem"), async 
         await conexao.query(`
           INSERT INTO produtos
           (
-            nome,
-            preco,
-            codigo_barras,
-            qtd,
-            descricao,
-            img,
-            id_categoria
+              nome,
+              preco,
+              codigo_barras,
+              qtd,
+              descricao,
+              img,
+              id_categoria,
+              ativo
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, 1)
         `, [
           nome,
           precoFormatado,
@@ -215,50 +216,163 @@ router.get("/produtos/id/:id", verificarToken, async (req, res) => {
 });
   
   // Editar PRODUTO
-  router.put("/produtos/cod/:id", verificarToken, uploadProdutos.single("img"), async (req, res) => {
-      try {
-        console.log("BODY:", req.body);
-console.log(req.headers["content-type"]);
-        const { id } = req.params;
-        // Adicionamos 'qtd_min' aqui na desestruturação do corpo
-        const { nome, codigo_barras, preco, qtd, qtd_min, descricao } = req.body; 
-        const img = req.file ? req.file.filename : null;
-    
-        await conexao.query(`
-          UPDATE produtos SET
-            nome = ?, 
-            codigo_barras = ?, 
-            preco = ?, 
-            qtd = ?, 
-            qtd_min = ?, 
-            descricao = ?, 
-            img = COALESCE(?, img)
-          WHERE id_produto = ?
-        `, [nome, codigo_barras, preco, qtd, qtd_min || 0, descricao, img, id]);
-    
-        res.json({ msg: "ok" });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ erro: "Erro ao atualizar produto" });
-      }
-    });
+ // =====================================================
+// EDITAR PRODUTO
+// =====================================================
+router.put(
+    "/produtos/id/:id",
+    verificarToken,
+    uploadProdutos.single("img"),
+    async (req, res) => {
+        try {
+            console.log("BODY:", req.body);
+            console.log("CONTENT-TYPE:", req.headers["content-type"]);
 
-    // ROTA PARA ALTERNAR STATUS (ATIVO / INATIVO)
-router.put("/produtos/cod/:id/status", verificarToken, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { ativo } = req.body; // true ou false (1 ou 0)
+            const { id } = req.params;
 
-        await conexao.query(`
-            UPDATE produtos SET ativo = ? WHERE id_produto = ?
-        `, [ativo ? 1 : 0, id]);
+            const {
+                nome,
+                codigo_barras,
+                preco,
+                qtd,
+                qtd_min,
+                descricao,
+                ativo
+            } = req.body;
 
-        res.json({ mensagem: "Status do produto atualizado com sucesso" });
-    } catch (erro) {
-        console.error("Erro ao alterar status do produto:", erro);
-        res.status(500).json({ erro: "Erro ao alterar status do produto" });
+            // Verifica se o produto existe
+            const [produto] = await conexao.query(
+                "SELECT id_produto FROM produtos WHERE id_produto = ?",
+                [id]
+            );
+
+            if (produto.length === 0) {
+                return res.status(404).json({
+                    sucesso: false,
+                    erro: "Produto não encontrado."
+                });
+            }
+
+            // Validação do status
+            let ativoFinal = 1;
+
+            if (ativo !== undefined && ativo !== "") {
+                ativoFinal = Number(ativo);
+
+                if (ativoFinal !== 0 && ativoFinal !== 1) {
+                    return res.status(400).json({
+                        sucesso: false,
+                        erro: "Status do produto inválido."
+                    });
+                }
+            }
+
+            const img = req.file ? req.file.filename : null;
+
+            await conexao.query(
+                `
+                UPDATE produtos SET
+                    nome = ?,
+                    codigo_barras = ?,
+                    preco = ?,
+                    qtd = ?,
+                    qtd_min = ?,
+                    descricao = ?,
+                    ativo = ?,
+                    img = COALESCE(?, img)
+                WHERE id_produto = ?
+                `,
+                [
+                    nome,
+                    codigo_barras,
+                    preco,
+                    qtd,
+                    qtd_min || 0,
+                    descricao,
+                    ativoFinal,
+                    img,
+                    id
+                ]
+            );
+
+            return res.json({
+                sucesso: true,
+                mensagem: "Produto atualizado com sucesso."
+            });
+
+        } catch (error) {
+            console.error("Erro ao atualizar produto:", error);
+
+            return res.status(500).json({
+                sucesso: false,
+                erro: "Erro ao atualizar produto."
+            });
+        }
     }
-});
+);
+
+
+// =====================================================
+// ALTERAR STATUS DO PRODUTO
+// =====================================================
+router.put(
+    "/produtos/id/:id/status",
+    verificarToken,
+    async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { ativo } = req.body;
+
+            const novoStatus = Number(ativo);
+
+            // Só aceita 0 ou 1
+            if (novoStatus !== 0 && novoStatus !== 1) {
+                return res.status(400).json({
+                    sucesso: false,
+                    erro: "Status do produto inválido."
+                });
+            }
+
+            // Verifica se existe
+            const [produto] = await conexao.query(
+                "SELECT id_produto, nome, ativo FROM produtos WHERE id_produto = ?",
+                [id]
+            );
+
+            if (produto.length === 0) {
+                return res.status(404).json({
+                    sucesso: false,
+                    erro: "Produto não encontrado."
+                });
+            }
+
+            await conexao.query(
+                `
+                UPDATE produtos
+                SET ativo = ?
+                WHERE id_produto = ?
+                `,
+                [novoStatus, id]
+            );
+
+            return res.json({
+                sucesso: true,
+                mensagem:
+                    novoStatus === 1
+                        ? "Produto reativado com sucesso."
+                        : "Produto inativado com sucesso."
+            });
+
+        } catch (erro) {
+            console.error("Erro ao alterar status do produto:", erro);
+
+            return res.status(500).json({
+                sucesso: false,
+                erro: "Erro ao alterar status do produto."
+            });
+        }
+    }
+);
 
 // LISTAGEM DE PRODUTOS (Trarando produtos inativos no final)
 router.get("/produtos", verificarToken, async (req, res) => {

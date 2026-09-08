@@ -7,7 +7,23 @@
     <title>PDV - Sistema Cantina</title>
     <link rel="stylesheet" href="layout.css">
     <link rel="stylesheet" href="stylepdv.css">
-    <script src="sidebar_header.js"></script>
+    <style>
+#b_desbloquear_pagamento,#b_dividir_pagamento{min-width:52px;padding:10px 14px;font-size:22px;border-radius:8px;cursor:pointer;}
+#b_dividir_pagamento{display:inline-block;}
+#dialogDividirPagamento .split-box{min-width:420px;max-width:560px;padding:24px;}
+#dialogDividirPagamento .split-resumo{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:15px 0;}
+#dialogDividirPagamento .split-resumo div{padding:10px;border-radius:8px;background:#f3f3f3;text-align:center;}
+#dialogDividirPagamento .split-metodos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0;}
+#dialogDividirPagamento .split-metodo{padding:10px;border:1px solid #bbb;border-radius:8px;background:#fff;cursor:pointer;}
+#dialogDividirPagamento .split-metodo.selecionado{font-weight:bold;outline:2px solid currentColor;}
+#dialogDividirPagamento .split-entrada{display:flex;gap:8px;margin:12px 0;}
+#dialogDividirPagamento .split-entrada input{flex:1;padding:10px;font-size:18px;}
+#dialogDividirPagamento .split-lista{max-height:170px;overflow:auto;margin:10px 0;}
+#dialogDividirPagamento .split-item{display:flex;justify-content:space-between;padding:8px 4px;border-bottom:1px solid #ddd;}
+#dialogDividirPagamento .split-acoes{display:flex;gap:8px;justify-content:flex-end;margin-top:15px;}
+@media(max-width:600px){#dialogDividirPagamento .split-box{min-width:0;width:90vw}.split-metodos{grid-template-columns:repeat(2,1fr)!important}.split-resumo{grid-template-columns:1fr!important}}
+</style>
+<script src="sidebar_header.js"></script>
     <script>
         // Verifica se existe um token no localStorage
         const token = localStorage.getItem("token");
@@ -115,10 +131,12 @@
                     <div class="area_pagamento">
                         <!-- Só aparece quando a venda veio do APP -->
         <button type="button" id="b_desbloquear_pagamento" title="Desbloquear forma de pagamento" style="display: none;">🔒</button>
+                        <button type="button" id="b_dividir_pagamento" title="Dividir pagamento">💰</button>
                         <button class="pagamento" id="pg_dinheiro">Dinheiro (F2)</button>
                         <button class="pagamento" id="pg_credito">Cartão de Crédito (F3)</button>
                         <button class="pagamento" id="pg_debito">Cartão de Débito (F4)</button>
                         <button class="pagamento" id="pg_pix">PIX (F6)</button>
+                        <button class="pagamento" id="pg_voucher">Voucher/Ticket</button>
                         <button class="pagamento" id="pg_fiado">FIADO (F9)</button>
                     </div>
                 </div>
@@ -159,6 +177,34 @@
     </div>   
 </dialog>
 
+<dialog id="dialogDividirPagamento">
+  <div class="split-box">
+    <button type="button" id="b_fechar_dividir_pagamento" class="fechar-modal-pagamento">×</button>
+    <h2>DIVIDIR PAGAMENTO</h2>
+    <div class="split-resumo">
+      <div><small>Total</small><strong id="split_total">R$ 0,00</strong></div>
+      <div><small>Pago</small><strong id="split_pago">R$ 0,00</strong></div>
+      <div><small>Restante</small><strong id="split_restante">R$ 0,00</strong></div>
+    </div>
+    <div class="split-metodos">
+      <button type="button" class="split-metodo" data-pag="Dinheiro">Dinheiro</button>
+      <button type="button" class="split-metodo" data-pag="Cartão de Crédito">Cartão de Crédito</button>
+      <button type="button" class="split-metodo" data-pag="Cartão de Débito">Cartão de Débito</button>
+      <button type="button" class="split-metodo" data-pag="PIX">PIX</button>
+      <button type="button" class="split-metodo" data-pag="Voucher/Ticket">Voucher/Ticket</button>
+      <button type="button" class="split-metodo" data-pag="Fiado">FIADO</button>
+    </div>
+    <div class="split-entrada">
+      <input type="number" min="0.01" step="0.01" id="split_valor" placeholder="Valor desta forma">
+      <button type="button" id="b_add_split">Adicionar</button>
+    </div>
+    <div id="split_lista" class="split-lista"></div>
+    <div class="split-acoes">
+      <button type="button" id="b_cancelar_split">Cancelar</button>
+      <button type="button" id="b_confirmar_split" disabled>Confirmar pagamento</button>
+    </div>
+  </div>
+</dialog>
 <dialog id="d_aviso">
     <div class="aviso_box">
         <p id="msg_aviso"></p>
@@ -778,38 +824,29 @@ if (event.key.length === 1) {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`
             }
         })
-        .then(res => {
+        .then(async res => {
             if (res.status === 401 || res.status === 403) {
                 exibirAviso("Sua sessão expirou. Faça login novamente.", () => {
                     window.location.href = "login.html";
                 });
             }
-            if (!res.ok) throw new Error("Produto não encontrado");
-            const produtoDB = estoque[0];
 
-if (Number(produtoDB.ativo) !== 1) {
-    throw new Error(
-        `O produto "${produtoDB.nome}" está inativo e não pode ser vendido.`
-    );
-}
-            return res.json();
+            const dados = await res.json().catch(() => ({}));
+
+            if (!res.ok) {
+                throw new Error(
+                    dados.erro ||
+                    dados.resposta ||
+                    "Produto não encontrado."
+                );
+            }
+
+            return dados;
         })
         .then(data => {
             tocarBeep();
             const produto = Array.isArray(data) ? data[0] : data;
             if (!produto) throw new Error("Dados do produto inválidos");
-            if (Number(produto.ativo) !== 1) {
-    tocarErro();
-
-    exibirAviso(
-        `O produto "${produto.nome}" está inativo e não pode ser vendido.`
-    );
-
-    inp_codb.value = "";
-    finalizarLeitura("");
-
-    return;
-}
 
             if (produto.img) {
                 const nomeArquivo = produto.img.replace('/images/', '').replace(/^\//, '');
@@ -2387,6 +2424,7 @@ window.addEventListener("keydown", (event) => {
                 modal?.open ||
                 dialogComanda?.open ||
                 dialogDinheiro?.open ||
+                document.getElementById("dialogDividirPagamento")?.open ||
                 document.getElementById("d_fiado")?.open ||
                 aviso?.open
             ) {
@@ -2435,7 +2473,80 @@ const lblCreditoTotal = document.getElementById("lbl_credito_total");
 const lblValorParcela = document.getElementById("lbl_valor_parcela");
 const bFecharCredito = document.getElementById("b_fechar_credito");
 const bConfirmarCredito = document.getElementById("b_confirmar_credito");
+const dialogDividirPagamento = document.getElementById("dialogDividirPagamento");
+const bDividirPagamento = document.getElementById("b_dividir_pagamento");
+const bFecharDividirPagamento = document.getElementById("b_fechar_dividir_pagamento");
+const bCancelarSplit = document.getElementById("b_cancelar_split");
+const bAddSplit = document.getElementById("b_add_split");
+const bConfirmarSplit = document.getElementById("b_confirmar_split");
+const splitValor = document.getElementById("split_valor");
+const splitTotal = document.getElementById("split_total");
+const splitPago = document.getElementById("split_pago");
+const splitRestante = document.getElementById("split_restante");
+const splitLista = document.getElementById("split_lista");
+let splitPagamentos = [];
+let splitMetodoSelecionado = "";
 
+
+function valorSplitSomado() {
+    return splitPagamentos.reduce((soma, p) => soma + Number(p.valor), 0);
+}
+
+function atualizarResumoSplit() {
+    const total = totalAtualPDV();
+    const pago = valorSplitSomado();
+    const restante = Math.max(0, total - pago);
+    splitTotal.innerText = "R$ " + formatar(total);
+    splitPago.innerText = "R$ " + formatar(pago);
+    splitRestante.innerText = "R$ " + formatar(restante);
+    bConfirmarSplit.disabled = Math.abs(restante) > 0.009 || splitPagamentos.length === 0;
+    splitLista.innerHTML = splitPagamentos.length ? splitPagamentos.map((p,i)=>`<div class="split-item"><span>${p.metodo}</span><strong>R$ ${formatar(p.valor)}</strong><button type="button" data-remove-split="${i}">×</button></div>`).join("") : "<div>Nenhum pagamento adicionado.</div>";
+    splitLista.querySelectorAll("[data-remove-split]").forEach(btn=>btn.addEventListener("click",()=>{ splitPagamentos.splice(Number(btn.dataset.removeSplit),1); atualizarResumoSplit(); }));
+}
+
+function abrirModalDividirPagamento() {
+    if (comandaAtual && pagamentoComandaBloqueado && !pagamentoComandaDesbloqueado) {
+        exibirAviso("A forma de pagamento desta comanda está bloqueada pelo APP. Desbloqueie primeiro para dividir o pagamento.");
+        return;
+    }
+    splitPagamentos = [];
+    splitMetodoSelecionado = "";
+    document.querySelectorAll(".split-metodo").forEach(b=>b.classList.remove("selecionado"));
+    splitValor.value = "";
+    atualizarResumoSplit();
+    dialogDividirPagamento.showModal();
+    setTimeout(()=>splitValor.focus(),100);
+}
+
+if (bDividirPagamento) bDividirPagamento.addEventListener("click", abrirModalDividirPagamento);
+document.querySelectorAll(".split-metodo").forEach(botao=>botao.addEventListener("click",()=>{
+    splitMetodoSelecionado = botao.dataset.pag;
+    document.querySelectorAll(".split-metodo").forEach(b=>b.classList.remove("selecionado"));
+    botao.classList.add("selecionado");
+    splitValor.focus();
+}));
+if (bAddSplit) bAddSplit.addEventListener("click",()=>{
+    const total=totalAtualPDV(), restante=total-valorSplitSomado();
+    const valor=Number(String(splitValor.value).replace(",","."));
+    if(!splitMetodoSelecionado){ exibirAviso("Selecione uma forma de pagamento."); return; }
+    if(!Number.isFinite(valor)||valor<=0){ exibirAviso("Digite um valor válido."); return; }
+    if(valor-restante>0.009){ exibirAviso("O valor informado é maior que o restante da compra."); return; }
+    splitPagamentos.push({metodo:splitMetodoSelecionado,valor:Number(valor.toFixed(2))});
+    splitValor.value=""; atualizarResumoSplit(); splitValor.focus();
+});
+function confirmarSplitPagamento(){
+    const total=totalAtualPDV(), pago=valorSplitSomado();
+    if(Math.abs(total-pago)>0.009){ exibirAviso("O pagamento dividido precisa completar exatamente o total da compra."); return; }
+    formaPagamento = splitPagamentos.map(p=>`${p.metodo}=${Number(p.valor).toFixed(2)}`).join(", ");
+    parcelasCredito = 1;
+    atualizarFormaPagamentoFinal(formaPagamento);
+    dialogDividirPagamento.close();
+    nova_venda.disabled=false;
+    voltarFoco();
+}
+if (bConfirmarSplit) bConfirmarSplit.addEventListener("click",confirmarSplitPagamento);
+[bFecharDividirPagamento,bCancelarSplit].forEach(btn=>btn?.addEventListener("click",()=>{dialogDividirPagamento.close();voltarFoco();}));
+if(dialogDividirPagamento) dialogDividirPagamento.addEventListener("cancel",e=>{e.preventDefault();dialogDividirPagamento.close();voltarFoco();});
 
 function totalAtualPDV() {
 

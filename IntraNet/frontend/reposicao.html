@@ -144,7 +144,14 @@
 // 1. Definição da função de busca (Garante que ela exista)
 async function apiFetch(url, options) {
     const response = await fetch(url, options);
-    if (!response.ok) throw new Error('Erro na requisição: ' + response.status);
+    if (!response.ok) {
+        let mensagem = `Erro na requisição: ${response.status}`;
+        try {
+            const dados = await response.clone().json();
+            mensagem = dados.erro || dados.resposta || mensagem;
+        } catch (_) {}
+        throw new Error(mensagem);
+    }
     return response;
 }
 
@@ -165,17 +172,9 @@ const msgAviso = document.getElementById("msg_aviso");
 const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
 const bCancelarAviso = document.getElementById("b_cancelar_aviso");
 // 1. Mapeia o botão lá no topo com os outros elementos
-const b_imprimir_reposicao = document.getElementById("b_imprimir_reposicao");
+const b_imprimir_reposicao = document.getElementById("b_imprimir_lista");
 
 let produtosCache = [];
-
-function normalizarTexto(valor) {
-    return String(valor || "")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .trim()
-        .toLowerCase();
-}
 
 // Criada para evitar repetição de código ao carregar e adicionar
 function adicionarLinhaTabela(
@@ -241,7 +240,7 @@ function adicionarLinhaTabela(
                         
                     });
                 } catch (err) {
-                    exibirAviso("Erro ao atualizar estoque. Tente novamente.");
+                    exibirAviso(err.message || "Erro ao atualizar estoque. Tente novamente.");
                     this.checked = false;
                 }
             } else {
@@ -374,6 +373,7 @@ if (local.length < 3) {
 
     } catch (err) {
         console.error("Erro na rota de reposição:", err);
+        exibirAviso(err.message || "Não foi possível adicionar a reposição.");
     }
 });
 
@@ -460,7 +460,7 @@ b_limpar_lista.addEventListener("click", () => {
 
 async function carregarProdutos() {
     try {
-        const res = await apiFetch("http://localhost:3000/produtos", {
+        const res = await apiFetch("http://localhost:3000/reposicao/produtos", {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`
@@ -481,7 +481,7 @@ async function carregarProdutos() {
 
 // Filtra a tabela procurando o texto digitado tanto no NOME (coluna 0) quanto na PRIORIDADE (coluna 3)
 inputBusca.addEventListener('keyup', function() {
-        const termoBusca = normalizarTexto(inputBusca.value);
+    const termoBusca = inputBusca.value.toLowerCase().trim();
     const linhas = document.querySelectorAll('#tb_tbl_estoque tr');
 
     linhas.forEach(linha => {
@@ -489,8 +489,8 @@ inputBusca.addEventListener('keyup', function() {
         const celulaPrioridade = linha.getElementsByTagName('td')[3];
 
         if (celulaProduto && celulaPrioridade) {
-            const textoProduto = normalizarTexto(celulaProduto.textContent);
-            const textoPrioridade = normalizarTexto(celulaPrioridade.textContent);
+            const textoProduto = celulaProduto.textContent.toLowerCase().trim();
+            const textoPrioridade = celulaPrioridade.textContent.toLowerCase().trim();
 
             // Exibe a linha se o termo pesquisado bater com o nome OU com a prioridade
             if (textoProduto.includes(termoBusca) || textoPrioridade.includes(termoBusca)) {
@@ -535,14 +535,18 @@ inpBuscaModal.addEventListener("keydown", (e) => {
 });
 
 inpBuscaModal.addEventListener("input", () => {
-        const termo = normalizarTexto(inpBuscaModal.value);
+    const termo = inpBuscaModal.value.toLowerCase().trim();
     lista.innerHTML = "";
     indexSelecionado = -1; 
 
     if (termo === "") return;
 
+    // Reposição: somente produtos ativos podem ser selecionados.
+    // O backend também deve validar ativo=1; este filtro é apenas a camada visual.
     const filtrados = produtosCache.filter(p => {
-        const nomeProd = normalizarTexto(p.nome || p.nome_produto || "");
+        if (Number(p.ativo) !== 1) return false;
+
+        const nomeProd = (p.nome || p.nome_produto || "").toLowerCase();
         const codProd = String(p.codigo_barras || p.codigo || "").toLowerCase();
         return nomeProd.includes(termo) || codProd.startsWith(termo);
     }).slice(0, 5);
@@ -553,6 +557,13 @@ inpBuscaModal.addEventListener("input", () => {
         li.textContent = nomeExibicao;
 
         li.onclick = () => {
+            // Barreira defensiva: mesmo não sendo exibido, um produto inativo
+            // nunca deve ser aceito pelo formulário.
+            if (Number(p.ativo) !== 1) {
+                exibirAviso(`O produto "${nomeExibicao}" está inativo e não pode receber uma nova reposição.`);
+                return;
+            }
+
             inpBuscaModal.value = nomeExibicao;
             inpBuscaModal.dataset.codigo = p.codigo_barras || p.codigo;
             document.getElementById("s_produto").innerText = nomeExibicao;
