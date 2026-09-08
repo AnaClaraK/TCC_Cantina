@@ -184,6 +184,14 @@ let produtosCache = [];
 let produtoSelecionado = null;
 let indexSelecionado = -1;
 
+function normalizarTexto(valor) {
+    return String(valor || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLowerCase();
+}
+
 // Função genérica de aviso estruturada com o seu layout CSS
 function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
     msgAviso.innerHTML = mensagem;
@@ -215,14 +223,14 @@ carregarProdutos();
 
 // busca
 inpBusca.addEventListener("input", () => {
-    const termo = inpBusca.value.toLowerCase();
+    const termo = normalizarTexto(inpBusca.value);
     lista.innerHTML = "";
     indexSelecionado = -1;
 
     if(!termo) return;
 
     const filtrados = produtosCache.filter(p =>
-        (p.nome || "").toLowerCase().includes(termo) ||
+        normalizarTexto(p.nome).includes(termo) ||
         (p.codigo_barras || "").startsWith(termo)
     ).slice(0, 5);
 
