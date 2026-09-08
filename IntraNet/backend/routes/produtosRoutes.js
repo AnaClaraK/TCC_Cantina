@@ -119,64 +119,100 @@ router.get("/categorias", verificarToken, async (req, res) => {
 //-----Busca
 router.get("/produtos/busca", verificarToken, async (req, res) => {
     try {
-      const q = req.query.q?.trim();
-  
-      if (!q) {
-        return res.json([]);
-      }
-  
-      const termo = `%${q}%`;
-  
-      const [rows] = await conexao.query(`
-        SELECT id_produto, nome, codigo_barras, preco, qtd
-        FROM produtos
-        WHERE
-          LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
-            nome,
-            'á','a'),'à','a'),'ã','a'),'â','a'),'é','e'),'ê','e'))
-          LIKE
-          LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
-            ?,
-            'á','a'),'à','a'),'ã','a'),'â','a'),'é','e'),'ê','e'))
-          OR codigo_barras LIKE ?
-        ORDER BY nome
-        LIMIT 10
-      `, [termo, termo]);
-  
-      res.json(rows);
+        const termo = String(req.query.q || "").trim();
+
+        if (!termo) {
+            return res.json([]);
+        }
+
+        const [produtos] = await conexao.query(`
+            SELECT
+                id_produto,
+                nome,
+                codigo_barras,
+                preco,
+                qtd,
+                qtd_min,
+                img,
+                ativo
+            FROM produtos
+            WHERE ativo = 1
+              AND (
+                    LOWER(nome) LIKE LOWER(?)
+                    OR codigo_barras LIKE ?
+                  )
+            ORDER BY nome
+            LIMIT 10
+        `, [
+            `%${termo}%`,
+            `%${termo}%`
+        ]);
+
+        return res.json(produtos);
+
     } catch (erro) {
-      console.error("Erro na busca:", erro);
-      res.status(500).json({ erro: "Erro na busca" });
+        console.error("Erro ao buscar produtos:", erro);
+
+        return res.status(500).json({
+            sucesso: false,
+            erro: "Erro ao buscar produtos."
+        });
     }
-  });
+});
 
 //--- Buscar por Código de Barras específico 
 router.get("/produtos/cod/:codigo", verificarToken, async (req, res) => {
-  try {
-    const codigo = req.params.codigo;
-    const [rows] = await conexao.query(
-      "SELECT * FROM produtos WHERE codigo_barras = ?",
-      [codigo]
-    );
+    try {
+        const codigo = req.params.codigo;
 
-    if (rows.length === 0) return res.status(404).json({ erro: "Produto não encontrado" });
+        const [rows] = await conexao.query(
+            "SELECT * FROM produtos WHERE codigo_barras = ? AND ativo = 1",
+            [codigo]
+        );
 
-    res.json(rows); 
-  } catch (erro) {
-    console.error(erro);
-    res.status(500).json({ erro: "Erro ao buscar produto" });
-  }
+        if (rows.length === 0) {
+            return res.status(404).json({
+                erro: "Produto não encontrado ou está inativo"
+            });
+        }
+
+        res.json(rows);
+
+    } catch (erro) {
+        console.error("Erro ao buscar produto:", erro);
+
+        res.status(500).json({
+            erro: "Erro ao buscar produto"
+        });
+    }
 });
   //--------Atualizar Produtos
   // BUSCAR 1 PRODUTO PARA EDITAR (Protegido)
-  router.get("/produtos/cod/:id", verificarToken, async (req, res) => {
-    const { id } = req.params;
-    const [rows] = await conexao.query(
-      "SELECT * FROM produtos WHERE id_produto = ?",
-      [id]
-    );
-    res.json(rows[0]);
-  });
+router.get("/produtos/id/:id", verificarToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const [rows] = await conexao.query(
+            "SELECT * FROM produtos WHERE id_produto = ?",
+            [id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                erro: "Produto não encontrado"
+            });
+        }
+
+        res.json(rows[0]);
+
+    } catch (erro) {
+        console.error("Erro ao buscar produto para edição:", erro);
+
+        res.status(500).json({
+            erro: "Erro ao buscar produto"
+        });
+    }
+});
   
   // Editar PRODUTO
   router.put("/produtos/cod/:id", verificarToken, uploadProdutos.single("img"), async (req, res) => {
@@ -206,4 +242,37 @@ console.log(req.headers["content-type"]);
         res.status(500).json({ erro: "Erro ao atualizar produto" });
       }
     });
+
+    // ROTA PARA ALTERNAR STATUS (ATIVO / INATIVO)
+router.put("/produtos/cod/:id/status", verificarToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { ativo } = req.body; // true ou false (1 ou 0)
+
+        await conexao.query(`
+            UPDATE produtos SET ativo = ? WHERE id_produto = ?
+        `, [ativo ? 1 : 0, id]);
+
+        res.json({ mensagem: "Status do produto atualizado com sucesso" });
+    } catch (erro) {
+        console.error("Erro ao alterar status do produto:", erro);
+        res.status(500).json({ erro: "Erro ao alterar status do produto" });
+    }
+});
+
+// LISTAGEM DE PRODUTOS (Trarando produtos inativos no final)
+router.get("/produtos", verificarToken, async (req, res) => {
+    try {
+        const [rows] = await conexao.query(`
+            SELECT p.*, c.nome AS categoria_nome 
+            FROM produtos p
+            LEFT JOIN categorias c ON p.id_categoria = c.id_categoria
+            ORDER BY p.ativo DESC, p.nome ASC
+        `);
+        res.json(rows);
+    } catch (erro) {
+        console.error("Erro ao listar produtos:", erro);
+        res.status(500).json({ erro: "Erro ao listar produtos" });
+    }
+});
     module.exports = router;

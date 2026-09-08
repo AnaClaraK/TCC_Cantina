@@ -38,6 +38,10 @@
             </button>
         </div>
 
+        <button id="b_imprimir_lista" onclick="gerarPdfReposicao()">
+              <span>Imprimir Lista</span>
+        </button>
+
         <div id="d_inp">
             <div class="busca-box">
                 <img src="../backend/imagens/lupa.png" class="icone-busca">
@@ -131,6 +135,10 @@
             </div>
         </div>
     </dialog>
+    <script src="gerarpdf.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
 
 <script>
 // 1. Definição da função de busca (Garante que ela exista)
@@ -156,6 +164,8 @@ const aviso = document.getElementById("d_aviso");
 const msgAviso = document.getElementById("msg_aviso");
 const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
 const bCancelarAviso = document.getElementById("b_cancelar_aviso");
+// 1. Mapeia o botão lá no topo com os outros elementos
+const b_imprimir_reposicao = document.getElementById("b_imprimir_reposicao");
 
 let produtosCache = [];
 
@@ -644,6 +654,11 @@ document.addEventListener("click", (e) => {
 document.addEventListener("DOMContentLoaded", () => {
     carregarProdutos();
     carregarReposicao();
+});
+
+// 2. Adiciona o evento de clique chamando a função
+b_imprimir_reposicao.addEventListener("click", () => {
+    gerarPdfReposicao();
 });
 </script>
 </body>

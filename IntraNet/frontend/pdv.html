@@ -785,12 +785,31 @@ if (event.key.length === 1) {
                 });
             }
             if (!res.ok) throw new Error("Produto não encontrado");
+            const produtoDB = estoque[0];
+
+if (Number(produtoDB.ativo) !== 1) {
+    throw new Error(
+        `O produto "${produtoDB.nome}" está inativo e não pode ser vendido.`
+    );
+}
             return res.json();
         })
         .then(data => {
             tocarBeep();
             const produto = Array.isArray(data) ? data[0] : data;
             if (!produto) throw new Error("Dados do produto inválidos");
+            if (Number(produto.ativo) !== 1) {
+    tocarErro();
+
+    exibirAviso(
+        `O produto "${produto.nome}" está inativo e não pode ser vendido.`
+    );
+
+    inp_codb.value = "";
+    finalizarLeitura("");
+
+    return;
+}
 
             if (produto.img) {
                 const nomeArquivo = produto.img.replace('/images/', '').replace(/^\//, '');
