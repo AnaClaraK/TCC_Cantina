@@ -298,6 +298,48 @@ atualizarCalendario();
     }
 }
 
+async function verificarEstoqueBaixo() {
+    try {
+        const resposta = await fetch("http://localhost:3000/produtos", {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+
+        if (!resposta.ok) throw new Error(`Erro HTTP: ${resposta.status}`);
+
+        const produtos = await resposta.json();
+
+        const baixoEstoque = produtos.filter(p => (p.qtd || 0) < (p.qtd_min || 0));
+
+        if (baixoEstoque.length === 0) return;
+
+        const listaHtml = baixoEstoque
+            .map(p => `<li>${p.nome} — ${p.qtd || 0} un. (mín: ${p.qtd_min || 0})</li>`)
+            .join("");
+
+        const mensagem = `
+            <p><strong>Atenção:</strong> os produtos abaixo estão com estoque abaixo do mínimo:</p>
+            <ul style="text-align:left; margin-top:8px;">${listaHtml}</ul>
+        `;
+
+        exibirAviso(mensagem, confirmarLeituraEstoqueBaixo, false);
+
+    } catch (erro) {
+        console.error("Erro ao verificar estoque baixo:", erro);
+    }
+}
+
+function confirmarLeituraEstoqueBaixo() {
+    const mensagemConfirmacao = "Você confirma que leu a lista de produtos com estoque baixo?";
+
+    exibirAviso(mensagemConfirmacao, null, true);
+
+    // Se clicar em Cancelar, mostra o alerta original de novo
+    bCancelarAviso.onclick = () => {
+        modalAviso.close();
+        verificarEstoqueBaixo();
+    };
+}
+
 window.addEventListener("load", () => {
     atualizarCalendario();
     carregarAgendamentosHome();
