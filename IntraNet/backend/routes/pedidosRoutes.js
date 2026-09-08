@@ -315,23 +315,34 @@ router.post("/comandas", async (req, res) => {
     try {
         conn = await conexao.getConnection();
         await conn.beginTransaction();
+// ============================================================
+// VALIDA TODOS OS PRODUTOS DA COMANDA
+// ============================================================
 
-        // VALIDAÇÃO DE PRODUTOS INATIVOS ANTES DE CRIAR A COMANDA
-        for (const item of carrinho) {
-            const idProd = item.id_produto || item.id;
-            const [prodValida] = await conn.execute(
-                `SELECT nome, ativo FROM produtos WHERE id_produto = ?`,
-                [idProd]
-            );
+for (const item of carrinho) {
 
-            if (prodValida.length === 0) {
-                throw new Error(`Produto código ${idProd} não existe.`);
-            }
+    const idProd = item.id_produto || item.id;
 
-            if (prodValida[0].ativo === 0) {
-                throw new Error(`O item "${prodValida[0].nome}" está inativo e não pode ser encomendado.`);
-            }
-        }
+    const [prodValida] = await conn.execute(
+        `SELECT nome, ativo
+         FROM produtos
+         WHERE id_produto = ?`,
+        [idProd]
+    );
+
+    if (prodValida.length === 0) {
+        throw new Error(
+            `O produto código ${idProd} não existe.`
+        );
+    }
+
+    if (Number(prodValida[0].ativo) !== 1) {
+        throw new Error(
+            `O produto "${prodValida[0].nome}" está inativo e não pode ser adicionado à comanda.`
+        );
+    }
+}
+
 
         const primeiroItem = carrinho[0];
         let dataAgFormatada = null;
