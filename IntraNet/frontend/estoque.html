@@ -104,6 +104,14 @@ let produtosCache = [];
 let indexSelecionado = -1;
 const inputBusca = document.getElementById("inputBusca");
 
+function normalizarTexto(texto) {
+    return String(texto || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+}
+
 function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
     msgAviso.innerHTML = mensagem;
     bCancelarAviso.style.display = mostrarCancelar ? "inline-block" : "none";
@@ -119,12 +127,12 @@ function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
 }
 
 inputBusca.addEventListener("input", () => {
-    const termo = inputBusca.value.toLowerCase();
+    const termo = normalizarTexto(inputBusca.value);
     const linhas = document.querySelectorAll("#tb_tbl_produtos tr");
 
     linhas.forEach(linha => {
-        const codigo = linha.children[0].innerText.toLowerCase();
-        const nome = linha.children[1].innerText.toLowerCase();
+        const codigo = normalizarTexto(linha.children[0].innerText);
+        const nome = normalizarTexto(linha.children[1].innerText);
 
         if (codigo.includes(termo) || nome.includes(termo)) {
             linha.style.display = "";
@@ -287,11 +295,11 @@ modal.addEventListener("keydown", (e) => {
         atualizarDestaqueModal(itens);
     }
     else if (e.key === "Enter") {
-        const termo = inpBuscaModal.value.toLowerCase();
+        const termo = normalizarTexto(inpBuscaModal.value);
         const filtrados = produtosCache.filter(p =>
-            (p.nome || "").toLowerCase().includes(termo) ||
-            (p.codigo_barras || "").startsWith(termo)
-        );
+    normalizarTexto(p.nome).includes(termo) ||
+    normalizarTexto(p.codigo_barras).startsWith(termo)
+);
         
         const listaTratada = termo === "" ? produtosCache.filter(p => (p.qtd || 0) <= 10).sort((a, b) => (a.qtd || 0) - (b.qtd || 0)) : filtrados.slice(0, 5);
 
