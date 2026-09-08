@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="sidebar_header.js"></script>
 
-    <!-- Bibliotecas para Gerar PDF no Frontend -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-
     <link rel="stylesheet" href="styleag_es.css">
     <link rel="stylesheet" href="layout.css">
     <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
@@ -68,7 +64,7 @@
             </div>
 
             <!-- BOTÕES DE AÇÃO -->
-            <button id="btnExportarPDF" class="btn-baixar-pdf" onclick="gerarPDFMensal()">
+            <button id="btnExportarPDF" class="btn-baixar-pdf" onclick="gerarPDFMensalPedidos()">
                 Baixar PDF
             </button>
             <button id="btnLimparBackup" class="btn-limpar-historico" onclick="confirmarBackupEApagar()">
@@ -127,6 +123,11 @@
     </div>
 
 </dialog>
+
+<!-- Importação dos scripts no final da página -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+<script src="./gerarpdf.js"></script>
 
     <script>
     const corpoTabela = document.getElementById("tb_tbl_produtos");
@@ -394,288 +395,13 @@
 
         document.getElementById("modalRankingProdutos").showModal();
     }
-
-    // ===============================
-    // 6. GERAR PDF COM JSPDF
-    // ===============================
-   function gerarPDFMensal() {
-
-    const pedidosDoMes = obterPedidosDoMesAtual();
-
-    if (!pedidosDoMes || pedidosDoMes.length === 0) {
-        exibirAviso("Não há pedidos realizados neste mês para exportar o PDF.");
-        return;
+document.addEventListener("DOMContentLoaded", () => {
+    const btnRelatorio = document.getElementById("btnBaixarRelatorio");
+    
+    if (btnRelatorio) {
+        btnRelatorio.addEventListener("click", gerarPDFMensalPedidos);
     }
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    const corFundoEscuro = [28, 28, 28];
-    const corLaranja = [239, 172, 74];
-    const corTextoEscuro = [31, 35, 41];
-
-    const agora = new Date();
-    const mesAtual = agora.getMonth();
-    const anoAtual = agora.getFullYear();
-
-    const nomeMes = agora.toLocaleString("pt-BR", {
-        month: "long"
-    });
-
-    // ==========================================
-    // FATURAMENTO SOMENTE DO MÊS ATUAL
-    // ==========================================
-
-    let totalMes = 0;
-
-    pedidosDoMes.forEach(pedido => {
-        totalMes += Number(pedido.valor_total || 0);
-    });
-
-    const totalMesFormatado = totalMes.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-    });
-
-    // ==========================================
-    // RANKING SOMENTE DO MÊS
-    // ==========================================
-
-    const contador = {};
-
-    pedidosDoMes.forEach(pedido => {
-
-        let listaProds = pedido.itens || pedido.produtos || [];
-
-        if (typeof listaProds === "string") {
-            try {
-                listaProds = JSON.parse(listaProds);
-            } catch (e) {
-                listaProds = [];
-            }
-        }
-
-        if (Array.isArray(listaProds)) {
-
-            listaProds.forEach(prod => {
-
-                const nome =
-                    prod.nome ||
-                    prod.nome_produto ||
-                    "Produto Sem Nome";
-
-                const qtd =
-                    Number(prod.qtd || prod.quantidade || 1);
-
-                if (nome) {
-                    contador[nome] =
-                        (contador[nome] || 0) + qtd;
-                }
-            });
-        }
-    });
-
-    const rankingMes = Object.entries(contador)
-        .map(([nome, quantidade]) => ({
-            nome,
-            quantidade
-        }))
-        .sort((a, b) => b.quantidade - a.quantidade);
-
-    // ==========================================
-    // CABEÇALHO
-    // ==========================================
-
-    doc.setFillColor(...corLaranja);
-    doc.rect(0, 0, 210, 30, "F");
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.setTextColor(...corFundoEscuro);
-
-    doc.text(
-        `RELATÓRIO MENSAL DE PEDIDOS`,
-        14,
-        18
-    );
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(50, 50, 50);
-
-    doc.text(
-        `Referente a: ${nomeMes} de ${anoAtual}`,
-        14,
-        25
-    );
-
-    // ==========================================
-    // FATURAMENTO
-    // ==========================================
-
-    doc.setFillColor(248, 243, 235);
-
-    doc.roundedRect(
-        14,
-        36,
-        182,
-        18,
-        3,
-        3,
-        "F"
-    );
-
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(...corTextoEscuro);
-
-    doc.text(
-        "FATURAMENTO DO MÊS:",
-        18,
-        47
-    );
-
-    doc.setFontSize(12);
-    doc.setTextColor(200, 130, 30);
-
-    doc.text(
-        totalMesFormatado,
-        75,
-        47
-    );
-
-    // ==========================================
-    // RANKING
-    // ==========================================
-
-    let y = 62;
-
-    if (rankingMes.length > 0) {
-
-        doc.setFontSize(10);
-        doc.setTextColor(0);
-        doc.setFont("helvetica", "bold");
-
-        doc.text(
-            "Top Produtos mais vendidos no mês:",
-            14,
-            y
-        );
-
-        y += 6;
-
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(9);
-
-        rankingMes.slice(0, 5).forEach((produto, index) => {
-
-            doc.text(
-                `${index + 1}. ${produto.nome} (${produto.quantidade} un.)`,
-                18,
-                y
-            );
-
-            y += 5;
-        });
-
-        y += 4;
-    }
-
-    // ==========================================
-    // TABELA — SOMENTE PEDIDOS DO MÊS
-    // ==========================================
-
-    const colunas = [
-        "Cliente",
-        "Nº Pedido",
-        "Origem",
-        "Data/Hora",
-        "Valor Total",
-        "Pagamento"
-    ];
-
-    const linhas = pedidosDoMes.map(pedido => [
-
-        pedido.nome || "Cliente",
-
-        `#${pedido.num_pedido || pedido.id_pedido || "-"}`,
-
-        pedido.origem || "-",
-
-        pedido.data
-            ? new Date(pedido.data).toLocaleString("pt-BR")
-            : "-",
-
-        `R$ ${Number(pedido.valor_total || 0)
-            .toFixed(2)
-            .replace(".", ",")}`,
-
-        formatarFormaPagamento(pedido.form_pag)
-
-    ]);
-
-    doc.autoTable({
-
-        head: [colunas],
-
-        body: linhas,
-
-        startY: y,
-
-        theme: "grid",
-
-        headStyles: {
-            fillColor: corFundoEscuro,
-            textColor: corLaranja,
-            fontStyle: "bold",
-            halign: "left"
-        },
-
-        alternateRowStyles: {
-            fillColor: [250, 247, 242]
-        },
-
-        bodyStyles: {
-            textColor: corTextoEscuro,
-            fontSize: 8
-        },
-
-        columnStyles: {
-            4: {
-                halign: "right",
-                fontStyle: "bold"
-            }
-        },
-
-        didDrawPage: function () {
-
-            const str =
-                `Página ${doc.internal.getNumberOfPages()}`;
-
-            doc.setFontSize(8);
-            doc.setFont("helvetica", "normal");
-            doc.setTextColor(120, 120, 120);
-
-            doc.text(
-                str,
-                196,
-                285,
-                { align: "right" }
-            );
-        }
-    });
-
-    // ==========================================
-    // NOME DO ARQUIVO
-    // ==========================================
-
-    const mesNumero =
-        String(mesAtual + 1).padStart(2, "0");
-
-    doc.save(
-        `Relatorio_Pedidos_${mesNumero}_${anoAtual}.pdf`
-    );
-}
+});
     // ===============================
     // 7. APAGAR HISTÓRICO
     // ===============================
@@ -683,7 +409,7 @@
         exibirAviso(
             "Atenção: Ao confirmar, o PDF do mês será baixado automaticamente como segurança e todos os pedidos serão apagados. Deseja continuar?",
             async () => {
-                gerarPDFMensal();
+                gerarPDFMensalPedidos();
 
                 try {
                     const res = await fetch("http://localhost:3000/historico-pedidos/limpar", {
@@ -735,6 +461,8 @@
 
         dialog.showModal();
     }
+    
     </script>
+    
 </body>
 </html>
