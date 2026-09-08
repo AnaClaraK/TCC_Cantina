@@ -31,17 +31,17 @@
 </div>
 
 <section id="sc_tabela" class="container mt-5">
-<table class="tabela" id="tabela_estoque">
+<table class="tabela">
     <thead>
         <tr>
-            <th data-col="codigo_barras">Código</th>
-            <th data-col="nome">Produto</th>
-            <th data-col="categoria_nome">Categoria</th>
-            <th data-col="preco">Preço</th>
-            <th data-col="qtd">Quantidade</th>
-            <th data-col="disponivel">Disponível</th>
-            <th data-col="qtd_min">Qtd Mínima</th>
-            <th data-col="ativo">Ações</th>
+            <th>Código</th>
+            <th>Produto</th>
+            <th>Categoria</th>
+            <th>Preço</th>
+            <th>Quantidade</th>
+            <th>Disponível</th>
+            <th>Qtd Mínima</th>
+            <th>Status</th>
         </tr>
     </thead>
     <tbody id="tb_tbl_produtos"></tbody>
@@ -51,6 +51,7 @@
 <dialog id="d_modal">
     <div class="modal_box">
         <button id="b_close_modal">x</button>
+
         <h2>Atualizar Quantidade</h2>
 
         <input type="text" class="inp_m" id="inp_busca_modal" placeholder="Código ou nome">
@@ -60,6 +61,7 @@
         <p class="pm">Quantidade atual: <span id="s_qtda">0</span></p>
 
         <input type="number" class="inp_m" id="inp_add_qtd" value="0">
+
         <button class="b_addf" id="b_addf" type="button">Adicionar</button>
 
         <div class="modal_footer">
@@ -81,7 +83,14 @@
 <script>
 async function apiFetch(url, options) {
     const response = await fetch(url, options);
-    if (!response.ok) throw new Error('Erro na requisição: ' + response.status);
+    if (!response.ok) {
+        let mensagem = `Erro na requisição: ${response.status}`;
+        try {
+            const dados = await response.clone().json();
+            mensagem = dados.erro || dados.resposta || mensagem;
+        } catch (_) {}
+        throw new Error(mensagem);
+    }
     return response;
 }
 
@@ -101,8 +110,6 @@ const bCancelarAviso = document.getElementById("b_cancelar_aviso");
 
 let produtosCache = [];
 let indexSelecionado = -1;
-let ordenacaoAtual = { coluna: 'ativo', direcao: 'desc' };
-
 const inputBusca = document.getElementById("inputBusca");
 
 function normalizarTexto(texto) {
@@ -127,121 +134,6 @@ function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
     };
 }
 
-// ===============================================
-// SISTEMA DE ORDENAÇÃO GENÉRICO PARA TABELAS
-// ===============================================
-function ordenarProdutos(coluna) {
-    if (ordenacaoAtual.coluna === coluna) {
-        ordenacaoAtual.direcao = ordenacaoAtual.direcao === 'asc' ? 'desc' : 'asc';
-    } else {
-        ordenacaoAtual.coluna = coluna;
-        ordenacaoAtual.direcao = 'asc';
-    }
-
-    produtosCache.sort((a, b) => {
-        // Mantém inativos sempre no final por padrão
-        if (coluna !== 'ativo') {
-            if (a.ativo !== b.ativo) return b.ativo - a.ativo;
-        }
-
-        let valA = a[coluna] ?? '';
-        let valB = b[coluna] ?? '';
-
-        if (!isNaN(parseFloat(valA)) && !isNaN(parseFloat(valB))) {
-            valA = Number(valA);
-            valB = Number(valB);
-        } else {
-            valA = String(valA).toLowerCase();
-            valB = String(valB).toLowerCase();
-        }
-
-        if (valA < valB) return ordenacaoAtual.direcao === 'asc' ? -1 : 1;
-        if (valA > valB) return ordenacaoAtual.direcao === 'asc' ? 1 : -1;
-        return 0;
-    });
-
-    renderizarTabela();
-    atualizarCabecalhoOrdenacao(coluna);
-}
-
-function atualizarCabecalhoOrdenacao(colunaAtiva) {
-    document.querySelectorAll("#tabela_estoque thead th").forEach(th => {
-        th.classList.remove("sort-asc", "sort-desc");
-        if (th.dataset.col === colunaAtiva) {
-            th.classList.add(ordenacaoAtual.direcao === 'asc' ? 'sort-asc' : 'sort-desc');
-        }
-    });
-}
-
-// Configura evento de clique em todas as colunas
-document.querySelectorAll("#tabela_estoque thead th").forEach(th => {
-    th.addEventListener("click", () => {
-        const coluna = th.dataset.col;
-        if (coluna) ordenarProdutos(coluna);
-    });
-});
-
-// ===============================================
-// RENDERIZAÇÃO DA TABELA
-// ===============================================
-function renderizarTabela() {
-    tabela.innerHTML = "";
-
-    produtosCache.forEach(p => {
-        const estaAtivo = p.ativo === 1 || p.ativo === true;
-        const tr = document.createElement("tr");
-
-        if (!estaAtivo) tr.classList.add("linha-inativa");
-
-        tr.innerHTML = `
-            <td>${p.codigo_barras || ""}</td>
-            <td>${p.nome || ""}</td>
-            <td>${p.categoria_nome || ""}</td>
-            <td>R$ ${parseFloat(p.preco || 0).toFixed(2).replace(".", ",")}</td>
-            <td>${p.qtd || 0}</td>
-            <td>${p.disponivel || 0}</td>
-            <td>${p.qtd_min || 0}</td>
-            <td>
-                <button class="${estaAtivo ? 'btn-inativar' : 'btn-ativar'}" onclick="alternarStatusProduto(${p.id_produto}, ${estaAtivo})">
-                    ${estaAtivo ? 'Inativar' : 'Ativar'}
-                </button>
-            </td>
-        `;
-        tabela.appendChild(tr);
-    });
-}
-
-async function alternarStatusProduto(id, statusAtual) {
-    const novoStatus = !statusAtual;
-    try {
-        await apiFetch(`http://localhost:3000/produtos/cod/${id}/status`, {
-            method: "PUT",
-            headers: { 
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
-            body: JSON.stringify({ ativo: novoStatus })
-        });
-        carregarProdutos();
-    } catch (err) {
-        exibirAviso("Erro ao alterar o status do produto.");
-    }
-}
-
-async function carregarProdutos() {
-    try {
-        const res = await apiFetch("http://localhost:3000/produtos", {
-            headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
-        });
-        produtosCache = await res.json();
-        
-        // Garante ordenação mantendo inativos no fim
-        ordenarProdutos('ativo');
-    } catch (err) {
-        console.error("Erro ao carregar produtos:", err);
-    }
-}
-
 inputBusca.addEventListener("input", () => {
     const termo = normalizarTexto(inputBusca.value);
     const linhas = document.querySelectorAll("#tb_tbl_produtos tr");
@@ -261,9 +153,8 @@ inputBusca.addEventListener("input", () => {
 b_addq.addEventListener("click", () => {
     limparModal();
 
-    // Filtra para exibir APENAS produtos ATIVOS na reposição
     const produtosBaixoEstoque = produtosCache
-        .filter(p => (p.ativo === 1 || p.ativo === true) && (p.qtd || 0) <= (p.qtd_min || 10))
+        .filter(p => Number(p.ativo) === 1 && (p.qtd || 0) <= 10)
         .sort((a, b) => (a.qtd || 0) - (b.qtd || 0));
 
     lista.innerHTML = "";
@@ -283,6 +174,7 @@ b_addq.addEventListener("click", () => {
             inpAddQtd.focus();
         };
 
+        // Sincroniza o teclado caso o mouse passe por cima
         li.addEventListener("mouseenter", () => {
             indexSelecionado = i;
             atualizarDestaqueModal(lista.querySelectorAll("li"));
@@ -337,7 +229,78 @@ function limparModal() {
     indexSelecionado = -1;
 }
 
+async function carregarProdutos() {
+    try {
+        const res = await apiFetch("http://localhost:3000/produtos", {
+            headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+        });
+        const produtos = await res.json();
+
+        produtosCache = produtos;
+        tabela.innerHTML = "";
+
+        produtos.forEach(p => {
+            tabela.innerHTML += `
+                <tr>
+                    <td>${p.codigo_barras || ""}</td>
+                    <td>${p.nome || ""}</td>
+                    <td>${p.categoria_nome || ""}</td>
+                    <td>R$ ${parseFloat(p.preco || 0).toFixed(2).replace(".", ",")}</td>
+                    <td>${p.qtd || 0}</td>
+                    <td>${p.disponivel || 0}</td>
+                    <td>${p.qtd_min || 0}</td>
+                    <td>
+                        <select class="select-status-produto" data-id="${p.id_produto}">
+                            <option value="1" ${Number(p.ativo) === 1 ? "selected" : ""}>Ativo</option>
+                            <option value="0" ${Number(p.ativo) === 0 ? "selected" : ""}>Inativo</option>
+                        </select>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tabela.querySelectorAll(".select-status-produto").forEach(select => {
+            select.addEventListener("change", async () => {
+                const idProduto = select.dataset.id;
+                const novoStatus = Number(select.value);
+                const statusAnterior = novoStatus === 1 ? 0 : 1;
+
+                try {
+                    const res = await apiFetch(`http://localhost:3000/produtos/id/${idProduto}/status`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`
+                        },
+                        body: JSON.stringify({ ativo: novoStatus })
+                    });
+
+                    const produto = produtosCache.find(p => String(p.id_produto) === String(idProduto));
+                    if (produto) produto.ativo = novoStatus;
+
+                    exibirAviso(
+                        novoStatus === 1
+                            ? "Produto reativado com sucesso."
+                            : "Produto inativado com sucesso."
+                    );
+                } catch (err) {
+                    console.error("Erro ao alterar status:", err);
+                    select.value = String(statusAnterior);
+                    exibirAviso(err.message || "Não foi possível alterar o status do produto.");
+                }
+            });
+        });
+    } catch (err) {
+        console.error("Erro ao carregar produtos:", err);
+    }
+}
+
 function selecionarProdutoModal(produto) {
+    if (Number(produto.ativo) !== 1) {
+        exibirAviso(`O produto "${produto.nome}" está inativo e não pode receber quantidade.`);
+        return;
+    }
+
     inpBuscaModal.value = produto.nome;
     inpBuscaModal.dataset.codigo = produto.codigo_barras;
 
@@ -363,16 +326,51 @@ function atualizarDestaqueModal(itens) {
     });
 }
 
+modal.addEventListener("keydown", (e) => {
+    if (!modal.open) return;
+    const teclasNavegacao = ["ArrowDown", "ArrowUp", "Enter"];
+    if (!teclasNavegacao.includes(e.key)) return;
+
+    if (document.activeElement === inpAddQtd && e.key === "Enter") return;
+
+    e.preventDefault();
+    const itens = lista.querySelectorAll("li");
+    if (itens.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+        indexSelecionado = (indexSelecionado + 1) % itens.length;
+        atualizarDestaqueModal(itens);
+    }
+    else if (e.key === "ArrowUp") {
+        indexSelecionado = (indexSelecionado - 1 + itens.length) % itens.length;
+        atualizarDestaqueModal(itens);
+    }
+    else if (e.key === "Enter") {
+        const termo = normalizarTexto(inpBuscaModal.value);
+        const filtrados = produtosCache.filter(p =>
+    Number(p.ativo) === 1 &&
+    (normalizarTexto(p.nome).includes(termo) ||
+    normalizarTexto(p.codigo_barras).startsWith(termo))
+);
+        
+        const listaTratada = termo === ""
+    ? produtosCache.filter(p => Number(p.ativo) === 1 && (p.qtd || 0) <= 10).sort((a, b) => (a.qtd || 0) - (b.qtd || 0))
+    : filtrados.slice(0, 5);
+
+        if (indexSelecionado >= 0 && listaTratada[indexSelecionado]) {
+            selecionarProdutoModal(listaTratada[indexSelecionado]);
+        }
+    }
+}, true);
+
 inpBuscaModal.addEventListener("input", () => {
     const termo = inpBuscaModal.value.toLowerCase();
     lista.innerHTML = "";
     indexSelecionado = -1;
     
-    // Apenas produtos ativos aparecem no autocompletar do modal
     const filtrados = produtosCache.filter(p =>
-        (p.ativo === 1 || p.ativo === true) &&
-        ((p.nome || "").toLowerCase().includes(termo) ||
-        (p.codigo_barras || "").startsWith(termo))
+        (p.nome || "").toLowerCase().includes(termo) ||
+        (p.codigo_barras || "").startsWith(termo)
     ).slice(0, 5);
 
     filtrados.forEach((p, i) => {
@@ -380,6 +378,7 @@ inpBuscaModal.addEventListener("input", () => {
         li.textContent = p.nome;
         li.onclick = () => selecionarProdutoModal(p);
         
+        // Sincroniza o teclado caso o mouse passe por cima da lista filtrada
         li.addEventListener("mouseenter", () => {
             indexSelecionado = i;
             atualizarDestaqueModal(lista.querySelectorAll("li"));
@@ -389,15 +388,23 @@ inpBuscaModal.addEventListener("input", () => {
     });
 });
 
+// --- ENGENHARIA DO ACESSÓRIO DE REMOÇÃO DO ZERO ---
 inpAddQtd.addEventListener("focus", () => {
-    if (inpAddQtd.value === "0") inpAddQtd.value = "";
+    if (inpAddQtd.value === "0") {
+        inpAddQtd.value = "";
+    }
 });
 
 inpAddQtd.addEventListener("blur", () => {
-    if (inpAddQtd.value.trim() === "") inpAddQtd.value = 0;
+    if (inpAddQtd.value.trim() === "") {
+        inpAddQtd.value = 0;
+    }
 });
 
-document.getElementById("b_close_modal").addEventListener("click", () => modal.close());
+const b_close_modal_btn = document.getElementById("b_close_modal");
+b_close_modal_btn.addEventListener("click", () => {
+    modal.close();
+});
 
 document.addEventListener("DOMContentLoaded", carregarProdutos);
 </script>
