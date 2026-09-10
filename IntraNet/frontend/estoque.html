@@ -259,14 +259,14 @@ async function carregarProdutos() {
             `;
         });
 
+        // Configura os ouvintes do select de status
         tabela.querySelectorAll(".select-status-produto").forEach(select => {
-            select.addEventListener("change", async () => {
-                const idProduto = select.dataset.id;
-                const novoStatus = Number(select.value);
-                const statusAnterior = novoStatus === 1 ? 0 : 1;
+            select.addEventListener("change", async (e) => {
+                const idProduto = e.target.getAttribute("data-id");
+                const novoStatus = e.target.value;
 
                 try {
-                    const res = await apiFetch(`http://localhost:3000/produtos/id/${idProduto}/status`, {
+                    const resStatus = await apiFetch(`http://localhost:3000/produtos/${idProduto}/status`, {
                         method: "PUT",
                         headers: {
                             "Content-Type": "application/json",
@@ -275,21 +275,21 @@ async function carregarProdutos() {
                         body: JSON.stringify({ ativo: novoStatus })
                     });
 
-                    const produto = produtosCache.find(p => String(p.id_produto) === String(idProduto));
-                    if (produto) produto.ativo = novoStatus;
-
-                    exibirAviso(
-                        novoStatus === 1
-                            ? "Produto reativado com sucesso."
-                            : "Produto inativado com sucesso."
-                    );
-                } catch (err) {
-                    console.error("Erro ao alterar status:", err);
-                    select.value = String(statusAnterior);
-                    exibirAviso(err.message || "Não foi possível alterar o status do produto.");
+                    if (!resStatus.ok) {
+                        alert("Erro ao atualizar o status do produto.");
+                        carregarProdutos(); // Reverte a seleção visual em caso de falha
+                    }
+                } catch (errStatus) {
+                    console.error("Erro na requisição de atualização de status:", errStatus);
+                    alert("Erro de conexão ao alterar status.");
+                    carregarProdutos();
                 }
             });
         });
+
+        // ATIVA A ORDENAÇÃO NA TABELA DE ESTOQUE
+        aplicarOrdenacaoTabela(document.querySelector(".tabela"));
+
     } catch (err) {
         console.error("Erro ao carregar produtos:", err);
     }

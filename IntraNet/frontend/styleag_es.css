@@ -1930,3 +1930,22 @@ BOTÕES
 #d_modal_produtos .inp_qtd_modal {
     font-size: 20px !important;
 }
+
+/* Torna os cabeçalhos das tabelas interativos */
+.tabela thead th {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease;
+}
+
+.tabela thead th:hover {
+    background-color: #222 !important;
+}
+
+/* Indicador de ordenação (setas) */
+.tabela thead th .seta-ordenacao {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 14px;
+    opacity: 0.6;
+}

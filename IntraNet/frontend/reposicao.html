@@ -8,6 +8,36 @@
     <link rel="stylesheet" href="layout.css">
     <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
     <title>Reposição</title>
+    
+    <style>
+        /* Estilos visuais para indicação de ordenação nas colunas */
+        table thead th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 20px !important;
+        }
+
+        table thead th.sortable::after {
+            content: " ↕";
+            font-size: 0.8em;
+            opacity: 0.4;
+            margin-left: 5px;
+        }
+
+        table thead th.sort-asc::after {
+            content: " ▲";
+            opacity: 1;
+            color: #007bff;
+        }
+
+        table thead th.sort-desc::after {
+            content: " ▼";
+            opacity: 1;
+            color: #007bff;
+        }
+    </style>
+
     <script>
         // Verifica se existe um token no localStorage
         const token = localStorage.getItem("token");
@@ -18,7 +48,6 @@
             window.location.href = "login.html";
         }
     </script>
-    
 </head>
 <body class="fundo-escuro">
     <div class="d_util">
@@ -45,7 +74,6 @@
         <div id="d_inp">
             <div class="busca-box">
                 <img src="../backend/imagens/lupa.png" class="icone-busca">
-                <!-- Alterado o placeholder para refletir a busca por Nome ou Prioridade -->
                 <input type="text" id="inputBusca" placeholder="Buscar por nome ou prioridade">
             </div>
         </div>
@@ -90,32 +118,32 @@
 
                 <label class="pm">Prioridade</label>
 
-               <input type="hidden" id="inp_add_prioridade" value="">
+                <input type="hidden" id="inp_add_prioridade" value="">
 
-<div class="select-categoria select-prioridade" id="selectPrioridade">
+                <div class="select-categoria select-prioridade" id="selectPrioridade">
 
-    <button type="button" class="select-categoria-btn" id="btnPrioridade">
-        <span id="textoPrioridade"></span>
-        <span class="select-seta">▼</span>
-    </button>
+                    <button type="button" class="select-categoria-btn" id="btnPrioridade">
+                        <span id="textoPrioridade"></span>
+                        <span class="select-seta">▼</span>
+                    </button>
 
-    <div class="select-categoria-lista" id="listaPrioridade">
+                    <div class="select-categoria-lista" id="listaPrioridade">
 
-        <div class="categoria-opcao" data-value="Baixa">
-            Baixa
-        </div>
+                        <div class="categoria-opcao" data-value="Baixa">
+                            Baixa
+                        </div>
 
-        <div class="categoria-opcao" data-value="Média">
-            Média
-        </div>
+                        <div class="categoria-opcao" data-value="Média">
+                            Média
+                        </div>
 
-        <div class="categoria-opcao" data-value="Alta">
-            Alta
-        </div>
+                        <div class="categoria-opcao" data-value="Alta">
+                            Alta
+                        </div>
 
-    </div>
+                    </div>
 
-</div>
+                </div>
             </div>
         
             <button class="b_addf">Confirmar</button>
@@ -135,542 +163,556 @@
             </div>
         </div>
     </dialog>
+
     <script src="gerarpdf.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
-
-<script>
-// 1. Definição da função de busca (Garante que ela exista)
-async function apiFetch(url, options) {
-    const response = await fetch(url, options);
-    if (!response.ok) {
-        let mensagem = `Erro na requisição: ${response.status}`;
-        try {
-            const dados = await response.clone().json();
-            mensagem = dados.erro || dados.resposta || mensagem;
-        } catch (_) {}
-        throw new Error(mensagem);
-    }
-    return response;
-}
-
-const modal = document.getElementById("d_modal");
-const b_addq = document.getElementById("b_addq");
-const b_addf = document.querySelector(".b_addf");
-const b_close_modal = document.getElementById("b_close_modal");
-const b_apagar_prod = document.getElementById("b_apagar_prod");
-const b_limpar_lista = document.getElementById("b_limpar_lista");
-const corpoTabela = document.getElementById('tb_tbl_estoque');
-const inpBuscaModal = document.getElementById("inp_busca_modal");
-const lista = document.getElementById("lista_sugestoes");
-const inputBusca = document.getElementById('inputBusca');
-
-// Variáveis para o novo aviso
-const aviso = document.getElementById("d_aviso");
-const msgAviso = document.getElementById("msg_aviso");
-const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
-const bCancelarAviso = document.getElementById("b_cancelar_aviso");
-// 1. Mapeia o botão lá no topo com os outros elementos
-const b_imprimir_reposicao = document.getElementById("b_imprimir_lista");
-
-let produtosCache = [];
-
-// Criada para evitar repetição de código ao carregar e adicionar
-function adicionarLinhaTabela(
-    nome,
-    qtd,
-    local,
-    prioridade = "Média",
-    codigo = "",
-    valorComprado = "",
-    status = "Pendente"
-) {
-    const tr = document.createElement('tr');
-    tr.dataset.codigo = codigo; // Guarda o código no elemento da linha
-    
-    tr.innerHTML = `
-        <td>${nome}</td>
-        <td>${qtd}</td>
-        <td><input type="number" value="${valorComprado}" class="input-reposicao input-qtd">
-        </td>
-        <td>${prioridade}</td>
-        <td><input 
-            type="text"
-            value="${local}"
-            class="input-reposicao input-local">
-        </td>
-        <td>
-            <input type="checkbox" class="chk-concluido">
-        </td>
-    `;
-
-    corpoTabela.appendChild(tr);
-
-    const checkbox = tr.querySelector(".chk-concluido");
-    const inputComprado = tr.querySelector('td:nth-child(3) input');
-
-
-    checkbox.addEventListener("change", async function () {
-        if (this.checked) {
-            // Lógica de Reposição -> Estoque
-            let qtdFinal = inputComprado.value;
-            if (!qtdFinal || qtdFinal <= 0) {
-                qtdFinal = qtd; // Se estiver vazio/null, assume a qtd desejada
-            }
-
-            const prodCodigo = tr.dataset.codigo;
-
-            if (prodCodigo) {
-                try {
-                    await apiFetch(`http://localhost:3000/reposicao/${prodCodigo}/concluir`, {
-                    method: "PUT",
-                    headers: { 
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`
-                    },
-                    body: JSON.stringify({
-                        quantidade_comprada: Number(qtdFinal),
-                        local: tr.querySelector(".input-local").value
-                    })
-                });
-                    
-                    exibirAviso(`Reposição de ${qtdFinal} un. adicionada ao estoque!`, () => {
-                        tr.remove();
-                        
-                    });
-                } catch (err) {
-                    exibirAviso(err.message || "Erro ao atualizar estoque. Tente novamente.");
-                    this.checked = false;
-                }
-            } else {
-                exibirAviso("Reposição concluída!", () => {
-                    tr.remove();
-                    
-                });
-            }
+    <script>
+    async function apiFetch(url, options) {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            let mensagem = `Erro na requisição: ${response.status}`;
+            try {
+                const dados = await response.clone().json();
+                mensagem = dados.erro || dados.resposta || mensagem;
+            } catch (_) {}
+            throw new Error(mensagem);
         }
-    });
-}
-
-// Função para exibir aviso bonitinho
-function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
-    msgAviso.innerText = mensagem;
-    bCancelarAviso.style.display = mostrarCancelar ? "block" : "none";
-
-    aviso.showModal();
-
-    bConfirmarAviso.onclick = () => {
-        aviso.close();
-        if (callback) callback();
-    };
-
-    bCancelarAviso.onclick = () => {
-        aviso.close();
-
-        if (window.checkboxAtual) {
-            window.checkboxAtual.checked = false;
-            window.checkboxAtual.blur();
-            window.checkboxAtual = null;
-        }
-    };
-}
-
-// Lógica de abrir/fechar
-b_addq.addEventListener("click", () => {
-    limparModal();
-    
-    modal.showModal();
-});
-
-b_close_modal.addEventListener("click", () => {
-    modal.close();
-});
-
-function limparModal() {
-    inpBuscaModal.value = "";
-
-    if (inpBuscaModal.dataset) {
-        inpBuscaModal.dataset.codigo = "";
+        return response;
     }
 
-    document.getElementById("s_produto").innerText = "---";
-    document.getElementById("s_qtda").innerText = "0";
-    document.getElementById("inp_add_qtd").value = "";
-    document.getElementById("inp_add_local").value = "";
-    document.getElementById("inp_add_prioridade").value = "";
+    const modal = document.getElementById("d_modal");
+    const b_addq = document.getElementById("b_addq");
+    const b_addf = document.querySelector(".b_addf");
+    const b_close_modal = document.getElementById("b_close_modal");
+    const b_apagar_prod = document.getElementById("b_apagar_prod");
+    const b_limpar_lista = document.getElementById("b_limpar_lista");
+    const corpoTabela = document.getElementById('tb_tbl_estoque');
+    const inpBuscaModal = document.getElementById("inp_busca_modal");
+    const lista = document.getElementById("lista_sugestoes");
+    const inputBusca = document.getElementById('inputBusca');
 
-    lista.innerHTML = "";
+    const aviso = document.getElementById("d_aviso");
+    const msgAviso = document.getElementById("msg_aviso");
+    const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
+    const bCancelarAviso = document.getElementById("b_cancelar_aviso");
+    const b_imprimir_reposicao = document.getElementById("b_imprimir_lista");
 
-    // Prioridade começa vazia
-    textoPrioridade.textContent = "";
+    let produtosCache = [];
 
-    // Remove qualquer seleção anterior
-    listaPrioridade
-        .querySelectorAll(".categoria-opcao")
-        .forEach(item => {
-            item.classList.remove("selecionada");
-        });
+    // Função universal para aplicar ordenação com setas visuais nas tabelas
+    function aplicarOrdenacaoTabela(idTbody, colunasIgnoradas = []) {
+        const tbody = document.getElementById(idTbody);
+        if (!tbody) return;
 
-    selectPrioridade.classList.remove("aberto");
-}
-// Confirmar Adição na tabela de reposição
-b_addf.addEventListener("click", async () => {
-    const nome = document.getElementById("s_produto").innerText;
-    const qtd = Number(document.getElementById("inp_add_qtd").value);
-    const local = document.getElementById("inp_add_local").value.trim();
-    const codigo = inpBuscaModal.dataset.codigo;
-    const prioridade = document.getElementById("inp_add_prioridade").value;
+        const tabela = tbody.closest("table");
+        if (!tabela) return;
 
-    if (nome === "---" || !codigo) {
-        exibirAviso("Por favor, selecione um produto.");
-        return;
-    }
+        const cabecalhos = tabela.querySelectorAll("thead th");
 
-    if (!qtd || qtd <= 0) {
-        exibirAviso("Digite uma quantidade válida.");
-        return;
-    }
+        cabecalhos.forEach((th, indice) => {
+            if (colunasIgnoradas.includes(indice)) return;
 
-    if (local === "") {
-    exibirAviso("Preencha o local.");
-    return;
-}
+            th.classList.add("sortable");
 
-if (local.length < 3) {
-    exibirAviso("O local deve ter no mínimo 3 caracteres.");
-    return;
-}
+            // Remove ouvintes antigos clonando o elemento
+            const novoTh = th.cloneNode(true);
+            th.parentNode.replaceChild(novoTh, th);
 
-    try {
-        await apiFetch(`http://localhost:3000/reposicao/${codigo}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
-            body: JSON.stringify({
-                quantidade: qtd,
-                local: local,
-                prioridade: prioridade
-            })
-        });
+            novoTh.addEventListener("click", () => {
+                const direcaoAtual = novoTh.classList.contains("sort-asc") ? "desc" : "asc";
 
-        adicionarLinhaTabela(
-            nome,
-            qtd,
-            local,
-            prioridade,
-            codigo,
-            0,
-            "Pendente"
-        );
+                // Atualiza classes visuais
+                cabecalhos.forEach(c => c.classList.remove("sort-asc", "sort-desc"));
+                novoTh.classList.add(direcaoAtual === "asc" ? "sort-asc" : "sort-desc");
 
-        exibirAviso("Reposição adicionada com sucesso!");
+                const linhas = Array.from(tbody.querySelectorAll("tr"));
 
-        modal.close();
-        limparModal();
+                linhas.sort((a, b) => {
+                    const inputA = a.children[indice]?.querySelector("input");
+                    const inputB = b.children[indice]?.querySelector("input");
 
-    } catch (err) {
-        console.error("Erro na rota de reposição:", err);
-        exibirAviso(err.message || "Não foi possível adicionar a reposição.");
-    }
-});
+                    const valA = inputA ? inputA.value.trim() : a.children[indice]?.textContent.trim() || "";
+                    const valB = inputB ? inputB.value.trim() : b.children[indice]?.textContent.trim() || "";
 
+                    const numA = parseFloat(valA.replace("R$", "").replace("#", "").replace(".", "").replace(",", ".").trim());
+                    const numB = parseFloat(valB.replace("R$", "").replace("#", "").replace(".", "").replace(",", ".").trim());
 
-// Apagar funções de botões do topo
-b_apagar_prod.addEventListener("click", () => {
-    const linhas = corpoTabela.querySelectorAll('tr');
-    if (linhas.length === 0) {
-        exibirAviso("A lista está vazia.");
-        return;
-    }
-
-    exibirAviso("Clique na linha do produto que deseja apagar.");
-
-    const selecionarParaApagar = (e) => {
-        const linhaClicada = e.target.closest('tr');
-        if (linhaClicada && corpoTabela.contains(linhaClicada)) {
-            const nomeProd = linhaClicada.cells[0].innerText;
-            
-            exibirAviso(`Deseja realmente remover o produto: ${nomeProd}?`, async () => {
-                const codigo = linhaClicada.dataset.codigo;
-
-                try {
-                    await apiFetch(
-                        `http://localhost:3000/reposicao/${codigo}/cancelar`,
-                        {
-                            method: "PUT",
-                            headers: {
-                                "Authorization": `Bearer ${localStorage.getItem("token")}`
-                            }
-                        }
-                    );
-
-                    linhaClicada.remove();
-                    exibirAviso("Produto removido com sucesso!");
-
-                } catch (erro) {
-                    console.error(erro);
-                    exibirAviso("Erro ao remover produto.");
-                }
-
-            }, true);
-
-            corpoTabela.removeEventListener('click', selecionarParaApagar);
-            corpoTabela.style.cursor = "default";
-        }
-    };
-
-    corpoTabela.addEventListener('click', selecionarParaApagar);
-    corpoTabela.style.cursor = "pointer";
-});
-
-b_limpar_lista.addEventListener("click", () => {
-    const linhas = corpoTabela.querySelectorAll('tr');
-    if (linhas.length === 0) {
-        exibirAviso("A lista já está vazia.");
-        return;
-    }
-
-    exibirAviso("Deseja limpar toda a lista de reposição?", async () => {
-        try {
-            await apiFetch(
-                "http://localhost:3000/reposicao/cancelar/todos",
-                {
-                    method: "PUT",
-                    headers: {
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    if (!isNaN(numA) && !isNaN(numB)) {
+                        return direcaoAtual === "asc" ? numA - numB : numB - numA;
                     }
+
+                    return direcaoAtual === "asc" 
+                        ? valA.localeCompare(valB, "pt-BR", { numeric: true }) 
+                        : valB.localeCompare(valA, "pt-BR", { numeric: true });
+                });
+
+                linhas.forEach(linha => tbody.appendChild(linha));
+            });
+        });
+    }
+
+    function adicionarLinhaTabela(
+        nome,
+        qtd,
+        local,
+        prioridade = "Média",
+        codigo = "",
+        valorComprado = "",
+        status = "Pendente"
+    ) {
+        const tr = document.createElement('tr');
+        tr.dataset.codigo = codigo;
+        
+        tr.innerHTML = `
+            <td>${nome}</td>
+            <td>${qtd}</td>
+            <td><input type="number" value="${valorComprado}" class="input-reposicao input-qtd">
+            </td>
+            <td>${prioridade}</td>
+            <td><input 
+                type="text"
+                value="${local}"
+                class="input-reposicao input-local">
+            </td>
+            <td>
+                <input type="checkbox" class="chk-concluido">
+            </td>
+        `;
+
+        corpoTabela.appendChild(tr);
+
+        const checkbox = tr.querySelector(".chk-concluido");
+        const inputComprado = tr.querySelector('td:nth-child(3) input');
+
+        checkbox.addEventListener("change", async function () {
+            if (this.checked) {
+                let qtdFinal = inputComprado.value;
+                if (!qtdFinal || qtdFinal <= 0) {
+                    qtdFinal = qtd;
                 }
-            );
 
-            corpoTabela.innerHTML = "";
-            exibirAviso("Lista apagada!");
+                const prodCodigo = tr.dataset.codigo;
 
-        } catch (erro) {
-            console.error(erro);
-            exibirAviso("Erro ao limpar lista.");
-        }
-
-    }, true);
-});
-
-// --- BUSCA SIMULTÂNEA POR NOME OU PRIORIDADE ---
-
-async function carregarProdutos() {
-    try {
-        const res = await apiFetch("http://localhost:3000/reposicao/produtos", {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
+                if (prodCodigo) {
+                    try {
+                        await apiFetch(`http://localhost:3000/reposicao/${prodCodigo}/concluir`, {
+                            method: "PUT",
+                            headers: { 
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${localStorage.getItem("token")}`
+                            },
+                            body: JSON.stringify({
+                                quantidade_comprada: Number(qtdFinal),
+                                local: tr.querySelector(".input-local").value
+                            })
+                        });
+                        
+                        exibirAviso(`Reposição de ${qtdFinal} un. adicionada ao estoque!`, () => {
+                            tr.remove();
+                        });
+                    } catch (err) {
+                        exibirAviso(err.message || "Erro ao atualizar estoque. Tente novamente.");
+                        this.checked = false;
+                    }
+                } else {
+                    exibirAviso("Reposição concluída!", () => {
+                        tr.remove();
+                    });
+                }
             }
         });
-
-        produtosCache = await res.json();
-    } catch (err) {
-        console.error("ERRO CRÍTICO AO CARREGAR PRODUTOS:", err);
-
-        if (err.message.includes("401")) {
-            exibirAviso("Sua sessão expirou. Faça login novamente.", () => {
-                window.location.href = "login.html";
-            });
-        }
     }
-}
 
-// Filtra a tabela procurando o texto digitado tanto no NOME (coluna 0) quanto na PRIORIDADE (coluna 3)
-inputBusca.addEventListener('keyup', function() {
-    const termoBusca = inputBusca.value.toLowerCase().trim();
-    const linhas = document.querySelectorAll('#tb_tbl_estoque tr');
+    function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
+        msgAviso.innerText = mensagem;
+        bCancelarAviso.style.display = mostrarCancelar ? "block" : "none";
 
-    linhas.forEach(linha => {
-        const celulaProduto = linha.getElementsByTagName('td')[0];
-        const celulaPrioridade = linha.getElementsByTagName('td')[3];
+        aviso.showModal();
 
-        if (celulaProduto && celulaPrioridade) {
-            const textoProduto = celulaProduto.textContent.toLowerCase().trim();
-            const textoPrioridade = celulaPrioridade.textContent.toLowerCase().trim();
-
-            // Exibe a linha se o termo pesquisado bater com o nome OU com a prioridade
-            if (textoProduto.includes(termoBusca) || textoPrioridade.includes(termoBusca)) {
-                linha.style.display = "";
-            } else {
-                linha.style.display = "none";
-            }
-        }
-    });
-});
-
-let indexSelecionado = -1;
-
-function atualizarDestaque(itens) {
-    itens.forEach((li, i) => {
-        li.classList.toggle("ativo", i === indexSelecionado);
-        if (i === indexSelecionado) {
-            li.scrollIntoView({ block: "nearest" });
-        }
-    });
-}
-
-inpBuscaModal.addEventListener("keydown", (e) => {
-    const itens = lista.querySelectorAll("li");
-
-    if (e.key === "ArrowDown") {
-        e.preventDefault();
-        indexSelecionado = (indexSelecionado + 1) % itens.length;
-        atualizarDestaque(itens);
-    } 
-    else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        indexSelecionado = (indexSelecionado - 1 + itens.length) % itens.length;
-        atualizarDestaque(itens);
-    } 
-    else if (e.key === "Enter") {
-        e.preventDefault();
-        if (indexSelecionado > -1 && itens[indexSelecionado]) {
-            itens[indexSelecionado].click();
-        }
-    }
-});
-
-inpBuscaModal.addEventListener("input", () => {
-    const termo = inpBuscaModal.value.toLowerCase().trim();
-    lista.innerHTML = "";
-    indexSelecionado = -1; 
-
-    if (termo === "") return;
-
-    // Reposição: somente produtos ativos podem ser selecionados.
-    // O backend também deve validar ativo=1; este filtro é apenas a camada visual.
-    const filtrados = produtosCache.filter(p => {
-        if (Number(p.ativo) !== 1) return false;
-
-        const nomeProd = (p.nome || p.nome_produto || "").toLowerCase();
-        const codProd = String(p.codigo_barras || p.codigo || "").toLowerCase();
-        return nomeProd.includes(termo) || codProd.startsWith(termo);
-    }).slice(0, 5);
-
-    filtrados.forEach((p, i) => {
-        const li = document.createElement("li");
-        const nomeExibicao = p.nome || p.nome_produto || "Sem nome";
-        li.textContent = nomeExibicao;
-
-        li.onclick = () => {
-            // Barreira defensiva: mesmo não sendo exibido, um produto inativo
-            // nunca deve ser aceito pelo formulário.
-            if (Number(p.ativo) !== 1) {
-                exibirAviso(`O produto "${nomeExibicao}" está inativo e não pode receber uma nova reposição.`);
-                return;
-            }
-
-            inpBuscaModal.value = nomeExibicao;
-            inpBuscaModal.dataset.codigo = p.codigo_barras || p.codigo;
-            document.getElementById("s_produto").innerText = nomeExibicao;
-            document.getElementById("s_qtda").innerText = p.qtd || p.quantidade || 0;
-            lista.innerHTML = "";
-            indexSelecionado = -1;
-            document.getElementById("inp_add_qtd").focus(); 
+        bConfirmarAviso.onclick = () => {
+            aviso.close();
+            if (callback) callback();
         };
-        
-        lista.appendChild(li);
-    });
-});
 
-async function carregarReposicao() {
-    const res = await apiFetch("http://localhost:3000/reposicao", {
-        headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`
+        bCancelarAviso.onclick = () => {
+            aviso.close();
+
+            if (window.checkboxAtual) {
+                window.checkboxAtual.checked = false;
+                window.checkboxAtual.blur();
+                window.checkboxAtual = null;
+            }
+        };
+    }
+
+    b_addq.addEventListener("click", () => {
+        limparModal();
+        modal.showModal();
+    });
+
+    b_close_modal.addEventListener("click", () => {
+        modal.close();
+    });
+
+    function limparModal() {
+        inpBuscaModal.value = "";
+
+        if (inpBuscaModal.dataset) {
+            inpBuscaModal.dataset.codigo = "";
         }
-    });
 
-    const dados = await res.json();
+        document.getElementById("s_produto").innerText = "---";
+        document.getElementById("s_qtda").innerText = "0";
+        document.getElementById("inp_add_qtd").value = "";
+        document.getElementById("inp_add_local").value = "";
+        document.getElementById("inp_add_prioridade").value = "";
 
-    // ORDEM DE PRIORIDADE
-    const ordemPrioridade = {
-        "Alta": 1,
-        "Média": 2,
-        "Baixa": 3
-    };
+        lista.innerHTML = "";
+        textoPrioridade.textContent = "";
 
-    // Ordena: Alta → Média → Baixa
-    dados.sort((a, b) => {
-        return (ordemPrioridade[a.prioridade] || 99) -
-               (ordemPrioridade[b.prioridade] || 99);
-    });
-
-    corpoTabela.innerHTML = "";
-
-    dados.forEach(item => {
-        adicionarLinhaTabela(
-            item.nome,
-            item.quantidade_prevista,
-            item.local,
-            item.prioridade,
-            item.codigo,
-            item.quantidade_comprada,
-            item.status
-        );
-    });
-}
-const selectPrioridade = document.getElementById("selectPrioridade");
-const btnPrioridade = document.getElementById("btnPrioridade");
-const textoPrioridade = document.getElementById("textoPrioridade");
-const listaPrioridade = document.getElementById("listaPrioridade");
-const inputPrioridade = document.getElementById("inp_add_prioridade");
-
-btnPrioridade.addEventListener("click", (e) => {
-    e.stopPropagation();
-
-    selectPrioridade.classList.toggle("aberto");
-});
-
-listaPrioridade.querySelectorAll(".categoria-opcao").forEach(opcao => {
-
-    opcao.addEventListener("click", () => {
-
-        const valor = opcao.dataset.value;
-
-        // Atualiza texto
-        textoPrioridade.textContent = valor;
-
-        // Atualiza valor que será enviado para o backend
-        inputPrioridade.value = valor;
-
-        // Remove seleção das outras opções
         listaPrioridade
             .querySelectorAll(".categoria-opcao")
             .forEach(item => {
                 item.classList.remove("selecionada");
             });
 
-        // Marca a escolhida
-        opcao.classList.add("selecionada");
-
-        // Fecha a lista
-        selectPrioridade.classList.remove("aberto");
-    });
-
-});
-
-// Fecha clicando fora
-document.addEventListener("click", (e) => {
-
-    if (!selectPrioridade.contains(e.target)) {
         selectPrioridade.classList.remove("aberto");
     }
 
-});
+    b_addf.addEventListener("click", async () => {
+        const nome = document.getElementById("s_produto").innerText;
+        const qtd = Number(document.getElementById("inp_add_qtd").value);
+        const local = document.getElementById("inp_add_local").value.trim();
+        const codigo = inpBuscaModal.dataset.codigo;
+        const prioridade = document.getElementById("inp_add_prioridade").value;
 
-document.addEventListener("DOMContentLoaded", () => {
-    carregarProdutos();
-    carregarReposicao();
-});
+        if (nome === "---" || !codigo) {
+            exibirAviso("Por favor, selecione um produto.");
+            return;
+        }
 
-// 2. Adiciona o evento de clique chamando a função
-b_imprimir_reposicao.addEventListener("click", () => {
-    gerarPdfReposicao();
-});
-</script>
+        if (!qtd || qtd <= 0) {
+            exibirAviso("Digite uma quantidade válida.");
+            return;
+        }
+
+        if (local === "") {
+            exibirAviso("Preencha o local.");
+            return;
+        }
+
+        if (local.length < 3) {
+            exibirAviso("O local deve ter no mínimo 3 caracteres.");
+            return;
+        }
+
+        try {
+            await apiFetch(`http://localhost:3000/reposicao/${codigo}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                },
+                body: JSON.stringify({
+                    quantidade: qtd,
+                    local: local,
+                    prioridade: prioridade
+                })
+            });
+
+            adicionarLinhaTabela(
+                nome,
+                qtd,
+                local,
+                prioridade,
+                codigo,
+                0,
+                "Pendente"
+            );
+
+            exibirAviso("Reposição adicionada com sucesso!");
+
+            modal.close();
+            limparModal();
+
+        } catch (err) {
+            console.error("Erro na rota de reposição:", err);
+            exibirAviso(err.message || "Não foi possível adicionar a reposição.");
+        }
+    });
+
+    b_apagar_prod.addEventListener("click", () => {
+        const linhas = corpoTabela.querySelectorAll('tr');
+        if (linhas.length === 0) {
+            exibirAviso("A lista está vazia.");
+            return;
+        }
+
+        exibirAviso("Clique na linha do produto que deseja apagar.");
+
+        const selecionarParaApagar = (e) => {
+            const linhaClicada = e.target.closest('tr');
+            if (linhaClicada && corpoTabela.contains(linhaClicada)) {
+                const nomeProd = linhaClicada.cells[0].innerText;
+                
+                exibirAviso(`Deseja realmente remover o produto: ${nomeProd}?`, async () => {
+                    const codigo = linhaClicada.dataset.codigo;
+
+                    try {
+                        await apiFetch(
+                            `http://localhost:3000/reposicao/${codigo}/cancelar`,
+                            {
+                                method: "PUT",
+                                headers: {
+                                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                                }
+                            }
+                        );
+
+                        linhaClicada.remove();
+                        exibirAviso("Produto removido com sucesso!");
+
+                    } catch (erro) {
+                        console.error(erro);
+                        exibirAviso("Erro ao remover produto.");
+                    }
+
+                }, true);
+
+                corpoTabela.removeEventListener('click', selecionarParaApagar);
+                corpoTabela.style.cursor = "default";
+            }
+        };
+
+        corpoTabela.addEventListener('click', selecionarParaApagar);
+        corpoTabela.style.cursor = "pointer";
+    });
+
+    b_limpar_lista.addEventListener("click", () => {
+        const linhas = corpoTabela.querySelectorAll('tr');
+        if (linhas.length === 0) {
+            exibirAviso("A lista já está vazia.");
+            return;
+        }
+
+        exibirAviso("Deseja limpar toda a lista de reposição?", async () => {
+            try {
+                await apiFetch(
+                    "http://localhost:3000/reposicao/cancelar/todos",
+                    {
+                        method: "PUT",
+                        headers: {
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`
+                        }
+                    }
+                );
+
+                corpoTabela.innerHTML = "";
+                exibirAviso("Lista apagada!");
+
+            } catch (erro) {
+                console.error(erro);
+                exibirAviso("Erro ao limpar lista.");
+            }
+
+        }, true);
+    });
+
+    async function carregarProdutos() {
+        try {
+            const res = await apiFetch("http://localhost:3000/reposicao/produtos", {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+
+            produtosCache = await res.json();
+        } catch (err) {
+            console.error("ERRO CRÍTICO AO CARREGAR PRODUTOS:", err);
+
+            if (err.message.includes("401")) {
+                exibirAviso("Sua sessão expirou. Faça login novamente.", () => {
+                    window.location.href = "login.html";
+                });
+            }
+        }
+    }
+
+    inputBusca.addEventListener('keyup', function() {
+        const termoBusca = inputBusca.value.toLowerCase().trim();
+        const linhas = document.querySelectorAll('#tb_tbl_estoque tr');
+
+        linhas.forEach(linha => {
+            const celulaProduto = linha.getElementsByTagName('td')[0];
+            const celulaPrioridade = linha.getElementsByTagName('td')[3];
+
+            if (celulaProduto && celulaPrioridade) {
+                const textoProduto = celulaProduto.textContent.toLowerCase().trim();
+                const textoPrioridade = celulaPrioridade.textContent.toLowerCase().trim();
+
+                if (textoProduto.includes(termoBusca) || textoPrioridade.includes(termoBusca)) {
+                    linha.style.display = "";
+                } else {
+                    linha.style.display = "none";
+                }
+            }
+        });
+    });
+
+    let indexSelecionado = -1;
+
+    function atualizarDestaque(itens) {
+        itens.forEach((li, i) => {
+            li.classList.toggle("ativo", i === indexSelecionado);
+            if (i === indexSelecionado) {
+                li.scrollIntoView({ block: "nearest" });
+            }
+        });
+    }
+
+    inpBuscaModal.addEventListener("keydown", (e) => {
+        const itens = lista.querySelectorAll("li");
+
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            indexSelecionado = (indexSelecionado + 1) % itens.length;
+            atualizarDestaque(itens);
+        } 
+        else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            indexSelecionado = (indexSelecionado - 1 + itens.length) % itens.length;
+            atualizarDestaque(itens);
+        } 
+        else if (e.key === "Enter") {
+            e.preventDefault();
+            if (indexSelecionado > -1 && itens[indexSelecionado]) {
+                itens[indexSelecionado].click();
+            }
+        }
+    });
+
+    inpBuscaModal.addEventListener("input", () => {
+        const termo = inpBuscaModal.value.toLowerCase().trim();
+        lista.innerHTML = "";
+        indexSelecionado = -1; 
+
+        if (termo === "") return;
+
+        const filtrados = produtosCache.filter(p => {
+            if (Number(p.ativo) !== 1) return false;
+
+            const nomeProd = (p.nome || p.nome_produto || "").toLowerCase();
+            const codProd = String(p.codigo_barras || p.codigo || "").toLowerCase();
+            return nomeProd.includes(termo) || codProd.startsWith(termo);
+        }).slice(0, 5);
+
+        filtrados.forEach((p, i) => {
+            const li = document.createElement("li");
+            const nomeExibicao = p.nome || p.nome_produto || "Sem nome";
+            li.textContent = nomeExibicao;
+
+            li.onclick = () => {
+                if (Number(p.ativo) !== 1) {
+                    exibirAviso(`O produto "${nomeExibicao}" está inativo e não pode receber uma nova reposição.`);
+                    return;
+                }
+
+                inpBuscaModal.value = nomeExibicao;
+                inpBuscaModal.dataset.codigo = p.codigo_barras || p.codigo;
+                document.getElementById("s_produto").innerText = nomeExibicao;
+                document.getElementById("s_qtda").innerText = p.qtd || p.quantidade || 0;
+                lista.innerHTML = "";
+                indexSelecionado = -1;
+                document.getElementById("inp_add_qtd").focus(); 
+            };
+            
+            lista.appendChild(li);
+        });
+    });
+
+    async function carregarReposicao() {
+        const res = await apiFetch("http://localhost:3000/reposicao", {
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+
+        const dados = await res.json();
+
+        const ordemPrioridade = {
+            "Alta": 1,
+            "Média": 2,
+            "Baixa": 3
+        };
+
+        dados.sort((a, b) => {
+            return (ordemPrioridade[a.prioridade] || 99) -
+                   (ordemPrioridade[b.prioridade] || 99);
+        });
+
+        corpoTabela.innerHTML = "";
+
+        dados.forEach(item => {
+            adicionarLinhaTabela(
+                item.nome,
+                item.quantidade_prevista,
+                item.local,
+                item.prioridade,
+                item.codigo,
+                item.quantidade_comprada,
+                item.status
+            );
+        });
+
+        // Aplica e reativa o evento de clique e setas nos cabeçalhos após carregar os dados
+        aplicarOrdenacaoTabela("tb_tbl_estoque", [5]);
+    }
+
+    const selectPrioridade = document.getElementById("selectPrioridade");
+    const btnPrioridade = document.getElementById("btnPrioridade");
+    const textoPrioridade = document.getElementById("textoPrioridade");
+    const listaPrioridade = document.getElementById("listaPrioridade");
+    const inputPrioridade = document.getElementById("inp_add_prioridade");
+
+    btnPrioridade.addEventListener("click", (e) => {
+        e.stopPropagation();
+        selectPrioridade.classList.toggle("aberto");
+    });
+
+    listaPrioridade.querySelectorAll(".categoria-opcao").forEach(opcao => {
+        opcao.addEventListener("click", () => {
+            const valor = opcao.dataset.value;
+            textoPrioridade.textContent = valor;
+            inputPrioridade.value = valor;
+
+            listaPrioridade
+                .querySelectorAll(".categoria-opcao")
+                .forEach(item => {
+                    item.classList.remove("selecionada");
+                });
+
+            opcao.classList.add("selecionada");
+            selectPrioridade.classList.remove("aberto");
+        });
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!selectPrioridade.contains(e.target)) {
+            selectPrioridade.classList.remove("aberto");
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        carregarProdutos();
+        carregarReposicao();
+    });
+
+    b_imprimir_reposicao.addEventListener("click", () => {
+        gerarPdfReposicao();
+    });
+    </script>
 </body>
 </html>

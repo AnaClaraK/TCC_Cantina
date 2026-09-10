@@ -7,22 +7,7 @@
     <title>PDV - Sistema Cantina</title>
     <link rel="stylesheet" href="layout.css">
     <link rel="stylesheet" href="stylepdv.css">
-    <style>
-#b_desbloquear_pagamento,#b_dividir_pagamento{min-width:52px;padding:10px 14px;font-size:22px;border-radius:8px;cursor:pointer;}
-#b_dividir_pagamento{display:inline-block;}
-#dialogDividirPagamento .split-box{min-width:420px;max-width:560px;padding:24px;}
-#dialogDividirPagamento .split-resumo{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:15px 0;}
-#dialogDividirPagamento .split-resumo div{padding:10px;border-radius:8px;background:#f3f3f3;text-align:center;}
-#dialogDividirPagamento .split-metodos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0;}
-#dialogDividirPagamento .split-metodo{padding:10px;border:1px solid #bbb;border-radius:8px;background:#fff;cursor:pointer;}
-#dialogDividirPagamento .split-metodo.selecionado{font-weight:bold;outline:2px solid currentColor;}
-#dialogDividirPagamento .split-entrada{display:flex;gap:8px;margin:12px 0;}
-#dialogDividirPagamento .split-entrada input{flex:1;padding:10px;font-size:18px;}
-#dialogDividirPagamento .split-lista{max-height:170px;overflow:auto;margin:10px 0;}
-#dialogDividirPagamento .split-item{display:flex;justify-content:space-between;padding:8px 4px;border-bottom:1px solid #ddd;}
-#dialogDividirPagamento .split-acoes{display:flex;gap:8px;justify-content:flex-end;margin-top:15px;}
-@media(max-width:600px){#dialogDividirPagamento .split-box{min-width:0;width:90vw}.split-metodos{grid-template-columns:repeat(2,1fr)!important}.split-resumo{grid-template-columns:1fr!important}}
-</style>
+    <link rel="stylesheet" href="style-fechamento.css">
 <script src="sidebar_header.js"></script>
     <script>
         // Verifica se existe um token no localStorage
@@ -131,7 +116,7 @@
                     <div class="area_pagamento">
                         <!-- Só aparece quando a venda veio do APP -->
         <button type="button" id="b_desbloquear_pagamento" title="Desbloquear forma de pagamento" style="display: none;">🔒</button>
-                        <button type="button" id="b_dividir_pagamento" title="Dividir pagamento">💰</button>
+                        <button type="button" id="b_dividir_pagamento" title="Dividir pagamento">💰 DIVIDIR</button>
                         <button class="pagamento" id="pg_dinheiro">Dinheiro (F2)</button>
                         <button class="pagamento" id="pg_credito">Cartão de Crédito (F3)</button>
                         <button class="pagamento" id="pg_debito">Cartão de Débito (F4)</button>
@@ -327,6 +312,79 @@
         </div>
         <div class="credito-parcela"><span>Valor de cada parcela</span><strong id="lbl_valor_parcela">R$ 0,00</strong></div>
         <button type="button" id="b_confirmar_credito" class="btn-confirmar-pagamento">Confirmar pagamento</button>
+    </div>
+</dialog>
+
+<!-- =========================================================
+     MODAL FECHAMENTO DIÁRIO
+========================================================= -->
+<dialog id="dialogFechamentoDiario">
+    <div class="fechamento-box">
+        <div class="fechamento-topo">
+            <h2 id="fechamentoTitulo">FECHAMENTO DIÁRIO</h2>
+            <button type="button" class="fechamento-fechar" id="btnFecharFechamento" title="Fechar">×</button>
+        </div>
+
+        <div id="fechamentoAlerta" class="fechamento-alerta" style="display:none;"></div>
+
+        <div class="fechamento-linha fechamento-datas">
+            <div class="fechamento-campo">
+                <label for="fechamentoData">Dia atual / referência</label>
+                <input type="date" id="fechamentoData">
+            </div>
+            <div class="fechamento-campo">
+                <label for="fechamentoDataConsulta">Outro dia para consultar/fechar</label>
+                <input type="date" id="fechamentoDataConsulta">
+            </div>
+            <div class="fechamento-campo">
+                <label>Status do dia selecionado</label>
+                <div class="fechamento-valor" id="fechamentoStatus">Não fechado</div>
+                <small id="fechamentoQtdVendas">0 vendas</small>
+            </div>
+        </div>
+
+        <div class="fechamento-linha fechamento-resumo-abertura">
+            <div class="fechamento-campo">
+                <label>Troco inicial do dia</label>
+                <div class="fechamento-valor" id="fechamentoTrocoInicial">R$ 0,00</div>
+                <input type="text" inputmode="decimal" id="fechamentoTrocoInicialInput" placeholder="Digite o troco inicial" style="display:none;margin-top:8px;">
+                <button type="button" id="btnRegistrarAbertura" style="display:none;margin-top:8px;background:#2b1f14;color:#f1b869;">Registrar abertura</button>
+                <small id="fechamentoOrigemTroco">Primeiro dia / sem fechamento anterior</small>
+            </div>
+        </div>
+
+        <div class="fechamento-grid">
+            <div class="fechamento-card"><span>DINHEIRO</span><strong id="fechDinheiro">R$ 0,00</strong></div>
+            <div class="fechamento-card"><span>CARTÃO DE CRÉDITO</span><strong id="fechCredito">R$ 0,00</strong></div>
+            <div class="fechamento-card"><span>CARTÃO DE DÉBITO</span><strong id="fechDebito">R$ 0,00</strong></div>
+            <div class="fechamento-card"><span>PIX</span><strong id="fechPix">R$ 0,00</strong></div>
+            <div class="fechamento-card"><span>VOUCHER/TICKET</span><strong id="fechVoucher">R$ 0,00</strong></div>
+            <div class="fechamento-card"><span>FIADO</span><strong id="fechFiado">R$ 0,00</strong></div>
+            <div class="fechamento-card"><span>OUTROS / HISTÓRICOS</span><strong id="fechOutros">R$ 0,00</strong></div>
+            <div class="fechamento-card"><span>TOTAL DAS VENDAS</span><strong id="fechTotal">R$ 0,00</strong></div>
+        </div>
+
+        <div class="fechamento-dinheiro">
+            <div class="fd-linha"><span>Troco inicial</span><strong id="fechDinTrocoInicial">R$ 0,00</strong></div>
+            <div class="fd-linha"><span>+ Vendas em dinheiro</span><strong id="fechDinVendas">R$ 0,00</strong></div>
+            <div class="fd-linha fd-total"><span>Dinheiro esperado no caixa</span><strong id="fechDinEsperado">R$ 0,00</strong></div>
+        </div>
+
+        <div class="fechamento-proximo">
+            <label for="fechamentoTrocoProximo">Quanto de dinheiro/troco vai ficar para o próximo dia?</label>
+            <input type="text" inputmode="decimal" id="fechamentoTrocoProximo" placeholder="R$ 0,00">
+            <div class="fechamento-diferenca" id="fechamentoDiferenca">Diferença de caixa: R$ 0,00</div>
+        </div>
+
+        <div class="fechamento-acoes">
+            <div class="fechamento-acoes-esq">
+                <button type="button" id="btnConsultarFechamento">Consultar dia selecionado</button>
+            </div>
+            <div class="fechamento-acoes-dir">
+                <button type="button" id="btnFecharFechamentoSemSalvar">Fechar</button>
+                <button type="button" id="btnSalvarFechamento">FECHAR DIA</button>
+            </div>
+        </div>
     </div>
 </dialog>
 
@@ -1858,6 +1916,11 @@ dados.sort((a, b) => {
         }
     });
 function carregarComanda() {
+    // O fechamento deve ficar acima de qualquer comanda.
+    if (document.getElementById("dialogFechamentoDiario")?.open) {
+        return;
+    }
+
 
     const codigoComanda = inputComanda.value.trim().toUpperCase();
 
@@ -2126,6 +2189,7 @@ b_comanda.addEventListener("click", () => {
         modal.open ||
         dialogDinheiro.open ||
         document.getElementById("d_fiado")?.open ||
+        document.getElementById("dialogFechamentoDiario")?.open ||
         aviso.open
     ) {
         return;
@@ -2381,6 +2445,14 @@ window.addEventListener("keydown", (event) => {
 
             break;
 
+        // F: ABRIR FECHAMENTO DIÁRIO
+        case "f":
+        case "F":
+            event.preventDefault();
+            if (document.getElementById("dialogFechamentoDiario")?.open) break;
+            if (typeof window.abrirFechamentoDiario === "function") window.abrirFechamentoDiario();
+            break;
+
         // F11: NOVA VENDA
         case "F11":
 
@@ -2425,6 +2497,7 @@ window.addEventListener("keydown", (event) => {
                 dialogComanda?.open ||
                 dialogDinheiro?.open ||
                 document.getElementById("dialogDividirPagamento")?.open ||
+                document.getElementById("dialogFechamentoDiario")?.open ||
                 document.getElementById("d_fiado")?.open ||
                 aviso?.open
             ) {
@@ -3001,6 +3074,468 @@ document.addEventListener("click", (event) => {
         selectPersonalizado.classList.remove("aberto");
     }
 
+});
+</script>
+
+<script>
+/* =========================================================
+   FECHAMENTO DIÁRIO / CONTROLE DE CAIXA - PDV
+   Todo o JavaScript fica neste bloco, sem criar arquivo .js novo.
+========================================================= */
+const dialogFechamentoDiario = document.getElementById("dialogFechamentoDiario");
+const fechamentoData = document.getElementById("fechamentoData");
+const fechamentoDataConsulta = document.getElementById("fechamentoDataConsulta");
+const fechamentoAlerta = document.getElementById("fechamentoAlerta");
+const fechamentoStatus = document.getElementById("fechamentoStatus");
+const fechamentoQtdVendas = document.getElementById("fechamentoQtdVendas");
+const fechamentoTrocoInicial = document.getElementById("fechamentoTrocoInicial");
+const fechamentoTrocoInicialInput = document.getElementById("fechamentoTrocoInicialInput");
+const btnRegistrarAbertura = document.getElementById("btnRegistrarAbertura");
+const fechamentoOrigemTroco = document.getElementById("fechamentoOrigemTroco");
+const fechamentoTrocoProximo = document.getElementById("fechamentoTrocoProximo");
+const fechamentoDiferenca = document.getElementById("fechamentoDiferenca");
+const btnSalvarFechamento = document.getElementById("btnSalvarFechamento");
+const btnConsultarFechamento = document.getElementById("btnConsultarFechamento");
+const btnFecharFechamento = document.getElementById("btnFecharFechamento");
+const btnFecharFechamentoSemSalvar = document.getElementById("btnFecharFechamentoSemSalvar");
+
+let fechamentoDadosAtual = null;
+let fechamentoForcado = false;
+let fechamentoInicializado = false;
+let caixaHojeFechado = false;
+
+function dataLocalPDV() {
+    const agora = new Date();
+    const ano = agora.getFullYear();
+    const mes = String(agora.getMonth() + 1).padStart(2, "0");
+    const dia = String(agora.getDate()).padStart(2, "0");
+    return `${ano}-${mes}-${dia}`;
+}
+
+function formatarDataFechamento(data) {
+    if (!data) return "---";
+    const partes = String(data).slice(0, 10).split("-");
+    if (partes.length !== 3) return data;
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+function dinheiroFechamento(valor) {
+    return "R$ " + Number(valor || 0).toFixed(2).replace(".", ",");
+}
+
+function valorNumericoFechamento(valor) {
+    const texto = String(valor ?? "").trim().replace(/R\$\s*/gi, "").replace(/\./g, "").replace(",", ".");
+    const numero = Number(texto);
+    return Number.isFinite(numero) ? numero : NaN;
+}
+
+function preencherValor(id, valor) {
+    const el = document.getElementById(id);
+    if (el) el.innerText = dinheiroFechamento(valor);
+}
+
+function limparAlertaFechamento() {
+    if (!fechamentoAlerta) return;
+    fechamentoAlerta.style.display = "none";
+    fechamentoAlerta.innerText = "";
+}
+
+function mostrarAlertaFechamento(texto) {
+    if (!fechamentoAlerta) return;
+    fechamentoAlerta.innerText = texto;
+    fechamentoAlerta.style.display = "block";
+}
+
+function atualizarDiferencaFechamento() {
+    if (!fechamentoDadosAtual) return;
+    const esperado = Number(fechamentoDadosAtual.dinheiro_esperado || 0);
+    const informado = valorNumericoFechamento(fechamentoTrocoProximo?.value);
+    const diferenca = Number.isFinite(informado) ? informado - esperado : 0;
+    const prefixo = diferenca > 0.009 ? "Sobra de caixa" : diferenca < -0.009 ? "Falta de caixa" : "Diferença de caixa";
+    if (fechamentoDiferenca) {
+        fechamentoDiferenca.innerText = `${prefixo}: ${dinheiroFechamento(Math.abs(diferenca))}`;
+    }
+}
+
+function atualizarCamposFechamento(dados) {
+    fechamentoDadosAtual = dados;
+    const resumo = dados.resumo || {};
+    const fechamento = dados.fechamento;
+    const trocoInicial = Number(dados.troco_inicial || 0);
+    const dinheiroEsperado = Number(
+        fechamento?.dinheiro_esperado ??
+        (trocoInicial + Number(resumo.dinheiro || 0))
+    );
+
+    preencherValor("fechamentoTrocoInicial", trocoInicial);
+    preencherValor("fechDinheiro", resumo.dinheiro);
+    preencherValor("fechCredito", resumo.credito);
+    preencherValor("fechDebito", resumo.debito);
+    preencherValor("fechPix", resumo.pix);
+    preencherValor("fechVoucher", resumo.voucher);
+    preencherValor("fechFiado", resumo.fiado);
+    preencherValor("fechOutros", resumo.outros);
+    preencherValor("fechTotal", resumo.total_vendas);
+    preencherValor("fechDinTrocoInicial", trocoInicial);
+    preencherValor("fechDinVendas", resumo.dinheiro);
+    preencherValor("fechDinEsperado", dinheiroEsperado);
+
+    if (fechamentoQtdVendas) {
+        const qtd = Number(resumo.quantidade_vendas || 0);
+        fechamentoQtdVendas.innerText = `${qtd} ${qtd === 1 ? "venda" : "vendas"}`;
+    }
+
+    if (fechamentoStatus) {
+        if (fechamento?.status === "FECHADO") {
+            fechamentoStatus.innerText = "FECHADO";
+        } else if (fechamento?.status === "ABERTO") {
+            fechamentoStatus.innerText = "CAIXA ABERTO";
+        } else {
+            fechamentoStatus.innerText = "NÃO ABERTO";
+        }
+    }
+
+    if (fechamentoOrigemTroco) {
+        fechamentoOrigemTroco.innerText = dados.origem_troco_inicial
+            ? `Troco trazido do fechamento de ${formatarDataFechamento(dados.origem_troco_inicial)}`
+            : "Primeiro dia / troco inicial informado manualmente";
+    }
+
+    const ehHoje = dados.data_referencia === dataLocalPDV();
+    if (ehHoje) {
+        caixaHojeFechado = fechamento?.status === "FECHADO";
+    }
+    const primeiroDiaSemFechamento = !fechamento && ehHoje && dados.primeiro_dia;
+
+    if (fechamentoTrocoInicialInput && btnRegistrarAbertura) {
+        if (primeiroDiaSemFechamento) {
+            fechamentoTrocoInicialInput.style.display = "block";
+            fechamentoTrocoInicialInput.value = "";
+            btnRegistrarAbertura.style.display = "inline-block";
+            btnRegistrarAbertura.disabled = false;
+        } else {
+            fechamentoTrocoInicialInput.style.display = "none";
+            btnRegistrarAbertura.style.display = "none";
+        }
+    }
+
+    if (fechamento?.status === "FECHADO") {
+        fechamentoTrocoProximo.value = dinheiroFechamento(fechamento.troco_proximo_dia).replace("R$ ", "");
+    } else if (!fechamentoTrocoProximo.value || dados.data_referencia !== fechamentoData.value) {
+        fechamentoTrocoProximo.value = "";
+    }
+
+    const podeFechar = dados.pode_fechar === true;
+    const fechamentoDeHoje = dados.data_referencia === dataLocalPDV();
+    const podeRegistrarFechamento = podeFechar && (!fechamentoDeHoje || fechamento?.status === "ABERTO");
+
+    if (btnSalvarFechamento) {
+        btnSalvarFechamento.disabled = !podeRegistrarFechamento;
+        btnSalvarFechamento.innerText = fechamentoDeHoje ? "FECHAR DIA" : "FECHAR DIA ANTERIOR";
+    }
+
+    if (fechamento?.status === "FECHADO") {
+        const diferenca = Number(fechamento.diferenca_caixa || 0);
+        fechamentoDiferenca.innerText = `${diferenca > 0.009 ? "Sobra de caixa" : diferenca < -0.009 ? "Falta de caixa" : "Diferença de caixa"}: ${dinheiroFechamento(Math.abs(diferenca))}`;
+    } else {
+        atualizarDiferencaFechamento();
+    }
+}
+
+async function carregarDadosFechamento(data, abrir = true) {
+    if (!data) return;
+    limparAlertaFechamento();
+
+    if (fechamentoData) fechamentoData.value = data;
+    if (fechamentoDataConsulta) fechamentoDataConsulta.value = data;
+
+    try {
+        const resposta = await apiFetch(`${URL_BACKEND_CAD}/fechamentos-diarios/${data}`, {
+            headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+        });
+
+        const tipoResposta = resposta.headers.get("content-type") || "";
+        const dados = tipoResposta.includes("application/json") ? await resposta.json() : { resposta: `Servidor respondeu ${resposta.status} sem JSON.` };
+        if (!resposta.ok) throw new Error(dados.resposta || "Não foi possível carregar o fechamento.");
+
+        atualizarCamposFechamento(dados);
+
+        const titulo = document.getElementById("fechamentoTitulo");
+        if (titulo) {
+            titulo.innerText = dados.data_referencia === dataLocalPDV()
+                ? "CONTROLE / FECHAMENTO DO CAIXA"
+                : `FECHAMENTO — ${formatarDataFechamento(dados.data_referencia)}`;
+        }
+
+        if (abrir && dialogFechamentoDiario && !dialogFechamentoDiario.open) {
+            dialogFechamentoDiario.showModal();
+        }
+    } catch (erro) {
+        console.error("Erro ao carregar fechamento:", erro);
+        mostrarAlertaFechamento(erro.message || "Erro ao carregar o fechamento diário.");
+        if (abrir && dialogFechamentoDiario && !dialogFechamentoDiario.open) {
+            dialogFechamentoDiario.showModal();
+        }
+    }
+}
+
+async function registrarAberturaCaixa() {
+    const data = dataLocalPDV();
+    const valor = valorNumericoFechamento(fechamentoTrocoInicialInput?.value);
+
+    if (!Number.isFinite(valor) || valor < 0) {
+        mostrarAlertaFechamento("Informe o valor que havia de troco no início do primeiro dia.");
+        return;
+    }
+
+    try {
+        const resposta = await apiFetch(`${URL_BACKEND_CAD}/fechamentos-diarios/abertura`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify({
+                data_referencia: data,
+                troco_inicial: valor
+            })
+        });
+
+        const dados = await resposta.json();
+        if (!resposta.ok) throw new Error(dados.resposta || "Não foi possível registrar a abertura.");
+
+        await carregarDadosFechamento(data, false);
+        liberarPDVDepoisDoFechamento();
+        mostrarAlertaFechamento("Abertura do caixa registrada. O valor ficará gravado para o fechamento de hoje.");
+    } catch (erro) {
+        console.error("Erro ao registrar abertura:", erro);
+        mostrarAlertaFechamento(erro.message || "Erro ao registrar a abertura do caixa.");
+    }
+}
+
+async function verificarFechamentoInicial() {
+    try {
+        const resposta = await apiFetch(`${URL_BACKEND_CAD}/fechamentos-diarios/status-inicial`, {
+            headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+        });
+        const tipoResposta = resposta.headers.get("content-type") || "";
+        const dados = tipoResposta.includes("application/json") ? await resposta.json() : { resposta: `Servidor respondeu ${resposta.status} sem JSON.` };
+        if (!resposta.ok) throw new Error(dados.resposta || "Não foi possível verificar o fechamento diário.");
+
+        const hoje = dados.hoje || dataLocalPDV();
+        fechamentoForcado = Boolean(dados.data_pendente);
+        const chaveAberturaPDV = `pdv_fechamento_apresentado_${hoje}`;
+        const jaApresentadoHoje = localStorage.getItem(chaveAberturaPDV) === "1";
+
+        if (fechamentoForcado) {
+            mostrarAlertaFechamento(
+                `Existe um fechamento pendente do dia ${formatarDataFechamento(dados.data_pendente)}.\nFeche esse dia antes de iniciar novas vendas.`
+            );
+            await carregarDadosFechamento(dados.data_pendente, true);
+            fecharTravaPDV(true);
+        } else {
+            const abrirAutomaticamente = !jaApresentadoHoje;
+            await carregarDadosFechamento(hoje, abrirAutomaticamente);
+            if (abrirAutomaticamente) localStorage.setItem(chaveAberturaPDV, "1");
+
+            if (fechamentoDadosAtual?.fechamento?.status === "FECHADO") {
+                caixaHojeFechado = true;
+                fecharTravaPDV(true);
+                mostrarAlertaFechamento("O fechamento de hoje já foi realizado. O PDV permanece bloqueado para novas vendas neste dia.");
+            } else if (!fechamentoDadosAtual?.fechamento && fechamentoDadosAtual?.primeiro_dia) {
+                fecharTravaPDV(true);
+                mostrarAlertaFechamento("Primeiro acesso: informe o dinheiro que havia de troco no início do dia para abrir o caixa.");
+            } else if (!fechamentoDadosAtual?.fechamento) {
+                // Primeiro dia após um fechamento anterior: leva automaticamente
+                // o troco do último dia fechado para a abertura de hoje.
+                const valorAbertura = Number(fechamentoDadosAtual?.troco_inicial || 0);
+                try {
+                    const respostaAbertura = await apiFetch(`${URL_BACKEND_CAD}/fechamentos-diarios/abertura`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`
+                        },
+                        body: JSON.stringify({
+                            data_referencia: hoje,
+                            troco_inicial: valorAbertura
+                        })
+                    });
+                    const dadosAbertura = await respostaAbertura.json();
+                    if (!respostaAbertura.ok) throw new Error(dadosAbertura.resposta || "Não foi possível abrir o caixa de hoje.");
+                    await carregarDadosFechamento(hoje, false);
+                    liberarPDVDepoisDoFechamento();
+                    mostrarAlertaFechamento(
+                        `Caixa de hoje aberto automaticamente. Troco inicial: ${dinheiroFechamento(valorAbertura)}.`
+                    );
+                } catch (erroAbertura) {
+                    fecharTravaPDV(true);
+                    mostrarAlertaFechamento(erroAbertura.message || "Não foi possível abrir o caixa de hoje.");
+                }
+            } else {
+                liberarPDVDepoisDoFechamento();
+                mostrarAlertaFechamento(
+                    `Caixa do dia ${formatarDataFechamento(hoje)}. Troco inicial: ${dinheiroFechamento(fechamentoDadosAtual?.troco_inicial || 0)}.`
+                );
+            }
+        }
+
+        fechamentoInicializado = true;
+    } catch (erro) {
+        console.error("Erro na verificação inicial do fechamento:", erro);
+        fecharTravaPDV(true);
+        if (dialogFechamentoDiario && !dialogFechamentoDiario.open) dialogFechamentoDiario.showModal();
+        mostrarAlertaFechamento(erro.message || "Não foi possível verificar o fechamento. O PDV ficará bloqueado até a verificação ser concluída.");
+    }
+}
+
+function fecharTravaPDV(travar) {
+    if (typeof inp_codb !== "undefined" && inp_codb) {
+        inp_codb.disabled = Boolean(travar);
+    }
+    document.body.classList.toggle("pdv-fechamento-bloqueado", Boolean(travar));
+}
+
+function liberarPDVDepoisDoFechamento() {
+    if (fechamentoForcado || caixaHojeFechado) return;
+    fecharTravaPDV(false);
+    if (typeof inp_codb !== "undefined" && inp_codb) {
+        setTimeout(() => inp_codb.focus(), 100);
+    }
+}
+
+window.abrirFechamentoDiario = async function(data = dataLocalPDV()) {
+    if (!dialogFechamentoDiario) return;
+    await carregarDadosFechamento(data, true);
+};
+
+btnRegistrarAbertura?.addEventListener("click", registrarAberturaCaixa);
+fechamentoTrocoProximo?.addEventListener("input", atualizarDiferencaFechamento);
+
+btnConsultarFechamento?.addEventListener("click", async () => {
+    const data = fechamentoDataConsulta?.value;
+    if (!data) {
+        mostrarAlertaFechamento("Escolha o dia que deseja consultar.");
+        return;
+    }
+    await carregarDadosFechamento(data, false);
+});
+
+async function executarSalvamentoFechamento() {
+    if (!fechamentoDadosAtual) return;
+
+    const data = fechamentoDadosAtual.data_referencia;
+    const trocoProximo = valorNumericoFechamento(fechamentoTrocoProximo?.value);
+
+    if (!Number.isFinite(trocoProximo) || trocoProximo < 0) {
+        mostrarAlertaFechamento("Digite quanto de dinheiro/troco ficará para o próximo dia.");
+        fechamentoTrocoProximo?.focus();
+        return;
+    }
+
+    btnSalvarFechamento.disabled = true;
+
+    try {
+        const resposta = await apiFetch(`${URL_BACKEND_CAD}/fechamentos-diarios`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify({
+                data_referencia: data,
+                troco_proximo_dia: trocoProximo
+            })
+        });
+
+        const dados = await resposta.json();
+        if (!resposta.ok) throw new Error(dados.resposta || "Não foi possível fechar o dia.");
+
+        fechamentoForcado = false;
+        await carregarDadosFechamento(data, false);
+
+        if (data === dataLocalPDV()) {
+            caixaHojeFechado = true;
+            fecharTravaPDV(true);
+        } else {
+            // Fechou um dia anterior que estava pendente: abre automaticamente
+            // o dia atual usando o troco informado no fechamento anterior.
+            const hoje = dataLocalPDV();
+            try {
+                await apiFetch(`${URL_BACKEND_CAD}/fechamentos-diarios/abertura`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    },
+                    body: JSON.stringify({
+                        data_referencia: hoje,
+                        troco_inicial: Number(dados.troco_proximo_dia || 0)
+                    })
+                });
+            } catch (erroAbertura) {
+                console.warn("Não foi possível registrar automaticamente a abertura de hoje:", erroAbertura);
+            }
+
+            fechamentoForcado = false;
+            await carregarDadosFechamento(hoje, false);
+            liberarPDVDepoisDoFechamento();
+        }
+
+        mostrarAlertaFechamento(
+            `Fechamento de ${formatarDataFechamento(data)} realizado.\n` +
+            `O valor de ${dinheiroFechamento(dados.troco_proximo_dia)} será levado automaticamente para o próximo dia aberto.`
+        );
+    } catch (erro) {
+        console.error("Erro ao fechar dia:", erro);
+        mostrarAlertaFechamento(erro.message || "Erro ao salvar o fechamento.");
+        if (fechamentoDadosAtual?.pode_fechar) btnSalvarFechamento.disabled = false;
+    }
+}
+
+btnSalvarFechamento?.addEventListener("click", () => {
+    if (!fechamentoDadosAtual) return;
+
+    const data = fechamentoDadosAtual.data_referencia;
+    const trocoProximo = valorNumericoFechamento(fechamentoTrocoProximo?.value);
+
+    if (!Number.isFinite(trocoProximo) || trocoProximo < 0) {
+        mostrarAlertaFechamento("Digite quanto de dinheiro/troco ficará para o próximo dia.");
+        fechamentoTrocoProximo?.focus();
+        return;
+    }
+
+    exibirAviso(
+        `Confirmar o fechamento de ${formatarDataFechamento(data)}?\n\n` +
+        `Dinheiro esperado no caixa: ${dinheiroFechamento(fechamentoDadosAtual.dinheiro_esperado)}\n` +
+        `Troco para o próximo dia: ${dinheiroFechamento(trocoProximo)}`,
+        executarSalvamentoFechamento,
+        true
+    );
+});
+
+function fecharModalFechamento() {
+    if (fechamentoForcado) {
+        mostrarAlertaFechamento("Há um fechamento pendente. Ele precisa ser concluído antes de sair desta tela.");
+        return;
+    }
+    dialogFechamentoDiario?.close();
+    if (typeof inp_codb !== "undefined" && inp_codb) setTimeout(() => inp_codb.focus(), 100);
+}
+
+btnFecharFechamento?.addEventListener("click", fecharModalFechamento);
+btnFecharFechamentoSemSalvar?.addEventListener("click", fecharModalFechamento);
+
+dialogFechamentoDiario?.addEventListener("cancel", event => {
+    event.preventDefault();
+    fecharModalFechamento();
+});
+
+// O fechamento abre automaticamente ao entrar no PDV.
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        verificarFechamentoInicial();
+    }, 250);
 });
 </script>
 

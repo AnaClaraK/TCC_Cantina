@@ -10,12 +10,31 @@
     <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
 
     <title>Histórico de Pedidos</title>
+    <style>
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 20px !important;
+        }
+        th.sortable::after {
+            content: " ⇅";
+            opacity: 0.3;
+            font-size: 0.8em;
+        }
+        th.sort-asc::after {
+            content: " ▲";
+            opacity: 1;
+        }
+        th.sort-desc::after {
+            content: " ▼";
+            opacity: 1;
+        }
+    </style>
 </head>
 
 <body class="fundo-escuro">
-<!-- CABEÇALHO COMPLETO DA PÁGINA -->
 <div class="d_util topo-cabecalho">
-
     <div class="grupo-esquerda">
         <div class="titulo-historico">
             <h2 class="h_ag">Histórico de Pedidos</h2>
@@ -29,15 +48,12 @@
     </div>
 
     <div id="painel_metricas">
-
         <div class="grupo-direita">
-
             <div class="total-faturado-box">
                 <span>Faturamento:</span>
                 <strong id="lbl_total_mes">R$ 0,00</strong>
             </div>
 
-            <!-- BUSCA E FILTRO -->
             <div class="busca-box">
                 <img src="../backend/imagens/lupa.png"
                      class="icone-busca"
@@ -63,92 +79,139 @@
                 </div>
             </div>
 
-            <!-- BOTÕES DE AÇÃO -->
             <button id="btnExportarPDF" class="btn-baixar-pdf" onclick="gerarPDFMensalPedidos()">
                 Baixar PDF
             </button>
             <button id="btnLimparBackup" class="btn-limpar-historico" onclick="confirmarBackupEApagar()">
                 Limpar
             </button>
-
         </div>
-
     </div>
-
 </div>
-    </div> <!-- Fim d_util -->
 
-    <section id="sc_tabela" class="container mt-5">
-        <table class="tabela table-striped table-hover border">
-            <thead class="table-dark">
-                <tr>
-                    <th scope="col">Nome do cliente</th>
-                    <th scope="col">Pedido n°</th>
-                    <th scope="col">Origem</th>
-                    <th scope="col">Data e hora</th>
-                    <th scope="col">Total da compra</th>
-                    <th scope="col">Forma de pagamento</th>
-                </tr>
-            </thead>
-            <tbody id="tb_tbl_produtos"></tbody>
-        </table>
-    </section>
+<section id="sc_tabela" class="container mt-5">
+    <table class="tabela table-striped table-hover border">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Nome do cliente</th>
+                <th scope="col">Pedido n°</th>
+                <th scope="col">Origem</th>
+                <th scope="col">Data e hora</th>
+                <th scope="col">Total da compra</th>
+                <th scope="col">Forma de pagamento</th>
+            </tr>
+        </thead>
+        <tbody id="tb_tbl_produtos"></tbody>
+    </table>
+</section>
 
-    <!-- MODAL DE AVISO -->
-    <dialog id="d_aviso">
-        <div class="aviso_box">
-            <p id="msg_aviso"></p>
-            <div class="aviso_botoes">
-                <button id="b_confirmar_aviso">OK</button>
-                <button id="b_cancelar_aviso" style="display:none;">Cancelar</button>
-            </div>
+<dialog id="d_aviso">
+    <div class="aviso_box">
+        <p id="msg_aviso"></p>
+        <div class="aviso_botoes">
+            <button id="b_confirmar_aviso">OK</button>
+            <button id="b_cancelar_aviso" style="display:none;">Cancelar</button>
         </div>
-    </dialog>
-
-<dialog id="modalRankingProdutos">
-
-    <div class="modal_box">
-
-        <button id="b_close_ranking"
-            onclick="modalRankingProdutos.close()">
-            ✕
-        </button>
-
-        <h2 class="modal_titulo">
-            Produtos mais vendidos
-        </h2>
-
-        <div id="listaRankingProdutos"></div>
-
     </div>
-
 </dialog>
 
-<!-- Importação dos scripts no final da página -->
+<dialog id="modalRankingProdutos">
+    <div class="modal_box">
+        <button id="b_close_ranking" onclick="modalRankingProdutos.close()">✕</button>
+        <h2 class="modal_titulo">Produtos mais vendidos</h2>
+        <div id="listaRankingProdutos"></div>
+    </div>
+</dialog>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 <script src="./gerarpdf.js"></script>
 
-    <script>
-    const corpoTabela = document.getElementById("tb_tbl_produtos");
-    const inputBusca = document.getElementById("inputBusca");
-    const btnFiltro = document.getElementById("btnFiltro");
-    const menuFiltro = document.getElementById("menuFiltro");
-    const itensFiltro = document.querySelectorAll(".itemFiltro");
+<script>
+const corpoTabela = document.getElementById("tb_tbl_produtos");
+const inputBusca = document.getElementById("inputBusca");
+const btnFiltro = document.getElementById("btnFiltro");
+const menuFiltro = document.getElementById("menuFiltro");
+const itensFiltro = document.querySelectorAll(".itemFiltro");
 
-    let pedidosCarregados = [];
-    let filtroOrigemAtual = "todos";
-    let rankingProdutos = [];
+let pedidosCarregados = [];
+let filtroOrigemAtual = "todos";
+let rankingProdutos = [];
 
-    // ===============================
-    // FUNÇÃO UTILITÁRIA DE FORMATAÇÃO
-    // ===============================
-    function formatarFormaPagamento(texto) {
+function aplicarOrdenacaoTabela(idTbody, colunasIgnoradas = []) {
+    const tbody = document.getElementById(idTbody);
+    if (!tbody) return;
+
+    const tabela = tbody.closest("table");
+    if (!tabela) return;
+
+    if (!tbody.dataset.ordemOriginal) {
+        const linhasOriginais = Array.from(tbody.querySelectorAll("tr"));
+        linhasOriginais.forEach((tr, index) => tr.dataset.indexOriginal = index);
+        tbody.dataset.ordemOriginal = "true";
+    }
+
+    const cabecalhos = tabela.querySelectorAll("thead th");
+
+    cabecalhos.forEach((th, indice) => {
+        if (colunasIgnoradas.includes(indice)) return;
+
+        th.classList.add("sortable");
+
+        const novoTh = th.cloneNode(true);
+        th.parentNode.replaceChild(novoTh, th);
+
+        novoTh.addEventListener("click", () => {
+            const estadoAtual = novoTh.dataset.ordem || "none";
+            let novoEstado = "asc";
+
+            if (estadoAtual === "asc") novoEstado = "desc";
+            else if (estadoAtual === "desc") novoEstado = "none";
+
+            cabecalhos.forEach(c => {
+                c.classList.remove("sort-asc", "sort-desc");
+                c.dataset.ordem = "none";
+            });
+
+            novoTh.dataset.ordem = novoEstado;
+
+            const linhas = Array.from(tbody.querySelectorAll("tr"));
+
+            if (novoEstado === "none") {
+                linhas.sort((a, b) => {
+                    const idxA = parseInt(a.dataset.indexOriginal || 0);
+                    const idxB = parseInt(b.dataset.indexOriginal || 0);
+                    return idxA - idxB;
+                });
+            } else {
+                novoTh.classList.add(novoEstado === "asc" ? "sort-asc" : "sort-desc");
+
+                linhas.sort((a, b) => {
+                    const valA = a.children[indice]?.textContent.trim() || "";
+                    const valB = b.children[indice]?.textContent.trim() || "";
+
+                    const numA = parseFloat(valA.replace("R$", "").replace("#", "").replace(/\./g, "").replace(",", ".").trim());
+                    const numB = parseFloat(valB.replace("R$", "").replace("#", "").replace(/\./g, "").replace(",", ".").trim());
+
+                    if (!isNaN(numA) && !isNaN(numB)) {
+                        return novoEstado === "asc" ? numA - numB : numB - numA;
+                    }
+
+                    return novoEstado === "asc" 
+                        ? valA.localeCompare(valB, "pt-BR", { numeric: true }) 
+                        : valB.localeCompare(valA, "pt-BR", { numeric: true });
+                });
+            }
+
+            linhas.forEach(linha => tbody.appendChild(linha));
+        });
+    });
+}
+
+function formatarFormaPagamento(texto) {
     if (!texto) return "-";
-    
     let limpo = String(texto);
 
-    // Pagamento dividido: exibe cada forma com seu valor.
     if (limpo.includes("=")) {
         const partes = limpo.split(",").map(p => p.trim()).filter(Boolean);
         const divididos = partes.map(parte => {
@@ -161,175 +224,151 @@
         return divididos.join(" + ");
     }
 
-    // 1. Remove qualquer menção a F1 até F12 (ex: F2, [F2], (F2), F11, etc.)
     limpo = limpo.replace(/f(?:1[0-2]|[1-9])/gi, "");
-
-    // 2. Remove TODOS os parênteses e colchetes, abertos ou fechados
     limpo = limpo.replace(/[()\[\]]/g, "");
-
-    // 3. Remove traços e espaços que sobraram nas pontas
     limpo = limpo.replace(/^[-:\s]+|[-:\s]+$/g, "").trim();
 
     if (!limpo) return "-";
 
-    // 4. Deixa Primeira Letra Maiúscula e o resto minúsculo
-    return limpo.toLowerCase().replace(/(?:^|\s|-)\S/g, function(a) {
-        return a.toUpperCase();
-    });
+    return limpo.toLowerCase().replace(/(?:^|\s|-)\S/g, a => a.toUpperCase());
 }
 
-    document.addEventListener("DOMContentLoaded", () => {
-        buscarProdutosEstoque();
-        configurarEventosFiltro();
-    });
+document.addEventListener("DOMContentLoaded", () => {
+    buscarProdutosEstoque();
+    configurarEventosFiltro();
+});
 
-    // ===============================
-    // 1. BUSCAR PEDIDOS NO BACKEND
-    // ===============================
-    async function buscarProdutosEstoque() {
-        if (!corpoTabela) return;
-        corpoTabela.innerHTML = "";
+async function buscarProdutosEstoque() {
+    if (!corpoTabela) return;
+    corpoTabela.innerHTML = "";
 
-        try {
-            const response = await fetch("http://localhost:3000/historico-pedidos", {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-
-            if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
-
-            pedidosCarregados = await response.json();
-
-            console.log("Dados recebidos do backend:", pedidosCarregados);
-
-            calcularRankingProdutos();
-
-            if (pedidosCarregados.length === 0) {
-                corpoTabela.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center;">Nenhum pedido finalizado encontrado.</td>
-                    </tr>
-                `;
-                atualizarMetricas([]);
-                return;
+    try {
+        const response = await fetch("http://localhost:3000/historico-pedidos", {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
             }
+        });
 
-            aplicarFiltrosEBusca();
+        if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
 
-        } catch (erro) {
-            console.error("Erro ao carregar histórico:", erro);
+        pedidosCarregados = await response.json();
+        calcularRankingProdutos();
+
+        if (pedidosCarregados.length === 0) {
             corpoTabela.innerHTML = `
                 <tr>
-                    <td colspan="6" style="text-align: center;">Erro ao carregar histórico de pedidos.</td>
+                    <td colspan="6" style="text-align: center;">Nenhum pedido finalizado encontrado.</td>
                 </tr>
             `;
-        }
-    }
-
-    // ===============================
-    // 2. FILTROS E PESQUISA
-    // ===============================
-    function configurarEventosFiltro() {
-        if (btnFiltro) {
-            btnFiltro.addEventListener("click", (e) => {
-                e.stopPropagation();
-                menuFiltro.classList.toggle("aberto");
-            });
-        }
-
-        document.addEventListener("click", () => {
-            if (menuFiltro) menuFiltro.classList.remove("aberto");
-        });
-
-        itensFiltro.forEach(item => {
-            item.addEventListener("click", () => {
-                itensFiltro.forEach(i => i.classList.remove("ativo"));
-                item.classList.add("ativo");
-                filtroOrigemAtual = item.getAttribute("data-origem");
-                aplicarFiltrosEBusca();
-            });
-        });
-
-        if (inputBusca) {
-            inputBusca.addEventListener("input", () => {
-                aplicarFiltrosEBusca();
-            });
-        }
-    }
-
-    function aplicarFiltrosEBusca() {
-        const termoBusca = inputBusca ? inputBusca.value.toLowerCase().trim() : "";
-
-        const pedidosFiltrados = pedidosCarregados.filter(pedido => {
-            const origemPedido = (pedido.origem || "").toLowerCase();
-            
-            const atendeOrigem = (filtroOrigemAtual === "todos") || 
-                                 (origemPedido === filtroOrigemAtual.toLowerCase());
-
-            const nomeCliente = (pedido.nome || "consumidor final").toLowerCase();
-            const numPedido = (pedido.num_pedido !== undefined && pedido.num_pedido !== null) 
-                                ? pedido.num_pedido.toString().toLowerCase() 
-                                : "";
-
-            const atendeBusca = nomeCliente.includes(termoBusca) || numPedido.includes(termoBusca);
-
-            return atendeOrigem && atendeBusca;
-        });
-
-        renderizarTabela(pedidosFiltrados);
-        atualizarMetricas();
-    }
-
-    // ===============================
-    // 3. RENDERIZAR TABELA
-    // ===============================
-    function renderizarTabela(pedidos) {
-        if (!corpoTabela) return;
-        corpoTabela.innerHTML = "";
-
-        if (!pedidos || pedidos.length === 0) {
-            corpoTabela.innerHTML = `
-                <tr>
-                    <td colspan="6" style="text-align: center;">Nenhum pedido encontrado.</td>
-                </tr>
-            `;
+            atualizarMetricas();
             return;
         }
 
-        pedidos.forEach(pedido => {
-            const dataFormatada = pedido.data ? new Date(pedido.data).toLocaleString("pt-BR") : "-";
-            const valorTotalNum = Number(pedido.valor_total) || 0;
-            const valorFormatado = valorTotalNum.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-            
-            // Aplica a limpeza e formatação na forma de pagamento
-            const pagamentoFormatado = formatarFormaPagamento(pedido.form_pag);
+        aplicarFiltrosEBusca();
 
-            const tr = document.createElement("tr");
+    } catch (erro) {
+        console.error("Erro ao carregar histórico:", erro);
+        corpoTabela.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align: center;">Erro ao carregar histórico de pedidos.</td>
+            </tr>
+        `;
+    }
+}
 
-            tr.innerHTML = `
-                <td>${pedido.nome || "Consumidor Final"}</td>
-                <td>#${pedido.num_pedido || pedido.id_pedido || "-"}</td>
-                <td>${pedido.origem || "PDV"}</td>
-                <td>${dataFormatada}</td>
-                <td>${valorFormatado}</td>
-                <td>${pagamentoFormatado}</td>
-            `;
-            corpoTabela.appendChild(tr);
+function configurarEventosFiltro() {
+    if (btnFiltro) {
+        btnFiltro.addEventListener("click", (e) => {
+            e.stopPropagation();
+            menuFiltro.classList.toggle("aberto");
         });
     }
 
-    // ===============================
-    // 4. CÁLCULO DE FATURAMENTO (MÉTRICAS)
-    // ===============================
-    function obterPedidosDoMesAtual() {
+    document.addEventListener("click", () => {
+        if (menuFiltro) menuFiltro.classList.remove("aberto");
+    });
+
+    itensFiltro.forEach(item => {
+        item.addEventListener("click", () => {
+            itensFiltro.forEach(i => i.classList.remove("ativo"));
+            item.classList.add("ativo");
+            filtroOrigemAtual = item.getAttribute("data-origem");
+            aplicarFiltrosEBusca();
+        });
+    });
+
+    if (inputBusca) {
+        inputBusca.addEventListener("input", () => {
+            aplicarFiltrosEBusca();
+        });
+    }
+}
+
+function aplicarFiltrosEBusca() {
+    const termoBusca = inputBusca ? inputBusca.value.toLowerCase().trim() : "";
+
+    const pedidosFiltrados = pedidosCarregados.filter(pedido => {
+        const origemPedido = (pedido.origem || "").toLowerCase();
+        const atendeOrigem = (filtroOrigemAtual === "todos") || 
+                             (origemPedido === filtroOrigemAtual.toLowerCase());
+
+        const nomeCliente = (pedido.nome || "consumidor final").toLowerCase();
+        const numPedido = (pedido.num_pedido !== undefined && pedido.num_pedido !== null) 
+                            ? pedido.num_pedido.toString().toLowerCase() 
+                            : "";
+
+        const atendeBusca = nomeCliente.includes(termoBusca) || numPedido.includes(termoBusca);
+
+        return atendeOrigem && atendeBusca;
+    });
+
+    renderizarTabela(pedidosFiltrados);
+    atualizarMetricas();
+}
+
+function renderizarTabela(pedidos) {
+    if (!corpoTabela) return;
+    corpoTabela.innerHTML = "";
+    delete corpoTabela.dataset.ordemOriginal;
+
+    if (!pedidos || pedidos.length === 0) {
+        corpoTabela.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align: center;">Nenhum pedido encontrado.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    pedidos.forEach(pedido => {
+        const dataFormatada = pedido.data ? new Date(pedido.data).toLocaleString("pt-BR") : "-";
+        const valorTotalNum = Number(pedido.valor_total) || 0;
+        const valorFormatado = valorTotalNum.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+        const pagamentoFormatado = formatarFormaPagamento(pedido.form_pag);
+
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>${pedido.nome || "Consumidor Final"}</td>
+            <td>#${pedido.num_pedido || pedido.id_pedido || "-"}</td>
+            <td>${pedido.origem || "PDV"}</td>
+            <td>${dataFormatada}</td>
+            <td>${valorFormatado}</td>
+            <td>${pagamentoFormatado}</td>
+        `;
+        corpoTabela.appendChild(tr);
+    });
+
+    aplicarOrdenacaoTabela("tb_tbl_produtos", []);
+}
+
+function obterPedidosDoMesAtual() {
     const agora = new Date();
     const mesAtual = agora.getMonth();
     const anoAtual = agora.getFullYear();
 
     return pedidosCarregados.filter(pedido => {
         if (!pedido.data) return false;
-
         const dataPedido = new Date(pedido.data);
 
         return (
@@ -338,9 +377,9 @@
         );
     });
 }
-   function atualizarMetricas() {
-    const pedidosDoMes = obterPedidosDoMesAtual();
 
+function atualizarMetricas() {
+    const pedidosDoMes = obterPedidosDoMesAtual();
     let totalFaturado = 0;
 
     pedidosDoMes.forEach(pedido => {
@@ -348,134 +387,118 @@
     });
 
     const elementoTotal = document.getElementById("lbl_total_mes");
-
     if (elementoTotal) {
-        elementoTotal.innerText =
-            `R$ ${totalFaturado.toFixed(2).replace(".", ",")}`;
+        elementoTotal.innerText = `R$ ${totalFaturado.toFixed(2).replace(".", ",")}`;
     }
 }
 
-    // ===============================
-    // 5. RANKING DE PRODUTOS
-    // ===============================
-    function calcularRankingProdutos() {
-        const contador = {};
+function calcularRankingProdutos() {
+    const contador = {};
 
-        pedidosCarregados.forEach(pedido => {
-            let listaProds = pedido.itens || pedido.produtos || [];
+    pedidosCarregados.forEach(pedido => {
+        let listaProds = pedido.itens || pedido.produtos || [];
 
-            if (typeof listaProds === "string") {
-                try {
-                    listaProds = JSON.parse(listaProds);
-                } catch (e) {
-                    listaProds = [];
+        if (typeof listaProds === "string") {
+            try {
+                listaProds = JSON.parse(listaProds);
+            } catch (e) {
+                listaProds = [];
+            }
+        }
+
+        if (Array.isArray(listaProds)) {
+            listaProds.forEach(prod => {
+                const nome = prod.nome || prod.nome_produto || "Produto Sem Nome";
+                const qtd = Number(prod.qtd || prod.quantidade || 1);
+
+                if (nome) {
+                    contador[nome] = (contador[nome] || 0) + qtd;
                 }
-            }
-
-            if (Array.isArray(listaProds)) {
-                listaProds.forEach(prod => {
-                    const nome = prod.nome || prod.nome_produto || "Produto Sem Nome";
-                    const qtd = Number(prod.qtd || prod.quantidade || 1);
-
-                    if (nome) {
-                        contador[nome] = (contador[nome] || 0) + qtd;
-                    }
-                });
-            }
-        });
-
-        rankingProdutos = Object.entries(contador)
-            .map(([nome, quantidade]) => ({ nome, quantidade }))
-            .sort((a, b) => b.quantidade - a.quantidade);
-    }
-
-    function abrirRankingProdutos() {
-        const lista = document.getElementById("listaRankingProdutos");
-        lista.innerHTML = "";
-
-        if (rankingProdutos.length === 0) {
-            lista.innerHTML = "<p style='padding: 10px; text-align: center;'>Nenhum dado de produto vendido encontrado.</p>";
-        } else {
-            rankingProdutos.forEach((produto, index) => {
-                lista.innerHTML += `
-                    <div class="item-ranking" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333;">
-                        <span><strong>${index + 1}°</strong> ${produto.nome}</span>
-                        <strong>${produto.quantidade} un.</strong>
-                    </div>
-                `;
             });
         }
+    });
 
-        document.getElementById("modalRankingProdutos").showModal();
+    rankingProdutos = Object.entries(contador)
+        .map(([nome, quantidade]) => ({ nome, quantidade }))
+        .sort((a, b) => b.quantidade - a.quantidade);
+}
+
+function abrirRankingProdutos() {
+    const lista = document.getElementById("listaRankingProdutos");
+    lista.innerHTML = "";
+
+    if (rankingProdutos.length === 0) {
+        lista.innerHTML = "<p style='padding: 10px; text-align: center;'>Nenhum dado de produto vendido encontrado.</p>";
+    } else {
+        rankingProdutos.forEach((produto, index) => {
+            lista.innerHTML += `
+                <div class="item-ranking" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333;">
+                    <span><strong>${index + 1}°</strong> ${produto.nome}</span>
+                    <strong>${produto.quantidade} un.</strong>
+                </div>
+            `;
+        });
     }
-document.addEventListener("DOMContentLoaded", () => {
-    const btnRelatorio = document.getElementById("btnBaixarRelatorio");
-    
-    if (btnRelatorio) {
-        btnRelatorio.addEventListener("click", gerarPDFMensalPedidos);
-    }
-});
-    // ===============================
-    // 7. APAGAR HISTÓRICO
-    // ===============================
-    function confirmarBackupEApagar() {
-        exibirAviso(
-            "Atenção: Ao confirmar, o PDF do mês será baixado automaticamente como segurança e todos os pedidos serão apagados. Deseja continuar?",
-            async () => {
-                gerarPDFMensalPedidos();
 
-                try {
-                    const res = await fetch("http://localhost:3000/historico-pedidos/limpar", {
-                        method: "DELETE",
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`
-                        }
-                    });
+    document.getElementById("modalRankingProdutos").showModal();
+}
 
-                    const data = await res.json();
-                    if (res.ok) {
-                        exibirAviso("Histórico limpo com sucesso!");
-                        buscarProdutosEstoque();
-                    } else {
-                        exibirAviso(data.erro || "Erro ao apagar histórico.");
+function confirmarBackupEApagar() {
+    exibirAviso(
+        "Atenção: Ao confirmar, o PDF do mês será baixado automaticamente como segurança e todos os pedidos serão apagados. Deseja continuar?",
+        async () => {
+            gerarPDFMensalPedidos();
+
+            try {
+                const res = await fetch("http://localhost:3000/historico-pedidos/limpar", {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`
                     }
-                } catch (err) {
-                    console.error("Erro ao apagar o histórico:", err);
-                    exibirAviso("Erro de conexão ao tentar limpar histórico.");
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    exibirAviso("Histórico limpo com sucesso!");
+                    buscarProdutosEstoque();
+                } else {
+                    exibirAviso(data.erro || "Erro ao apagar histórico.");
                 }
-            },
-            true
-        );
+            } catch (err) {
+                console.error("Erro ao apagar o histórico:", err);
+                exibirAviso("Erro de conexão ao tentar limpar histórico.");
+            }
+        },
+        true
+    );
+}
+
+function exibirAviso(mensagem, acaoConfirmar = null, mostrarCancelar = false) {
+    const dialog = document.getElementById("d_aviso");
+    const msg = document.getElementById("msg_aviso");
+    const btnConfirmar = document.getElementById("b_confirmar_aviso");
+    const btnCancelar = document.getElementById("b_cancelar_aviso");
+
+    if (!dialog) {
+        alert(mensagem);
+        if (acaoConfirmar) acaoConfirmar();
+        return;
     }
 
-    function exibirAviso(mensagem, acaoConfirmar = null, mostrarCancelar = false) {
-        const dialog = document.getElementById("d_aviso");
-        const msg = document.getElementById("msg_aviso");
-        const btnConfirmar = document.getElementById("b_confirmar_aviso");
-        const btnCancelar = document.getElementById("b_cancelar_aviso");
+    msg.innerText = mensagem;
+    btnCancelar.style.display = mostrarCancelar ? "inline-block" : "none";
 
-        if (!dialog) {
-            alert(mensagem);
-            if (acaoConfirmar) acaoConfirmar();
-            return;
-        }
+    btnConfirmar.onclick = () => {
+        dialog.close();
+        if (acaoConfirmar) acaoConfirmar();
+    };
 
-        msg.innerText = mensagem;
-        btnCancelar.style.display = mostrarCancelar ? "inline-block" : "none";
+    btnCancelar.onclick = () => {
+        dialog.close();
+    };
 
-        btnConfirmar.onclick = () => {
-            dialog.close();
-            if (acaoConfirmar) acaoConfirmar();
-        };
-
-        btnCancelar.onclick = () => {
-            dialog.close();
-        };
-
-        dialog.showModal();
-    }
-    
-    </script>
-    
+    dialog.showModal();
+}
+</script>
 </body>
 </html>

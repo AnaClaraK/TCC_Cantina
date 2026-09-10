@@ -1,0 +1,2507 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "API Geral - SITE (Funcionários) / APP (Clientes)",
+    "version": "3.0.0",
+    "description": "Documentação geral da API do sistema. SITE = Funcionários. APP = Clientes. Os schemas são definidos diretamente em cada endpoint."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
+  "tags": [
+    {
+      "name": "SITE — Funcionários — Sistema",
+      "description": "Endpoints gerais do sistema usados pelo SITE dos funcionários."
+    },
+    {
+      "name": "SITE — Funcionários — Autenticação",
+      "description": "Cadastro, login e recuperação de senha de funcionários."
+    },
+    {
+      "name": "SITE — Funcionários — Perfil",
+      "description": "Dados e atualização do perfil do funcionário."
+    },
+    {
+      "name": "SITE — Funcionários — PDV / Pedidos",
+      "description": "Operações de pedidos realizadas no SITE/PDV pelos funcionários."
+    },
+    {
+      "name": "SITE — Funcionários — Histórico",
+      "description": "Consulta e limpeza do histórico de pedidos."
+    },
+    {
+      "name": "SITE — Funcionários — Reposição",
+      "description": "Controle de reposição e estoque."
+    },
+    {
+      "name": "SITE — Funcionários — Fiado",
+      "description": "Consulta de contas fiado e aplicação de juros."
+    },
+    {
+      "name": "APP — Clientes — Autenticação",
+      "description": "Cadastro, login e redefinição de senha dos clientes."
+    },
+    {
+      "name": "APP — Clientes — Pedidos",
+      "description": "Pedidos realizados pelos clientes no APP."
+    },
+    {
+      "name": "APP — Clientes — Comandas",
+      "description": "Criação e consulta de comandas pelo APP."
+    },
+    {
+      "name": "APP — Clientes — Agendamentos",
+      "description": "Criação e gerenciamento de pedidos agendados pelo APP."
+    },
+    {
+      "name": "COMPARTILHADO — Imagens",
+      "description": "Recursos de imagens utilizados pelo SITE e APP."
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Verificação de status do servidor",
+        "description": "Retorna uma confirmação simples de que a API/roteador está funcionando.",
+        "tags": [
+          "SITE — Funcionários — Sistema"
+        ],
+        "responses": {
+          "200": {
+            "description": "Servidor rodando normalmente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agendamento": {
+      "post": {
+        "summary": "Criar um novo agendamento de pedido",
+        "tags": [
+          "APP — Clientes — Agendamentos"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_user": {
+                    "type": "integer"
+                  },
+                  "data": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "data_ag": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "valor_total": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "qtd_total": {
+                    "type": "integer"
+                  },
+                  "form_pag": {
+                    "type": "string"
+                  },
+                  "itens": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id_produto": {
+                          "type": "integer"
+                        },
+                        "qtd": {
+                          "type": "integer"
+                        },
+                        "preco": {
+                          "type": "number",
+                          "format": "float"
+                        }
+                      },
+                      "required": [
+                        "id_produto",
+                        "qtd",
+                        "preco"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "id_user",
+                  "data",
+                  "data_ag",
+                  "valor_total",
+                  "qtd_total",
+                  "form_pag"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Agendamento criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "Agendamento criado com sucesso"
+                    },
+                    "id_pedido": {
+                      "type": "integer"
+                    },
+                    "num_pedido": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro de estoque insuficiente ou falha no servidor ao criar agendamento",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string",
+                      "example": "Sem estoque suficiente para agendamento"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agendamento/{id}/cancelar": {
+      "put": {
+        "summary": "Cancelar um agendamento",
+        "tags": [
+          "APP — Clientes — Agendamentos"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID do agendamento (id_pedido)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agendamento cancelado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensagem": {
+                      "type": "string",
+                      "example": "Agendamento cancelado com sucesso"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Agendamento não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string",
+                      "example": "Agendamento não encontrado"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno ao cancelar o agendamento",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string",
+                      "example": "Erro ao cancelar agendamento"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agendamento/{id}/finalizar": {
+      "put": {
+        "summary": "Finalizar agendamento e realizar a baixa do estoque dos produtos",
+        "tags": [
+          "APP — Clientes — Agendamentos"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID do agendamento (id_pedido)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agendamento finalizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensagem": {
+                      "type": "string",
+                      "example": "Agendamento finalizado e estoque baixado"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro ao finalizar o agendamento",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string",
+                      "example": "Erro ao finalizar agendamento"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cadastrar": {
+      "post": {
+        "summary": "Cadastrar novo cliente (Usuário)",
+        "tags": [
+          "APP — Clientes — Autenticação"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string"
+                  },
+                  "cpf": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "senha": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "nome",
+                  "cpf",
+                  "email",
+                  "senha"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Retorno de validação ou de sucesso do cadastro",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "true"
+                    },
+                    "mensagem": {
+                      "type": "string",
+                      "example": "Usuário inserido com sucesso"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno no servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "false"
+                    },
+                    "mensagem": {
+                      "type": "string",
+                      "example": "Erro interno no servidor"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cadastro": {
+      "post": {
+        "summary": "Cadastrar novo funcionário",
+        "tags": [
+          "SITE — Funcionários — Autenticação"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "senha": {
+                    "type": "string"
+                  },
+                  "confsenha": {
+                    "type": "string"
+                  },
+                  "imagem": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Imagem de perfil do funcionário (opcional)"
+                  }
+                },
+                "required": [
+                  "nome",
+                  "email",
+                  "senha",
+                  "confsenha"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cadastro realizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "Cadastro realizado com sucesso!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro de validação (campos vazios, email inválido, senhas não coincidem ou email já cadastrado)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "Este e-mail já está cadastrado."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "Erro interno do servidor."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/comandas": {
+      "post": {
+        "summary": "Criar nova comanda via App",
+        "tags": [
+          "APP — Clientes — Comandas"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_user": {
+                    "type": "integer"
+                  },
+                  "valor_total": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "qtd_total": {
+                    "type": "integer"
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "Pendente"
+                  },
+                  "forma_pagamento": {
+                    "type": "string"
+                  },
+                  "form_pag": {
+                    "type": "string"
+                  },
+                  "carrinho": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id_produto": {
+                          "type": "integer"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "qtd": {
+                          "type": "integer"
+                        },
+                        "preco_unitario": {
+                          "type": "number",
+                          "format": "float"
+                        },
+                        "preco": {
+                          "type": "number",
+                          "format": "float"
+                        },
+                        "data_agendamento": {
+                          "type": "string",
+                          "example": "2026-03-30"
+                        },
+                        "horario_retirada": {
+                          "type": "string",
+                          "example": "14:30"
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "id_user",
+                  "carrinho"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comanda criada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "mensagem": {
+                      "type": "string",
+                      "example": "Comanda criada com sucesso"
+                    },
+                    "id_pedido": {
+                      "type": "integer"
+                    },
+                    "num_pedido": {
+                      "type": "integer"
+                    },
+                    "codigo_comanda": {
+                      "type": "string",
+                      "example": "CMD105"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados incompletos, produto inativo ou erro ao criar comanda",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "erro": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/comandas/{codigo}": {
+      "get": {
+        "summary": "Buscar detalhes de uma comanda pelo código",
+        "tags": [
+          "APP — Clientes — Comandas"
+        ],
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Código identificador da comanda (ex: CMD105)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Comanda encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id_pedido": {
+                      "type": "integer"
+                    },
+                    "num_pedido": {
+                      "type": "integer"
+                    },
+                    "codigo_comanda": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "origem": {
+                      "type": "string"
+                    },
+                    "form_pag": {
+                      "type": "string"
+                    },
+                    "carrinho": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id_produto": {
+                            "type": "integer"
+                          },
+                          "qtd": {
+                            "type": "integer"
+                          },
+                          "preco": {
+                            "type": "number",
+                            "format": "float"
+                          },
+                          "codigo_barras": {
+                            "type": "string"
+                          },
+                          "nome": {
+                            "type": "string"
+                          },
+                          "estoque": {
+                            "type": "integer"
+                          },
+                          "qtd_min": {
+                            "type": "integer"
+                          },
+                          "img": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "ativo": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Comanda já finalizada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "erro": {
+                      "type": "string",
+                      "example": "Esta comanda já foi finalizada e não pode mais ser aberta."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Comanda não encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "erro": {
+                      "type": "string",
+                      "example": "Comanda não encontrada."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "erro": {
+                      "type": "string",
+                      "example": "Erro interno."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contas-fiado/abertas": {
+      "get": {
+        "summary": "Listar contas fiado em aberto com itens e juros calculados",
+        "description": "Lista todas as contas fiado com status 'ABERTO' agrupadas por cliente, recalculando dinamicamente o valor atualizado de cada item de acordo com a taxa de juros (diária ou mensal) e o tempo decorrido.",
+        "tags": [
+          "SITE — Funcionários — Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de contas fiado abertas retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ContaFiadoAberta"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno ao buscar contas fiado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contas-fiado/juros/aplicar": {
+      "put": {
+        "summary": "Aplicar juros a produtos específicos de contas fiado",
+        "description": "Ativa e configura a aplicação de juros (diários ou mensais) sobre itens específicos dentro de contas fiado de um determinado cliente.",
+        "tags": [
+          "SITE — Funcionários — Fiado"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cliente": {
+                    "type": "string",
+                    "description": "Identificador ou nome do cliente",
+                    "example": "João Silva"
+                  },
+                  "tipo_juros": {
+                    "type": "string",
+                    "enum": [
+                      "dia",
+                      "diario",
+                      "diária",
+                      "mes",
+                      "mensal"
+                    ],
+                    "example": "mes"
+                  },
+                  "taxa_juros": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 2.5,
+                    "description": "Porcentagem da taxa de juros"
+                  },
+                  "itens": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id_conta": {
+                          "type": "integer",
+                          "example": 10
+                        },
+                        "id_produto": {
+                          "type": "integer",
+                          "example": 5
+                        }
+                      },
+                      "required": [
+                        "id_conta",
+                        "id_produto"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "cliente",
+                  "tipo_juros",
+                  "taxa_juros",
+                  "itens"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Juros aplicados com sucesso aos produtos selecionados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "mensagem": {
+                      "type": "string",
+                      "example": "Juros aplicados aos produtos com sucesso!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parâmetros de entrada ausentes ou inválidos (taxa, tipo de juros ou lista de itens)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string",
+                      "example": "Dados inválidos para aplicação de juros."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro durante a transação no banco de dados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/historico-pedidos": {
+      "get": {
+        "summary": "Listar histórico de pedidos",
+        "tags": [
+          "SITE — Funcionários — Histórico"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "apenas_meus",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Filtrar apenas os pedidos do usuário autenticado"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de pedidos e seus respectivos itens",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id_pedido": {
+                        "type": "integer"
+                      },
+                      "num_pedido": {
+                        "type": "integer"
+                      },
+                      "codigo_comanda": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "id_user": {
+                        "type": "integer"
+                      },
+                      "data": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "data_ag": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "origem": {
+                        "type": "string"
+                      },
+                      "valor_total": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "form_pag": {
+                        "type": "string"
+                      },
+                      "nome": {
+                        "type": "string"
+                      },
+                      "itens": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id_pedido": {
+                              "type": "integer"
+                            },
+                            "id_produto": {
+                              "type": "integer"
+                            },
+                            "qtd": {
+                              "type": "integer"
+                            },
+                            "preco_unitario": {
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "nome": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno ao consultar histórico",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string",
+                      "example": "Erro ao processar consulta no banco."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/historico-pedidos/limpar": {
+      "delete": {
+        "summary": "Limpar todo o histórico de pedidos e itens",
+        "tags": [
+          "SITE — Funcionários — Histórico"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Histórico limpo com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "mensagem": {
+                      "type": "string",
+                      "example": "Histórico de pedidos e itens limpos com sucesso!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro ao apagar histórico",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string",
+                      "example": "Falha ao apagar o histórico no banco de dados."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/images/{nome}": {
+      "get": {
+        "summary": "Obter imagem estática por nome de arquivo",
+        "tags": [
+          "COMPARTILHADO — Imagens"
+        ],
+        "parameters": [
+          {
+            "name": "nome",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Nome do arquivo da imagem (com ou sem extensão)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Arquivo de imagem encontrado e retornado",
+            "content": {
+              "image/png": {},
+              "image/jpeg": {},
+              "image/webp": {}
+            }
+          },
+          "404": {
+            "description": "Imagem não encontrada",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Imagem não encontrada"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/logar": {
+      "post": {
+        "summary": "Autenticação do cliente (Usuário)",
+        "tags": [
+          "APP — Clientes — Autenticação"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "senha": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "senha"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login realizado com sucesso ou e-mail não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "true"
+                    },
+                    "token": {
+                      "type": "string"
+                    },
+                    "id_user": {
+                      "type": "integer"
+                    },
+                    "nome": {
+                      "type": "string"
+                    },
+                    "mensagem": {
+                      "type": "string",
+                      "example": "Bem-vindo!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Senha inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensagem": {
+                      "type": "string",
+                      "example": "Usuário ou senha inválido!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro no servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "false"
+                    },
+                    "mensagem": {
+                      "type": "string",
+                      "example": "Erro no servidor"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Autenticação de funcionário",
+        "tags": [
+          "SITE — Funcionários — Autenticação"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "senha": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "senha"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login realizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "Login realizado com sucesso!"
+                    },
+                    "token": {
+                      "type": "string"
+                    },
+                    "usuario": {
+                      "type": "object",
+                      "properties": {
+                        "nome": {
+                          "type": "string"
+                        },
+                        "foto": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "E-mail ou senha inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "E-mail ou senha inválidos."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno no servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "Erro interno."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pedidos": {
+      "post": {
+        "summary": "Criar novo pedido via PDV ou finalizar comanda existente",
+        "tags": [
+          "SITE — Funcionários — PDV / Pedidos"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_pedido": {
+                    "type": "integer",
+                    "description": "ID do pedido/comanda para finalização (opcional)"
+                  },
+                  "id_user": {
+                    "type": "integer",
+                    "description": "ID do cliente/usuário"
+                  },
+                  "valor_total": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "qtd_total": {
+                    "type": "integer"
+                  },
+                  "form_pag": {
+                    "type": "string"
+                  },
+                  "origem": {
+                    "type": "string",
+                    "example": "PDV"
+                  },
+                  "itens": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id_produto": {
+                          "type": "integer"
+                        },
+                        "qtd": {
+                          "type": "integer"
+                        },
+                        "preco_unitario": {
+                          "type": "number",
+                          "format": "float"
+                        },
+                        "preco": {
+                          "type": "number",
+                          "format": "float"
+                        }
+                      },
+                      "required": [
+                        "id_produto",
+                        "qtd"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comanda finalizada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "Comanda finalizada com sucesso!"
+                    },
+                    "id_pedido": {
+                      "type": "integer"
+                    },
+                    "num_pedido": {
+                      "type": "integer"
+                    },
+                    "codigo_comanda": {
+                      "type": "string"
+                    },
+                    "origem": {
+                      "type": "string"
+                    },
+                    "alertas": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Pedido de venda direta criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "Pedido finalizado com sucesso!"
+                    },
+                    "id_pedido": {
+                      "type": "integer"
+                    },
+                    "num_pedido": {
+                      "type": "integer"
+                    },
+                    "alertas": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro de validação ou estoque insuficiente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "Estoque insuficiente para: Produto X"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Este endpoint é utilizado no contexto do SITE/PDV pelos funcionários; o APP de clientes também possui operação de pedidos no mesmo caminho conforme a documentação fornecida."
+      }
+    },
+    "/pedidos/proximo-numero": {
+      "get": {
+        "summary": "Obter o próximo número sequencial do pedido",
+        "tags": [
+          "SITE — Funcionários — PDV / Pedidos"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Próximo número obtido com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "num_pedido": {
+                      "type": "integer",
+                      "example": 105
+                    },
+                    "proximo_numero": {
+                      "type": "integer",
+                      "example": 105
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro ao buscar próximo número do pedido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sucesso": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "erro": {
+                      "type": "string",
+                      "example": "Não foi possível obter o próximo número do pedido."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/perfil/atualizar": {
+      "put": {
+        "summary": "Atualizar dados do perfil do usuário",
+        "tags": [
+          "SITE — Funcionários — Perfil"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "emailAntigo": {
+                    "type": "string"
+                  },
+                  "senha_atual": {
+                    "type": "string"
+                  },
+                  "nova_senha": {
+                    "type": "string"
+                  },
+                  "imagem": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Foto do perfil do usuário"
+                  }
+                },
+                "required": [
+                  "emailAntigo"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Perfil atualizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "Perfil atualizado com sucesso!"
+                    },
+                    "novoNome": {
+                      "type": "string"
+                    },
+                    "novoEmail": {
+                      "type": "string"
+                    },
+                    "novaFoto": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Senha atual em falta ou incorreta",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "A senha atual está incorreta."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuário não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "Usuário não encontrado."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno no servidor ao atualizar perfil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "Erro interno no servidor ao atualizar perfil."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/perfil/meus-dados": {
+      "get": {
+        "summary": "Buscar dados do perfil do usuário logado",
+        "description": "Obtém as informações do usuário autenticado a partir dos dados do token JWT.",
+        "tags": [
+          "SITE — Funcionários — Perfil"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados do perfil retornados com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "nome": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "foto": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Usuário não autenticado ou token ausente/inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuário não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/recuperar-senha": {
+      "put": {
+        "summary": "Redefinir senha do funcionário",
+        "tags": [
+          "SITE — Funcionários — Autenticação"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "novaSenha": {
+                    "type": "string"
+                  },
+                  "confirmarSenha": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "novaSenha",
+                  "confirmarSenha"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Senha redefinida com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "Senha redefinida com sucesso!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro de validação nos campos de senha ou e-mail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "As senhas não coincidem."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "E-mail não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "E-mail não encontrado."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno no servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "Erro interno do servidor."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/redefinir-senha": {
+      "post": {
+        "summary": "Redefinir senha do cliente (Usuário)",
+        "tags": [
+          "APP — Clientes — Autenticação"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "novaSenha": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "novaSenha"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Senha redefinida com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "true"
+                    },
+                    "mensagem": {
+                      "type": "string",
+                      "example": "Senha redefinida com sucesso!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados de e-mail ou senha inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "false"
+                    },
+                    "mensagem": {
+                      "type": "string",
+                      "example": "A senha deve ter no mínimo 7 caracteres!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "E-mail não encontrado no sistema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "false"
+                    },
+                    "mensagem": {
+                      "type": "string",
+                      "example": "E-mail não encontrado no sistema!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno no servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resposta": {
+                      "type": "string",
+                      "example": "false"
+                    },
+                    "mensagem": {
+                      "type": "string",
+                      "example": "Erro interno no servidor."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reposicao": {
+      "get": {
+        "summary": "Listar reposições pendentes",
+        "description": "Retorna todas as ordens de reposição que estão com status 'Pendente'.",
+        "tags": [
+          "SITE — Funcionários — Reposição"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de reposições pendentes retornada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "nome": {
+                        "type": "string"
+                      },
+                      "quantidade_prevista": {
+                        "type": "integer"
+                      },
+                      "quantidade_comprada": {
+                        "type": "integer"
+                      },
+                      "prioridade": {
+                        "type": "string"
+                      },
+                      "local": {
+                        "type": "string"
+                      },
+                      "codigo": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string",
+                        "example": "Pendente"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno ao buscar lista de reposição",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string",
+                      "example": "Erro ao buscar reposição"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reposicao/cancelar/todos": {
+      "put": {
+        "summary": "Cancelar todas as reposições pendentes",
+        "description": "Altera o status de todas as reposições com status 'Pendente' para 'Cancelado'.",
+        "tags": [
+          "SITE — Funcionários — Reposição"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Todas as reposições foram canceladas com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensagem": {
+                      "type": "string",
+                      "example": "Lista cancelada"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno ao cancelar a lista de reposição",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string",
+                      "example": "Erro ao limpar lista"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reposicao/produtos": {
+      "get": {
+        "summary": "Listar produtos ativos para reposição",
+        "description": "Retorna uma lista de até 10 produtos ativos. Permite busca por nome ou código de barras.",
+        "tags": [
+          "SITE — Funcionários — Reposição"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Termo de busca para filtrar por nome ou código de barras"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de produtos para reposição obtida com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id_produto": {
+                        "type": "integer"
+                      },
+                      "nome": {
+                        "type": "string"
+                      },
+                      "codigo_barras": {
+                        "type": "string"
+                      },
+                      "qtd": {
+                        "type": "integer"
+                      },
+                      "preco": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "img": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "ativo": {
+                        "type": "integer",
+                        "example": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno ao buscar produtos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string",
+                      "example": "Erro ao buscar produtos."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reposicao/{codigo}": {
+      "put": {
+        "summary": "Criar uma nova solicitação de reposição",
+        "description": "Cria uma nova ordem de reposição com status 'Pendente'. Impede a criação para produtos inativos.",
+        "tags": [
+          "SITE — Funcionários — Reposição"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Código de barras do produto"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "quantidade": {
+                    "type": "integer",
+                    "example": 50
+                  },
+                  "local": {
+                    "type": "string",
+                    "example": "Estoque A"
+                  },
+                  "prioridade": {
+                    "type": "string",
+                    "example": "Alta"
+                  }
+                },
+                "required": [
+                  "quantidade",
+                  "local",
+                  "prioridade"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reposição adicionada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensagem": {
+                      "type": "string",
+                      "example": "Reposição adicionada!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Produto inativo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string",
+                      "example": "O produto \"Suco de Laranja\" está inativo e não pode receber uma nova reposição."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Produto não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string",
+                      "example": "Produto não encontrado."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno ao criar reposição",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string",
+                      "example": "Erro ao criar reposição."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reposicao/{codigo}/cancelar": {
+      "put": {
+        "summary": "Cancelar a reposição pendente de um produto específico",
+        "description": "Altera o status da reposição pendente do produto para 'Cancelado'.",
+        "tags": [
+          "SITE — Funcionários — Reposição"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Código de barras do produto"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reposição cancelada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensagem": {
+                      "type": "string",
+                      "example": "Reposição cancelada"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Produto não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string",
+                      "example": "Produto não encontrado"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno ao cancelar reposição",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string",
+                      "example": "Erro ao cancelar reposição"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reposicao/{codigo}/concluir": {
+      "put": {
+        "summary": "Concluir reposição de estoque",
+        "description": "Atualiza a quantidade comprada de um produto em reposição e incrementa o estoque do produto.",
+        "tags": [
+          "SITE — Funcionários — Reposição"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Código de barras do produto"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "quantidade_comprada": {
+                    "type": "integer",
+                    "example": 50
+                  },
+                  "local": {
+                    "type": "string",
+                    "example": "Prateleira 2",
+                    "description": "Local onde a reposição foi armazenada"
+                  }
+                },
+                "required": [
+                  "quantidade_comprada",
+                  "local"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Estoque e reposição atualizados com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensagem": {
+                      "type": "string",
+                      "example": "Estoque e reposição atualizados com sucesso!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Quantidade inválida ou produto inativo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string",
+                      "example": "Quantidade comprada inválida."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Reposição pendente não encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string",
+                      "example": "Nenhuma reposição pendente encontrada para este produto."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno ao concluir reposição",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "erro": {
+                      "type": "string",
+                      "example": "Erro ao concluir reposição."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
