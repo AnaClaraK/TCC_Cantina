@@ -1,4 +1,5 @@
 const express = require("express");
+
 const router = express.Router();
 
 const conexao = require("../db");
@@ -15,7 +16,6 @@ async function garantirTabela() {
             diferenca_caixa DECIMAL(12,2) NULL,
             status ENUM('ABERTO','FECHADO') NOT NULL DEFAULT 'ABERTO',
             data_fechamento DATETIME NULL,
-
             PRIMARY KEY (id_fechamento),
             UNIQUE KEY uk_fechamento_data (data_referencia)
         )
@@ -37,6 +37,10 @@ function numero(valor) {
     return Number.isFinite(n) ? n : 0;
 }
 
+function dataValida(data) {
+    return /^\d{4}-\d{2}-\d{2}$/.test(data);
+}
+
 function normalizarFormaPagamento(valor) {
     return String(valor || "")
         .normalize("NFD")
@@ -47,7 +51,6 @@ function normalizarFormaPagamento(valor) {
 }
 
 function somarPagamento(resumo, forma, valor) {
-
     const n = numero(valor);
     const f = normalizarFormaPagamento(forma);
 
@@ -78,7 +81,6 @@ function somarPagamento(resumo, forma, valor) {
 }
 
 function calcularResumo(pedidos) {
-
     const resumo = {
         dinheiro: 0,
         credito: 0,
@@ -92,21 +94,25 @@ function calcularResumo(pedidos) {
     };
 
     for (const pedido of pedidos) {
-
         const total = numero(
             pedido.valor_total
         );
 
         resumo.total_vendas += total;
 
-        const forma =
-            String(pedido.form_pag || "").trim();
+        const forma = String(
+            pedido.form_pag || ""
+        ).trim();
 
         /*
          * PAGAMENTO NORMAL
+         *
+         * Exemplo:
+         * Dinheiro
+         * PIX
+         * Cartão crédito
          */
         if (!forma.includes("=")) {
-
             somarPagamento(
                 resumo,
                 forma,
@@ -127,7 +133,6 @@ function calcularResumo(pedidos) {
         let valorInterpretado = 0;
 
         for (const parte of partes) {
-
             const separador =
                 parte.lastIndexOf("=");
 
@@ -136,10 +141,9 @@ function calcularResumo(pedidos) {
             }
 
             const metodo =
-                parte.slice(
-                    0,
-                    separador
-                ).trim();
+                parte
+                    .slice(0, separador)
+                    .trim();
 
             const valor =
                 numero(
@@ -158,23 +162,25 @@ function calcularResumo(pedidos) {
             valorInterpretado += valor;
         }
 
+        /*
+         * Caso alguma parte do valor não tenha
+         * sido identificada, coloca a diferença
+         * em "outros".
+         */
         if (
             valorInterpretado <
             total - 0.009
         ) {
-
             resumo.outros +=
                 total - valorInterpretado;
         }
     }
 
     for (const chave of Object.keys(resumo)) {
-
         if (
             chave !==
             "quantidade_vendas"
         ) {
-
             resumo[chave] =
                 Number(
                     resumo[chave].toFixed(2)
@@ -186,9 +192,9 @@ function calcularResumo(pedidos) {
 }
 
 async function buscarResumoDia(data) {
-
     const [pedidos] =
-        await conexao.query(`
+        await conexao.query(
+            `
             SELECT
                 id_pedido,
                 valor_total,
@@ -198,28 +204,32 @@ async function buscarResumoDia(data) {
               AND DATE(data) = ?
             ORDER BY data ASC,
                      id_pedido ASC
-        `, [data]);
+            `,
+            [data]
+        );
 
     return calcularResumo(pedidos);
 }
 
 async function buscarFechamento(data) {
-
     const [rows] =
-        await conexao.query(`
+        await conexao.query(
+            `
             SELECT *
             FROM fechamentos_diarios
             WHERE data_referencia = ?
             LIMIT 1
-        `, [data]);
+            `,
+            [data]
+        );
 
     return rows[0] || null;
 }
 
 async function buscarTrocoAnterior(data) {
-
     const [rows] =
-        await conexao.query(`
+        await conexao.query(
+            `
             SELECT
                 data_referencia,
                 troco_proximo_dia
@@ -228,7 +238,9 @@ async function buscarTrocoAnterior(data) {
               AND status = 'FECHADO'
             ORDER BY data_referencia DESC
             LIMIT 1
-        `, [data]);
+            `,
+            [data]
+        );
 
     return rows[0] || null;
 }
@@ -236,36 +248,69 @@ async function buscarTrocoAnterior(data) {
 
 /* =====================================================
    STATUS INICIAL
-===================================================== */
+   ===================================================== */
 
 router.get(
     "/fechamentos-diarios/status-inicial",
     verificarToken,
     async (req, res) => {
-
         try {
-
             await garantirTabela();
 
             const hoje =
                 dataHoje();
 
+            /*
+             * Busca TODOS os dias antigos
+             * que ainda estão abertos.
+             *
+             * Não fica limitado ao dia 10.
+             */
             const [pendentes] =
-                await conexao.query(`
-                    SELECT data_referencia
+                await conexao.query(
+                    `
+                    SELECT
+                        data_referencia,
+                        status
                     FROM fechamentos_diarios
                     WHERE status = 'ABERTO'
                       AND data_referencia < ?
                     ORDER BY data_referencia ASC
-                    LIMIT 1
-                `, [hoje]);
+                    `,
+                    [hoje]
+                );
 
             return res.json({
                 sucesso: true,
+
                 hoje,
+
+                /*
+                 * Mantém compatibilidade
+                 * com o frontend atual.
+                 *
+                 * Aqui fica somente o primeiro
+                 * dia pendente, caso exista.
+                 */
                 data_pendente:
-                    pendentes[0]?.data_referencia ||
-                    null
+                    pendentes.length > 0
+                        ? String(
+                            pendentes[0]
+                                .data_referencia
+                        ).slice(0, 10)
+                        : null,
+
+                /*
+                 * Lista completa dos dias
+                 * antigos ainda abertos.
+                 */
+                dias_pendentes:
+                    pendentes.map(
+                        item =>
+                            String(
+                                item.data_referencia
+                            ).slice(0, 10)
+                    )
             });
 
         } catch (erro) {
@@ -286,39 +331,58 @@ router.get(
 
 
 /* =====================================================
-   CONSULTAR DIA
-===================================================== */
+   CONSULTAR QUALQUER DIA
+   ===================================================== */
 
 router.get(
     "/fechamentos-diarios/:data",
     verificarToken,
     async (req, res) => {
-
         try {
-
             await garantirTabela();
 
             const data =
-                req.params.data;
+                String(
+                    req.params.data || ""
+                );
 
-            if (
-                !/^\d{4}-\d{2}-\d{2}$/.test(data)
-            ) {
-
+            if (!dataValida(data)) {
                 return res.status(400).json({
-                    resposta: "Data inválida."
+                    resposta:
+                        "Data inválida."
                 });
             }
 
+            /*
+             * Procura o fechamento EXATAMENTE
+             * da data escolhida.
+             */
             const fechamento =
                 await buscarFechamento(data);
 
+            /*
+             * Procura o último dia FECHADO
+             * anterior à data escolhida.
+             *
+             * Isso funciona para qualquer data.
+             */
             const anterior =
                 await buscarTrocoAnterior(data);
 
+            /*
+             * Busca as vendas daquele dia.
+             */
             const resumo =
                 await buscarResumoDia(data);
 
+            /*
+             * Se já existe abertura para o dia,
+             * usa o troco registrado.
+             *
+             * Caso ainda não exista registro,
+             * usa o troco deixado pelo último
+             * dia FECHADO anterior.
+             */
             const trocoInicial =
                 fechamento
                     ? numero(
@@ -328,12 +392,25 @@ router.get(
                         anterior?.troco_proximo_dia
                     );
 
+            /*
+             * Primeiro dia do sistema:
+             * ainda não existe fechamento anterior
+             * nem registro para a data consultada.
+             */
             const primeiroDia =
                 !fechamento &&
                 !anterior;
 
+            /*
+             * Dinheiro esperado:
+             *
+             * troco inicial
+             * +
+             * vendas em dinheiro
+             */
             const dinheiroEsperado =
-                fechamento
+                fechamento &&
+                fechamento.dinheiro_esperado !== null
                     ? numero(
                         fechamento.dinheiro_esperado
                     )
@@ -344,8 +421,26 @@ router.get(
                         ).toFixed(2)
                     );
 
-            return res.json({
+            /*
+             * QUALQUER dia que não esteja FECHADO
+             * pode ser fechado.
+             *
+             * Isso é o que permite consultar:
+             *
+             * 01/09
+             * 02/09
+             * 03/09
+             * ...
+             * 10/09
+             *
+             * sem ficar preso em uma única data.
+             */
+            const podeFechar =
+                !fechamento ||
+                fechamento.status !==
+                    "FECHADO";
 
+            return res.json({
                 sucesso: true,
 
                 data_referencia:
@@ -355,8 +450,11 @@ router.get(
                     primeiroDia,
 
                 origem_troco_inicial:
-                    anterior?.data_referencia ||
-                    null,
+                    anterior?.data_referencia
+                        ? String(
+                            anterior.data_referencia
+                        ).slice(0, 10)
+                        : null,
 
                 troco_inicial:
                     trocoInicial,
@@ -365,8 +463,7 @@ router.get(
                     dinheiroEsperado,
 
                 pode_fechar:
-                    fechamento?.status !==
-                    "FECHADO",
+                    podeFechar,
 
                 resumo,
 
@@ -391,16 +488,14 @@ router.get(
 
 
 /* =====================================================
-   ABERTURA
-===================================================== */
+   ABERTURA DE QUALQUER DIA
+   ===================================================== */
 
 router.post(
     "/fechamentos-diarios/abertura",
     verificarToken,
     async (req, res) => {
-
         try {
-
             await garantirTabela();
 
             const data =
@@ -414,17 +509,14 @@ router.post(
                     req.body.troco_inicial
                 );
 
-            if (
-                !/^\d{4}-\d{2}-\d{2}$/.test(data)
-            ) {
-
+            if (!dataValida(data)) {
                 return res.status(400).json({
-                    resposta: "Data inválida."
+                    resposta:
+                        "Data inválida."
                 });
             }
 
             if (trocoInicial < 0) {
-
                 return res.status(400).json({
                     resposta:
                         "Troco inicial inválido."
@@ -434,11 +526,14 @@ router.post(
             const atual =
                 await buscarFechamento(data);
 
+            /*
+             * Não permite reabrir um dia
+             * que já foi fechado.
+             */
             if (
                 atual?.status ===
                 "FECHADO"
             ) {
-
                 return res.status(400).json({
                     resposta:
                         "Este dia já está fechado."
@@ -447,20 +542,28 @@ router.post(
 
             if (atual) {
 
-                await conexao.query(`
+                await conexao.query(
+                    `
                     UPDATE fechamentos_diarios
                     SET
                         troco_inicial = ?,
-                        status = 'ABERTO'
+                        status = 'ABERTO',
+                        troco_proximo_dia = NULL,
+                        dinheiro_esperado = NULL,
+                        diferenca_caixa = NULL,
+                        data_fechamento = NULL
                     WHERE data_referencia = ?
-                `, [
-                    trocoInicial,
-                    data
-                ]);
+                    `,
+                    [
+                        trocoInicial,
+                        data
+                    ]
+                );
 
             } else {
 
-                await conexao.query(`
+                await conexao.query(
+                    `
                     INSERT INTO
                         fechamentos_diarios
                     (
@@ -469,16 +572,22 @@ router.post(
                         status
                     )
                     VALUES (?, ?, 'ABERTO')
-                `, [
-                    data,
-                    trocoInicial
-                ]);
+                    `,
+                    [
+                        data,
+                        trocoInicial
+                    ]
+                );
             }
 
             return res.json({
                 sucesso: true,
-                data_referencia: data,
-                troco_inicial: trocoInicial
+
+                data_referencia:
+                    data,
+
+                troco_inicial:
+                    trocoInicial
             });
 
         } catch (erro) {
@@ -499,16 +608,14 @@ router.post(
 
 
 /* =====================================================
-   FECHAMENTO
-===================================================== */
+   FECHAMENTO DE QUALQUER DIA
+   ===================================================== */
 
 router.post(
     "/fechamentos-diarios",
     verificarToken,
     async (req, res) => {
-
         try {
-
             await garantirTabela();
 
             const data =
@@ -522,26 +629,34 @@ router.post(
                     req.body.troco_proximo_dia
                 );
 
-            if (
-                !/^\d{4}-\d{2}-\d{2}$/.test(data)
-            ) {
-
+            if (!dataValida(data)) {
                 return res.status(400).json({
-                    resposta: "Data inválida."
+                    resposta:
+                        "Data inválida."
                 });
             }
 
             if (trocoProximo < 0) {
-
                 return res.status(400).json({
                     resposta:
                         "Troco para o próximo dia inválido."
                 });
             }
 
+            /*
+             * Procura o fechamento da data
+             * que o usuário escolheu.
+             */
             let fechamento =
                 await buscarFechamento(data);
 
+            /*
+             * Se ainda não existe registro para
+             * aquele dia, cria automaticamente.
+             *
+             * O troco inicial será o troco do
+             * último dia FECHADO anterior.
+             */
             if (!fechamento) {
 
                 const anterior =
@@ -552,7 +667,8 @@ router.post(
                         anterior?.troco_proximo_dia
                     );
 
-                await conexao.query(`
+                await conexao.query(
+                    `
                     INSERT INTO
                         fechamentos_diarios
                     (
@@ -561,26 +677,35 @@ router.post(
                         status
                     )
                     VALUES (?, ?, 'ABERTO')
-                `, [
-                    data,
-                    trocoInicial
-                ]);
+                    `,
+                    [
+                        data,
+                        trocoInicial
+                    ]
+                );
 
                 fechamento =
                     await buscarFechamento(data);
             }
 
+            /*
+             * Não permite fechar novamente
+             * uma data já fechada.
+             */
             if (
                 fechamento.status ===
                 "FECHADO"
             ) {
-
                 return res.status(400).json({
                     resposta:
                         "Este dia já está fechado."
                 });
             }
 
+            /*
+             * Busca as vendas EXATAMENTE
+             * da data escolhida.
+             */
             const resumo =
                 await buscarResumoDia(data);
 
@@ -589,6 +714,13 @@ router.post(
                     fechamento.troco_inicial
                 );
 
+            /*
+             * Dinheiro esperado =
+             *
+             * troco inicial
+             * +
+             * vendas em dinheiro
+             */
             const dinheiroEsperado =
                 Number(
                     (
@@ -597,6 +729,13 @@ router.post(
                     ).toFixed(2)
                 );
 
+            /*
+             * Diferença =
+             *
+             * troco que ficou para o próximo dia
+             * -
+             * dinheiro que deveria estar no caixa
+             */
             const diferenca =
                 Number(
                     (
@@ -605,7 +744,15 @@ router.post(
                     ).toFixed(2)
                 );
 
-            await conexao.query(`
+            /*
+             * Fecha EXATAMENTE a data escolhida.
+             *
+             * Não usa dataHoje().
+             * Não força dia 10.
+             * Não altera outra data.
+             */
+            await conexao.query(
+                `
                 UPDATE fechamentos_diarios
                 SET
                     troco_proximo_dia = ?,
@@ -614,15 +761,16 @@ router.post(
                     status = 'FECHADO',
                     data_fechamento = NOW()
                 WHERE data_referencia = ?
-            `, [
-                trocoProximo,
-                dinheiroEsperado,
-                diferenca,
-                data
-            ]);
+                `,
+                [
+                    trocoProximo,
+                    dinheiroEsperado,
+                    diferenca,
+                    data
+                ]
+            );
 
             return res.json({
-
                 sucesso: true,
 
                 data_referencia:

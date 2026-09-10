@@ -2004,586 +2004,235 @@ MODAL FIADO / PRODUTOS
 
     pointer-events: none !important;
 }
+/* =========================================================
+   ESTILOS - FECHAMENTO DIÁRIO E CONSULTA DE DATAS
+========================================================= */
 
-/* ============================================================
-   FECHAMENTO DIÁRIO - PDV
-   Arquivo separado: style-fechamento.css
-   ============================================================ */
-
-/* PDV NÃO RESERVA ESPAÇO PARA SIDEBAR */
-body.pdv-com-sidebar {
-    margin-left: 0 !important;
-    padding-left: 15px !important;
-}
-
-body.pdv-com-sidebar .custom-sidebar {
-    display: none !important;
-}
-
-/* HEADER DO PDV */
-.custom-header .header-fechamento-pdv {
-    display: none;
-}
-
-body.pdv-com-sidebar .custom-header .header-fechamento-pdv {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 52px;
-    height: 52px;
-    margin-left: 18px;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    cursor: pointer;
-    transition: transform .15s ease, background .15s ease;
-}
-
-body.pdv-com-sidebar .custom-header .header-fechamento-pdv:hover {
-    background: rgba(241,184,105,.16);
-    transform: scale(1.05);
-}
-
-.header-fechamento-pdv img {
-    width: 38px;
-    height: 38px;
-    object-fit: contain;
-}
-
-/* MODAL */
 #dialogFechamentoDiario {
-    width: min(1120px, 95vw) !important;
-    max-width: 1120px !important;
-    max-height: 92vh !important;
-    padding: 0 !important;
-    border: 0 !important;
-    border-radius: 18px !important;
-    overflow: hidden !important;
-    background: transparent !important;
-    box-shadow: 0 24px 90px rgba(0,0,0,.48) !important;
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+    width: 90%;
+    max-width: 850px;
+    background-color: #242628;
+    color: #ffffff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 #dialogFechamentoDiario::backdrop {
-    background: rgba(0,0,0,.68);
-    backdrop-filter: blur(2px);
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(3px);
 }
 
-#dialogFechamentoDiario .fechamento-box {
-    width: 100%;
-    max-height: 92vh;
-    overflow: hidden;
-    padding: 28px 30px 24px;
-    background: #f7f7f7;
-    color: #242628;
-    font-family: 'Roca One', Arial, sans-serif;
-}
-
-/* TOPO */
-#dialogFechamentoDiario .fechamento-topo {
-    min-height: 62px;
-    padding-bottom: 16px;
-    border-bottom: 3px solid #2b1f14;
-}
-
-#dialogFechamentoDiario .fechamento-topo h2 {
-    font-size: 32px;
-    letter-spacing: .3px;
-}
-
-#dialogFechamentoDiario .fechamento-fechar {
-    width: 44px;
-    height: 44px;
-    font-size: 28px;
-    border-radius: 10px;
-}
-
-/* ALERTA */
-#dialogFechamentoDiario .fechamento-alerta {
-    margin: 16px 0;
-    padding: 13px 16px;
-    border-left: 5px solid #2b1f14;
-}
-
-/* DATAS */
-#dialogFechamentoDiario .fechamento-datas {
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 14px;
-    margin: 16px 0 12px;
-}
-
-#dialogFechamentoDiario .fechamento-campo {
-    min-height: 78px;
-    padding: 14px 16px;
-    border: 1px solid #d5d5d5;
-    border-radius: 12px;
-    box-shadow: 0 3px 10px rgba(0,0,0,.05);
-}
-
-#dialogFechamentoDiario .fechamento-campo label {
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: .25px;
-}
-
-#dialogFechamentoDiario .fechamento-campo input[type="date"] {
-    min-height: 40px;
-    font-family: inherit;
-}
-
-/* TROCO INICIAL */
-#dialogFechamentoDiario .fechamento-resumo-abertura {
-    margin: 12px 0;
-}
-
-#dialogFechamentoDiario .fechamento-resumo-abertura .fechamento-campo {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    column-gap: 18px;
-    align-items: center;
-}
-
-#dialogFechamentoDiario .fechamento-resumo-abertura label,
-#dialogFechamentoDiario #fechamentoOrigemTroco {
-    grid-column: 1 / -1;
-}
-
-#dialogFechamentoDiario #fechamentoTrocoInicial {
-    font-size: 27px;
-}
-
-/* CARDS DE PAGAMENTO */
-#dialogFechamentoDiario .fechamento-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin: 14px 0;
-}
-
-#dialogFechamentoDiario .fechamento-card {
-    min-height: 88px;
-    padding: 15px 16px;
-    border: 1px solid #d8d8d8;
-    border-radius: 12px;
-    background: #fff;
-    box-shadow: 0 3px 10px rgba(0,0,0,.05);
-}
-
-#dialogFechamentoDiario .fechamento-card span {
-    font-size: 12px;
-    letter-spacing: .3px;
-}
-
-#dialogFechamentoDiario .fechamento-card strong {
-    margin-top: 9px;
-    font-size: 24px;
-}
-
-/* TOTAL */
-#dialogFechamentoDiario .fechamento-card:nth-child(8) {
-    background: #efac4a;
-    border-color: #efac4a;
-}
-
-#dialogFechamentoDiario .fechamento-card:nth-child(8) span {
-    color: #2b1f14;
-}
-
-#dialogFechamentoDiario .fechamento-card:nth-child(8) strong {
-    color: #2b1f14;
-    font-size: 26px;
-}
-
-/* CONFERÊNCIA DO DINHEIRO */
-#dialogFechamentoDiario .fechamento-dinheiro {
-    margin-top: 14px;
-    padding: 18px 20px;
-    border-radius: 13px;
-}
-
-#dialogFechamentoDiario .fechamento-dinheiro .fd-linha {
-    font-size: 18px;
-    padding: 2px 0;
-}
-
-#dialogFechamentoDiario .fechamento-dinheiro .fd-total {
-    margin-top: 12px;
-    padding-top: 13px;
-    font-size: 25px;
-}
-
-/* PRÓXIMO DIA */
-#dialogFechamentoDiario .fechamento-proximo {
-    margin-top: 14px;
-    padding: 18px 20px;
-    border-radius: 13px;
-}
-
-#dialogFechamentoDiario .fechamento-proximo label {
-    font-size: 16px;
-}
-
-#dialogFechamentoDiario #fechamentoTrocoProximo {
-    min-height: 50px;
-    font-size: 26px;
-}
-
-/* BOTÕES */
-#dialogFechamentoDiario .fechamento-acoes {
-    margin-top: 18px;
-}
-
-#dialogFechamentoDiario .fechamento-acoes button {
-    min-height: 44px;
-    padding: 11px 18px;
-    font-size: 15px;
-}
-
-#dialogFechamentoDiario #btnSalvarFechamento {
-    min-width: 170px;
-}
-
-/* NÃO DEIXA OUTROS MODAIS PASSAREM NA FRENTE */
-body.pdv-fechamento-bloqueado dialog:not(#dialogFechamentoDiario) {
-    pointer-events: none !important;
-}
-
-body.pdv-fechamento-bloqueado #dialogFechamentoDiario {
-    pointer-events: auto !important;
-}
-
-/* RESPONSIVO */
-@media (max-width: 900px) {
-    #dialogFechamentoDiario .fechamento-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    #dialogFechamentoDiario .fechamento-datas {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (max-width: 600px) {
-    #dialogFechamentoDiario {
-        width: 96vw !important;
-    }
-
-    #dialogFechamentoDiario .fechamento-box {
-        padding: 18px;
-    }
-
-    #dialogFechamentoDiario .fechamento-grid,
-    #dialogFechamentoDiario .fechamento-datas {
-        grid-template-columns: 1fr;
-    }
-
-    #dialogFechamentoDiario .fechamento-topo h2 {
-        font-size: 24px;
-    }
-}
-
-/* ============================================================
-   FECHAMENTO DIÁRIO - PDV
-   Arquivo separado: style-fechamento.css
-   ============================================================ */
-
-/* PDV NÃO RESERVA ESPAÇO PARA SIDEBAR */
-body.sem-sidebar {
-    margin-left: 0 !important;
-    padding-left: 15px !important;
-}
-
-body.sem-sidebar .custom-sidebar {
-    display: none !important;
-}
-
-body.sem-sidebar #btn-menu {
-    display: none !important;
-}
-
-/* HEADER DO PDV */
-.custom-header .header-fechamento-pdv {
-    display: none;
-}
-
-body.sem-sidebar .custom-header .header-fechamento-pdv {
+.fechamento-box {
+    padding: 24px;
     display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.fechamento-topo {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    width: 52px;
-    height: 52px;
-    margin-left: auto;
-    border: 0;
-    border-radius: 10px;
+    border-bottom: 2px solid #efac4a;
+    padding-bottom: 12px;
+}
+
+.fechamento-topo h2 {
+    margin: 0;
+    color: #efac4a;
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.fechamento-fechar {
     background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 24px;
     cursor: pointer;
-    transition: transform .15s ease, background .15s ease;
+    line-height: 1;
 }
 
-body.pdv-com-sidebar .custom-header .header-fechamento-pdv:hover {
-    background: rgba(241,184,105,.16);
-    transform: scale(1.05);
+.fechamento-fechar:hover {
+    color: #efac4a;
 }
 
-.header-fechamento-pdv img {
-    width: 38px;
-    height: 38px;
-    object-fit: contain;
+.fechamento-alerta {
+    background-color: #3d2a10;
+    border: 1px solid #efac4a;
+    color: #f1b869;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    white-space: pre-line;
 }
 
-/* MODAL */
-#dialogFechamentoDiario {
-    width: min(1120px, 95vw) !important;
-    max-width: 1120px !important;
-    max-height: 92vh !important;
-    padding: 0 !important;
-    border: 0 !important;
-    border-radius: 18px !important;
-    overflow: hidden !important;
-    background: transparent !important;
-    box-shadow: 0 24px 90px rgba(0,0,0,.48) !important;
-}
-
-#dialogFechamentoDiario::backdrop {
-    background: rgba(0,0,0,.68);
-    backdrop-filter: blur(2px);
-}
-
-#dialogFechamentoDiario .fechamento-box {
-    width: 100%;
-    max-height: 92vh;
-    overflow: hidden;
-    padding: 28px 30px 24px;
-    background: #f7f7f7;
-    color: #242628;
-    font-family: 'Roca One', Arial, sans-serif;
-}
-
-/* TOPO */
-#dialogFechamentoDiario .fechamento-topo {
-    min-height: 62px;
-    padding-bottom: 16px;
-    border-bottom: 3px solid #2b1f14;
-}
-
-#dialogFechamentoDiario .fechamento-topo h2 {
-    font-size: 32px;
-    letter-spacing: .3px;
-}
-
-#dialogFechamentoDiario .fechamento-fechar {
-    width: 44px;
-    height: 44px;
-    font-size: 28px;
-    border-radius: 10px;
-}
-
-/* ALERTA */
-#dialogFechamentoDiario .fechamento-alerta {
-    margin: 16px 0;
-    padding: 13px 16px;
-    border-left: 5px solid #2b1f14;
-}
-
-/* DATAS */
-#dialogFechamentoDiario .fechamento-datas {
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 14px;
-    margin: 16px 0 12px;
-}
-
-#dialogFechamentoDiario .fechamento-campo {
-    min-height: 78px;
-    padding: 14px 16px;
-    border: 1px solid #d5d5d5;
-    border-radius: 12px;
-    box-shadow: 0 3px 10px rgba(0,0,0,.05);
-}
-
-#dialogFechamentoDiario .fechamento-campo label {
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: .25px;
-}
-
-#dialogFechamentoDiario .fechamento-campo input[type="date"] {
-    min-height: 40px;
-    font-family: inherit;
-}
-
-/* TROCO INICIAL */
-#dialogFechamentoDiario .fechamento-resumo-abertura {
-    margin: 12px 0;
-}
-
-#dialogFechamentoDiario .fechamento-resumo-abertura .fechamento-campo {
+.fechamento-linha {
     display: grid;
-    grid-template-columns: 1fr auto;
-    column-gap: 18px;
-    align-items: center;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    background: #1c1d1e;
+    padding: 16px;
+    border-radius: 8px;
 }
 
-#dialogFechamentoDiario .fechamento-resumo-abertura label,
-#dialogFechamentoDiario #fechamentoOrigemTroco {
-    grid-column: 1 / -1;
+.fechamento-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
-#dialogFechamentoDiario #fechamentoTrocoInicial {
-    font-size: 27px;
+.fechamento-campo label {
+    font-size: 0.85rem;
+    color: #a0a0a0;
 }
 
-/* CARDS DE PAGAMENTO */
-#dialogFechamentoDiario .fechamento-grid {
+.fechamento-campo input[type="date"],
+.fechamento-campo input[type="text"] {
+    background: #242628;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+.fechamento-data-controle {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-confirmar-data {
+    background: #efac4a;
+    border: none;
+    color: #1c1d1e;
+    font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-confirmar-data:hover {
+    background: #d99a3b;
+}
+
+.fechamento-valor {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.fechamento-status-fechado {
+    color: #e74c3c !important;
+}
+
+.fechamento-grid {
+    display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
-    margin: 14px 0;
 }
 
-#dialogFechamentoDiario .fechamento-card {
-    min-height: 88px;
-    padding: 15px 16px;
-    border: 1px solid #d8d8d8;
-    border-radius: 12px;
-    background: #fff;
-    box-shadow: 0 3px 10px rgba(0,0,0,.05);
+.fechamento-card {
+    background: #1c1d1e;
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-left: 4px solid #efac4a;
 }
 
-#dialogFechamentoDiario .fechamento-card span {
-    font-size: 12px;
-    letter-spacing: .3px;
+.fechamento-card span {
+    font-size: 0.75rem;
+    color: #888;
 }
 
-#dialogFechamentoDiario .fechamento-card strong {
-    margin-top: 9px;
-    font-size: 24px;
+.fechamento-card strong {
+    font-size: 1rem;
+    color: #fff;
 }
 
-/* TOTAL */
-#dialogFechamentoDiario .fechamento-card:nth-child(8) {
-    background: #efac4a;
-    border-color: #efac4a;
+.fechamento-dinheiro {
+    background: #1c1d1e;
+    padding: 14px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-#dialogFechamentoDiario .fechamento-card:nth-child(8) span {
-    color: #2b1f14;
+.fd-linha {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
 }
 
-#dialogFechamentoDiario .fechamento-card:nth-child(8) strong {
-    color: #2b1f14;
-    font-size: 26px;
+.fd-total {
+    border-top: 1px solid #333;
+    padding-top: 8px;
+    font-weight: bold;
+    color: #efac4a;
 }
 
-/* CONFERÊNCIA DO DINHEIRO */
-#dialogFechamentoDiario .fechamento-dinheiro {
-    margin-top: 14px;
-    padding: 18px 20px;
-    border-radius: 13px;
+.fechamento-proximo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-#dialogFechamentoDiario .fechamento-dinheiro .fd-linha {
-    font-size: 18px;
-    padding: 2px 0;
+.fechamento-proximo input {
+    background: #1c1d1e;
+    border: 1px solid #efac4a;
+    color: #fff;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 1rem;
 }
 
-#dialogFechamentoDiario .fechamento-dinheiro .fd-total {
+.fechamento-diferenca {
+    font-weight: bold;
+    font-size: 0.95rem;
+    color: #efac4a;
+}
+
+.fechamento-acoes {
+    display: flex;
+    justify-content: space-between;
     margin-top: 12px;
-    padding-top: 13px;
-    font-size: 25px;
 }
 
-/* PRÓXIMO DIA */
-#dialogFechamentoDiario .fechamento-proximo {
-    margin-top: 14px;
-    padding: 18px 20px;
-    border-radius: 13px;
+.fechamento-acoes-dir {
+    display: flex;
+    gap: 12px;
 }
 
-#dialogFechamentoDiario .fechamento-proximo label {
-    font-size: 16px;
+.fechamento-acoes button {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
 }
 
-#dialogFechamentoDiario #fechamentoTrocoProximo {
-    min-height: 50px;
-    font-size: 26px;
+#btnSalvarFechamento {
+    background: #27ae60;
+    color: #fff;
 }
 
-/* BOTÕES */
-#dialogFechamentoDiario .fechamento-acoes {
-    margin-top: 18px;
+#btnSalvarFechamento:hover {
+    background: #219150;
 }
 
-#dialogFechamentoDiario .fechamento-acoes button {
-    min-height: 44px;
-    padding: 11px 18px;
-    font-size: 15px;
+#btnFecharFechamentoSemSalvar {
+    background: #e74c3c;
+    color: #fff;
 }
 
-#dialogFechamentoDiario #btnSalvarFechamento {
-    min-width: 170px;
-}
-
-/* NÃO DEIXA OUTROS MODAIS PASSAREM NA FRENTE */
-body.pdv-fechamento-bloqueado dialog:not(#dialogFechamentoDiario) {
-    pointer-events: none !important;
-}
-
-body.pdv-fechamento-bloqueado #dialogFechamentoDiario {
-    pointer-events: auto !important;
-}
-
-/* RESPONSIVO */
-@media (max-width: 900px) {
-    #dialogFechamentoDiario .fechamento-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    #dialogFechamentoDiario .fechamento-datas {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (max-width: 600px) {
-    #dialogFechamentoDiario {
-        width: 96vw !important;
-    }
-
-    #dialogFechamentoDiario .fechamento-box {
-        padding: 18px;
-    }
-
-    #dialogFechamentoDiario .fechamento-grid,
-    #dialogFechamentoDiario .fechamento-datas {
-        grid-template-columns: 1fr;
-    }
-
-    #dialogFechamentoDiario .fechamento-topo h2 {
-        font-size: 24px;
-    }
-}
-
-
-/* ============================================================
-   AJUSTES FINAIS DO PDV SEM SIDEBAR
-   ============================================================ */
-body.sem-sidebar {
-    margin-left: 0 !important;
-    padding-left: 0 !important;
-}
-
-body.sem-sidebar .custom-header {
-    width: 100% !important;
-}
-
-body.sem-sidebar .custom-header > div {
-    width: 100%;
-}
-
-body.sem-sidebar.pdv-fechamento-bloqueado > *:not(.custom-header):not(#dialogFechamentoDiario) {
+.pdv-fechamento-bloqueado #sc_inputs input,
+.pdv-fechamento-bloqueado #b_final {
     pointer-events: none;
-}
-
-body.sem-sidebar #dialogFechamentoDiario {
-    z-index: 99999;
-}
-
-body.sem-sidebar #dialogFechamentoDiario .fechamento-box {
-    overflow: hidden !important;
+    opacity: 0.5;
 }

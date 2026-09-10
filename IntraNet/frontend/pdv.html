@@ -7,7 +7,9 @@
     <title>PDV - Sistema Cantina</title>
     <link rel="stylesheet" href="layout.css">
     <link rel="stylesheet" href="stylepdv.css">
-    <link rel="stylesheet" href="style-fechamento.css">
+    <script>
+    const URL_BACKEND_CAD = "http://localhost:3000";
+</script>
 <script src="sidebar_header.js"></script>
     <script>
         // Verifica se existe um token no localStorage
@@ -15,9 +17,7 @@
         if (!token) {
             // Se não tem token, espera carregar o DOM para disparar o modal e depois redirecionar
             document.addEventListener("DOMContentLoaded", () => {
-                exibirAviso("Acesso restrito! Redirecionando para o login...", () => {
-                    window.location.href = "login.html"; 
-                });
+                window.location.href = "login.html";
             });
         }
     </script>
@@ -321,76 +321,242 @@
 <dialog id="dialogFechamentoDiario">
     <div class="fechamento-box">
         <div class="fechamento-topo">
-            <h2 id="fechamentoTitulo">FECHAMENTO DIÁRIO</h2>
-            <button type="button" class="fechamento-fechar" id="btnFecharFechamento" title="Fechar">×</button>
+            <h2 id="fechamentoTitulo">CONTROLE / FECHAMENTO DO CAIXA</h2>
+            <button type="button" class="fechamento-fechar" id="btnFecharFechamento">&times;</button>
         </div>
 
-        <div id="fechamentoAlerta" class="fechamento-alerta" style="display:none;"></div>
+        <div id="fechamentoAlerta" class="fechamento-alerta" style="display: none;"></div>
 
-        <div class="fechamento-linha fechamento-datas">
+        <div class="fechamento-linha">
             <div class="fechamento-campo">
-                <label for="fechamentoData">Dia atual / referência</label>
-                <input type="date" id="fechamentoData">
+                <label>Consultar Fechamento por Data:</label>
+                <div class="fechamento-data-controle">
+                    <input type="date" id="fechamentoDataConsulta">
+                    <button type="button" id="btnConsultarFechamento" class="btn-confirmar-data">CONFIRMAR DATA</button>
+                </div>
             </div>
-            <div class="fechamento-campo">
-                <label for="fechamentoDataConsulta">Outro dia para consultar/fechar</label>
-                <input type="date" id="fechamentoDataConsulta">
+
+            <div class="fechamento-campo fechamento-periodo-botao">
+                <label>Resumo de vários dias:</label>
+                <button type="button" id="btnAbrirResumoPeriodo" class="btn-confirmar-data">VER VALORES DO PERÍODO</button>
             </div>
+
             <div class="fechamento-campo">
-                <label>Status do dia selecionado</label>
-                <div class="fechamento-valor" id="fechamentoStatus">Não fechado</div>
-                <small id="fechamentoQtdVendas">0 vendas</small>
+                <label>Status do Caixa:</label>
+                <span id="fechamentoStatus" class="fechamento-valor">---</span>
+            </div>
+
+            <div class="fechamento-campo">
+                <label>Qtd. Vendas no Dia:</label>
+                <span id="fechamentoQtdVendas" class="fechamento-valor">0 vendas</span>
             </div>
         </div>
 
-        <div class="fechamento-linha fechamento-resumo-abertura">
+        <div class="fechamento-linha">
             <div class="fechamento-campo">
-                <label>Troco inicial do dia</label>
-                <div class="fechamento-valor" id="fechamentoTrocoInicial">R$ 0,00</div>
-                <input type="text" inputmode="decimal" id="fechamentoTrocoInicialInput" placeholder="Digite o troco inicial" style="display:none;margin-top:8px;">
-                <button type="button" id="btnRegistrarAbertura" style="display:none;margin-top:8px;background:#2b1f14;color:#f1b869;">Registrar abertura</button>
-                <small id="fechamentoOrigemTroco">Primeiro dia / sem fechamento anterior</small>
+                <label>Troco Inicial do Dia:</label>
+                <span id="fechamentoTrocoInicial" class="fechamento-valor">R$ 0,00</span>
+                <small id="fechamentoOrigemTroco" style="color: #a0a0a0;"></small>
+            </div>
+
+            <div class="fechamento-campo">
+                <input type="text" id="fechamentoTrocoInicialInput" placeholder="Valor do troco inicial (ex: 100,00)" style="display: none;">
+                <button type="button" id="btnRegistrarAbertura" class="btn-confirmar-data" style="display: none; margin-top: 4px;">REGISTRAR ABERTURA</button>
             </div>
         </div>
 
         <div class="fechamento-grid">
             <div class="fechamento-card"><span>DINHEIRO</span><strong id="fechDinheiro">R$ 0,00</strong></div>
-            <div class="fechamento-card"><span>CARTÃO DE CRÉDITO</span><strong id="fechCredito">R$ 0,00</strong></div>
-            <div class="fechamento-card"><span>CARTÃO DE DÉBITO</span><strong id="fechDebito">R$ 0,00</strong></div>
+            <div class="fechamento-card"><span>CRÉDITO</span><strong id="fechCredito">R$ 0,00</strong></div>
+            <div class="fechamento-card"><span>DÉBITO</span><strong id="fechDebito">R$ 0,00</strong></div>
             <div class="fechamento-card"><span>PIX</span><strong id="fechPix">R$ 0,00</strong></div>
-            <div class="fechamento-card"><span>VOUCHER/TICKET</span><strong id="fechVoucher">R$ 0,00</strong></div>
+            <div class="fechamento-card"><span>VOUCHER</span><strong id="fechVoucher">R$ 0,00</strong></div>
             <div class="fechamento-card"><span>FIADO</span><strong id="fechFiado">R$ 0,00</strong></div>
-            <div class="fechamento-card"><span>OUTROS / HISTÓRICOS</span><strong id="fechOutros">R$ 0,00</strong></div>
-            <div class="fechamento-card"><span>TOTAL DAS VENDAS</span><strong id="fechTotal">R$ 0,00</strong></div>
+            <div class="fechamento-card"><span>OUTROS</span><strong id="fechOutros">R$ 0,00</strong></div>
+            <div class="fechamento-card" style="border-left-color: #27ae60;"><span>TOTAL GERAL</span><strong id="fechTotal">R$ 0,00</strong></div>
         </div>
 
         <div class="fechamento-dinheiro">
-            <div class="fd-linha"><span>Troco inicial</span><strong id="fechDinTrocoInicial">R$ 0,00</strong></div>
-            <div class="fd-linha"><span>+ Vendas em dinheiro</span><strong id="fechDinVendas">R$ 0,00</strong></div>
-            <div class="fd-linha fd-total"><span>Dinheiro esperado no caixa</span><strong id="fechDinEsperado">R$ 0,00</strong></div>
+            <div class="fd-linha">
+                <span>(+) Troco Inicial:</span>
+                <strong id="fechDinTrocoInicial">R$ 0,00</strong>
+            </div>
+            <div class="fd-linha">
+                <span>(+) Vendas em Dinheiro:</span>
+                <strong id="fechDinVendas">R$ 0,00</strong>
+            </div>
+            <div class="fd-linha fd-total">
+                <span>(=) Total Esperado em Dinheiro na Gaveta:</span>
+                <strong id="fechDinEsperado">R$ 0,00</strong>
+            </div>
         </div>
 
         <div class="fechamento-proximo">
-            <label for="fechamentoTrocoProximo">Quanto de dinheiro/troco vai ficar para o próximo dia?</label>
-            <input type="text" inputmode="decimal" id="fechamentoTrocoProximo" placeholder="R$ 0,00">
-            <div class="fechamento-diferenca" id="fechamentoDiferenca">Diferença de caixa: R$ 0,00</div>
+            <label for="fechamentoTrocoProximo">Quanto dinheiro ficará de troco para o dia seguinte?</label>
+            <input type="text" id="fechamentoTrocoProximo" placeholder="0,00">
+            <span id="fechamentoDiferenca" class="fechamento-diferenca">Diferença de caixa: R$ 0,00</span>
         </div>
 
         <div class="fechamento-acoes">
-            <div class="fechamento-acoes-esq">
-                <button type="button" id="btnConsultarFechamento">Consultar dia selecionado</button>
-            </div>
+            <button type="button" id="btnFecharFechamentoSemSalvar">SAIR</button>
             <div class="fechamento-acoes-dir">
-                <button type="button" id="btnFecharFechamentoSemSalvar">Fechar</button>
                 <button type="button" id="btnSalvarFechamento">FECHAR DIA</button>
             </div>
         </div>
     </div>
 </dialog>
 
-<body>
 
-    <!-- MODAL ADICIONAR COMPRA -->
+<!-- =========================================================
+     MODAL RESUMO DE VÁRIOS DIAS
+========================================================= -->
+<dialog id="dialogResumoPeriodo">
+    <div class="resumo-periodo-box">
+        <div class="resumo-periodo-topo">
+            <h3>RESUMO DO PERÍODO</h3>
+            <button type="button" id="btnFecharResumoPeriodo" aria-label="Fechar">&times;</button>
+        </div>
+
+        <div class="resumo-periodo-datas">
+            <div>
+                <label for="resumoPeriodoInicio">De</label>
+                <input type="date" id="resumoPeriodoInicio">
+            </div>
+            <div>
+                <label for="resumoPeriodoFim">Até</label>
+                <input type="date" id="resumoPeriodoFim">
+            </div>
+            <button type="button" id="btnConsultarResumoPeriodo">CONSULTAR</button>
+        </div>
+
+        <div id="resumoPeriodoAlerta" class="resumo-periodo-alerta" style="display:none;"></div>
+
+        <div id="resumoPeriodoLista" class="resumo-periodo-lista">
+            <div class="resumo-periodo-vazio">Selecione o período e clique em CONSULTAR.</div>
+        </div>
+
+        <div class="resumo-periodo-total">
+            <span>TOTAL DO PERÍODO</span>
+            <strong id="resumoPeriodoTotal">R$ 0,00</strong>
+        </div>
+    </div>
+</dialog>
+
+<style>
+#dialogResumoPeriodo {
+    border: none;
+    padding: 0;
+    border-radius: 12px;
+    background: transparent;
+}
+#dialogResumoPeriodo::backdrop {
+    background: rgba(0,0,0,.58);
+}
+.resumo-periodo-box {
+    width: min(430px, 90vw);
+    max-height: 80vh;
+    overflow: hidden;
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px;
+    box-sizing: border-box;
+    color: #333;
+}
+.resumo-periodo-topo {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom: 14px;
+}
+.resumo-periodo-topo h3 {
+    margin:0;
+    font-size:18px;
+}
+.resumo-periodo-topo button {
+    border:0;
+    background:transparent;
+    font-size:26px;
+    cursor:pointer;
+    line-height:1;
+}
+.resumo-periodo-datas {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    align-items:end;
+    margin-bottom:12px;
+}
+.resumo-periodo-datas div {
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+}
+.resumo-periodo-datas label {
+    font-size:12px;
+    font-weight:bold;
+}
+.resumo-periodo-datas input {
+    width:100%;
+    box-sizing:border-box;
+    padding:8px;
+}
+#btnConsultarResumoPeriodo {
+    grid-column:1 / -1;
+    padding:9px 12px;
+    border:0;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+}
+.resumo-periodo-alerta {
+    padding:8px;
+    margin-bottom:10px;
+    border-radius:6px;
+    background:#f7e0e0;
+}
+.resumo-periodo-lista {
+    max-height:330px;
+    overflow-y:auto;
+    border-top:1px solid #ddd;
+}
+.resumo-periodo-item {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:9px 2px;
+    border-bottom:1px solid #eee;
+}
+.resumo-periodo-item span {
+    font-weight:600;
+}
+.resumo-periodo-item strong {
+    white-space:nowrap;
+}
+.resumo-periodo-vazio {
+    padding:18px 4px;
+    text-align:center;
+    color:#777;
+}
+.resumo-periodo-total {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:12px;
+    padding-top:12px;
+    border-top:2px solid #333;
+    font-size:17px;
+}
+.resumo-periodo-total strong {
+    font-size:19px;
+}
+@media (max-width:600px) {
+    .fechamento-periodo-botao {
+        grid-column:1 / -1;
+    }
+}
+</style>
+
+<!-- MODAL ADICIONAR COMPRA -->
     <dialog id="d_modal_fiado">
         <div class="modal_box">
             <button id="b_close_modal">x</button>
@@ -420,3123 +586,2245 @@
         </div>
     </dialog>
 
-</body>
+
 
 <script>
-    // Seletores do novo aviso customizado
-    const aviso = document.getElementById("d_aviso");
-    const msgAviso = document.getElementById("msg_aviso");
-    const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
-    const bCancelarAviso = document.getElementById("b_cancelar_aviso");
+/* =========================================================
+   FECHAMENTO DIÁRIO / CONTROLE DE CAIXA - PDV
 
-    // Função para exibir aviso customizado no lugar do alert/confirm nativo
-    function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
-    console.log("abrindo aviso");
+   REGRAS:
+   - Dia consultado é separado do dia operacional de hoje.
+   - Consultar outro dia NÃO abre o caixa desse dia.
+   - Qualquer dia pode ser consultado.
+   - Dia sem registro pode ser fechado.
+   - O backend usa o último fechamento anterior para calcular
+     o troco inicial.
+   - Fechar um dia anterior NÃO troca a tela para hoje.
+   - Somente o caixa de HOJE controla o bloqueio do PDV.
+   - Um fechamento histórico pendente continua obrigatório.
+========================================================= */
 
-    msgAviso.innerText = mensagem;
-    bCancelarAviso.style.display = mostrarCancelar ? "block" : "none";
+const dialogFechamentoDiario =
+    document.getElementById("dialogFechamentoDiario");
 
-    try {
-        aviso.showModal();
-        console.log("modal aberto");
-    } catch (e) {
-        console.error("erro showModal", e);
+const fechamentoData =
+    document.getElementById("fechamentoData");
+
+const fechamentoDataConsulta =
+    document.getElementById("fechamentoDataConsulta");
+
+const fechamentoAlerta =
+    document.getElementById("fechamentoAlerta");
+
+const fechamentoStatus =
+    document.getElementById("fechamentoStatus");
+
+const fechamentoQtdVendas =
+    document.getElementById("fechamentoQtdVendas");
+
+const fechamentoTrocoInicial =
+    document.getElementById("fechamentoTrocoInicial");
+
+const fechamentoTrocoInicialInput =
+    document.getElementById("fechamentoTrocoInicialInput");
+
+const btnRegistrarAbertura =
+    document.getElementById("btnRegistrarAbertura");
+
+const fechamentoOrigemTroco =
+    document.getElementById("fechamentoOrigemTroco");
+
+const fechamentoTrocoProximo =
+    document.getElementById("fechamentoTrocoProximo");
+
+const fechamentoDiferenca =
+    document.getElementById("fechamentoDiferenca");
+
+const btnSalvarFechamento =
+    document.getElementById("btnSalvarFechamento");
+
+const btnConsultarFechamento =
+    document.getElementById("btnConsultarFechamento");
+
+const btnFecharFechamento =
+    document.getElementById("btnFecharFechamento");
+
+const btnFecharFechamentoSemSalvar =
+    document.getElementById("btnFecharFechamentoSemSalvar");
+
+const dialogResumoPeriodo =
+    document.getElementById("dialogResumoPeriodo");
+
+const btnAbrirResumoPeriodo =
+    document.getElementById("btnAbrirResumoPeriodo");
+
+const btnFecharResumoPeriodo =
+    document.getElementById("btnFecharResumoPeriodo");
+
+const resumoPeriodoInicio =
+    document.getElementById("resumoPeriodoInicio");
+
+const resumoPeriodoFim =
+    document.getElementById("resumoPeriodoFim");
+
+const btnConsultarResumoPeriodo =
+    document.getElementById("btnConsultarResumoPeriodo");
+
+const resumoPeriodoAlerta =
+    document.getElementById("resumoPeriodoAlerta");
+
+const resumoPeriodoLista =
+    document.getElementById("resumoPeriodoLista");
+
+const resumoPeriodoTotal =
+    document.getElementById("resumoPeriodoTotal");
+
+
+/* =========================================================
+   ESTADO
+========================================================= */
+
+let fechamentoDadosAtual = null;
+
+let fechamentoForcado = false;
+
+let fechamentoInicializado = false;
+
+let caixaHojeFechado = false;
+
+let fechamentoCarregando = false;
+
+
+/* =========================================================
+   DATA
+========================================================= */
+
+function dataLocalPDV() {
+
+    const agora = new Date();
+
+    const ano =
+        agora.getFullYear();
+
+    const mes =
+        String(
+            agora.getMonth() + 1
+        ).padStart(2, "0");
+
+    const dia =
+        String(
+            agora.getDate()
+        ).padStart(2, "0");
+
+    return `${ano}-${mes}-${dia}`;
+}
+
+
+function normalizarDataFechamento(data) {
+
+    if (!data) {
+        return "";
     }
 
-    bConfirmarAviso.onclick = () => {
-        aviso.close();
-        if (callback) callback();
-    };
-
-    bCancelarAviso.onclick = () => {
-        aviso.close();
-    };
+    return String(data)
+        .slice(0, 10);
 }
-aviso.addEventListener("cancel", (event) => {
-    event.preventDefault();
-});
 
-    // Seletores
-    const inp_codb = document.getElementById("inp_codb");
-    const tbody = document.getElementById("tb_tbl_produtos");
-    const img_prod = document.getElementById("img_prod");
-    const b_final = document.getElementById("b_final");
-    const modal = document.getElementById("d_modal");
-    const modalp = document.querySelector("#sc_modalp dialog");
-    const nova_venda = document.getElementById("b_nv_venda");
-    const dialogBusca = document.getElementById("dialogBusca");
-const inputBusca = document.getElementById("inputBusca");
-const lista = document.getElementById("listaSugestoes");
 
-let produtosFiltrados = [];
-let indexSelecionado = -1;
-    const sl_cliente = document.getElementById("sl_cliente");
-    const inp_vencimento = document.getElementById("inp_vencimento");
-    // Configurações
-    const URL_BACKEND_CAD = "http://localhost:3000";
+function formatarDataFechamento(data) {
 
-    // =====================================================
-    // CARREGA O PRÓXIMO NÚMERO DO PEDIDO ASSIM QUE
-    // A VENDA NORMAL DO PDV RECEBE O PRIMEIRO PRODUTO.
-    // =====================================================
-  let carregandoNumeroPedido = false;
+    if (!data) {
+        return "---";
+    }
 
-async function atualizarNumeroPedidoPreview(forcar = false) {
+    const partes =
+        normalizarDataFechamento(data)
+            .split("-");
 
-    // Só busca número para venda normal do PDV
-    if (comandaAtual || origemVenda !== "PDV" || carrinho.length === 0) {
+    if (partes.length !== 3) {
+        return data;
+    }
+
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+
+/* =========================================================
+   VALORES
+========================================================= */
+
+function dinheiroFechamento(valor) {
+
+    const numero =
+        Number(valor || 0);
+
+    return (
+        "R$ " +
+        numero
+            .toFixed(2)
+            .replace(".", ",")
+    );
+}
+
+
+function valorNumericoFechamento(valor) {
+
+    const textoOriginal =
+        String(valor ?? "")
+            .trim();
+
+    if (!textoOriginal) {
+        return NaN;
+    }
+
+    const texto =
+        textoOriginal
+            .replace(/R\$\s*/gi, "")
+            .replace(/\s/g, "");
+
+    let normalizado =
+        texto;
+
+    /*
+     * Aceita:
+     * 1234,56
+     * 1.234,56
+     * 1234.56
+     */
+
+    if (texto.includes(",")) {
+
+        normalizado =
+            texto
+                .replace(/\./g, "")
+                .replace(",", ".");
+    }
+
+    const numero =
+        Number(normalizado);
+
+    return Number.isFinite(numero)
+        ? numero
+        : NaN;
+}
+
+
+function preencherValor(id, valor) {
+
+    const elemento =
+        document.getElementById(id);
+
+    if (elemento) {
+
+        elemento.innerText =
+            dinheiroFechamento(valor);
+    }
+}
+
+
+function definirValorInputTroco(valor) {
+
+    if (!fechamentoTrocoProximo) {
+        return;
+    }
+
+    if (
+        valor === null ||
+        valor === undefined ||
+        valor === ""
+    ) {
+
+        fechamentoTrocoProximo.value =
+            "";
+
+        return;
+    }
+
+    fechamentoTrocoProximo.value =
+        Number(valor)
+            .toFixed(2)
+            .replace(".", ",");
+}
+
+
+/* =========================================================
+   ALERTA
+========================================================= */
+
+function limparAlertaFechamento() {
+
+    if (!fechamentoAlerta) {
+        return;
+    }
+
+    fechamentoAlerta.style.display =
+        "none";
+
+    fechamentoAlerta.innerText =
+        "";
+}
+
+
+function mostrarAlertaFechamento(texto) {
+
+    if (!fechamentoAlerta) {
+        return;
+    }
+
+    fechamentoAlerta.innerText =
+        texto;
+
+    fechamentoAlerta.style.display =
+        "block";
+}
+
+
+/* =========================================================
+   DIFERENÇA DE CAIXA
+========================================================= */
+
+function atualizarDiferencaFechamento() {
+
+    if (
+        !fechamentoDadosAtual ||
+        !fechamentoTrocoProximo
+    ) {
+        return;
+    }
+
+    const esperado =
+        Number(
+            fechamentoDadosAtual
+                .dinheiro_esperado || 0
+        );
+
+    const informado =
+        valorNumericoFechamento(
+            fechamentoTrocoProximo.value
+        );
+
+    if (!Number.isFinite(informado)) {
+
+        if (fechamentoDiferenca) {
+
+            fechamentoDiferenca.innerText =
+                "Diferença de caixa: R$ 0,00";
+        }
+
+        return;
+    }
+
+    const diferenca =
+        Number(
+            (
+                informado -
+                esperado
+            ).toFixed(2)
+        );
+
+    let prefixo;
+
+    if (diferenca > 0.009) {
+
+        prefixo =
+            "Sobra de caixa";
+
+    } else if (diferenca < -0.009) {
+
+        prefixo =
+            "Falta de caixa";
+
+    } else {
+
+        prefixo =
+            "Diferença de caixa";
+    }
+
+    if (fechamentoDiferenca) {
+
+        fechamentoDiferenca.innerText =
+            `${prefixo}: ${dinheiroFechamento(
+                Math.abs(diferenca)
+            )}`;
+    }
+}
+
+
+/* =========================================================
+   PREENCHER MODAL
+========================================================= */
+
+function atualizarCamposFechamento(dados) {
+
+    fechamentoDadosAtual =
+        dados || null;
+
+    if (!dados) {
+        return;
+    }
+
+    const resumo =
+        dados.resumo || {};
+
+    const fechamento =
+        dados.fechamento || null;
+
+    const dataSelecionada =
+        normalizarDataFechamento(
+            dados.data_referencia
+        );
+
+    const hoje =
+        dataLocalPDV();
+
+    const ehHoje =
+        dataSelecionada === hoje;
+
+    const trocoInicial =
+        Number(
+            dados.troco_inicial || 0
+        );
+
+    const dinheiroEsperado =
+        Number(
+            fechamento?.dinheiro_esperado ??
+            dados.dinheiro_esperado ??
+            (
+                trocoInicial +
+                Number(
+                    resumo.dinheiro || 0
+                )
+            )
+        );
+
+
+    /* =====================================================
+       RESUMO
+    ===================================================== */
+
+    preencherValor(
+        "fechamentoTrocoInicial",
+        trocoInicial
+    );
+
+    preencherValor(
+        "fechDinheiro",
+        resumo.dinheiro
+    );
+
+    preencherValor(
+        "fechCredito",
+        resumo.credito
+    );
+
+    preencherValor(
+        "fechDebito",
+        resumo.debito
+    );
+
+    preencherValor(
+        "fechPix",
+        resumo.pix
+    );
+
+    preencherValor(
+        "fechVoucher",
+        resumo.voucher
+    );
+
+    preencherValor(
+        "fechFiado",
+        resumo.fiado
+    );
+
+    preencherValor(
+        "fechOutros",
+        resumo.outros
+    );
+
+    preencherValor(
+        "fechTotal",
+        resumo.total_vendas
+    );
+
+    preencherValor(
+        "fechDinTrocoInicial",
+        trocoInicial
+    );
+
+    preencherValor(
+        "fechDinVendas",
+        resumo.dinheiro
+    );
+
+    preencherValor(
+        "fechDinEsperado",
+        dinheiroEsperado
+    );
+
+
+    /* =====================================================
+       QUANTIDADE DE VENDAS
+    ===================================================== */
+
+    if (fechamentoQtdVendas) {
+
+        const quantidade =
+            Number(
+                resumo.quantidade_vendas || 0
+            );
+
+        fechamentoQtdVendas.innerText =
+            `${quantidade} ${
+                quantidade === 1
+                    ? "venda"
+                    : "vendas"
+            }`;
+    }
+
+
+    /* =====================================================
+       STATUS
+    ===================================================== */
+
+    if (fechamentoStatus) {
+
+        if (
+            fechamento?.status ===
+            "FECHADO"
+        ) {
+
+            fechamentoStatus.innerText =
+                "FECHADO";
+
+            fechamentoStatus.classList.add(
+                "fechamento-status-fechado"
+            );
+
+        } else if (
+            fechamento?.status ===
+            "ABERTO"
+        ) {
+
+            fechamentoStatus.innerText =
+                "CAIXA ABERTO";
+
+            fechamentoStatus.classList.remove(
+                "fechamento-status-fechado"
+            );
+
+        } else {
+
+            fechamentoStatus.innerText =
+                "NÃO ABERTO";
+
+            fechamentoStatus.classList.remove(
+                "fechamento-status-fechado"
+            );
+        }
+    }
+
+
+    /* =====================================================
+       ORIGEM DO TROCO
+    ===================================================== */
+
+    if (fechamentoOrigemTroco) {
+
+        if (dados.origem_troco_inicial) {
+
+            fechamentoOrigemTroco.innerText =
+                `Troco trazido do fechamento de ${
+                    formatarDataFechamento(
+                        dados.origem_troco_inicial
+                    )
+                }`;
+
+        } else {
+
+            fechamentoOrigemTroco.innerText =
+                "Primeiro dia / sem fechamento anterior";
+        }
+    }
+
+
+    /* =====================================================
+       ABERTURA MANUAL
+       
+       IMPORTANTE:
+       Se a data não possui registro, o usuário pode
+       registrar a abertura daquela data.
+
+       Isso NÃO significa que o PDV será liberado se
+       a data não for hoje.
+    ===================================================== */
+
+    const semRegistro =
+        !fechamento;
+
+    const podeAbrir =
+        semRegistro;
+
+    if (
+        fechamentoTrocoInicialInput &&
+        btnRegistrarAbertura
+    ) {
+
+        if (podeAbrir) {
+
+            fechamentoTrocoInicialInput.style.display =
+                "block";
+
+            /*
+             * Só limpa quando realmente mudamos
+             * para uma data sem registro.
+             */
+            fechamentoTrocoInicialInput.value =
+                "";
+
+            btnRegistrarAbertura.style.display =
+                "inline-block";
+
+            btnRegistrarAbertura.disabled =
+                false;
+
+            btnRegistrarAbertura.innerText =
+                ehHoje
+                    ? "REGISTRAR ABERTURA"
+                    : "REGISTRAR ABERTURA DESTE DIA";
+
+        } else {
+
+            fechamentoTrocoInicialInput.style.display =
+                "none";
+
+            btnRegistrarAbertura.style.display =
+                "none";
+
+            fechamentoTrocoInicialInput.value =
+                "";
+        }
+    }
+
+
+    /* =====================================================
+       TROCO PARA O PRÓXIMO DIA
+    ===================================================== */
+
+    if (
+        fechamento?.status ===
+        "FECHADO"
+    ) {
+
+        definirValorInputTroco(
+            fechamento.troco_proximo_dia
+        );
+
+    } else {
+
+        /*
+         * Nunca carrega o troco digitado de outra data.
+         */
+        definirValorInputTroco(null);
+    }
+
+
+    /* =====================================================
+       BOTÃO FECHAR
+       
+       O backend informa pode_fechar=true tanto para:
+       - dia aberto;
+       - dia sem registro;
+       
+       Portanto não podemos exigir que exista
+       fechamento.status === ABERTO.
+    ===================================================== */
+
+    const podeFechar =
+        dados.pode_fechar === true;
+
+    if (btnSalvarFechamento) {
+
+        btnSalvarFechamento.disabled =
+            !podeFechar;
+
+        btnSalvarFechamento.innerText =
+            ehHoje
+                ? "FECHAR DIA"
+                : "FECHAR DIA ANTERIOR";
+
+        btnSalvarFechamento.style.display =
+            podeFechar
+                ? "inline-block"
+                : "none";
+    }
+
+
+    /* =====================================================
+       DIFERENÇA
+    ===================================================== */
+
+    if (
+        fechamento?.status ===
+        "FECHADO"
+    ) {
+
+        const diferenca =
+            Number(
+                fechamento.diferenca_caixa || 0
+            );
+
+        let prefixo;
+
+        if (diferenca > 0.009) {
+
+            prefixo =
+                "Sobra de caixa";
+
+        } else if (diferenca < -0.009) {
+
+            prefixo =
+                "Falta de caixa";
+
+        } else {
+
+            prefixo =
+                "Diferença de caixa";
+        }
+
+        if (fechamentoDiferenca) {
+
+            fechamentoDiferenca.innerText =
+                `${prefixo}: ${dinheiroFechamento(
+                    Math.abs(diferenca)
+                )}`;
+        }
+
+    } else {
+
+        atualizarDiferencaFechamento();
+    }
+
+
+    /* =====================================================
+       DATAS
+    ===================================================== */
+
+    if (fechamentoData) {
+
+        fechamentoData.value =
+            dataSelecionada;
+    }
+
+    if (fechamentoDataConsulta) {
+
+        fechamentoDataConsulta.value =
+            dataSelecionada;
+    }
+
+
+    /* =====================================================
+       TÍTULO
+    ===================================================== */
+
+    const titulo =
+        document.getElementById(
+            "fechamentoTitulo"
+        );
+
+    if (titulo) {
+
+        titulo.innerText =
+            ehHoje
+                ? "CONTROLE / FECHAMENTO DO CAIXA"
+                : `FECHAMENTO — ${
+                    formatarDataFechamento(
+                        dataSelecionada
+                    )
+                }`;
+    }
+}
+
+
+/* =========================================================
+   CONSULTAR QUALQUER DIA
+========================================================= */
+
+async function carregarDadosFechamento(
+    data,
+    abrir = true
+) {
+
+    if (
+        !data ||
+        fechamentoCarregando
+    ) {
         return null;
     }
 
-    // Se já estiver buscando, não faz duas requisições ao mesmo tempo
-    if (carregandoNumeroPedido) {
-        return numeroPedidoAtual;
+    fechamentoCarregando =
+        true;
+
+    limparAlertaFechamento();
+
+    const dataNormalizada =
+        normalizarDataFechamento(data);
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(
+        dataNormalizada
+    )) {
+
+        mostrarAlertaFechamento(
+            "Data inválida."
+        );
+
+        fechamentoCarregando =
+            false;
+
+        return null;
     }
 
-    // Só impede nova consulta quando NÃO estamos forçando atualização
-   if (!forcar && numeroPedidoAtual !== null) return;
-if (carregandoNumeroPedido) return;
 
-    carregandoNumeroPedido = true;
+    if (fechamentoData) {
+
+        fechamentoData.value =
+            dataNormalizada;
+    }
+
+    if (fechamentoDataConsulta) {
+
+        fechamentoDataConsulta.value =
+            dataNormalizada;
+    }
+
 
     try {
 
-        const resposta = await apiFetch(
-            `${URL_BACKEND_CAD}/pedidos/proximo-numero`,
-            {
-                method: "GET",
-                headers: {
-                    "Authorization":
-                        `Bearer ${localStorage.getItem("token")}`
+        const resposta =
+            await apiFetch(
+                `${URL_BACKEND_CAD}/fechamentos-diarios/${dataNormalizada}`,
+                {
+                    headers: {
+                        "Authorization":
+                            `Bearer ${localStorage.getItem("token")}`
+                    }
                 }
-            }
-        );
+            );
+
+
+        const tipoResposta =
+            resposta.headers.get(
+                "content-type"
+            ) || "";
+
+
+        const dados =
+            tipoResposta.includes(
+                "application/json"
+            )
+                ? await resposta.json()
+                : {
+                    resposta:
+                        `Servidor respondeu ${resposta.status} sem JSON.`
+                };
+
 
         if (!resposta.ok) {
+
             throw new Error(
-                "Não foi possível obter o próximo número do pedido."
+                dados.resposta ||
+                "Não foi possível carregar o fechamento."
             );
         }
 
-        const data = await resposta.json();
 
-        console.log("PRÓXIMO NÚMERO RECEBIDO:", data);
+        atualizarCamposFechamento(
+            dados
+        );
 
-        const numero =
-            data.num_pedido ??
-            data.numero_pedido ??
-            data.proximo_numero ??
-            data.proximoNumero;
 
         if (
-            numero !== undefined &&
-            numero !== null &&
-            !isNaN(Number(numero))
+            abrir &&
+            dialogFechamentoDiario &&
+            !dialogFechamentoDiario.open
         ) {
 
-            numeroPedidoAtual = Number(numero);
-
-            const visor =
-                document.getElementById("s_pedido");
-
-            if (visor) {
-                visor.innerText = numeroPedidoAtual;
-            }
-
-            return numeroPedidoAtual;
+            dialogFechamentoDiario.showModal();
         }
 
-        throw new Error(
-            "O backend não retornou o número do próximo pedido."
-        );
+
+        return dados;
 
     } catch (erro) {
 
         console.error(
-            "ERRO AO BUSCAR PRÓXIMO NÚMERO:",
+            "Erro ao carregar fechamento:",
             erro
         );
+
+        mostrarAlertaFechamento(
+            erro.message ||
+            "Erro ao carregar o fechamento diário."
+        );
+
+
+        if (
+            abrir &&
+            dialogFechamentoDiario &&
+            !dialogFechamentoDiario.open
+        ) {
+
+            dialogFechamentoDiario.showModal();
+        }
+
 
         return null;
 
     } finally {
 
-        carregandoNumeroPedido = false;
+        fechamentoCarregando =
+            false;
     }
-}
-    const IMG_PADRAO = "http://localhost:3000/images/img_ntf.png";
-    let carrinho = [];
-    let comandaAtual = null;
-    let totalCompra = 0;
-    let formaPagamento = "";
-
-// Forma de pagamento original enviada pelo APP
-let formaPagamentoComanda = "";
-
-// Controla se a forma de pagamento da comanda pode ser alterada
-let pagamentoComandaDesbloqueado = false;
-let pagamentoComandaBloqueado = false;
-let origemVenda = "PDV";
-let numeroPedidoAtual = null;
-let parcelasCredito = 1;
-    let pedidoFinalizado = false;
-    let estaProcessando = false;
-    // ===== SONS DO PDV =====
-    const beepSucesso = new Audio("sounds/success.mp3");
-    const beepErro = new Audio("sounds/error.mp3");
-    const beepBeep = new Audio("sounds/beep.mp3");
-    function tocarSucesso() {
-        beepSucesso.currentTime = 0;
-        beepSucesso.play();
-    }
-    function tocarErro() {
-        beepErro.currentTime = 0;
-        beepErro.play();
-    }
-    function tocarBeep() {
-        beepBeep.currentTime = 0;
-        beepBeep.play();
-    }
-    window.addEventListener("load", () => {
-        setTimeout(() => {
-            inp_codb.focus();
-        }, 100);
-    });
-    function voltarFoco() {
-    setTimeout(() => {
-        inp_codb.focus();
-        inp_codb.blur();
-        inp_codb.focus();
-    }, 50);
-}
-function atualizarBloqueioPagamento() {
-
-    const botoesPagamento =
-        document.querySelectorAll(".pagamento");
-
-    const botaoDesbloquear =
-        document.getElementById("b_desbloquear_pagamento");
-
-    // O bloqueio só existe quando uma COMANDA DO APP
-    // foi carregada e realmente trouxe uma forma de pagamento.
-    const bloqueado =
-        comandaAtual !== null &&
-        pagamentoComandaBloqueado === true &&
-        normalizarFormaPagamento(formaPagamentoComanda) !== "";
-
-    botoesPagamento.forEach(botao => {
-        botao.disabled = bloqueado;
-    });
-
-    // Venda normal do PDV: botão fica escondido.
-    // Comanda APP bloqueada: mostra o cadeado.
-    if (botaoDesbloquear) {
-        botaoDesbloquear.style.display =
-            bloqueado ? "block" : "none";
-
-        botaoDesbloquear.innerText =
-            bloqueado ? "🔒" : "";
-    }
-}
-
-function normalizarFormaPagamento(valor) {
-    return String(valor || "")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .replace(/\s*\(f\d+\)/g, "")
-        .trim();
-}
-
-function atualizarSelecaoPagamento(valor) {
-    const forma = normalizarFormaPagamento(valor);
-    document.querySelectorAll(".pagamento").forEach(botao => {
-        const texto = normalizarFormaPagamento(botao.innerText);
-        const selecionado = forma !== "" && texto === forma;
-        botao.classList.toggle("selecionado", selecionado);
-        botao.setAttribute("aria-pressed", selecionado ? "true" : "false");
-    });
-}
-
-function atualizarFormaPagamentoFinal(valor) {
-    const el = document.getElementById("s_forma_pagamento");
-    if (el) el.innerText = valor || "---";
-}
-
-function desbloquearPagamentoComanda() {
-
-    if (!comandaAtual) {
-        return;
-    }
-
-    exibirAviso(
-        "A forma de pagamento veio definida pelo APP.\n\nDeseja desbloquear e permitir alteração?",
-
-        () => {
-
-            pagamentoComandaDesbloqueado = true;
-
-            pagamentoComandaBloqueado = false;
-
-            atualizarBloqueioPagamento();
-
-        },
-
-        true
-    );
-}
-const botaoDesbloquearPagamento = document.getElementById("b_desbloquear_pagamento");
-if (botaoDesbloquearPagamento) {
-    botaoDesbloquearPagamento.addEventListener("click", desbloquearPagamentoComanda);
-}
-    
-    // Impede que o input perca o foco, exceto se alguma modal estiver aberta
-    inp_codb.addEventListener("blur", () => {
-        const fiadoModal = document.getElementById("d_fiado");
-        const algumaModalAberta = 
-            (modal && modal.open) || 
-            (dialogBusca && dialogBusca.open) || 
-            (fiadoModal && fiadoModal.open) ||
-            (aviso && aviso.open);
-        if (!algumaModalAberta) {
-            setTimeout(() => inp_codb.focus(), 10);
-        }
-    });
-
-    function formatar(valor) {
-        return Number(valor).toFixed(2).replace(".", ",");
-    }
-
-    function atualizarTabelaNoTopo() {
-        tbody.innerHTML = ""; 
-        
-        carrinho.forEach(item => {
-            const tr = document.createElement("tr");
-            tr.id = "linha_" + item.codigo;
-            tr.innerHTML = `
-                <td>${item.codigo}</td>
-                <td>${item.nome}</td>
-                <td class="qtd-col">${item.qtd}</td>
-                <td>R$ ${formatar(item.preco)}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-
-        // Preenche com linhas vazias até completar 18
-        for (let i = 0; i < (18 - carrinho.length); i++){
-            const tr = document.createElement("tr");
-            tr.innerHTML = "<td>&nbsp;</td><td></td><td></td><td></td>";
-            tbody.appendChild(tr);
-        }
-    }
-
-    function atualizarTotalCompra() {
-        let totalCompra = 0;
-        let totalUnidades = 0;
-
-        carrinho.forEach(item => {
-            totalCompra += item.preco * item.qtd;
-            totalUnidades += item.qtd;
-        });
-
-        const totalFormatado = "R$ " + formatar(totalCompra);
-        
-        document.getElementById("d_ttl_c").innerText = totalFormatado;
-        document.getElementById("s_tot").innerText = totalFormatado;
-        const visorQtdGeral = document.getElementById("d_qtd_geral");
-        if (visorQtdGeral) {
-            visorQtdGeral.innerText = totalUnidades;
-        }
-    }
-    function atualizarVisores(item) {
-        document.getElementById("d_qtd").innerText = item.qtd;
-        document.getElementById("d_vl_und").innerText = "R$ " + formatar(item.preco);
-        document.getElementById("d_ttl_i").innerText = "R$ " + formatar(item.preco * item.qtd);
-        const estoqueRestante = item.estoque - item.qtd;
-        document.getElementById("d_estoque").innerText = estoqueRestante;
-        const avisoEl = document.getElementById("aviso_estoque");
-        // estoque baixo
-        if (estoqueRestante > 0 && estoqueRestante <= item.qtd_min){
-            avisoEl.style.display = "block";
-            avisoEl.innerText = `Estoque baixo! Restam ${estoqueRestante} unidade(s).`;
-        }
-        else if (estoqueRestante <= 0) {
-            avisoEl.style.display = "block";
-            avisoEl.innerText = "Estoque esgotado!";
-        }
-        // estoque normal
-        else {
-            avisoEl.style.display = "none";
-        }
-    }
-    function verificarEstoqueCarrinho() {
-        return carrinho.some(item => item.qtd > item.estoque);
-    }
-    function verificarBotao() {
-        const botaoFinalizar = document.getElementById("b_final");
-        if (carrinho.length === 0 || verificarEstoqueCarrinho()) {
-            botaoFinalizar.disabled = true;
-        } else {
-            botaoFinalizar.disabled = false;
-        }
-    }
-    // Inicializa a tabela vazia
-    atualizarTabelaNoTopo();
-
-    inp_codb.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") return;
-        if (inp_codb.value.length > 0) {
-            const tempoAtual = Date.now();
-            const intervalo = tempoAtual - ultimaTeclaTempo;
-            if (intervalo > 40) {
-                e.preventDefault();
-            }
-        }
-    });
-
-    function finalizarLeitura(valorFinal) {
-        inp_codb.value = valorFinal;
-
-        setTimeout(() => {
-            estaProcessando = false;
-            inp_codb.focus();
-            inp_codb.selectionStart = inp_codb.selectionEnd = inp_codb.value.length;
-        }, 400);
-    }
-
-    inp_codb.addEventListener("select", () => {
-        inp_codb.selectionStart = inp_codb.selectionEnd = inp_codb.value.length;
-    });
-
-    function finalituraLimpaEReseta() {
-        estaProcessando = false;
-        inp_codb.focus();
-    }
-
-    let ultimaTeclaTempo = Date.now();
-    let timerLeitura = null;
-    inp_codb.addEventListener("keydown", (event) => {
-        if (
-            event.key === "F11" ||
-            event.key === "F12" ||
-            event.key === "F5" ||
-            ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "r") ||
-            (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "i")
-        ) {
-            return;
-        }
-
-        const fiadoModal = document.getElementById("d_fiado");
-        if (
-    modal.open ||
-    dialogBusca.open ||
-    dialogComanda.open ||
-    dialogDinheiro.open ||
-    (fiadoModal && fiadoModal.open) ||
-    aviso.open
-) {
-    return;
-}
-if (event.key.length === 1) {
-    clearTimeout(timerLeitura);
-
-    timerLeitura = setTimeout(() => {
-        if (!estaProcessando && inp_codb.value.trim() !== "") {
-
-            inp_codb.dispatchEvent(
-                new KeyboardEvent("keydown", {
-                    key: "Enter"
-                })
-            );
-
-        }
-    }, 80);
-}
-
-        if (inp_codb.value.length > 0) {
-            const tempoAtual = Date.now();
-            const intervalo = tempoAtual - ultimaTeclaTempo;
-            
-            if (intervalo > 40 && event.key !== "Enter") {
-                event.preventDefault(); 
-                return;
-            }
-        }
-        
-        ultimaTeclaTempo = Date.now();
-            
-       if (event.key !== "Enter") {
-    return;
-}
-        event.preventDefault(); 
-        if (estaProcessando) return;
-
-        const codigo = inp_codb.value.trim();
-        if (!codigo) return;
-
-        estaProcessando = true;
-
-        apiFetch(`${URL_BACKEND_CAD}/produtos/cod/${codigo}`, {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            }
-        })
-        .then(async res => {
-            if (res.status === 401 || res.status === 403) {
-                exibirAviso("Sua sessão expirou. Faça login novamente.", () => {
-                    window.location.href = "login.html";
-                });
-            }
-
-            const dados = await res.json().catch(() => ({}));
-
-            if (!res.ok) {
-                throw new Error(
-                    dados.erro ||
-                    dados.resposta ||
-                    "Produto não encontrado."
-                );
-            }
-
-            return dados;
-        })
-        .then(data => {
-            tocarBeep();
-            const produto = Array.isArray(data) ? data[0] : data;
-            if (!produto) throw new Error("Dados do produto inválidos");
-
-            if (produto.img) {
-                const nomeArquivo = produto.img.replace('/images/', '').replace(/^\//, '');
-                img_prod.src = `${URL_BACKEND_CAD}/images/${nomeArquivo}`;
-            } else {
-                img_prod.src = IMG_PADRAO;
-            }
-
-            let itemExistente = carrinho.find(p => p.codigo == codigo);
-
-            if (itemExistente) {
-                if (itemExistente.qtd >= itemExistente.estoque) {
-                    atualizarVisores(itemExistente);
-                    verificarBotao();
-                    finalizarLeitura(codigo); 
-                    return;
-                }
-                itemExistente.qtd++;
-                carrinho = carrinho.filter(p => p.codigo != codigo);
-                carrinho.unshift(itemExistente);
-            } else {
-                carrinho.unshift({
-                    id_produto: produto.id_produto,
-                    codigo: produto.codigo_barras || produto.codigo,
-                    nome: produto.nome,
-                    preco: Number(produto.preco),
-                    qtd: 1,
-                    estoque: Number(produto.qtd),
-                    qtd_min: Number(produto.qtd_min || 0),
-                    img: produto.img
-                });
-            }
-
-            if (Number(produto.qtd) <= 0) {
-                exibirAviso(`O produto "${produto.nome}" está sem estoque.`);
-
-                carrinho = carrinho.filter(p => p.codigo != codigo);
-                inp_codb.value = "";
-
-                document.getElementById("d_qtd").innerText = "0";
-                document.getElementById("d_vl_und").innerText = "R$ 0,00";
-                document.getElementById("d_ttl_i").innerText = "R$ 0,00";
-                document.getElementById("d_estoque").innerText = "-";
-                document.getElementById("aviso_estoque").style.display = "none";
-                img_prod.src = IMG_PADRAO;
-
-                atualizarTabelaNoTopo();
-                atualizarTotalCompra();
-                verificarBotao();
-                finalizarLeitura("");
-                return;
-            }
-
-            atualizarTabelaNoTopo();
-atualizarVisores(carrinho[0]);
-atualizarTotalCompra();
-verificarBotao();
-
-// VENDA NORMAL:
-// assim que o primeiro produto entra no carrinho,
-// já carrega o número do pedido.
-if (
-    !comandaAtual &&
-    origemVenda === "PDV" &&
-    carrinho.length > 0
-) {
-    atualizarNumeroPedidoPreview();
-}
-
-            finalizarLeitura(codigo); 
-        })
-        .catch(err => {
-            tocarErro();
-            console.error("Erro na requisição:", err);
-            
-            const overlay = document.getElementById("erro_overlay");
-            if (overlay) {
-                tocarErro();
-                overlay.style.display = "flex";
-                setTimeout(() => { overlay.style.display = "none"; }, 1500);
-            }
-            
-            img_prod.src = IMG_PADRAO;
-            finalizarLeitura(""); 
-        });
-    });
-
-   b_final.addEventListener("click", async () => {
-
-    if (verificarEstoqueCarrinho()) {
-
-        const item = carrinho.find(i => i.qtd > i.estoque);
-
-        exibirAviso(
-            `O produto "${item.nome}" possui apenas ${item.estoque} unidade(s) em estoque.\n\nDeseja ajustar automaticamente a quantidade?`,
-            async () => {
-
-                item.qtd = item.estoque;
-
-                if (item.qtd === 0) {
-                    carrinho = carrinho.filter(
-                        i => i.codigo !== item.codigo
-                    );
-                }
-
-                atualizarTabelaNoTopo();
-                atualizarVisores(
-                    carrinho[0] || {
-                        qtd: 0,
-                        preco: 0,
-                        estoque: 0
-                    }
-                );
-                atualizarTotalCompra();
-                verificarBotao();
-
-                if (
-                    !verificarEstoqueCarrinho() &&
-                    carrinho.length > 0
-                ) {
-
-                    document.getElementById("s_dt").innerText =
-                        new Date().toLocaleString();
-
-                    if (
-                        !comandaAtual &&
-                        origemVenda === "PDV" &&
-                        carrinho.length > 0
-                    ) {
-                        await atualizarNumeroPedidoPreview(true);
-                    }
-
-                    document.getElementById("s_pedido").innerText =
-                        comandaAtual
-                            ? (
-                                comandaAtual.num_pedido ??
-                                comandaAtual.numero_pedido ??
-                                "---"
-                              )
-                            : (
-                                numeroPedidoAtual ??
-                                "---"
-                              );
-
-                    modal.showModal();
-                }
-            },
-            true
-        );
-
-        voltarFoco();
-        return;
-    }
-
-    document.getElementById("s_dt").innerText =
-        new Date().toLocaleString();
-
-    // VENDA NORMAL DO PDV
-    if (
-    !comandaAtual &&
-    origemVenda === "PDV" &&
-    carrinho.length > 0
-) {
-    await atualizarNumeroPedidoPreview(true);
-}
-
-    // COMANDA: mostra o número que já pertence à comanda
-    if (comandaAtual) {
-        const numeroComanda =
-            comandaAtual.num_pedido ??
-            comandaAtual.numero_pedido ??
-            comandaAtual.pedido?.num_pedido ??
-            comandaAtual.pedido?.numero_pedido;
-
-        if (numeroComanda !== undefined && numeroComanda !== null) {
-            numeroPedidoAtual = Number(numeroComanda);
-        }
-    }
-
-    const visorPedido = document.getElementById("s_pedido");
-
-    if (visorPedido) {
-        visorPedido.innerText =
-            numeroPedidoAtual ?? "---";
-    }
-
-    modal.showModal();
-});
-
-    b_pesq.addEventListener("click", () => {
-        modalp.showModal();
-        setTimeout(() => inputBusca.focus(), 50);
-    });
-document.querySelectorAll(".pagamento").forEach(botao => {
-
-    botao.addEventListener("click", () => {
-
-        // =====================================================
-        // 1. COMANDA DO APP BLOQUEADA
-        // =====================================================
-
-        if (
-            comandaAtual &&
-            pagamentoComandaBloqueado &&
-            !pagamentoComandaDesbloqueado
-        ) {
-            console.log(
-                "Pagamento bloqueado. Mantendo:",
-                formaPagamentoComanda
-            );
-
-            atualizarSelecaoPagamento(
-                formaPagamentoComanda
-            );
-
-            atualizarFormaPagamentoFinal(
-                formaPagamentoComanda
-            );
-
-            return;
-        }
-
-        // =====================================================
-        // 2. IDENTIFICA A FORMA DE PAGAMENTO
-        // =====================================================
-
-        const forma = botao.innerText
-            .replace(/\s*\(F\d+\)\s*/gi, "")
-            .trim();
-
-        console.log(
-            "Forma de pagamento escolhida:",
-            forma
-        );
-
-        // =====================================================
-        // 3. DINHEIRO
-        // =====================================================
-
-        if (
-            forma
-                .toLowerCase()
-                .includes("dinheiro")
-        ) {
-
-            abrirModalDinheiro();
-
-            return;
-        }
-
-        // =====================================================
-        // 4. CARTÃO DE CRÉDITO
-        // =====================================================
-
-        if (
-            forma
-                .toLowerCase()
-                .includes("crédito")
-        ) {
-
-            abrirModalCredito();
-
-            return;
-        }
-
-        // =====================================================
-        // 5. FIADO
-        // =====================================================
-
-        if (
-            forma
-                .toLowerCase()
-                .includes("fiado")
-        ) {
-
-            formaPagamento = "Fiado";
-
-            atualizarSelecaoPagamento(
-                formaPagamento
-            );
-
-            atualizarFormaPagamentoFinal(
-                formaPagamento
-            );
-
-            modal.close();
-
-            const dFiado =
-                document.getElementById("d_fiado");
-
-            if (dFiado) {
-
-                inp_vencimento.value =
-                    new Date()
-                        .toISOString()
-                        .split("T")[0];
-
-                dFiado.showModal();
-            }
-
-            return;
-        }
-
-        // =====================================================
-        // 6. PIX / DÉBITO
-        // =====================================================
-
-        formaPagamento = forma;
-
-        atualizarSelecaoPagamento(
-            formaPagamento
-        );
-
-        atualizarFormaPagamentoFinal(
-            formaPagamento
-        );
-
-        nova_venda.disabled = false;
-
-    });
-
-});
-
-function resetarPDV() {
-
-    comandaAtual = null;
-origemVenda = "PDV";
-numeroPedidoAtual = null;
-carregandoNumeroPedido = false;
-
-const visorPedido =
-    document.getElementById("s_pedido");
-
-if (visorPedido) {
-    visorPedido.innerText = "---";
-}
-
-    carrinho = [];
-    totalCompra = 0;
-
-    formaPagamento = "";
-
-    formaPagamentoComanda = "";
-    pagamentoComandaDesbloqueado = false;
-    pagamentoComandaBloqueado = false;
-
-    atualizarBloqueioPagamento();
-
-        atualizarTabelaNoTopo();
-
-        document.getElementById("d_qtd").innerText = "0";
-        document.getElementById("d_vl_und").innerText = "R$ 0,00";
-        document.getElementById("d_ttl_i").innerText = "R$ 0,00";
-        document.getElementById("d_ttl_c").innerText = "R$ 0,00";
-        document.getElementById("d_qtd_geral").innerText = "0";
-        document.getElementById("d_estoque").innerText = "-";
-        document.getElementById("aviso_estoque").style.display = "none";
-
-        inp_codb.value = "";
-        img_prod.src = IMG_PADRAO;
-
-        b_final.disabled = true;
-        nova_venda.disabled = true;
-        estaProcessando = false;
-        pedidoFinalizado = false;
-        parcelasCredito = 1;
-        atualizarBloqueioPagamento();
-        atualizarSelecaoPagamento("");
-        atualizarFormaPagamentoFinal("");
-
-        modal.close();
-        if (document.getElementById("dialogCredito")?.open) document.getElementById("dialogCredito").close();
-
-        if (dialogBusca.open) {
-            dialogBusca.close();
-        }
-        if (document.getElementById("d_fiado").open) {
-            document.getElementById("d_fiado").close();
-        }
-
-        lista.innerHTML = "";
-        inputBusca.value = "";
-        produtosFiltrados = [];
-        indexSelecionado = -1;
-
-        setTimeout(() => {
-            inp_codb.focus();
-        }, 50);
-    }
-    // =====================================================
-// CONTROLE DE SAÍDA DO PDV
-// =====================================================
-
-window.pdvPossuiVendaEmAndamento = function () {
-    return (
-        Array.isArray(carrinho) &&
-        carrinho.length > 0
-    );
-};
-
-window.pdvConfirmarSaida = function (continuar) {
-
-    if (!window.pdvPossuiVendaEmAndamento()) {
-        continuar();
-        return;
-    }
-
-    exibirAviso(
-        "Existe uma venda em andamento.\n\n" +
-        "Se você sair do PDV, os produtos adicionados serão perdidos.\n\n" +
-        "Deseja realmente sair?",
-        () => {
-            // Cancela a venda atual antes de sair
-            resetarPDV();
-
-            // Pequeno atraso para garantir que o modal feche
-            setTimeout(() => {
-                continuar();
-            }, 50);
-        },
-        true
-    );
-};
-
-    function selecionarProduto(prod) {
-        const itemExistente = carrinho.find(p => p.codigo == prod.codigo_barras);
-
-        if (itemExistente && itemExistente.qtd >= itemExistente.estoque) {
-            atualizarVisores(itemExistente);
-            verificarBotao();
-            dialogBusca.close();
-            inp_codb.value = prod.codigo_barras;
-            inp_codb.focus();
-            return;
-        }
-
-        inp_codb.value = prod.codigo_barras;
-        dialogBusca.close();
-        lista.innerHTML = "";
-        inputBusca.value = "";
-        indexSelecionado = -1;
-        ultimaTeclaTempo = Date.now();
-        inp_codb.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
-        inp_codb.focus();
-    }
-
-    async function verificarReposicaoAutomatica() {
-        let qtdAdicionados = 0;
-        for (const item of carrinho) {
-            const estoqueRestante = item.estoque - item.qtd;
-            if (estoqueRestante === item.qtd_min){
-                try {
-                    await apiFetch(`http://localhost:3000/reposicao/${item.codigo}`, {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${localStorage.getItem("token")}`
-                        },
-                        body: JSON.stringify({
-                            id_produto: item.id_produto,
-                            nome: item.nome,
-                            estoque_restante: estoqueRestante,
-                            quantidade: 5,
-                            prioridade: "Média",
-                            local: "Fornecedor Padrão"
-                        })
-                    });
-                    qtdAdicionados++;
-                } catch (erro) {
-                    console.error("Erro ao adicionar reposição:", erro);
-                }
-            }
-        }
-        return qtdAdicionados;
-    }
-
-        nova_venda.addEventListener("click", () => {
-            if (estaProcessando) {
-                return;
-            }
-
-            estaProcessando = true;
-            nova_venda.disabled = true;
-
-    if (pedidoFinalizado) {
-        resetarPDV();
-        document.querySelectorAll(".pagamento").forEach(b => b.disabled = false);
-        return;
-    }
-
-    const totalReal = carrinho.reduce(
-        (soma, item) =>
-            soma + (item.preco * item.qtd),
-        0
-    );
-
-    tocarSucesso();
-
-    // =====================================================
-    // DEFINE A FORMA DE PAGAMENTO
-    // =====================================================
-
-    let pagamentoFinal = "";
-
-    if (comandaAtual) {
-
-        // Se veio do APP e continua bloqueada,
-        // SEMPRE usa a forma que veio do APP.
-        if (!pagamentoComandaDesbloqueado) {
-
-            pagamentoFinal = formaPagamentoComanda;
-
-        }
-        else {
-
-            // Se o operador desbloqueou,
-            // pode usar a forma escolhida no PDV.
-            pagamentoFinal =
-                formaPagamento ||
-                formaPagamentoComanda;
-
-        }
-
-    }
-    else {
-
-        // Venda normal do PDV
-        pagamentoFinal = formaPagamento;
-    }
-
-    console.log("=================================");
-    console.log("FINALIZANDO PEDIDO");
-    console.log("Comanda:", comandaAtual);
-    console.log("Forma original APP:", formaPagamentoComanda);
-    console.log("Forma atual:", formaPagamento);
-    console.log("Pagamento final:", pagamentoFinal);
-    console.log("=================================");
-
-    // Segurança
-    if (!pagamentoFinal) {
-
-        exibirAviso(
-            "A forma de pagamento não foi definida."
-        );
-
-        return;
-    }
-const pagamentoFinalLimpo =
-    String(pagamentoFinal || "")
-        .replace(/\s*\(F\d+\)\s*/gi, "")
-        .trim();
-
-if (!pagamentoFinalLimpo) {
-    exibirAviso("A forma de pagamento não foi definida.");
-    estaProcessando = false;
-    nova_venda.disabled = false;
-    return;
-}
-    const dadosPedido = {
-
-        itens: carrinho,
-
-        valor_total: totalReal,
-
-        qtd_total: carrinho.reduce(
-            (soma, item) =>
-                soma + item.qtd,
-            0
-            
-        ),
-        
-        // ENVIA A FORMA CORRETA
-        form_pag: pagamentoFinalLimpo,
-        parcelas: pagamentoFinal === "Cartão de Crédito" ? parcelasCredito : null,
-        valor_parcela: pagamentoFinal === "Cartão de Crédito" ? (totalReal / parcelasCredito) : null,
-
-        origem: comandaAtual
-            ? "APP"
-            : "PDV"
-    };
-
-    // Se veio de uma comanda,
-    // manda o ID do pedido original
-    if (comandaAtual) {
-
-        dadosPedido.id_pedido =
-            comandaAtual.id_pedido;
-    }
-
-    console.log(
-        "DADOS ENVIADOS PARA /pedidos:",
-        dadosPedido
-    );
-
-    // Se veio de uma comanda,
-    // manda o ID do pedido original
-    if (comandaAtual) {
-
-        dadosPedido.id_pedido =
-            comandaAtual.id_pedido;
-    }
-
-    console.log(
-        "DADOS ENVIADOS PARA /pedidos:",
-        dadosPedido
-    );
-
-    apiFetch(`${URL_BACKEND_CAD}/pedidos`, {
-
-        method: "POST",
-
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization":
-                `Bearer ${localStorage.getItem("token")}`
-        },
-
-        body: JSON.stringify(dadosPedido)
-
-    })
-
-    .then(res => {
-
-        if (!res.ok) {
-
-            return res.json()
-                .then(data => {
-
-                    throw new Error(
-                        data.resposta ||
-                        data.erro ||
-                        "Erro ao salvar pedido."
-                    );
-
-                });
-
-        }
-
-        return res.json();
-
-    })
-
-    .then(async data => {
-
-        console.log(
-            "RESPOSTA DO SERVIDOR:",
-            data
-        );
-        document
-        .getElementById("s_pedido")
-        .innerText = data.num_pedido;
-
-    // FECHA O MODAL ASSIM QUE A VENDA FOI SALVA
-    modal.close();
-
-        const numeroPedido = data.num_pedido ?? data.numero_pedido ?? data.id_pedido;
-        numeroPedidoAtual = numeroPedido;
-        document
-            .getElementById("s_pedido")
-            .innerText = numeroPedido ?? "---";
-
-        atualizarFormaPagamentoFinal(pagamentoFinal);
-        atualizarSelecaoPagamento(pagamentoFinal);
-        pedidoFinalizado = true;
-        nova_venda.disabled = false;
-        atualizarBloqueioPagamento();
-
-        if (
-            data.alertas &&
-            data.alertas.length > 0
-        ) {
-
-            exibirAviso(
-
-                "⚠️ AVISO DE ESTOQUE:\n\n" +
-                data.alertas.join("\n"),
-
-                async () => {
-
-                    const qtdAdicionados =
-                        await verificarReposicaoAutomatica();
-
-                    if (qtdAdicionados > 0) {
-
-                        exibirAviso(
-
-                            `${qtdAdicionados} produto(s) foram adicionados automaticamente à lista de reposição.`,
-
-                            () => {
-
-                                comandaAtual = null;
-
-                                // Aguarda o operador clicar em Nova Venda.
-
-                            }
-                        );
-
-                    } else {
-
-                        comandaAtual = null;
-
-                        // Aguarda o operador clicar em Nova Venda.
-                    }
-                }
-            );
-
-        } else {
-
-            const qtdAdicionados =
-                await verificarReposicaoAutomatica();
-
-            if (qtdAdicionados > 0) {
-
-                exibirAviso(
-
-                    `${qtdAdicionados} produto(s) foram adicionados automaticamente à lista de reposição.`,
-
-                    () => {
-
-                        comandaAtual = null;
-
-                        // Aguarda o operador clicar em Nova Venda.
-
-                    }
-                );
-
-            } else {
-
-                comandaAtual = null;
-
-                // Aguarda o operador clicar em Nova Venda.
-            }
-        }
-
-    })
-
-    .catch(err => {
-
-        tocarErro();
-
-        console.error(
-            "Erro ao salvar pedido:",
-            err
-        );
-
-        exibirAviso(
-            err.message ||
-            "Erro ao salvar o pedido. Verifique o console."
-        );
-    });
-});
-function confirmarCancelamento() {
-
-    // COMANDA CARREGADA
-    if (comandaAtual !== null) {
-
-        exibirAviso(
-            "Deseja realmente voltar e cancelar o carregamento desta comanda?",
-            () => {
-                resetarPDV();
-            },
-            true
-        );
-
-        return;
-    }
-
-    // VENDA NORMAL
-    if (carrinho.length === 0) {
-        resetarPDV();
-        return;
-    }
-
-    exibirAviso(
-        "Tem certeza que deseja cancelar a venda atual?",
-        () => {
-            resetarPDV();
-        },
-        true
-    );
-}
-
-    // ===== BOTÃO CANCELAR =====
-    const b_canc = document.getElementById("b_canc");
-
-    b_canc.addEventListener("click", () => {
-        confirmarCancelamento();
-    });
-        inputBusca.addEventListener("keydown", (event) => {
-        const itens = lista.querySelectorAll("li");
-        if (event.key === "ArrowDown") {
-            event.preventDefault();
-            indexSelecionado = (indexSelecionado + 1) % itens.length;
-            atualizarDestaque(itens);
-        } 
-        else if (event.key === "ArrowUp") {
-            event.preventDefault();
-            indexSelecionado = (indexSelecionado - 1 + itens.length) % itens.length;
-            atualizarDestaque(itens);
-        } 
-        else if (event.key === "Enter") {
-            event.preventDefault();
-            if (indexSelecionado > -1 && produtosFiltrados[indexSelecionado]) {
-                selecionarProduto(produtosFiltrados[indexSelecionado]);
-            }
-        }
-    });
-
-    function atualizarDestaque(itens) {
-        itens.forEach((li, i) => {
-            if (i === indexSelecionado) {
-                li.style.backgroundColor = "#efac4a"; 
-                li.style.color = "#1c1c1c";
-                li.scrollIntoView({ block: "nearest" });
-            } else {
-                li.style.backgroundColor = "#fff";
-                li.style.color = "#333";
-            }
-        });
-    }
-
-    inputBusca.addEventListener("input", async () => {
-        const q = inputBusca.value.trim();
-        indexSelecionado = -1; 
-        if (!q) {
-            lista.innerHTML = "";
-            produtosFiltrados = [];
-            return;
-        }
-        try {
-            const resposta = await apiFetch(`${URL_BACKEND_CAD}/produtos/busca?q=${q}`, {
-                headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
-            });
-            const dados = await resposta.json();
-
-if (!Array.isArray(dados)) return;
-
-const termo = q.toLowerCase();
-
-dados.sort((a, b) => {
-    const aNome = a.nome.toLowerCase();
-    const bNome = b.nome.toLowerCase();
-
-    const aComeca = aNome.startsWith(termo);
-    const bComeca = bNome.startsWith(termo);
-
-    if (aComeca && !bComeca) return -1;
-    if (!aComeca && bComeca) return 1;
-
-    return aNome.localeCompare(bNome);
-});
-            produtosFiltrados = dados; 
-            lista.innerHTML = "";
-            dados.forEach((prod, index) => {
-                const li = document.createElement("li");
-                li.style.padding = "12px";
-                li.style.borderBottom = "1px solid #eee";
-                li.style.cursor = "pointer";
-                li.style.display = "flex";
-                li.style.justifyContent = "space-between";
-                li.style.backgroundColor = "#fff";
-                li.style.color = "#333";
-                li.style.marginBottom = "5px";
-                li.style.borderRadius = "4px";
-                li.style.transition = "background 0.2s";
-                li.innerHTML = `
-                    <strong>${prod.nome}</strong>
-                    <span>R$ ${formatar(prod.preco)}</span>
-                `;
-                li.addEventListener("click", () => selecionarProduto(prod));
-                li.onmouseover = () => {
-                    indexSelecionado = index;
-                    atualizarDestaque(lista.querySelectorAll("li"));
-                };
-                lista.appendChild(li);
-            });
-        } catch (erro) {
-            console.error("Erro na busca:", erro);
-        }
-    });
-
-    function atualizarRelogio() {
-        const agora = new Date();
-        const data = agora.toLocaleDateString("pt-BR");
-        const hora = agora.toLocaleTimeString("pt-BR");
-        document.getElementById("relogio_pdv").innerText = `${data} - ${hora}`;
-    }
-    atualizarRelogio();
-    setInterval(atualizarRelogio, 1000);
-
-    async function carregarClientesFiado(){
-        const res = await apiFetch(
-            "http://localhost:3000/clientes-fiado",
-            {
-                headers:{
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            }
-        );
-        const clientes = await res.json();
-        sl_cliente.innerHTML = "";
-        clientes.forEach(c => {
-            sl_cliente.innerHTML += `
-                <option value="${c.id_cliente}">
-                    ${c.nome_completo}
-                </option>
-            `;
-        });
-    }
-    carregarClientesFiado();
-
-    document.getElementById("b_confirmar_fiado").addEventListener("click", async () => {
-        const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
-        const vencimento = document.getElementById("inp_vencimento").value;
-        const id_cliente = document.getElementById("sl_cliente").value;
-        if (!vencimento || !id_cliente) {
-            exibirAviso("Por favor, selecione o cliente e a data de vencimento.");
-            return;
-        }
-        try {
-                    const respostaFiado = await fetch("http://localhost:3000/contas-fiado", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("token")}`
-            },
-            body: JSON.stringify({
-            id_cliente,
-            valor: totalReal,
-            vencimento,
-            origem: "Fiado",
-            produtos: carrinho.map(item => ({
-                id_produto: item.id_produto,
-                nome: item.nome,
-                qtdSelecionada: item.qtd
-            }))
-        })
-        });
-            if (!respostaFiado.ok) {
-                throw new Error("Falha ao registrar a conta fiado no servidor.");
-            }
-            formaPagamento = "Fiado";
-            origemVenda = "Fiado";
-
-            apiFetch(`${URL_BACKEND_CAD}/pedidos`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`
-                },
-                body: JSON.stringify({
-                itens: carrinho,
-                valor_total: totalReal,
-                qtd_total: carrinho.reduce((soma, item) => soma + item.qtd, 0),
-                form_pag: formaPagamento,
-                origem: "Fiado"
-            })
-            })
-            .then(res => {
-                if (!res.ok) throw new Error("Erro ao salvar o pedido do fiado.");
-                return res.json();
-            })
-            .then(async data => {
-                const numeroFiado = data.num_pedido ?? data.numero_pedido ?? data.id_pedido;
-                numeroPedidoAtual = numeroFiado;
-                document.getElementById("s_pedido").innerText = numeroFiado ?? "---";
-                
-                if (data.alertas && data.alertas.length > 0) {
-                    exibirAviso("⚠️ AVISO DE ESTOQUE:\n\n" + data.alertas.join("\n"), async () => {
-                        const qtdAdicionados = await verificarReposicaoAutomatica();
-                        if (qtdAdicionados > 0) {
-                            exibirAviso(`${qtdAdicionados} produto(s) adicionados à reposição.`, () => {
-                                exibirAviso("Venda em FIADO registrada com sucesso!", () => {
-                                    document.getElementById("d_fiado").close();
-                                    resetarPDV();
-                                });
-                            });
-                        } else {
-                            exibirAviso("Venda em FIADO registrada com sucesso!", () => {
-                                document.getElementById("d_fiado").close();
-                                resetarPDV();
-                            });
-                        }
-                    });
-                } else {
-                    const qtdAdicionados = await verificarReposicaoAutomatica();
-                    if (qtdAdicionados > 0) {
-                        exibirAviso(`${qtdAdicionados} produto(s) adicionados à reposição.`, () => {
-                            exibirAviso("Venda em FIADO registrada com sucesso!", () => {
-                                document.getElementById("d_fiado").close();
-                                resetarPDV();
-                            });
-                        });
-                    } else {
-                        exibirAviso("Venda em FIADO registrada com sucesso!", () => {
-                            document.getElementById("d_fiado").close();
-                            resetarPDV();
-                        });
-                    }
-                }
-            })
-            .catch(err => {
-                console.error("Erro ao salvar pedido do fiado:", err);
-                exibirAviso("A conta fiado foi criada, mas houve um erro ao fechar o pedido da cantina."); 
-            });
-        } catch (erro) {
-            console.error("Erro ao salvar conta fiado:", erro);
-            exibirAviso("Erro ao registrar fiado no banco. Verifique a conexão com o servidor.");
-        }
-    });
-function carregarComanda() {
-    // O fechamento deve ficar acima de qualquer comanda.
-    if (document.getElementById("dialogFechamentoDiario")?.open) {
-        return;
-    }
-
-
-    const codigoComanda = inputComanda.value.trim().toUpperCase();
-
-    if (!codigoComanda) {
-        exibirAviso("Informe uma comanda.");
-        return;
-    }
-
-    apiFetch(`${URL_BACKEND_CAD}/comandas/${codigoComanda}`, {
-        method: "GET",
-        headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
-        }
-    })
-
-    .then(async res => {
-
-        console.log("=================================");
-        console.log("RESPOSTA DA COMANDA");
-        console.log("Status:", res.status);
-
-        const texto = await res.text();
-
-        console.log("Texto recebido:", texto);
-
-        let dados = {};
-
-        try {
-            dados = JSON.parse(texto);
-        } catch (e) {
-            console.error("Resposta não é JSON:", texto);
-        }
-
-        // Se o backend retornou erro, usa a mensagem dele
-        if (!res.ok) {
-
-            const mensagemErro =
-                dados.erro ||
-                dados.resposta ||
-                "Não foi possível carregar a comanda.";
-
-            throw new Error(mensagemErro);
-        }
-
-        console.log("Objeto da comanda:", dados);
-        console.log("form_pag:", dados.form_pag);
-        console.log("forma_pagamento:", dados.forma_pagamento);
-        console.log("formaPagamento:", dados.formaPagamento);
-        console.log("pedido:", dados.pedido);
-
-        return dados;
-    })
-
-    .then(comanda => {
-
-        // =====================================================
-        // GUARDA A COMANDA ORIGINAL
-        // =====================================================
-
-        comandaAtual = comanda;
-        origemVenda = "APP";
-
-        // =====================================================
-        // PEGA A FORMA DE PAGAMENTO DO APP
-        // =====================================================
-
-        let pagamentoRecebido = "";
-
-        if (comanda.form_pag) {
-            pagamentoRecebido = comanda.form_pag;
-        }
-        else if (comanda.forma_pagamento) {
-            pagamentoRecebido = comanda.forma_pagamento;
-        }
-        else if (comanda.formaPagamento) {
-            pagamentoRecebido = comanda.formaPagamento;
-        }
-        else if (comanda.pedido?.form_pag) {
-            pagamentoRecebido = comanda.pedido.form_pag;
-        }
-        else if (comanda.pedido?.forma_pagamento) {
-            pagamentoRecebido = comanda.pedido.forma_pagamento;
-        }
-        else if (comanda.pedido?.formaPagamento) {
-            pagamentoRecebido = comanda.pedido.formaPagamento;
-        }
-
-        pagamentoRecebido =
-            pagamentoRecebido !== null &&
-            pagamentoRecebido !== undefined
-                ? String(pagamentoRecebido).trim()
-                : "";
-
-        console.log(
-            "FORMA DE PAGAMENTO FINAL RECEBIDA DO APP:",
-            pagamentoRecebido
-        );
-
-        formaPagamentoComanda = pagamentoRecebido;
-        formaPagamento = pagamentoRecebido;
-        atualizarSelecaoPagamento(pagamentoRecebido);
-        atualizarFormaPagamentoFinal(pagamentoRecebido);
-
-        console.log(
-            "formaPagamentoComanda:",
-            formaPagamentoComanda
-        );
-
-        console.log(
-            "formaPagamento:",
-            formaPagamento
-        );
-
-        // =====================================================
-        // BLOQUEIA ALTERAÇÃO POR PADRÃO
-        // =====================================================
-
-        pagamentoComandaDesbloqueado = false;
-        pagamentoComandaBloqueado = true;
-
-        atualizarBloqueioPagamento();
-
-        // =====================================================
-        // VERIFICA SE A COMANDA POSSUI PRODUTOS
-        // =====================================================
-
-        if (
-            !comanda.carrinho ||
-            !Array.isArray(comanda.carrinho) ||
-            comanda.carrinho.length === 0
-        ) {
-
-            comandaAtual = null;
-            origemVenda = "PDV";
-            formaPagamentoComanda = "";
-            formaPagamento = "";
-
-            pagamentoComandaBloqueado = false;
-
-            atualizarBloqueioPagamento();
-
-            exibirAviso(
-                "Esta comanda não possui itens."
-            );
-
-            return;
-        }
-
-        // =====================================================
-        // CARREGA O CARRINHO
-        // =====================================================
-
-        carrinho = [];
-
-        comanda.carrinho.forEach(item => {
-
-            carrinho.unshift({
-
-                id_produto: item.id_produto,
-
-                codigo:
-                    item.codigo_barras ||
-                    item.codigo,
-
-                nome: item.nome,
-
-                preco: Number(item.preco),
-
-                qtd: Number(item.qtd),
-
-                estoque: Number(item.estoque),
-
-                qtd_min:
-                    Number(item.qtd_min || 0),
-
-                img: item.img
-            });
-
-        });
-
-        // =====================================================
-        // ATUALIZA PDV
-        // =====================================================
-
-        atualizarTabelaNoTopo();
-
-        atualizarTotalCompra();
-
-        verificarBotao();
-
-        // =====================================================
-        // MOSTRA O PRIMEIRO PRODUTO
-        // =====================================================
-
-        if (carrinho.length > 0) {
-
-            atualizarVisores(carrinho[0]);
-
-            if (carrinho[0].img) {
-
-                const nomeArquivo =
-                    carrinho[0].img
-                        .replace("/images/", "")
-                        .replace(/^\//, "");
-
-                img_prod.src =
-                    `${URL_BACKEND_CAD}/images/${nomeArquivo}`;
-
-            }
-            else {
-
-                img_prod.src = IMG_PADRAO;
-
-            }
-        }
-
-        // =====================================================
-        // PERMITE FINALIZAR
-        // =====================================================
-
-        nova_venda.disabled = false;
-
-        // =====================================================
-        // FECHA MODAL
-        // =====================================================
-
-        dialogComanda.close();
-
-        tocarSucesso();
-
-        voltarFoco();
-
-    })
-
-    .catch(err => {
-
-        console.error(
-            "ERRO AO CARREGAR COMANDA:",
-            err
-        );
-
-        comandaAtual = null;
-
-        formaPagamento = "";
-        formaPagamentoComanda = "";
-
-        pagamentoComandaDesbloqueado = false;
-        pagamentoComandaBloqueado = false;
-
-        atualizarBloqueioPagamento();
-
-        tocarErro();
-
-        // Agora mostra exatamente o erro vindo do backend
-        exibirAviso(
-            err.message ||
-            "Não foi possível carregar a comanda."
-        );
-    });
-}
-b_comanda.addEventListener("click", () => {
-
-    // Não abre comanda se outro modal estiver aberto
-    if (
-        dialogBusca.open ||
-        modal.open ||
-        dialogDinheiro.open ||
-        document.getElementById("d_fiado")?.open ||
-        document.getElementById("dialogFechamentoDiario")?.open ||
-        aviso.open
-    ) {
-        return;
-    }
-
-    dialogComanda.showModal();
-
-    setTimeout(() => {
-
-        inputComanda.focus();
-
-        inputComanda.setSelectionRange(
-            inputComanda.value.length,
-            inputComanda.value.length
-        );
-
-    }, 50);
-
-});
-
-b_close_comanda.addEventListener("click", () => {
-    dialogComanda.close();
-    voltarFoco();
-});
-
-b_buscar_comanda.addEventListener("click", () => {
-
-    if (carrinho.length > 0) {
-
-        exibirAviso(
-            "Já existem produtos no carrinho. Deseja cancelar a venda atual e carregar a comanda?",
-            () => {
-                resetarPDV();
-                carregarComanda();
-            },
-            true
-        );
-
-        return;
-    }
-
-    carregarComanda();
-});
-
-inputComanda.addEventListener("keydown", (e) => {
-
-    if (e.key === "Enter") {
-
-        e.preventDefault();
-
-        b_buscar_comanda.click();
-    }
-});
-
-window.addEventListener("keydown", (event) => {
-
-    console.log(document.activeElement);
-
-    const active = document.activeElement;
-    const tag = active?.tagName;
-
-    // Se estiver digitando em um campo, ignora atalhos comuns,
-    // mas PERMITE Escape e teclas F1-F12.
-    if (
-        (tag === "INPUT" ||
-         tag === "TEXTAREA" ||
-         active?.isContentEditable) &&
-        active !== inp_codb &&
-        event.key !== "Escape" &&
-        !event.key.startsWith("F")
-    ) {
-        return;
-    }
-
-    // Bloqueia recarregar a página por F5 ou atalhos de desenvolvedor
-    if (
-        event.key === "F5" ||
-        (event.ctrlKey && event.key.toLowerCase() === "r") ||
-        (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "i")
-    ) {
-        event.preventDefault();
-        return;
-    }
-
-    switch (event.key) {
-
-        case "Escape":
-
-            event.preventDefault();
-            event.stopPropagation();
-
-            // Modal buscar comanda
-            if (dialogComanda?.open) {
-                dialogComanda.close();
-                voltarFoco();
-                break;
-            }
-
-            // Modal busca produto
-            if (dialogBusca?.open) {
-                dialogBusca.close();
-                voltarFoco();
-                break;
-            }
-
-            // Modal dinheiro
-            if (dialogDinheiro?.open) {
-                dialogDinheiro.close();
-                voltarFoco();
-                break;
-            }
-
-            // Modal crédito
-            if (dialogCredito?.open) {
-                dialogCredito.close();
-                voltarFoco();
-                break;
-            }
-
-            // Tela de pagamento
-            if (modal?.open) {
-                modal.close();
-                voltarFoco();
-                break;
-            }
-
-            // Fiado
-            const dFiado = document.getElementById("d_fiado");
-
-            if (dFiado?.open) {
-                dFiado.close();
-                voltarFoco();
-                break;
-            }
-
-            // Comanda carregada
-            if (comandaAtual !== null) {
-                exibirAviso(
-                    "Deseja realmente voltar e cancelar o carregamento desta comanda?",
-                    () => {
-                        resetarPDV();
-                    },
-                    true
-                );
-                break;
-            }
-
-            // Venda normal
-            confirmarCancelamento();
-            break;
-
-
-        case "ArrowDown":
-
-            if (!dialogBusca?.open) {
-                event.preventDefault();
-
-                const tabela = document.getElementById("sc_tabela");
-
-                if (tabela) {
-                    tabela.scrollTop += 50;
-                }
-            }
-
-            break;
-
-
-        case "ArrowUp":
-
-            if (!dialogBusca?.open) {
-                event.preventDefault();
-
-                const tabela = document.getElementById("sc_tabela");
-
-                if (tabela) {
-                    tabela.scrollTop -= 50;
-                }
-            }
-
-            break;
-
-        case "F2":
-            event.preventDefault();
-
-            if (
-                modal.open &&
-                !(comandaAtual && pagamentoComandaBloqueado)
-            ) {
-                document.getElementById("pg_dinheiro").click();
-            }
-
-            break;
-
-
-        case "F3":
-            event.preventDefault();
-
-            if (modal.open) {
-
-                if (
-                    !(comandaAtual && pagamentoComandaBloqueado)
-                ) {
-                    document.getElementById("pg_credito").click();
-                }
-
-            } else if (!modalp.open) {
-
-                modalp.showModal();
-
-                setTimeout(() => {
-                    inputBusca.focus();
-                }, 50);
-            }
-
-            break;
-
-
-        case "F4":
-            event.preventDefault();
-
-            if (
-                modal.open &&
-                !(comandaAtual && pagamentoComandaBloqueado)
-            ) {
-                document.getElementById("pg_debito").click();
-            }
-
-            break;
-
-
-        case "F6":
-            event.preventDefault();
-
-            if (
-                modal.open &&
-                !(comandaAtual && pagamentoComandaBloqueado)
-            ) {
-                document.getElementById("pg_pix").click();
-            }
-
-            break;
-
-
-        case "F9":
-            event.preventDefault();
-
-            if (
-                modal.open &&
-                !(comandaAtual && pagamentoComandaBloqueado)
-            ) {
-                document.getElementById("pg_fiado").click();
-            }
-
-            break;
-
-        // F: ABRIR FECHAMENTO DIÁRIO
-        case "f":
-        case "F":
-            event.preventDefault();
-            if (document.getElementById("dialogFechamentoDiario")?.open) break;
-            if (typeof window.abrirFechamentoDiario === "function") window.abrirFechamentoDiario();
-            break;
-
-        // F11: NOVA VENDA
-        case "F11":
-
-            event.preventDefault();
-
-            if (!nova_venda.disabled) {
-                nova_venda.click();
-            }
-
-            break;
-
-
-        // F12: FINALIZAR COMPRA
-        case "F12":
-
-            event.preventDefault();
-
-            if (!b_final.disabled) {
-                b_final.click();
-            }
-
-            break;
-
-
-        // F8: AGENDAMENTO
-        case "F8":
-
-            event.preventDefault();
-
-            document.getElementById("b_agend")?.click();
-
-            break;
-
-
-        // C: ABRIR COMANDA
-        case "c":
-        case "C":
-
-            if (
-                dialogBusca?.open ||
-                modal?.open ||
-                dialogComanda?.open ||
-                dialogDinheiro?.open ||
-                document.getElementById("dialogDividirPagamento")?.open ||
-                document.getElementById("dialogFechamentoDiario")?.open ||
-                document.getElementById("d_fiado")?.open ||
-                aviso?.open
-            ) {
-                event.preventDefault();
-                event.stopPropagation();
-                break;
-            }
-
-            event.preventDefault();
-
-            dialogComanda.showModal();
-
-            setTimeout(() => {
-
-                inputComanda?.focus();
-
-                if (inputComanda) {
-                    inputComanda.setSelectionRange(
-                        inputComanda.value.length,
-                        inputComanda.value.length
-                    );
-                }
-
-            }, 50);
-
-            break;
-    }
-});
-// =====================================================
-// CONTROLE DOS MODAIS DE PAGAMENTO
-// =====================================================
-
-const dialogDinheiro = document.getElementById("dialogDinheiro");
-const lblDinheiroTotal = document.getElementById("lbl_dinheiro_total");
-const inpValorPago = document.getElementById("inp_valor_pago");
-const lblTroco = document.getElementById("lbl_troco");
-const bConfirmarDinheiro = document.getElementById("b_confirmar_dinheiro");
-const bFecharDinheiro = document.getElementById("b_fechar_dinheiro");
-
-const dialogFiado = document.getElementById("d_fiado");
-const bFecharFiado = document.getElementById("b_fechar_fiado");
-
-const dialogCredito = document.getElementById("dialogCredito");
-const selParcelasCredito = document.getElementById("sel_parcelas_credito");
-const lblCreditoTotal = document.getElementById("lbl_credito_total");
-const lblValorParcela = document.getElementById("lbl_valor_parcela");
-const bFecharCredito = document.getElementById("b_fechar_credito");
-const bConfirmarCredito = document.getElementById("b_confirmar_credito");
-const dialogDividirPagamento = document.getElementById("dialogDividirPagamento");
-const bDividirPagamento = document.getElementById("b_dividir_pagamento");
-const bFecharDividirPagamento = document.getElementById("b_fechar_dividir_pagamento");
-const bCancelarSplit = document.getElementById("b_cancelar_split");
-const bAddSplit = document.getElementById("b_add_split");
-const bConfirmarSplit = document.getElementById("b_confirmar_split");
-const splitValor = document.getElementById("split_valor");
-const splitTotal = document.getElementById("split_total");
-const splitPago = document.getElementById("split_pago");
-const splitRestante = document.getElementById("split_restante");
-const splitLista = document.getElementById("split_lista");
-let splitPagamentos = [];
-let splitMetodoSelecionado = "";
-
-
-function valorSplitSomado() {
-    return splitPagamentos.reduce((soma, p) => soma + Number(p.valor), 0);
-}
-
-function atualizarResumoSplit() {
-    const total = totalAtualPDV();
-    const pago = valorSplitSomado();
-    const restante = Math.max(0, total - pago);
-    splitTotal.innerText = "R$ " + formatar(total);
-    splitPago.innerText = "R$ " + formatar(pago);
-    splitRestante.innerText = "R$ " + formatar(restante);
-    bConfirmarSplit.disabled = Math.abs(restante) > 0.009 || splitPagamentos.length === 0;
-    splitLista.innerHTML = splitPagamentos.length ? splitPagamentos.map((p,i)=>`<div class="split-item"><span>${p.metodo}</span><strong>R$ ${formatar(p.valor)}</strong><button type="button" data-remove-split="${i}">×</button></div>`).join("") : "<div>Nenhum pagamento adicionado.</div>";
-    splitLista.querySelectorAll("[data-remove-split]").forEach(btn=>btn.addEventListener("click",()=>{ splitPagamentos.splice(Number(btn.dataset.removeSplit),1); atualizarResumoSplit(); }));
-}
-
-function abrirModalDividirPagamento() {
-    if (comandaAtual && pagamentoComandaBloqueado && !pagamentoComandaDesbloqueado) {
-        exibirAviso("A forma de pagamento desta comanda está bloqueada pelo APP. Desbloqueie primeiro para dividir o pagamento.");
-        return;
-    }
-    splitPagamentos = [];
-    splitMetodoSelecionado = "";
-    document.querySelectorAll(".split-metodo").forEach(b=>b.classList.remove("selecionado"));
-    splitValor.value = "";
-    atualizarResumoSplit();
-    dialogDividirPagamento.showModal();
-    setTimeout(()=>splitValor.focus(),100);
-}
-
-if (bDividirPagamento) bDividirPagamento.addEventListener("click", abrirModalDividirPagamento);
-document.querySelectorAll(".split-metodo").forEach(botao=>botao.addEventListener("click",()=>{
-    splitMetodoSelecionado = botao.dataset.pag;
-    document.querySelectorAll(".split-metodo").forEach(b=>b.classList.remove("selecionado"));
-    botao.classList.add("selecionado");
-    splitValor.focus();
-}));
-if (bAddSplit) bAddSplit.addEventListener("click",()=>{
-    const total=totalAtualPDV(), restante=total-valorSplitSomado();
-    const valor=Number(String(splitValor.value).replace(",","."));
-    if(!splitMetodoSelecionado){ exibirAviso("Selecione uma forma de pagamento."); return; }
-    if(!Number.isFinite(valor)||valor<=0){ exibirAviso("Digite um valor válido."); return; }
-    if(valor-restante>0.009){ exibirAviso("O valor informado é maior que o restante da compra."); return; }
-    splitPagamentos.push({metodo:splitMetodoSelecionado,valor:Number(valor.toFixed(2))});
-    splitValor.value=""; atualizarResumoSplit(); splitValor.focus();
-});
-function confirmarSplitPagamento(){
-    const total=totalAtualPDV(), pago=valorSplitSomado();
-    if(Math.abs(total-pago)>0.009){ exibirAviso("O pagamento dividido precisa completar exatamente o total da compra."); return; }
-    formaPagamento = splitPagamentos.map(p=>`${p.metodo}=${Number(p.valor).toFixed(2)}`).join(", ");
-    parcelasCredito = 1;
-    atualizarFormaPagamentoFinal(formaPagamento);
-    dialogDividirPagamento.close();
-    nova_venda.disabled=false;
-    voltarFoco();
-}
-if (bConfirmarSplit) bConfirmarSplit.addEventListener("click",confirmarSplitPagamento);
-[bFecharDividirPagamento,bCancelarSplit].forEach(btn=>btn?.addEventListener("click",()=>{dialogDividirPagamento.close();voltarFoco();}));
-if(dialogDividirPagamento) dialogDividirPagamento.addEventListener("cancel",e=>{e.preventDefault();dialogDividirPagamento.close();voltarFoco();});
-
-function totalAtualPDV() {
-
-    return carrinho.reduce(
-        (soma, item) =>
-            soma + (Number(item.preco) * Number(item.qtd)),
-        0
-    );
-
-}
-
-
-// =====================================================
-// DINHEIRO
-// =====================================================
-
-function abrirModalDinheiro() {
-
-    const totalReal = totalAtualPDV();
-
-    lblDinheiroTotal.innerText =
-        "R$ " + formatar(totalReal);
-
-    inpValorPago.value = "";
-
-    lblTroco.innerText =
-        "R$ 0,00";
-
-    /*
-     * IMPORTANTE:
-     * Não altera formaPagamento aqui.
-     * Só altera quando o pagamento for confirmado.
-     */
-
-    dialogDinheiro.showModal();
-
-    setTimeout(() => {
-        inpValorPago.focus();
-    }, 100);
-
-}
-
-
-// Fechar pelo X
-
-if (bFecharDinheiro) {
-
-    bFecharDinheiro.addEventListener("click", () => {
-
-        dialogDinheiro.close();
-
-        voltarFoco();
-
-    });
-
-}
-
-
-// Fechar dinheiro com ESC
-
-if (dialogDinheiro) {
-
-    dialogDinheiro.addEventListener("cancel", (event) => {
-
-        event.preventDefault();
-
-        dialogDinheiro.close();
-
-        voltarFoco();
-
-    });
-
-}
-
-
-// Calcular troco
-
-if (inpValorPago) {
-
-    inpValorPago.addEventListener("input", () => {
-
-        const valor =
-            parseFloat(
-                String(inpValorPago.value).replace(",", ".")
-            ) || 0;
-
-        const total =
-            totalAtualPDV();
-
-        lblTroco.innerText =
-            "R$ " +
-            formatar(
-                Math.max(0, valor - total)
-            );
-
-    });
-
-}
-
-
-// Confirmar dinheiro
-
-if (bConfirmarDinheiro) {
-
-    bConfirmarDinheiro.addEventListener("click", () => {
-
-        const valor =
-            parseFloat(
-                String(inpValorPago.value).replace(",", ".")
-            ) || 0;
-
-        const total =
-            totalAtualPDV();
-
-        if (valor < total) {
-
-            exibirAviso(
-                "O valor recebido é menor que o total da compra."
-            );
-
-            return;
-
-        }
-
-
-        // Só agora define o pagamento
-
-        formaPagamento = "Dinheiro";
-
-        atualizarSelecaoPagamento(
-            formaPagamento
-        );
-
-        atualizarFormaPagamentoFinal(
-            formaPagamento
-        );
-
-
-        dialogDinheiro.close();
-
-        nova_venda.disabled = false;
-
-        voltarFoco();
-
-    });
-
-}
-
-// =====================================================
-// CARTÃO DE CRÉDITO
-// =====================================================
-
-function atualizarParcelamentoCredito() {
-
-    const totalReal =
-        totalAtualPDV();
-
-    const valorSelecionado =
-        selParcelasCredito.value;
-
-
-    lblCreditoTotal.innerText =
-        "R$ " +
-        formatar(totalReal);
-
-
-    // Ainda não escolheu parcela
-
-    if (!valorSelecionado) {
-
-        parcelasCredito = null;
-
-        lblValorParcela.innerText =
-            "Selecione as parcelas";
-
-        selParcelasCredito.classList.add(
-            "parcela-nao-selecionada"
-        );
-
-        return;
-
-    }
-
-
-    parcelasCredito =
-        Number(valorSelecionado);
-
-
-    lblValorParcela.innerText =
-        "R$ " +
-        formatar(
-            totalReal / parcelasCredito
-        );
-
-
-    selParcelasCredito.classList.remove(
-        "parcela-nao-selecionada"
-    );
-
-}
-
-
-// Abrir crédito
-
-function abrirModalCredito() {
-
-    const totalReal =
-        totalAtualPDV();
-
-
-    lblCreditoTotal.innerText =
-        "R$ " +
-        formatar(totalReal);
-
-
-    /*
-     * IMPORTANTE:
-     * começa sem nenhuma parcela selecionada.
-     */
-
-    selParcelasCredito.value = "";
-
-    parcelasCredito = null;
-
-    lblValorParcela.innerText =
-        "Selecione as parcelas";
-
-    selParcelasCredito.classList.remove(
-        "parcela-nao-selecionada"
-    );
-
-
-    /*
-     * NÃO define formaPagamento aqui.
-     *
-     * Se o usuário abrir crédito e desistir,
-     * continua com a forma de pagamento anterior.
-     */
-
-    dialogCredito.showModal();
-
-}
-
-
-// Atualização ao selecionar parcelas
-
-if (selParcelasCredito) {
-
-    selParcelasCredito.addEventListener(
-        "change",
-        atualizarParcelamentoCredito
-    );
-
-}
-
-
-// Fechar crédito pelo X
-
-if (bFecharCredito && dialogCredito) {
-
-    bFecharCredito.addEventListener("click", () => {
-
-        dialogCredito.close();
-
-        voltarFoco();
-
-    });
-
-}
-
-
-// Fechar crédito com ESC
-
-if (dialogCredito) {
-
-    dialogCredito.addEventListener("cancel", (event) => {
-
-        event.preventDefault();
-
-        dialogCredito.close();
-
-        voltarFoco();
-
-    });
-
-}
-
-// =====================================================
-// FIADO
-// =====================================================
-
-if (bFecharFiado && dialogFiado) {
-
-    bFecharFiado.addEventListener("click", () => {
-
-        dialogFiado.close();
-
-        voltarFoco();
-
-    });
-
-}
-
-if (dialogFiado) {
-
-    dialogFiado.addEventListener("cancel", (event) => {
-
-        event.preventDefault();
-
-        dialogFiado.close();
-
-        voltarFoco();
-
-    });
-
-}
-
-
-// Confirmar crédito
-
-if (bConfirmarCredito && dialogCredito) {
-
-    bConfirmarCredito.addEventListener("click", () => {
-
-        /*
-         * NÃO permite confirmar sem escolher parcelas.
-         */
-
-        if (
-            !selParcelasCredito.value ||
-            !parcelasCredito
-        ) {
-
-            selParcelasCredito.classList.add(
-                "parcela-nao-selecionada"
-            );
-
-            exibirAviso(
-                "Selecione a quantidade de parcelas antes de confirmar o pagamento."
-            );
-
-            return;
-
-        }
-
-
-        formaPagamento =
-            "Cartão de Crédito";
-
-
-        atualizarSelecaoPagamento(
-            formaPagamento
-        );
-
-        atualizarFormaPagamentoFinal(
-            formaPagamento
-        );
-
-
-        dialogCredito.close();
-
-        nova_venda.disabled = false;
-
-        voltarFoco();
-
-    });
-
-}
-
-
-function iniciarRelogioLinha() {
-    const el = document.getElementById("data_hora_pdv");
-    if (!el) return;
-    
-    function atualizar() {
-        const agora = new Date();
-        const data = agora.toLocaleDateString("pt-BR");
-        const hora = agora.toLocaleTimeString("pt-BR");
-        el.innerText = `${data} ${hora}`;
-    }
-
-    atualizar();
-    setInterval(atualizar, 1000);
-}
-
-// Garante a execução assim que carregar
-if (document.readyState === "complete" || document.readyState === "interactive") {
-    iniciarRelogioLinha();
-} else {
-    document.addEventListener("DOMContentLoaded", iniciarRelogioLinha);
 }
 
 
 /* =========================================================
-   SELECT PERSONALIZADO - PARCELAS
+   REGISTRAR ABERTURA
 ========================================================= */
-
-const selectParcelasVisual =
-    document.getElementById("selectParcelasVisual");
-
-const opcoesParcelas =
-    document.getElementById("opcoesParcelas");
-
-const selectPersonalizado =
-    document.querySelector(".select-personalizado");
-
-
-selectParcelasVisual.addEventListener("click", () => {
-    selectPersonalizado.classList.toggle("aberto");
-});
-
-
-opcoesParcelas.querySelectorAll("div").forEach(opcao => {
-
-    opcao.addEventListener("click", () => {
-
-        const valor = opcao.dataset.value;
-        const texto = opcao.textContent;
-
-        /* Atualiza o select original */
-        selParcelasCredito.value = valor;
-
-        /* Faz o seu JavaScript atual perceber a mudança */
-        selParcelasCredito.dispatchEvent(
-            new Event("change", { bubbles: true })
-        );
-
-        /* Atualiza o visual */
-        selectParcelasVisual.querySelector("span").textContent =
-            texto;
-
-        /* Marca a opção */
-        opcoesParcelas
-            .querySelectorAll("div")
-            .forEach(item => {
-                item.classList.remove("selecionada");
-            });
-
-        opcao.classList.add("selecionada");
-
-        /* Fecha */
-        selectPersonalizado.classList.remove("aberto");
-    });
-
-});
-
-
-/* Fecha se clicar fora */
-document.addEventListener("click", (event) => {
-
-    if (!selectPersonalizado.contains(event.target)) {
-        selectPersonalizado.classList.remove("aberto");
-    }
-
-});
-</script>
-
-<script>
-/* =========================================================
-   FECHAMENTO DIÁRIO / CONTROLE DE CAIXA - PDV
-   Todo o JavaScript fica neste bloco, sem criar arquivo .js novo.
-========================================================= */
-const dialogFechamentoDiario = document.getElementById("dialogFechamentoDiario");
-const fechamentoData = document.getElementById("fechamentoData");
-const fechamentoDataConsulta = document.getElementById("fechamentoDataConsulta");
-const fechamentoAlerta = document.getElementById("fechamentoAlerta");
-const fechamentoStatus = document.getElementById("fechamentoStatus");
-const fechamentoQtdVendas = document.getElementById("fechamentoQtdVendas");
-const fechamentoTrocoInicial = document.getElementById("fechamentoTrocoInicial");
-const fechamentoTrocoInicialInput = document.getElementById("fechamentoTrocoInicialInput");
-const btnRegistrarAbertura = document.getElementById("btnRegistrarAbertura");
-const fechamentoOrigemTroco = document.getElementById("fechamentoOrigemTroco");
-const fechamentoTrocoProximo = document.getElementById("fechamentoTrocoProximo");
-const fechamentoDiferenca = document.getElementById("fechamentoDiferenca");
-const btnSalvarFechamento = document.getElementById("btnSalvarFechamento");
-const btnConsultarFechamento = document.getElementById("btnConsultarFechamento");
-const btnFecharFechamento = document.getElementById("btnFecharFechamento");
-const btnFecharFechamentoSemSalvar = document.getElementById("btnFecharFechamentoSemSalvar");
-
-let fechamentoDadosAtual = null;
-let fechamentoForcado = false;
-let fechamentoInicializado = false;
-let caixaHojeFechado = false;
-
-function dataLocalPDV() {
-    const agora = new Date();
-    const ano = agora.getFullYear();
-    const mes = String(agora.getMonth() + 1).padStart(2, "0");
-    const dia = String(agora.getDate()).padStart(2, "0");
-    return `${ano}-${mes}-${dia}`;
-}
-
-function formatarDataFechamento(data) {
-    if (!data) return "---";
-    const partes = String(data).slice(0, 10).split("-");
-    if (partes.length !== 3) return data;
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
-}
-
-function dinheiroFechamento(valor) {
-    return "R$ " + Number(valor || 0).toFixed(2).replace(".", ",");
-}
-
-function valorNumericoFechamento(valor) {
-    const texto = String(valor ?? "").trim().replace(/R\$\s*/gi, "").replace(/\./g, "").replace(",", ".");
-    const numero = Number(texto);
-    return Number.isFinite(numero) ? numero : NaN;
-}
-
-function preencherValor(id, valor) {
-    const el = document.getElementById(id);
-    if (el) el.innerText = dinheiroFechamento(valor);
-}
-
-function limparAlertaFechamento() {
-    if (!fechamentoAlerta) return;
-    fechamentoAlerta.style.display = "none";
-    fechamentoAlerta.innerText = "";
-}
-
-function mostrarAlertaFechamento(texto) {
-    if (!fechamentoAlerta) return;
-    fechamentoAlerta.innerText = texto;
-    fechamentoAlerta.style.display = "block";
-}
-
-function atualizarDiferencaFechamento() {
-    if (!fechamentoDadosAtual) return;
-    const esperado = Number(fechamentoDadosAtual.dinheiro_esperado || 0);
-    const informado = valorNumericoFechamento(fechamentoTrocoProximo?.value);
-    const diferenca = Number.isFinite(informado) ? informado - esperado : 0;
-    const prefixo = diferenca > 0.009 ? "Sobra de caixa" : diferenca < -0.009 ? "Falta de caixa" : "Diferença de caixa";
-    if (fechamentoDiferenca) {
-        fechamentoDiferenca.innerText = `${prefixo}: ${dinheiroFechamento(Math.abs(diferenca))}`;
-    }
-}
-
-function atualizarCamposFechamento(dados) {
-    fechamentoDadosAtual = dados;
-    const resumo = dados.resumo || {};
-    const fechamento = dados.fechamento;
-    const trocoInicial = Number(dados.troco_inicial || 0);
-    const dinheiroEsperado = Number(
-        fechamento?.dinheiro_esperado ??
-        (trocoInicial + Number(resumo.dinheiro || 0))
-    );
-
-    preencherValor("fechamentoTrocoInicial", trocoInicial);
-    preencherValor("fechDinheiro", resumo.dinheiro);
-    preencherValor("fechCredito", resumo.credito);
-    preencherValor("fechDebito", resumo.debito);
-    preencherValor("fechPix", resumo.pix);
-    preencherValor("fechVoucher", resumo.voucher);
-    preencherValor("fechFiado", resumo.fiado);
-    preencherValor("fechOutros", resumo.outros);
-    preencherValor("fechTotal", resumo.total_vendas);
-    preencherValor("fechDinTrocoInicial", trocoInicial);
-    preencherValor("fechDinVendas", resumo.dinheiro);
-    preencherValor("fechDinEsperado", dinheiroEsperado);
-
-    if (fechamentoQtdVendas) {
-        const qtd = Number(resumo.quantidade_vendas || 0);
-        fechamentoQtdVendas.innerText = `${qtd} ${qtd === 1 ? "venda" : "vendas"}`;
-    }
-
-    if (fechamentoStatus) {
-        if (fechamento?.status === "FECHADO") {
-            fechamentoStatus.innerText = "FECHADO";
-        } else if (fechamento?.status === "ABERTO") {
-            fechamentoStatus.innerText = "CAIXA ABERTO";
-        } else {
-            fechamentoStatus.innerText = "NÃO ABERTO";
-        }
-    }
-
-    if (fechamentoOrigemTroco) {
-        fechamentoOrigemTroco.innerText = dados.origem_troco_inicial
-            ? `Troco trazido do fechamento de ${formatarDataFechamento(dados.origem_troco_inicial)}`
-            : "Primeiro dia / troco inicial informado manualmente";
-    }
-
-    const ehHoje = dados.data_referencia === dataLocalPDV();
-    if (ehHoje) {
-        caixaHojeFechado = fechamento?.status === "FECHADO";
-    }
-    const primeiroDiaSemFechamento = !fechamento && ehHoje && dados.primeiro_dia;
-
-    if (fechamentoTrocoInicialInput && btnRegistrarAbertura) {
-        if (primeiroDiaSemFechamento) {
-            fechamentoTrocoInicialInput.style.display = "block";
-            fechamentoTrocoInicialInput.value = "";
-            btnRegistrarAbertura.style.display = "inline-block";
-            btnRegistrarAbertura.disabled = false;
-        } else {
-            fechamentoTrocoInicialInput.style.display = "none";
-            btnRegistrarAbertura.style.display = "none";
-        }
-    }
-
-    if (fechamento?.status === "FECHADO") {
-        fechamentoTrocoProximo.value = dinheiroFechamento(fechamento.troco_proximo_dia).replace("R$ ", "");
-    } else if (!fechamentoTrocoProximo.value || dados.data_referencia !== fechamentoData.value) {
-        fechamentoTrocoProximo.value = "";
-    }
-
-    const podeFechar = dados.pode_fechar === true;
-    const fechamentoDeHoje = dados.data_referencia === dataLocalPDV();
-    const podeRegistrarFechamento = podeFechar && (!fechamentoDeHoje || fechamento?.status === "ABERTO");
-
-    if (btnSalvarFechamento) {
-        btnSalvarFechamento.disabled = !podeRegistrarFechamento;
-        btnSalvarFechamento.innerText = fechamentoDeHoje ? "FECHAR DIA" : "FECHAR DIA ANTERIOR";
-    }
-
-    if (fechamento?.status === "FECHADO") {
-        const diferenca = Number(fechamento.diferenca_caixa || 0);
-        fechamentoDiferenca.innerText = `${diferenca > 0.009 ? "Sobra de caixa" : diferenca < -0.009 ? "Falta de caixa" : "Diferença de caixa"}: ${dinheiroFechamento(Math.abs(diferenca))}`;
-    } else {
-        atualizarDiferencaFechamento();
-    }
-}
-
-async function carregarDadosFechamento(data, abrir = true) {
-    if (!data) return;
-    limparAlertaFechamento();
-
-    if (fechamentoData) fechamentoData.value = data;
-    if (fechamentoDataConsulta) fechamentoDataConsulta.value = data;
-
-    try {
-        const resposta = await apiFetch(`${URL_BACKEND_CAD}/fechamentos-diarios/${data}`, {
-            headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
-        });
-
-        const tipoResposta = resposta.headers.get("content-type") || "";
-        const dados = tipoResposta.includes("application/json") ? await resposta.json() : { resposta: `Servidor respondeu ${resposta.status} sem JSON.` };
-        if (!resposta.ok) throw new Error(dados.resposta || "Não foi possível carregar o fechamento.");
-
-        atualizarCamposFechamento(dados);
-
-        const titulo = document.getElementById("fechamentoTitulo");
-        if (titulo) {
-            titulo.innerText = dados.data_referencia === dataLocalPDV()
-                ? "CONTROLE / FECHAMENTO DO CAIXA"
-                : `FECHAMENTO — ${formatarDataFechamento(dados.data_referencia)}`;
-        }
-
-        if (abrir && dialogFechamentoDiario && !dialogFechamentoDiario.open) {
-            dialogFechamentoDiario.showModal();
-        }
-    } catch (erro) {
-        console.error("Erro ao carregar fechamento:", erro);
-        mostrarAlertaFechamento(erro.message || "Erro ao carregar o fechamento diário.");
-        if (abrir && dialogFechamentoDiario && !dialogFechamentoDiario.open) {
-            dialogFechamentoDiario.showModal();
-        }
-    }
-}
 
 async function registrarAberturaCaixa() {
-    const data = dataLocalPDV();
-    const valor = valorNumericoFechamento(fechamentoTrocoInicialInput?.value);
 
-    if (!Number.isFinite(valor) || valor < 0) {
-        mostrarAlertaFechamento("Informe o valor que havia de troco no início do primeiro dia.");
+    const data =
+        normalizarDataFechamento(
+            fechamentoDadosAtual?.data_referencia ||
+            fechamentoData?.value ||
+            dataLocalPDV()
+        );
+
+
+    const valor =
+        valorNumericoFechamento(
+            fechamentoTrocoInicialInput?.value
+        );
+
+
+    if (
+        !Number.isFinite(valor) ||
+        valor < 0
+    ) {
+
+        mostrarAlertaFechamento(
+            "Informe o valor do troco inicial antes de registrar a abertura."
+        );
+
+        fechamentoTrocoInicialInput?.focus();
+
         return;
     }
 
-    try {
-        const resposta = await apiFetch(`${URL_BACKEND_CAD}/fechamentos-diarios/abertura`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
-            body: JSON.stringify({
-                data_referencia: data,
-                troco_inicial: valor
-            })
-        });
 
-        const dados = await resposta.json();
-        if (!resposta.ok) throw new Error(dados.resposta || "Não foi possível registrar a abertura.");
+    if (
+        fechamentoDadosAtual?.fechamento?.status ===
+        "FECHADO"
+    ) {
 
-        await carregarDadosFechamento(data, false);
-        liberarPDVDepoisDoFechamento();
-        mostrarAlertaFechamento("Abertura do caixa registrada. O valor ficará gravado para o fechamento de hoje.");
-    } catch (erro) {
-        console.error("Erro ao registrar abertura:", erro);
-        mostrarAlertaFechamento(erro.message || "Erro ao registrar a abertura do caixa.");
+        mostrarAlertaFechamento(
+            "Este dia já está fechado e não pode ser aberto novamente."
+        );
+
+        return;
     }
-}
 
-async function verificarFechamentoInicial() {
+
+    if (btnRegistrarAbertura) {
+
+        btnRegistrarAbertura.disabled =
+            true;
+    }
+
+
     try {
-        const resposta = await apiFetch(`${URL_BACKEND_CAD}/fechamentos-diarios/status-inicial`, {
-            headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
-        });
-        const tipoResposta = resposta.headers.get("content-type") || "";
-        const dados = tipoResposta.includes("application/json") ? await resposta.json() : { resposta: `Servidor respondeu ${resposta.status} sem JSON.` };
-        if (!resposta.ok) throw new Error(dados.resposta || "Não foi possível verificar o fechamento diário.");
 
-        const hoje = dados.hoje || dataLocalPDV();
-        fechamentoForcado = Boolean(dados.data_pendente);
-        const chaveAberturaPDV = `pdv_fechamento_apresentado_${hoje}`;
-        const jaApresentadoHoje = localStorage.getItem(chaveAberturaPDV) === "1";
+        const resposta =
+            await apiFetch(
+                `${URL_BACKEND_CAD}/fechamentos-diarios/abertura`,
+                {
+                    method: "POST",
 
-        if (fechamentoForcado) {
-            mostrarAlertaFechamento(
-                `Existe um fechamento pendente do dia ${formatarDataFechamento(dados.data_pendente)}.\nFeche esse dia antes de iniciar novas vendas.`
-            );
-            await carregarDadosFechamento(dados.data_pendente, true);
-            fecharTravaPDV(true);
-        } else {
-            const abrirAutomaticamente = !jaApresentadoHoje;
-            await carregarDadosFechamento(hoje, abrirAutomaticamente);
-            if (abrirAutomaticamente) localStorage.setItem(chaveAberturaPDV, "1");
+                    headers: {
+                        "Content-Type":
+                            "application/json",
 
-            if (fechamentoDadosAtual?.fechamento?.status === "FECHADO") {
-                caixaHojeFechado = true;
-                fecharTravaPDV(true);
-                mostrarAlertaFechamento("O fechamento de hoje já foi realizado. O PDV permanece bloqueado para novas vendas neste dia.");
-            } else if (!fechamentoDadosAtual?.fechamento && fechamentoDadosAtual?.primeiro_dia) {
-                fecharTravaPDV(true);
-                mostrarAlertaFechamento("Primeiro acesso: informe o dinheiro que havia de troco no início do dia para abrir o caixa.");
-            } else if (!fechamentoDadosAtual?.fechamento) {
-                // Primeiro dia após um fechamento anterior: leva automaticamente
-                // o troco do último dia fechado para a abertura de hoje.
-                const valorAbertura = Number(fechamentoDadosAtual?.troco_inicial || 0);
-                try {
-                    const respostaAbertura = await apiFetch(`${URL_BACKEND_CAD}/fechamentos-diarios/abertura`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${localStorage.getItem("token")}`
-                        },
-                        body: JSON.stringify({
-                            data_referencia: hoje,
-                            troco_inicial: valorAbertura
+                        "Authorization":
+                            `Bearer ${localStorage.getItem("token")}`
+                    },
+
+                    body:
+                        JSON.stringify({
+                            data_referencia:
+                                data,
+
+                            troco_inicial:
+                                valor
                         })
-                    });
-                    const dadosAbertura = await respostaAbertura.json();
-                    if (!respostaAbertura.ok) throw new Error(dadosAbertura.resposta || "Não foi possível abrir o caixa de hoje.");
-                    await carregarDadosFechamento(hoje, false);
-                    liberarPDVDepoisDoFechamento();
-                    mostrarAlertaFechamento(
-                        `Caixa de hoje aberto automaticamente. Troco inicial: ${dinheiroFechamento(valorAbertura)}.`
-                    );
-                } catch (erroAbertura) {
-                    fecharTravaPDV(true);
-                    mostrarAlertaFechamento(erroAbertura.message || "Não foi possível abrir o caixa de hoje.");
                 }
-            } else {
-                liberarPDVDepoisDoFechamento();
-                mostrarAlertaFechamento(
-                    `Caixa do dia ${formatarDataFechamento(hoje)}. Troco inicial: ${dinheiroFechamento(fechamentoDadosAtual?.troco_inicial || 0)}.`
-                );
-            }
+            );
+
+
+        const tipoResposta =
+            resposta.headers.get(
+                "content-type"
+            ) || "";
+
+
+        const dados =
+            tipoResposta.includes(
+                "application/json"
+            )
+                ? await resposta.json()
+                : {
+                    resposta:
+                        `Servidor respondeu ${resposta.status} sem JSON.`
+                };
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                dados.resposta ||
+                "Não foi possível registrar a abertura."
+            );
         }
 
-        fechamentoInicializado = true;
-    } catch (erro) {
-        console.error("Erro na verificação inicial do fechamento:", erro);
-        fecharTravaPDV(true);
-        if (dialogFechamentoDiario && !dialogFechamentoDiario.open) dialogFechamentoDiario.showModal();
-        mostrarAlertaFechamento(erro.message || "Não foi possível verificar o fechamento. O PDV ficará bloqueado até a verificação ser concluída.");
-    }
-}
 
-function fecharTravaPDV(travar) {
-    if (typeof inp_codb !== "undefined" && inp_codb) {
-        inp_codb.disabled = Boolean(travar);
-    }
-    document.body.classList.toggle("pdv-fechamento-bloqueado", Boolean(travar));
-}
+        await carregarDadosFechamento(
+            data,
+            false
+        );
 
-function liberarPDVDepoisDoFechamento() {
-    if (fechamentoForcado || caixaHojeFechado) return;
-    fecharTravaPDV(false);
-    if (typeof inp_codb !== "undefined" && inp_codb) {
-        setTimeout(() => inp_codb.focus(), 100);
-    }
-}
 
-window.abrirFechamentoDiario = async function(data = dataLocalPDV()) {
-    if (!dialogFechamentoDiario) return;
-    await carregarDadosFechamento(data, true);
-};
+        /*
+         * SOMENTE HOJE LIBERA O PDV.
+         */
+        if (
+            data ===
+            dataLocalPDV()
+        ) {
 
-btnRegistrarAbertura?.addEventListener("click", registrarAberturaCaixa);
-fechamentoTrocoProximo?.addEventListener("input", atualizarDiferencaFechamento);
+            fechamentoForcado =
+                false;
 
-btnConsultarFechamento?.addEventListener("click", async () => {
-    const data = fechamentoDataConsulta?.value;
-    if (!data) {
-        mostrarAlertaFechamento("Escolha o dia que deseja consultar.");
-        return;
-    }
-    await carregarDadosFechamento(data, false);
-});
+            caixaHojeFechado =
+                false;
 
-async function executarSalvamentoFechamento() {
-    if (!fechamentoDadosAtual) return;
-
-    const data = fechamentoDadosAtual.data_referencia;
-    const trocoProximo = valorNumericoFechamento(fechamentoTrocoProximo?.value);
-
-    if (!Number.isFinite(trocoProximo) || trocoProximo < 0) {
-        mostrarAlertaFechamento("Digite quanto de dinheiro/troco ficará para o próximo dia.");
-        fechamentoTrocoProximo?.focus();
-        return;
-    }
-
-    btnSalvarFechamento.disabled = true;
-
-    try {
-        const resposta = await apiFetch(`${URL_BACKEND_CAD}/fechamentos-diarios`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
-            body: JSON.stringify({
-                data_referencia: data,
-                troco_proximo_dia: trocoProximo
-            })
-        });
-
-        const dados = await resposta.json();
-        if (!resposta.ok) throw new Error(dados.resposta || "Não foi possível fechar o dia.");
-
-        fechamentoForcado = false;
-        await carregarDadosFechamento(data, false);
-
-        if (data === dataLocalPDV()) {
-            caixaHojeFechado = true;
-            fecharTravaPDV(true);
-        } else {
-            // Fechou um dia anterior que estava pendente: abre automaticamente
-            // o dia atual usando o troco informado no fechamento anterior.
-            const hoje = dataLocalPDV();
-            try {
-                await apiFetch(`${URL_BACKEND_CAD}/fechamentos-diarios/abertura`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${localStorage.getItem("token")}`
-                    },
-                    body: JSON.stringify({
-                        data_referencia: hoje,
-                        troco_inicial: Number(dados.troco_proximo_dia || 0)
-                    })
-                });
-            } catch (erroAbertura) {
-                console.warn("Não foi possível registrar automaticamente a abertura de hoje:", erroAbertura);
-            }
-
-            fechamentoForcado = false;
-            await carregarDadosFechamento(hoje, false);
             liberarPDVDepoisDoFechamento();
         }
 
+
         mostrarAlertaFechamento(
-            `Fechamento de ${formatarDataFechamento(data)} realizado.\n` +
-            `O valor de ${dinheiroFechamento(dados.troco_proximo_dia)} será levado automaticamente para o próximo dia aberto.`
+            `Abertura de ${
+                formatarDataFechamento(data)
+            } registrada. Troco inicial: ${
+                dinheiroFechamento(valor)
+            }.`
         );
+
+
     } catch (erro) {
-        console.error("Erro ao fechar dia:", erro);
-        mostrarAlertaFechamento(erro.message || "Erro ao salvar o fechamento.");
-        if (fechamentoDadosAtual?.pode_fechar) btnSalvarFechamento.disabled = false;
+
+        console.error(
+            "Erro ao registrar abertura:",
+            erro
+        );
+
+        mostrarAlertaFechamento(
+            erro.message ||
+            "Erro ao registrar a abertura do caixa."
+        );
+
+    } finally {
+
+        if (
+            btnRegistrarAbertura &&
+            fechamentoDadosAtual?.fechamento?.status !==
+                "FECHADO"
+        ) {
+
+            btnRegistrarAbertura.disabled =
+                false;
+        }
     }
 }
 
-btnSalvarFechamento?.addEventListener("click", () => {
-    if (!fechamentoDadosAtual) return;
 
-    const data = fechamentoDadosAtual.data_referencia;
-    const trocoProximo = valorNumericoFechamento(fechamentoTrocoProximo?.value);
+/* =========================================================
+   GARANTIR ABERTURA DE HOJE
+========================================================= */
 
-    if (!Number.isFinite(trocoProximo) || trocoProximo < 0) {
-        mostrarAlertaFechamento("Digite quanto de dinheiro/troco ficará para o próximo dia.");
-        fechamentoTrocoProximo?.focus();
+async function garantirAberturaHoje() {
+
+    const hoje =
+        dataLocalPDV();
+
+
+    const dadosHoje =
+        await carregarDadosFechamento(
+            hoje,
+            false
+        );
+
+
+    if (!dadosHoje) {
+
+        fecharTravaPDV(true);
+
+        return false;
+    }
+
+
+    if (
+        dadosHoje.fechamento?.status ===
+        "FECHADO"
+    ) {
+
+        caixaHojeFechado =
+            true;
+
+        fecharTravaPDV(true);
+
+        return false;
+    }
+
+
+    if (
+        dadosHoje.fechamento?.status ===
+        "ABERTO"
+    ) {
+
+        caixaHojeFechado =
+            false;
+
+        fecharTravaPDV(false);
+
+        return true;
+    }
+
+
+    /*
+     * Hoje ainda não possui registro.
+     *
+     * Se existe fechamento anterior,
+     * usamos o troco dele automaticamente.
+     *
+     * Se não existe, o usuário precisa
+     * informar manualmente.
+     */
+
+    if (
+        !dadosHoje.primeiro_dia
+    ) {
+
+        const valorAbertura =
+            Number(
+                dadosHoje.troco_inicial || 0
+            );
+
+
+        try {
+
+            const resposta =
+                await apiFetch(
+                    `${URL_BACKEND_CAD}/fechamentos-diarios/abertura`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            "Authorization":
+                                `Bearer ${localStorage.getItem("token")}`
+                        },
+
+                        body:
+                            JSON.stringify({
+                                data_referencia:
+                                    hoje,
+
+                                troco_inicial:
+                                    valorAbertura
+                            })
+                    }
+                );
+
+
+            const tipoResposta =
+                resposta.headers.get(
+                    "content-type"
+                ) || "";
+
+
+            const dadosAbertura =
+                tipoResposta.includes(
+                    "application/json"
+                )
+                    ? await resposta.json()
+                    : {
+                        resposta:
+                            `Servidor respondeu ${resposta.status} sem JSON.`
+                    };
+
+
+            if (!resposta.ok) {
+
+                throw new Error(
+                    dadosAbertura.resposta ||
+                    "Não foi possível abrir o caixa de hoje."
+                );
+            }
+
+
+            await carregarDadosFechamento(
+                hoje,
+                false
+            );
+
+
+            caixaHojeFechado =
+                false;
+
+            fechamentoForcado =
+                false;
+
+            fecharTravaPDV(false);
+
+            return true;
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao abrir automaticamente o caixa de hoje:",
+                erro
+            );
+
+            fecharTravaPDV(true);
+
+            mostrarAlertaFechamento(
+                erro.message ||
+                "Não foi possível abrir o caixa de hoje."
+            );
+
+            return false;
+        }
+    }
+
+
+    /*
+     * Primeiro dia absoluto:
+     * não abre sozinho.
+     */
+    fecharTravaPDV(true);
+
+    return false;
+}
+
+
+/* =========================================================
+   VERIFICAÇÃO INICIAL
+========================================================= */
+
+async function verificarFechamentoInicial() {
+
+    try {
+
+        const resposta =
+            await apiFetch(
+                `${URL_BACKEND_CAD}/fechamentos-diarios/status-inicial`,
+                {
+                    headers: {
+                        "Authorization":
+                            `Bearer ${localStorage.getItem("token")}`
+                    }
+                }
+            );
+
+
+        const tipoResposta =
+            resposta.headers.get(
+                "content-type"
+            ) || "";
+
+
+        const dados =
+            tipoResposta.includes(
+                "application/json"
+            )
+                ? await resposta.json()
+                : {
+                    resposta:
+                        `Servidor respondeu ${resposta.status} sem JSON.`
+                };
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                dados.resposta ||
+                "Não foi possível verificar o fechamento diário."
+            );
+        }
+
+
+        const hoje =
+            normalizarDataFechamento(
+                dados.hoje ||
+                dataLocalPDV()
+            );
+
+
+        /*
+         * Só existe fechamento obrigatório
+         * quando o backend encontrou uma
+         * data anterior aberta.
+         */
+        fechamentoForcado =
+            Boolean(
+                dados.data_pendente
+            );
+
+
+        if (fechamentoForcado) {
+
+            const dataPendente =
+                normalizarDataFechamento(
+                    dados.data_pendente
+                );
+
+
+            mostrarAlertaFechamento(
+                `Existe um fechamento pendente do dia ${
+                    formatarDataFechamento(
+                        dataPendente
+                    )
+                }.\nFeche esse dia antes de iniciar novas vendas.`
+            );
+
+
+            /*
+             * Mostra o DIA PENDENTE.
+             * Não troca para hoje.
+             */
+            await carregarDadosFechamento(
+                dataPendente,
+                true
+            );
+
+
+            fecharTravaPDV(true);
+
+        } else {
+
+            const chave =
+                `pdv_fechamento_apresentado_${hoje}`;
+
+
+            const jaApresentadoHoje =
+                localStorage.getItem(
+                    chave
+                ) === "1";
+
+
+            /*
+             * O fechamento abre automaticamente
+             * somente na primeira entrada do dia.
+             */
+            const abrirAutomaticamente =
+                !jaApresentadoHoje;
+
+
+            const dadosHoje =
+                await carregarDadosFechamento(
+                    hoje,
+                    abrirAutomaticamente
+                );
+
+
+            if (!dadosHoje) {
+
+                return;
+            }
+
+
+            if (abrirAutomaticamente) {
+
+                localStorage.setItem(
+                    chave,
+                    "1"
+                );
+            }
+
+
+            /*
+             * HOJE JÁ FECHADO
+             */
+            if (
+                dadosHoje.fechamento?.status ===
+                "FECHADO"
+            ) {
+
+                caixaHojeFechado =
+                    true;
+
+                fecharTravaPDV(true);
+
+
+                if (abrirAutomaticamente) {
+
+                    mostrarAlertaFechamento(
+                        "O fechamento de hoje já foi realizado. O PDV permanece bloqueado para novas vendas neste dia."
+                    );
+                }
+
+
+            /*
+             * HOJE ABERTO
+             */
+            } else if (
+                dadosHoje.fechamento?.status ===
+                "ABERTO"
+            ) {
+
+                caixaHojeFechado =
+                    false;
+
+                fechamentoForcado =
+                    false;
+
+                liberarPDVDepoisDoFechamento();
+
+
+                if (abrirAutomaticamente) {
+
+                    mostrarAlertaFechamento(
+                        `Caixa do dia ${
+                            formatarDataFechamento(hoje)
+                        } aberto. Troco inicial: ${
+                            dinheiroFechamento(
+                                dadosHoje.troco_inicial || 0
+                            )
+                        }.`
+                    );
+                }
+
+
+            /*
+             * HOJE SEM REGISTRO
+             */
+            } else {
+
+                caixaHojeFechado =
+                    false;
+
+                fecharTravaPDV(true);
+
+
+                if (abrirAutomaticamente) {
+
+                    mostrarAlertaFechamento(
+                        "Primeiro acesso: informe o dinheiro que havia de troco no início do dia para abrir o caixa."
+                    );
+                }
+            }
+        }
+
+
+        fechamentoInicializado =
+            true;
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro na verificação inicial do fechamento:",
+            erro
+        );
+
+
+        fecharTravaPDV(true);
+
+
+        if (
+            dialogFechamentoDiario &&
+            !dialogFechamentoDiario.open
+        ) {
+
+            dialogFechamentoDiario.showModal();
+        }
+
+
+        mostrarAlertaFechamento(
+            erro.message ||
+            "Não foi possível verificar o fechamento. O PDV ficará bloqueado até a verificação ser concluída."
+        );
+    }
+}
+
+
+/* =========================================================
+   BLOQUEIO DO PDV
+========================================================= */
+
+function fecharTravaPDV(travar) {
+
+    if (
+        typeof inp_codb !== "undefined" &&
+        inp_codb
+    ) {
+
+        inp_codb.disabled =
+            Boolean(travar);
+    }
+
+
+    document.body.classList.toggle(
+        "pdv-fechamento-bloqueado",
+        Boolean(travar)
+    );
+}
+
+
+function liberarPDVDepoisDoFechamento() {
+
+    if (
+        fechamentoForcado ||
+        caixaHojeFechado
+    ) {
+
         return;
     }
 
-    exibirAviso(
-        `Confirmar o fechamento de ${formatarDataFechamento(data)}?\n\n` +
-        `Dinheiro esperado no caixa: ${dinheiroFechamento(fechamentoDadosAtual.dinheiro_esperado)}\n` +
-        `Troco para o próximo dia: ${dinheiroFechamento(trocoProximo)}`,
-        executarSalvamentoFechamento,
-        true
+
+    fecharTravaPDV(false);
+
+
+    if (
+        typeof inp_codb !== "undefined" &&
+        inp_codb
+    ) {
+
+        setTimeout(
+            () => inp_codb.focus(),
+            100
+        );
+    }
+}
+
+
+/* =========================================================
+   ABRIR FECHAMENTO MANUALMENTE
+========================================================= */
+
+window.abrirFechamentoDiario =
+    async function(
+        data = dataLocalPDV()
+    ) {
+
+        if (!dialogFechamentoDiario) {
+            return;
+        }
+
+
+        /*
+         * IMPORTANTE:
+         * abrir manualmente nunca muda o
+         * estado operacional do PDV.
+         */
+
+        await carregarDadosFechamento(
+            normalizarDataFechamento(data),
+            true
+        );
+    };
+
+
+/* =========================================================
+   BOTÃO DE ABERTURA
+========================================================= */
+
+btnRegistrarAbertura?.addEventListener(
+    "click",
+    registrarAberturaCaixa
+);
+
+
+/* =========================================================
+   ATUALIZAR DIFERENÇA
+========================================================= */
+
+fechamentoTrocoProximo?.addEventListener(
+    "input",
+    atualizarDiferencaFechamento
+);
+
+
+/* =========================================================
+   RESUMO DE VÁRIOS DIAS
+========================================================= */
+
+function definirDatasResumoPeriodo() {
+    const atual = normalizarDataFechamento(
+        fechamentoDadosAtual?.data_referencia || dataLocalPDV()
     );
+
+    if (resumoPeriodoInicio && !resumoPeriodoInicio.value) {
+        resumoPeriodoInicio.value = atual;
+    }
+
+    if (resumoPeriodoFim && !resumoPeriodoFim.value) {
+        resumoPeriodoFim.value = atual;
+    }
+}
+
+function dataSeguintePeriodo(data) {
+    const [ano, mes, dia] = data.split("-").map(Number);
+    const d = new Date(Date.UTC(ano, mes - 1, dia));
+    d.setUTCDate(d.getUTCDate() + 1);
+    return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+}
+
+function mostrarAlertaResumoPeriodo(texto) {
+    if (!resumoPeriodoAlerta) return;
+    resumoPeriodoAlerta.textContent = texto;
+    resumoPeriodoAlerta.style.display = "block";
+}
+
+function limparAlertaResumoPeriodo() {
+    if (!resumoPeriodoAlerta) return;
+    resumoPeriodoAlerta.textContent = "";
+    resumoPeriodoAlerta.style.display = "none";
+}
+
+async function consultarResumoPeriodo() {
+    limparAlertaResumoPeriodo();
+
+    const inicio = normalizarDataFechamento(resumoPeriodoInicio?.value);
+    const fim = normalizarDataFechamento(resumoPeriodoFim?.value);
+
+    if (!inicio || !fim) {
+        mostrarAlertaResumoPeriodo("Informe a data inicial e a data final.");
+        return;
+    }
+
+    if (inicio > fim) {
+        mostrarAlertaResumoPeriodo("A data inicial não pode ser maior que a data final.");
+        return;
+    }
+
+    const inicioObj = new Date(`${inicio}T00:00:00Z`);
+    const fimObj = new Date(`${fim}T00:00:00Z`);
+    const quantidadeDias = Math.floor((fimObj - inicioObj) / 86400000) + 1;
+
+    if (quantidadeDias > 366) {
+        mostrarAlertaResumoPeriodo("Consulte no máximo 366 dias por vez.");
+        return;
+    }
+
+    if (resumoPeriodoLista) {
+        resumoPeriodoLista.innerHTML = '<div class="resumo-periodo-vazio">Carregando valores...</div>';
+    }
+    if (resumoPeriodoTotal) resumoPeriodoTotal.innerText = "R$ 0,00";
+    if (btnConsultarResumoPeriodo) {
+        btnConsultarResumoPeriodo.disabled = true;
+        btnConsultarResumoPeriodo.innerText = "CARREGANDO...";
+    }
+
+    const acumulado = {
+        dinheiro: 0,
+        credito: 0,
+        debito: 0,
+        pix: 0,
+        voucher: 0,
+        fiado: 0,
+        outros: 0,
+        total: 0
+    };
+
+    try {
+        let data = inicio;
+
+        while (data <= fim) {
+            const resposta = await apiFetch(
+                `${URL_BACKEND_CAD}/fechamentos-diarios/${data}`,
+                {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    }
+                }
+            );
+
+            const tipoResposta = resposta.headers.get("content-type") || "";
+            const dados = tipoResposta.includes("application/json")
+                ? await resposta.json()
+                : {};
+
+            if (!resposta.ok) {
+                throw new Error(
+                    dados.resposta ||
+                    `Não foi possível consultar ${formatarDataFechamento(data)}.`
+                );
+            }
+
+            const r = dados.resumo || {};
+            acumulado.dinheiro += Number(r.dinheiro || 0);
+            acumulado.credito += Number(r.credito || 0);
+            acumulado.debito += Number(r.debito || 0);
+            acumulado.pix += Number(r.pix || 0);
+            acumulado.voucher += Number(r.voucher || 0);
+            acumulado.fiado += Number(r.fiado || 0);
+            acumulado.outros += Number(r.outros || 0);
+            acumulado.total += Number(r.total_vendas || 0);
+
+            data = dataSeguintePeriodo(data);
+        }
+
+        const itens = [
+            ["Dinheiro", acumulado.dinheiro],
+            ["Crédito", acumulado.credito],
+            ["Débito", acumulado.debito],
+            ["Pix", acumulado.pix],
+            ["Voucher", acumulado.voucher],
+            ["Fiado", acumulado.fiado],
+            ["Outros", acumulado.outros]
+        ];
+
+        if (resumoPeriodoLista) {
+            resumoPeriodoLista.innerHTML = itens.map(([nome, valor]) =>
+                `<div class="resumo-periodo-item"><span>${nome}</span><strong>${dinheiroFechamento(valor)}</strong></div>`
+            ).join("");
+        }
+
+        if (resumoPeriodoTotal) {
+            resumoPeriodoTotal.innerText = dinheiroFechamento(acumulado.total);
+        }
+    } catch (erro) {
+        console.error("Erro no resumo do período:", erro);
+        if (resumoPeriodoLista) {
+            resumoPeriodoLista.innerHTML = '<div class="resumo-periodo-vazio">Não foi possível carregar o período.</div>';
+        }
+        mostrarAlertaResumoPeriodo(erro.message || "Erro ao consultar o período.");
+    } finally {
+        if (btnConsultarResumoPeriodo) {
+            btnConsultarResumoPeriodo.disabled = false;
+            btnConsultarResumoPeriodo.innerText = "CONSULTAR";
+        }
+    }
+}
+
+btnAbrirResumoPeriodo?.addEventListener("click", () => {
+    definirDatasResumoPeriodo();
+    if (dialogResumoPeriodo && !dialogResumoPeriodo.open) {
+        dialogResumoPeriodo.showModal();
+    }
 });
+
+btnFecharResumoPeriodo?.addEventListener("click", () => {
+    dialogResumoPeriodo?.close();
+});
+
+btnConsultarResumoPeriodo?.addEventListener("click", consultarResumoPeriodo);
+
+/* =========================================================
+   CONFIRMAR DATA
+========================================================= */
+
+btnConsultarFechamento?.addEventListener(
+    "click",
+    async () => {
+
+        const data =
+            normalizarDataFechamento(
+                fechamentoDataConsulta?.value
+            );
+
+
+        if (!data) {
+
+            mostrarAlertaFechamento(
+                "Escolha primeiro o dia que deseja consultar ou fechar."
+            );
+
+            fechamentoDataConsulta?.focus();
+
+            return;
+        }
+
+
+        if (
+            btnConsultarFechamento
+        ) {
+
+            btnConsultarFechamento.disabled =
+                true;
+
+            btnConsultarFechamento.innerText =
+                "CARREGANDO...";
+        }
+
+
+        try {
+
+            const dados =
+                await carregarDadosFechamento(
+                    data,
+                    false
+                );
+
+
+            if (dados) {
+
+                mostrarAlertaFechamento(
+                    `Informações do dia ${
+                        formatarDataFechamento(data)
+                    } carregadas.`
+                );
+            }
+
+        } finally {
+
+            if (
+                btnConsultarFechamento
+            ) {
+
+                btnConsultarFechamento.disabled =
+                    false;
+
+                btnConsultarFechamento.innerText =
+                    "CONFIRMAR DATA";
+            }
+        }
+    }
+);
+
+
+/* =========================================================
+   SALVAR FECHAMENTO
+========================================================= */
+
+async function executarSalvamentoFechamento() {
+
+    if (!fechamentoDadosAtual) {
+        return;
+    }
+
+
+    const data =
+        normalizarDataFechamento(
+            fechamentoDadosAtual.data_referencia
+        );
+
+
+    const podeFechar =
+        fechamentoDadosAtual.pode_fechar ===
+        true;
+
+
+    if (!podeFechar) {
+
+        mostrarAlertaFechamento(
+            "Este dia já está fechado e não pode ser fechado novamente."
+        );
+
+        return;
+    }
+
+
+    const trocoProximo =
+        valorNumericoFechamento(
+            fechamentoTrocoProximo?.value
+        );
+
+
+    if (
+        !Number.isFinite(trocoProximo) ||
+        trocoProximo < 0
+    ) {
+
+        mostrarAlertaFechamento(
+            "Digite quanto de dinheiro/troco ficará para o próximo dia."
+        );
+
+        fechamentoTrocoProximo?.focus();
+
+        return;
+    }
+
+
+    if (btnSalvarFechamento) {
+
+        btnSalvarFechamento.disabled =
+            true;
+    }
+
+
+    try {
+
+        const resposta =
+            await apiFetch(
+                `${URL_BACKEND_CAD}/fechamentos-diarios`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            `Bearer ${localStorage.getItem("token")}`
+                    },
+
+                    body:
+                        JSON.stringify({
+                            data_referencia:
+                                data,
+
+                            troco_proximo_dia:
+                                trocoProximo
+                        })
+                }
+            );
+
+
+        const tipoResposta =
+            resposta.headers.get(
+                "content-type"
+            ) || "";
+
+
+        const dados =
+            tipoResposta.includes(
+                "application/json"
+            )
+                ? await resposta.json()
+                : {
+                    resposta:
+                        `Servidor respondeu ${resposta.status} sem JSON.`
+                };
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                dados.resposta ||
+                "Não foi possível fechar o dia."
+            );
+        }
+
+
+        /*
+         * =================================================
+         * HOJE
+         * =================================================
+         */
+
+        if (
+            data ===
+            dataLocalPDV()
+        ) {
+
+            fechamentoForcado =
+                false;
+
+            caixaHojeFechado =
+                true;
+
+            fecharTravaPDV(true);
+
+
+        /*
+         * =================================================
+         * DIA ANTERIOR
+         * =================================================
+         */
+
+        } else {
+
+            /*
+             * O fechamento histórico foi resolvido.
+             *
+             * NÃO:
+             * - troca para hoje;
+             * - abre hoje;
+             * - recarrega hoje;
+             * - muda a data selecionada.
+             */
+
+            fechamentoForcado =
+                false;
+        }
+
+
+        /*
+         * Mantém o MESMO dia na tela.
+         */
+        const dadosAtualizados =
+            await carregarDadosFechamento(
+                data,
+                false
+            );
+
+
+        if (dadosAtualizados) {
+
+            mostrarAlertaFechamento(
+                `Fechamento de ${
+                    formatarDataFechamento(data)
+                } realizado com sucesso.\n` +
+                `Troco levado para o próximo dia aberto: ${
+                    dinheiroFechamento(
+                        trocoProximo
+                    )
+                }.`
+            );
+        }
+
+
+        /*
+         * Se acabamos de resolver um fechamento
+         * histórico obrigatório, agora precisamos
+         * abrir hoje para liberar o PDV.
+         *
+         * Fazemos isso SEM trocar a tela do modal.
+         */
+
+        if (
+            data !==
+            dataLocalPDV()
+        ) {
+
+            const pendenteResolvido =
+                fechamentoForcado === false;
+
+            if (
+                pendenteResolvido
+            ) {
+
+                const resultadoHoje =
+                    await garantirAberturaHoje();
+
+                if (!resultadoHoje) {
+
+                    /*
+                     * Se hoje não conseguiu abrir,
+                     * o modal continua mostrando o
+                     * dia histórico fechado.
+                     */
+                    fecharTravaPDV(true);
+                }
+            }
+        }
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao fechar dia:",
+            erro
+        );
+
+
+        mostrarAlertaFechamento(
+            erro.message ||
+            "Erro ao salvar o fechamento."
+        );
+
+
+        if (
+            btnSalvarFechamento &&
+            fechamentoDadosAtual?.pode_fechar ===
+                true
+        ) {
+
+            btnSalvarFechamento.disabled =
+                false;
+        }
+    }
+}
+
+
+/* =========================================================
+   CONFIRMAR FECHAMENTO
+========================================================= */
+
+btnSalvarFechamento?.addEventListener(
+    "click",
+    () => {
+
+        if (!fechamentoDadosAtual) {
+            return;
+        }
+
+
+        if (
+            fechamentoDadosAtual
+                .fechamento
+                ?.status ===
+            "FECHADO"
+        ) {
+
+            mostrarAlertaFechamento(
+                "Este dia já está fechado."
+            );
+
+            return;
+        }
+
+
+        const data =
+            normalizarDataFechamento(
+                fechamentoDadosAtual.data_referencia
+            );
+
+
+        const trocoProximo =
+            valorNumericoFechamento(
+                fechamentoTrocoProximo?.value
+            );
+
+
+        if (
+            !Number.isFinite(trocoProximo) ||
+            trocoProximo < 0
+        ) {
+
+            mostrarAlertaFechamento(
+                "Digite quanto de dinheiro/troco ficará para o próximo dia."
+            );
+
+            fechamentoTrocoProximo?.focus();
+
+            return;
+        }
+
+
+        const esperado =
+            Number(
+                fechamentoDadosAtual
+                    .dinheiro_esperado || 0
+            );
+
+
+        const confirmar = window.confirm(
+            `Confirmar o fechamento de ${
+                formatarDataFechamento(data)
+            }?\n\n` +
+            `Dinheiro esperado no caixa: ${
+                dinheiroFechamento(esperado)
+            }\n` +
+            `Troco para o próximo dia: ${
+                dinheiroFechamento(trocoProximo)
+            }`
+        );
+
+        if (confirmar) {
+            executarSalvamentoFechamento();
+        }
+    }
+);
+
+
+/* =========================================================
+   FECHAR MODAL
+========================================================= */
 
 function fecharModalFechamento() {
+
+    /*
+     * Só impede sair quando realmente
+     * existe um fechamento histórico
+     * obrigatório.
+     */
+
     if (fechamentoForcado) {
-        mostrarAlertaFechamento("Há um fechamento pendente. Ele precisa ser concluído antes de sair desta tela.");
+
+        mostrarAlertaFechamento(
+            "Há um fechamento pendente. Ele precisa ser concluído antes de sair desta tela."
+        );
+
         return;
     }
+
+
     dialogFechamentoDiario?.close();
-    if (typeof inp_codb !== "undefined" && inp_codb) setTimeout(() => inp_codb.focus(), 100);
+
+
+    /*
+     * Só devolve foco ao leitor quando
+     * o PDV realmente está liberado.
+     */
+
+    if (
+        !caixaHojeFechado &&
+        !fechamentoForcado &&
+        typeof inp_codb !== "undefined" &&
+        inp_codb &&
+        !inp_codb.disabled
+    ) {
+
+        setTimeout(
+            () => inp_codb.focus(),
+            100
+        );
+    }
 }
 
-btnFecharFechamento?.addEventListener("click", fecharModalFechamento);
-btnFecharFechamentoSemSalvar?.addEventListener("click", fecharModalFechamento);
 
-dialogFechamentoDiario?.addEventListener("cancel", event => {
-    event.preventDefault();
-    fecharModalFechamento();
-});
+/* =========================================================
+   BOTÕES FECHAR
+========================================================= */
 
-// O fechamento abre automaticamente ao entrar no PDV.
-window.addEventListener("load", () => {
-    setTimeout(() => {
-        verificarFechamentoInicial();
-    }, 250);
-});
+btnFecharFechamento?.addEventListener(
+    "click",
+    fecharModalFechamento
+);
+
+
+btnFecharFechamentoSemSalvar?.addEventListener(
+    "click",
+    fecharModalFechamento
+);
+
+
+/* =========================================================
+   ESC
+========================================================= */
+
+dialogFechamentoDiario?.addEventListener(
+    "cancel",
+    event => {
+
+        event.preventDefault();
+
+        fecharModalFechamento();
+    }
+);
+
+
+/* =========================================================
+   INICIALIZAÇÃO
+========================================================= */
+
+window.addEventListener(
+    "load",
+    () => {
+
+        setTimeout(
+            () => {
+                verificarFechamentoInicial();
+            },
+            250
+        );
+    }
+);
 </script>
 
 
