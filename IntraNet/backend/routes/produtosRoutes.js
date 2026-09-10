@@ -24,46 +24,50 @@ const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
 router.post("/produtos", verificarToken, uploadProdutos.single("imagem"), async (req, res) => {
     try {
         const {
-          nome,
-          preco,
-          codigo,
-          quantidade,
-          descricao,
-          id_categoria
-        } = req.body;
+  nome,
+  preco,
+  codigo,
+  quantidade,
+  descricao,
+  id_categoria,
+  valor_bruto
+} = req.body;
 
-        if (!nome || !preco || !codigo || !id_categoria) {
-          return res.status(400).json({
-            erro: "Preencha todos os campos obrigatórios"
-          });
-        }
+if (!nome || !preco || !codigo || !id_categoria || !valor_bruto) {
+  return res.status(400).json({
+    erro: "Preencha todos os campos obrigatórios"
+  });
+}
 
-        const precoFormatado = String(preco).replace(",", ".");
+const precoFormatado = String(preco).replace(",", ".");
+const valorBrutoFormatado = String(valor_bruto).replace(",", ".");
 
         // Se req.file não existir (usuário não enviou foto), usa 'img_ntf.png'
         const imagem = req.file ? req.file.filename : 'img_ntf.png';
 
-        await conexao.query(`
-          INSERT INTO produtos
-          (
-            nome,
-            preco,
-            codigo_barras,
-            qtd,
-            descricao,
-            img,
-            id_categoria
-          )
-          VALUES (?, ?, ?, ?, ?, ?, ?)
-        `, [
-          nome,
-          precoFormatado,
-          codigo,
-          quantidade || 0,
-          descricao || "",
-          imagem,
-          id_categoria
-        ]);
+          await conexao.query(`
+  INSERT INTO produtos
+  (
+    nome,
+    preco,
+    codigo_barras,
+    qtd,
+    descricao,
+    img,
+    id_categoria,
+    valor_bruto
+  )
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+`, [
+  nome,
+  precoFormatado,
+  codigo,
+  quantidade || 0,
+  descricao || "",
+  imagem,
+  id_categoria,
+  valorBrutoFormatado
+]);
 
         res.status(201).json({
           mensagem: "Produto cadastrado com sucesso"
@@ -219,9 +223,9 @@ router.get("/produtos/id/:id", verificarToken, async (req, res) => {
       try {
         console.log("BODY:", req.body);
 console.log(req.headers["content-type"]);
-        const { id } = req.params;
-        // Adicionamos 'qtd_min' aqui na desestruturação do corpo
-        const { nome, codigo_barras, preco, qtd, qtd_min, descricao } = req.body; 
+                const { id } = req.params;
+        // Adicionamos 'qtd_min' e 'valor_bruto' aqui na desestruturação do corpo
+        const { nome, codigo_barras, preco, qtd, qtd_min, descricao, valor_bruto } = req.body; 
         const img = req.file ? req.file.filename : null;
     
         await conexao.query(`
@@ -232,9 +236,10 @@ console.log(req.headers["content-type"]);
             qtd = ?, 
             qtd_min = ?, 
             descricao = ?, 
+            valor_bruto = ?,
             img = COALESCE(?, img)
           WHERE id_produto = ?
-        `, [nome, codigo_barras, preco, qtd, qtd_min || 0, descricao, img, id]);
+        `, [nome, codigo_barras, preco, qtd, qtd_min || 0, descricao, valor_bruto, img, id]);
     
         res.json({ msg: "ok" });
       } catch (error) {

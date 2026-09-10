@@ -71,31 +71,66 @@
           }
         },
         "post": {
-          "summary": "Cadastrar produto",
-          "tags": ["Produtos"],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "multipart/form-data": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "nome": { "type": "string" },
-                    "preco": { "type": "string" },
-                    "codigo_barras": { "type": "string" },
-                    "imagem": {
-                      "type": "string",
-                      "format": "binary"
-                    }
-                  }
-                }
-              }
+  "summary": "Cadastrar produto",
+  "tags": ["Produtos"],
+  "requestBody": {
+    "required": true,
+    "content": {
+      "multipart/form-data": {
+        "schema": {
+          "type": "object",
+          "required": [
+            "nome",
+            "preco",
+            "codigo",
+            "id_categoria"
+          ],
+          "properties": {
+            "nome": {
+              "type": "string",
+              "example": "Café Expresso"
+            },
+            "preco": {
+              "type": "string",
+              "example": "5,50"
+            },
+            "codigo": {
+              "type": "string",
+              "example": "7891234567890"
+            },
+            "quantidade": {
+              "type": "integer",
+              "example": 10
+            },
+            "descricao": {
+              "type": "string",
+              "example": "Café expresso tradicional"
+            },
+            "id_categoria": {
+              "type": "integer",
+              "example": 1
+            },
+            "imagem": {
+              "type": "string",
+              "format": "binary"
             }
-          },
-          "responses": {
-            "200": { "description": "Produto cadastrado" }
           }
         }
+      }
+    }
+  },
+  "responses": {
+    "201": {
+      "description": "Produto cadastrado com sucesso"
+    },
+    "400": {
+      "description": "Preencha todos os campos obrigatórios"
+    },
+    "500": {
+      "description": "Erro ao cadastrar produto"
+    }
+  }
+}
       },
       "/produtos/{codigo}": {
         "get": {

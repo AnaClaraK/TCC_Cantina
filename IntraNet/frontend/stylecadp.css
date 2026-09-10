@@ -792,3 +792,18 @@ h2 { margin: 5px 0; font-size: 22px; }
 .btn-trocar:active {
 	transform: translateY(0);
 }
+
+#d_aviso {
+    border: 3px solid #efac4a;
+    border-radius: 12px;
+    padding: 0;
+    width: 350px;
+    background: #1c1c1c;
+    color: #f8c471;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    text-align: center;
+}
+
+#d_aviso::backdrop {
+    background: rgba(0, 0, 0, 0.7);
+}
