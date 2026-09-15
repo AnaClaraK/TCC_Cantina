@@ -163,8 +163,8 @@ app.use(fechamentoRoutes);
 // START SERVER
 // =====================================================
 
-const HOST = '0.0.0.0'; // Libera o acesso para qualquer IP da rede
 
-app.listen(porta, HOST, () => {
-    console.log(`Servidor rodando em http://${HOST}:${porta}`);
+
+app.listen(porta, () => {
+    console.log(`Servidor rodando em http://localhost:${porta}`);
 });

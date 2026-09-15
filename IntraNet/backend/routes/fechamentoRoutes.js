@@ -4,6 +4,7 @@ const router = express.Router();
 
 const conexao = require("../db");
 const verificarToken = require("../middlewares/auth");
+const fazerBackupBanco = require("../config/backupbanco");
 
 async function garantirTabela() {
     await conexao.query(`
@@ -744,49 +745,70 @@ router.post(
                     ).toFixed(2)
                 );
 
-            /*
-             * Fecha EXATAMENTE a data escolhida.
-             *
-             * Não usa dataHoje().
-             * Não força dia 10.
-             * Não altera outra data.
-             */
-            await conexao.query(
-                `
-                UPDATE fechamentos_diarios
-                SET
-                    troco_proximo_dia = ?,
-                    dinheiro_esperado = ?,
-                    diferenca_caixa = ?,
-                    status = 'FECHADO',
-                    data_fechamento = NOW()
-                WHERE data_referencia = ?
-                `,
-                [
-                    trocoProximo,
-                    dinheiroEsperado,
-                    diferenca,
-                    data
-                ]
-            );
+await conexao.query(
+    `
+    UPDATE fechamentos_diarios
+    SET
+        troco_proximo_dia = ?,
+        dinheiro_esperado = ?,
+        diferenca_caixa = ?,
+        status = 'FECHADO',
+        data_fechamento = NOW()
+    WHERE data_referencia = ?
+    `,
+    [
+        trocoProximo,
+        dinheiroEsperado,
+        diferenca,
+        data
+    ]
+);
 
-            return res.json({
-                sucesso: true,
 
-                data_referencia:
-                    data,
+// =====================================================
+// BACKUP AUTOMÁTICO APÓS O FECHAMENTO
+// =====================================================
 
-                troco_proximo_dia:
-                    trocoProximo,
+const backup = await fazerBackupBanco();
 
-                dinheiro_esperado:
-                    dinheiroEsperado,
+if (backup.sucesso) {
 
-                diferenca_caixa:
-                    diferenca,
+    console.log(
+        `Backup do fechamento realizado: ${backup.nome}`
+    );
 
-                resumo
-            });
+} else {
+
+    // O fechamento continua válido mesmo se o backup falhar.
+    console.error(
+        "O caixa foi fechado, mas o backup não pôde ser realizado:",
+        backup.erro
+    );
+}
+
+
+return res.json({
+    sucesso: true,
+
+    data_referencia:
+        data,
+
+    troco_proximo_dia:
+        trocoProximo,
+
+    dinheiro_esperado:
+        dinheiroEsperado,
+
+    diferenca_caixa:
+        diferenca,
+
+    resumo,
+
+    backup: {
+        sucesso: backup.sucesso,
+        arquivo: backup.nome || null
+    }
+});
 
         } catch (erro) {
 

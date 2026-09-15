@@ -300,7 +300,7 @@ atualizarCalendario();
 
 async function verificarEstoqueBaixo() {
     try {
-        const resposta = await fetch("http://localhost:3000/produtos", {
+        const resposta = await fetch("http://10.111.9.28:3000/produtos", {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
         });
 

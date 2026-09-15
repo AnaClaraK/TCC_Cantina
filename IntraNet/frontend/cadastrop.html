@@ -115,7 +115,7 @@
     // Função para carregar o próximo código automático no campo
     async function carregarProximoCodigo() {
         try {
-            const res = await apiFetch("http://localhost:3000/produtos/proximo-codigo");
+            const res = await apiFetch("http://10.111.9.28:3000/produtos/proximo-codigo");
             const data = await res.json();
             if (res.ok && data.proximoCodigo) {
                 inputCodigo.value = data.proximoCodigo;
@@ -179,7 +179,7 @@ if (!nomeImagem) {
         }
 
         try {
-            const res = await apiFetch("http://localhost:3000/produtos", {
+            const res = await apiFetch("http:///10.111.9.28:3000/produtos", {
                 method: "POST",
                 body: formData
             });

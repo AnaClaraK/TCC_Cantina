@@ -133,6 +133,31 @@
     opacity: .55;
 }
 
+/* ======================================================
+   AJUSTES — CLIENTE / ATRASO / CONCLUIR CONTA
+====================================================== */
+.btn-nome-cliente-fiado { border:0; background:transparent; padding:0; color:inherit; font:inherit; font-weight:800; cursor:pointer; text-align:left; text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:3px; }
+.btn-nome-cliente-fiado:hover { opacity:.72; }
+.linha-conta-atrasada td { border-top:3px solid #ff1744; border-bottom:3px solid #ff1744; }
+.vencimento-celula { display:flex; flex-direction:column; align-items:flex-start; gap:4px; }
+.badge-atrasado,.badge-atrasado-modal { display:inline-flex; align-items:center; justify-content:center; background:#ff1744; color:#fff; font-weight:900; padding:4px 9px; border-radius:6px; font-size:11px; letter-spacing:.5px; }
+.badge-atrasado-modal { margin-left:8px; }
+.dias-atraso { font-weight:800; }
+.conta-modal-atrasada { border:3px solid #ff1744 !important; box-shadow:0 0 0 2px rgba(255,23,68,.15); }
+.conta_juros_titulo { display:flex; align-items:center; justify-content:space-between; gap:15px; flex-wrap:wrap; }
+.conta-juros-acoes { display:flex; align-items:center; justify-content:flex-end; gap:12px; flex-wrap:wrap; }
+.btn-concluir-conta { border:0; border-radius:7px; padding:9px 14px; background:#00e676; color:#071b0f; font-weight:900; cursor:pointer; }
+.btn-concluir-conta:hover { filter:brightness(1.08); }
+.btn-desbloquear-juros { border:1px solid currentColor; background:transparent; color:inherit; border-radius:6px; padding:3px 7px; font-size:10px; font-weight:900; cursor:pointer; white-space:nowrap; }
+.btn-desbloquear-juros:hover { filter:brightness(1.18); }
+.juros-produto-desbloqueado { opacity:1; }
+.juros-produto-ja-aplicado .btn-desbloquear-juros { opacity:1; }
+.conta-valor-resumo { padding:7px 10px; font-size:13px; }
+.conta-valor-resumo strong { font-size:15px; }
+.info-atrasado { display:inline-block; padding:6px 10px; border-radius:7px; background:#ff1744; color:#fff; font-weight:900; }
+.modal-cliente-direto .campo-busca-cliente-juros, .modal-cliente-direto > label[for="buscaClienteJuros"] { display:none; }
+.modal-cliente-direto .pm { margin-top:4px; }
+
 @media (max-width: 850px) {
     .juros-produto-linha {
         grid-template-columns:
@@ -221,16 +246,16 @@
         <tbody id="tbodySemJuros"></tbody>
     </table>
 
-    <h2 class="titulo-contas">Resumo de juros por cliente</h2>
-    <table class="tabela" id="tabelaJurosCliente">
-        <thead><tr><th>Nome</th><th>Produtos pendentes</th><th>Valor original</th><th>Juros</th><th>Total com juros</th><th>Porcentagem</th><th>Tipo</th></tr></thead>
-        <tbody id="tbodyJurosCliente"></tbody>
-    </table>
-
     <h2 class="titulo-contas">Contas com Juros</h2>
     <table class="tabela" id="tabelaComJuros">
         <thead><tr><th>Nome</th><th>Produtos</th><th>Valor original</th><th>Quantidade</th><th>Origem</th><th>Vencimento</th></tr></thead>
         <tbody id="tbodyComJuros"></tbody>
+    </table>
+
+    <h2 class="titulo-contas">Resumo de juros por cliente</h2>
+    <table class="tabela" id="tabelaJurosCliente">
+        <thead><tr><th>Nome</th><th>Produtos pendentes</th><th>Valor original</th><th>Juros</th><th>Total com juros</th><th>Porcentagem</th><th>Tipo</th></tr></thead>
+        <tbody id="tbodyJurosCliente"></tbody>
     </table>
 </section>
 
@@ -1042,6 +1067,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let contaParaConcluir = null;
     let contasParaConcluir = [];
     let produtosParaConcluir = [];
+    let produtosDesbloqueadosJuros = new Set();
 
     let pagamentoTemporario = {
         forma: "",
@@ -2189,6 +2215,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         tipo: item.tipo_juros || "",
                         valorJurosAtual: Number(item.valor_juros_atual ?? 0),
                         valorAtual: Number(item.valor_atual ?? item.valor_base ?? 0),
+                        statusPagamento: String(item.status_pagamento ?? "Pendente").trim(),
                         diasAtraso: Number(item.dias_atraso ?? 0),
                         dataVencimento: item.data_vencimento || conta?.data_vencimento || null,
                         dataInicioJuros: item.data_inicio_juros || null
@@ -2214,6 +2241,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     tipo: "",
                     valorJurosAtual: 0,
                     valorAtual: 0,
+                    statusPagamento: "Pendente",
                     diasAtraso: calcularDiasAtraso(conta?.data_vencimento),
                     dataVencimento: conta?.data_vencimento || null,
                     dataInicioJuros: null
@@ -2239,15 +2267,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderVencimentoComAtraso(data) {
         const dias = calcularDiasAtraso(data);
-        return `<div class="vencimento-celula"><span>${formatarData(data)}</span>${dias > 0 ? `<span class="dias-atraso">${dias} ${dias === 1 ? "dia" : "dias"}</span>` : ""}</div>`;
+        return `<div class="vencimento-celula"><span>${formatarData(data)}</span>${dias > 0 ? `<span class="badge-atrasado">ATRASADO — ${dias} ${dias === 1 ? "dia" : "dias"}</span>` : ""}</div>`;
     }
 
     function renderLinhaConta(conta) {
         const valorOriginal = Number(conta.valor_original ?? conta.valor ?? 0);
         const qtd = Number(conta.quantidade_total || 0);
         const produtos = normalizarProdutosConta(conta);
+        const diasAtraso = Number(conta.dias_atraso ?? calcularDiasAtraso(conta.data_vencimento));
+        const idCliente = Number(conta.id_cliente);
         const produtosHtml = produtos.length ? `<div class="produtos-resumo">${produtos.map(p => `<span class="produto-pill">${escaparHTML(p.nome)}${p.quantidade > 0 ? ` <small>×${p.quantidade}</small>` : ""}</span>`).join("")}</div>` : "-";
-        return `<tr><td>${escaparHTML(conta.nome_completo || conta.cliente || "-")}</td><td>${produtosHtml}</td><td>R$ ${formatarMoeda(valorOriginal)}</td><td>${qtd}</td><td>${escaparHTML(conta.origem || "-")}</td><td>${renderVencimentoComAtraso(conta.data_vencimento)}</td></tr>`;
+        return `<tr class="${diasAtraso > 0 ? "linha-conta-atrasada" : ""}"><td><button type="button" class="btn-nome-cliente-fiado" data-id-cliente="${idCliente}">${escaparHTML(conta.nome_completo || conta.cliente || "-")}</button></td><td>${produtosHtml}</td><td>R$ ${formatarMoeda(valorOriginal)}</td><td>${qtd}</td><td>${escaparHTML(conta.origem || "-")}</td><td>${renderVencimentoComAtraso(conta.data_vencimento)}</td></tr>`;
     }
 
     function renderTabelas(
@@ -2476,6 +2506,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             limparModalJuros();
 
+            modalSimularJuros.classList.remove("modal-cliente-direto");
             document.body.classList.add("modal-conta-juros-aberto");
             modalSimularJuros.showModal();
 
@@ -2497,6 +2528,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         limparModalJuros();
+        modalSimularJuros.classList.remove("modal-cliente-direto");
     }
 
     btnFecharSimulacaoJuros?.addEventListener(
@@ -2936,254 +2968,153 @@ document.addEventListener("DOMContentLoaded", () => {
 ====================================================== */
 
 function renderContasParaJuros() {
-
     listaContasJuros.innerHTML = "";
 
-    if (
-        !Array.isArray(contasClienteJuros) ||
-        contasClienteJuros.length === 0
-    ) {
-        listaContasJuros.innerHTML = `
-            <div class="juros_vazio">
-                Este cliente não possui produtos pendentes.
-            </div>
-        `;
+    if (!Array.isArray(contasClienteJuros) || contasClienteJuros.length === 0) {
+        listaContasJuros.innerHTML = `<div class="juros_vazio">Este cliente não possui produtos pendentes.</div>`;
         return;
     }
 
+    let encontrouProdutoPendente = false;
+
     contasClienteJuros.forEach(conta => {
+        const idConta = Number(conta.id_conta);
+        const produtos = normalizarProdutosConta(conta).filter(produto => {
+            return String(produto.statusPagamento || "Pendente").trim().toLowerCase() !== "pago";
+        });
 
-        const idConta =
-            Number(conta.id_conta);
+        // Produtos já concluídos/pagos não aparecem no modal.
+        if (!produtos.length) return;
+        encontrouProdutoPendente = true;
 
-        const produtos =
-            normalizarProdutosConta(conta);
+        const bloco = document.createElement("div");
+        const diasAtraso = Number(conta.dias_atraso ?? calcularDiasAtraso(conta.data_vencimento));
+        bloco.className = `conta_juros_item ${diasAtraso > 0 ? "conta-modal-atrasada" : ""}`;
+        bloco.dataset.idConta = idConta;
 
-        if (!produtos.length) {
-            return;
-        }
-
-        const bloco =
-            document.createElement("div");
-
-        bloco.className =
-            "conta_juros_item";
-
-        bloco.dataset.idConta =
-            idConta;
-
-        const vencimento =
-            formatarData(
-                conta.data_vencimento
-            );
+        const vencimento = formatarData(conta.data_vencimento);
+        const totalConta = produtos.reduce((total, produto) => total + Number(produto.valorAtual || produto.valorBase || 0), 0);
 
         bloco.innerHTML = `
             <div class="conta_juros_titulo">
-                <strong>
-                    Compra #${idConta}
-                </strong>
+                <div>
+                    <strong>Conta #${idConta}</strong>
+                    ${diasAtraso > 0 ? `<span class="badge-atrasado-modal">ATRASADO</span>` : ""}
+                </div>
+                <div class="conta-juros-acoes">
+                    <span class="compra-vencimento">Vencimento: ${vencimento}${diasAtraso > 0 ? ` — ${diasAtraso} ${diasAtraso === 1 ? "dia" : "dias"}` : ""}</span>
+                    <button type="button" class="btn-concluir-conta" data-id-conta="${idConta}">Concluir selecionados</button>
+                </div>
+            </div>
 
-                <span class="compra-vencimento">
-                    Vencimento: ${vencimento}
-                </span>
+            <div class="conta-valor-resumo">
+                Total pendente: <strong>R$ ${formatarMoeda(totalConta)}</strong>
             </div>
 
             <div class="conta_juros_produtos_lista">
-
                 ${produtos.map(produto => {
+                    const idProduto = Number(produto.idProduto);
+                    const dias = Math.max(0, calcularDiasAtraso(produto.dataVencimento || conta.data_vencimento));
+                    const valor = valueRound(Number(produto.valorBase || 0));
+                    const jaAplicado = produto.jurosAtivo;
+                    const chave = `${idConta}-${idProduto}`;
+                    const desbloqueado = jaAplicado && produtosDesbloqueadosJuros.has(chave);
+                    const checkboxBloqueado = jaAplicado && !desbloqueado;
 
-                    const idProduto =
-                        Number(produto.idProduto);
-
-                    const dias =
-                        Math.max(
-                            0,
-                            calcularDiasAtraso(
-                                produto.dataVencimento ||
-                                conta.data_vencimento
-                            )
-                        );
-
-                    const valor =
-                        valueRound(
-                            Number(
-                                produto.valorBase || 0
-                            )
-                        );
-
-                    const jaAplicado =
-                        produto.jurosAtivo;
-
-                    /*
-                        Produtos sem id não podem ser
-                        enviados para aplicação.
-                    */
                     if (!idProduto) {
-                        return `
-                            <div class="juros-produto-linha juros-produto-invalido">
-                                <div></div>
-
-                                <div class="juros-produto-nome">
-                                    <strong>
-                                        ${escaparHTML(
-                                            produto.nome
-                                        )}
-                                    </strong>
-                                </div>
-
-                                <div class="juros-produto-valor">
-                                    <span>Valor</span>
-                                    <strong>
-                                        R$ ${formatarMoeda(valor)}
-                                    </strong>
-                                </div>
-
-                                <div class="juros-produto-vencimento">
-                                    <span>Vencimento</span>
-                                    <strong>
-                                        ${formatarData(
-                                            produto.dataVencimento ||
-                                            conta.data_vencimento
-                                        )}
-                                    </strong>
-                                </div>
-
-                                <div class="juros-produto-dias">
-                                    <span>Dias</span>
-                                    <strong>${dias}</strong>
-                                </div>
-
-                                <div class="juros-produto-resultado">
-                                    <span>Juros</span>
-                                    <strong>—</strong>
-                                </div>
-                            </div>
-                        `;
+                        return `<div class="juros-produto-linha juros-produto-invalido"><div></div><div class="juros-produto-nome"><strong>${escaparHTML(produto.nome)}</strong></div><div class="juros-produto-valor"><span>Valor</span><strong>R$ ${formatarMoeda(valor)}</strong></div><div class="juros-produto-vencimento"><span>Vencimento</span><strong>${formatarData(produto.dataVencimento || conta.data_vencimento)}</strong></div><div class="juros-produto-dias"><span>Dias</span><strong>${dias}</strong></div><div class="juros-produto-resultado"><span>Juros</span><strong>—</strong></div></div>`;
                     }
 
-                    return `
-                        <div
-                            class="juros-produto-linha ${
-                                jaAplicado
-                                    ? "juros-produto-ja-aplicado"
-                                    : ""
-                            }"
-                            data-id-conta="${idConta}"
-                            data-id-produto="${idProduto}"
-                        >
-
-                            <div class="juros-produto-selecao">
-
-                                <input
-                                    type="checkbox"
-                                    class="checkbox-produto-juros"
-                                    data-id-conta="${idConta}"
-                                    data-id-produto="${idProduto}"
-                                    ${jaAplicado ? "disabled" : ""}
-                                >
-
-                            </div>
-
-                            <div class="juros-produto-nome">
-
-                                <strong>
-                                    ${escaparHTML(
-                                        produto.nome
-                                    )}
-                                </strong>
-
-                                ${
-                                    Number(
-                                        produto.quantidade || 0
-                                    ) > 0
-                                        ? `
-                                            <span>
-                                                ×${produto.quantidade}
-                                            </span>
-                                          `
-                                        : ""
-                                }
-
-                            </div>
-
-                            <div class="juros-produto-valor">
-
-                                <span>Valor</span>
-
-                                <strong>
-                                    R$ ${formatarMoeda(valor)}
-                                </strong>
-
-                            </div>
-
-                            <div class="juros-produto-vencimento">
-
-                                <span>Vencimento</span>
-
-                                <strong>
-                                    ${formatarData(
-                                        produto.dataVencimento ||
-                                        conta.data_vencimento
-                                    )}
-                                </strong>
-
-                            </div>
-
-                            <div class="juros-produto-dias">
-
-                                <span>Dias</span>
-
-                                <strong>
-                                    ${dias}
-                                </strong>
-
-                            </div>
-
-                            <div class="juros-produto-resultado">
-
-                                <span>Juros</span>
-
-                                <strong
-                                    class="valor-juros-produto"
-                                    data-id-conta="${idConta}"
-                                    data-id-produto="${idProduto}"
-                                >
-                                    —
-                                </strong>
-
-                            </div>
-
+                    return `<div class="juros-produto-linha ${jaAplicado ? "juros-produto-ja-aplicado" : ""} ${desbloqueado ? "juros-produto-desbloqueado" : ""}" data-id-conta="${idConta}" data-id-produto="${idProduto}">
+                        <div class="juros-produto-selecao">
+                            <input type="checkbox" class="checkbox-produto-juros" data-id-conta="${idConta}" data-id-produto="${idProduto}" ${checkboxBloqueado ? "disabled" : ""}>
                         </div>
-                    `;
+                        <div class="juros-produto-nome">
+                            <strong>${escaparHTML(produto.nome)}</strong>
+                            ${Number(produto.quantidade || 0) > 0 ? `<span>×${produto.quantidade}</span>` : ""}
+                            ${jaAplicado ? `<button type="button" class="btn-desbloquear-juros" data-id-conta="${idConta}" data-id-produto="${idProduto}">${desbloqueado ? "Bloquear" : "Desbloquear"}</button>` : ""}
+                        </div>
+                        <div class="juros-produto-valor"><span>Valor</span><strong>R$ ${formatarMoeda(valor)}</strong></div>
+                        <div class="juros-produto-vencimento"><span>Vencimento</span><strong>${formatarData(produto.dataVencimento || conta.data_vencimento)}</strong></div>
+                        <div class="juros-produto-dias"><span>Dias</span><strong>${dias}</strong></div>
+                        <div class="juros-produto-resultado"><span>Juros</span><strong class="valor-juros-produto" data-id-conta="${idConta}" data-id-produto="${idProduto}">—</strong></div>
+                    </div>`;
                 }).join("")}
+            </div>`;
 
-            </div>
-        `;
-
-        listaContasJuros.appendChild(
-            bloco
-        );
+        listaContasJuros.appendChild(bloco);
     });
 
-    /*
-        Seleção de produto invalida a simulação anterior.
-    */
+    if (!encontrouProdutoPendente) {
+        listaContasJuros.innerHTML = `<div class="juros_vazio">Este cliente não possui produtos pendentes.</div>`;
+        return;
+    }
 
-    listaContasJuros
-        .querySelectorAll(
-            ".checkbox-produto-juros"
-        )
-        .forEach(checkbox => {
-
-            checkbox.addEventListener(
-                "change",
-                () => {
-                    limparResultadoSimulacao();
-                }
-            );
-        });
+    listaContasJuros.querySelectorAll(".checkbox-produto-juros").forEach(checkbox => {
+        checkbox.addEventListener("change", () => limparResultadoSimulacao());
+    });
 }
 
+/* ======================================================
+   ABRIR CLIENTE DIRETAMENTE PELO NOME
+====================================================== */
+async function abrirClienteDiretoNoModal(idCliente) {
+    const cliente = clientesJuros.find(c => Number(c.id_cliente) === Number(idCliente)) || clientesCache.find(c => Number(c.id_cliente) === Number(idCliente)) || contasAtuais.find(c => Number(c.id_cliente) === Number(idCliente));
+    if (!cliente) { exibirAviso("Não foi possível localizar o cliente."); return; }
+    clienteSelecionadoJuros = cliente;
+    buscaClienteJuros.value = cliente.nome_completo || "";
+    clienteJurosSelecionado.innerText = cliente.nome_completo || "---";
+    listaClientesJuros.innerHTML = "";
+    listaClientesJuros.style.display = "none";
+    listaClientesJuros.classList.remove("visivel");
+    modalSimularJuros.classList.add("modal-cliente-direto");
+    modalSimularJuros.showModal();
+    await carregarContasClienteJuros();
+}
+
+document.addEventListener("click", event => {
+    const botao = event.target.closest(".btn-nome-cliente-fiado");
+    if (!botao) return;
+    const idCliente = Number(botao.dataset.idCliente);
+    if (idCliente) abrirClienteDiretoNoModal(idCliente);
+});
+
+/* ======================================================
+   CONCLUIR SOMENTE OS PRODUTOS SELECIONADOS DA CONTA
+====================================================== */
+listaContasJuros?.addEventListener("click", event => {
+    const desbloquear = event.target.closest(".btn-desbloquear-juros");
+    if (desbloquear) {
+        const chave = `${Number(desbloquear.dataset.idConta)}-${Number(desbloquear.dataset.idProduto)}`;
+        if (produtosDesbloqueadosJuros.has(chave)) {
+            produtosDesbloqueadosJuros.delete(chave);
+        } else {
+            produtosDesbloqueadosJuros.add(chave);
+        }
+        limparResultadoSimulacao();
+        renderContasParaJuros();
+        return;
+    }
+
+    const botao = event.target.closest(".btn-concluir-conta");
+    if (!botao) return;
+
+    const idConta = Number(botao.dataset.idConta);
+    const conta = contasClienteJuros.find(c => Number(c.id_conta) === idConta);
+    if (!conta) {
+        exibirAviso("Conta não encontrada.");
+        return;
+    }
+
+    const produtos = obterProdutosSelecionadosJuros().filter(item => Number(item.id_conta) === idConta);
+
+    if (!produtos.length) {
+        exibirAviso("Selecione pelo menos um produto desta conta.");
+        return;
+    }
+
+    abrirModalConclusao(produtos);
+});
 
 function obterProdutosSelecionadosJuros() {
 
@@ -3761,7 +3692,12 @@ btnSimularJuros?.addEventListener(
                         resultado.juros,
 
                     valor_simulado:
-                        resultado.valorFinal
+                        resultado.valorFinal,
+
+                    reaplicar: Boolean(
+                        item.produto.jurosAtivo &&
+                        produtosDesbloqueadosJuros.has(`${item.id_conta}-${item.id_produto}`)
+                    )
                 });
 
 
@@ -4013,7 +3949,9 @@ async function executarAplicacaoDeJuros() {
                                 simulacaoJurosAtual.percentual,
 
                             itens:
-                                simulacaoJurosAtual.itens
+                                simulacaoJurosAtual.itens,
+
+                            reaplicar: simulacaoJurosAtual.itens.some(item => item.reaplicar === true)
                         })
                 }
             );
@@ -4625,8 +4563,8 @@ async function executarAplicacaoDeJuros() {
 
             if (
                 forma === "Pix" ||
-                forma ===
-                    "Cartão de Débito"
+                forma === "Cartão de Débito" ||
+                forma === "Voucher/Ticket"
             ) {
 
                 pagamentoTemporario = {
@@ -4705,66 +4643,63 @@ async function executarAplicacaoDeJuros() {
             }
 
             try {
-                for (const selecionado of produtosParaConcluir) {
-                    const idConta = Number(selecionado.id_conta);
-                    const idProduto = Number(selecionado.id_produto);
+                const itensPagamento = produtosParaConcluir.map(item => ({
+                    id_conta: Number(item.id_conta),
+                    id_produto: Number(item.id_produto)
+                }));
 
-                    const corpo = {
-                        data_pagamento: data,
-                        forma_pagamento: forma
-                    };
+                const corpo = {
+                    data_pagamento: data,
+                    forma_pagamento: forma,
+                    itens: itensPagamento
+                };
 
-                    if (forma === "Cartão de Crédito") {
-                        corpo.parcelas = pagamentoTemporario.parcelas;
-                        corpo.valor_parcela = pagamentoTemporario.valorParcela;
+                if (forma === "Cartão de Crédito") {
+                    corpo.parcelas = pagamentoTemporario.parcelas;
+                    corpo.valor_parcela = pagamentoTemporario.valorParcela;
+                }
+
+                const res = await apiFetch(
+                    "/contas-fiado/itens/finalizar",
+                    {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(corpo)
                     }
+                );
 
-                    const res = await apiFetch(
-                        `/contas-fiado/item/${idConta}/${idProduto}/pagar`,
-                        {
-                            method: "PUT",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(corpo)
-                        }
-                    );
+                if (res.status === 401 || res.status === 403) {
+                    fecharConclusao();
+                    tratarSessaoExpirada();
+                    return;
+                }
 
-                    if (res.status === 401 || res.status === 403) {
-                        fecharConclusao();
-                        tratarSessaoExpirada();
-                        return;
-                    }
+                const dados = await res.json();
 
-                    const dados = await res.json();
-
-                    if (!res.ok) {
-                        exibirAviso(
-                            dados.erro ||
-                            `Erro ao concluir ${selecionado.produto.nome}.`
-                        );
-                        return;
-                    }
+                if (!res.ok) {
+                    exibirAviso(dados.erro || "Erro ao concluir os produtos selecionados.");
+                    return;
                 }
 
                 const quantidadeConcluida = produtosParaConcluir.length;
+                const numeroPedido = dados.num_pedido ?? dados.id_pedido ?? null;
 
                 fecharConclusao();
-
                 await carregarContasFiado();
 
-                if (
-                    clienteSelecionadoJuros
-                ) {
+                if (clienteSelecionadoJuros) {
                     await carregarContasClienteJuros();
                 }
 
                 exibirAviso(
-                    quantidadeConcluida === 1
-                        ? "Pagamento registrado com sucesso!"
-                        : "Produtos selecionados foram pagos com sucesso!"
+                    numeroPedido
+                        ? `${quantidadeConcluida === 1 ? "Produto" : "Produtos selecionados"} concluído(s) com sucesso. Pedido #${numeroPedido} enviado para o histórico.`
+                        : (quantidadeConcluida === 1
+                            ? "Produto selecionado foi pago com sucesso!"
+                            : "Produtos selecionados foram pagos com sucesso!")
                 );
-
             } catch (erro) {
 
                 console.error(
@@ -4806,6 +4741,7 @@ async function executarAplicacaoDeJuros() {
 
     modalSimularJuros?.addEventListener("close", () => {
         document.body.classList.remove("modal-conta-juros-aberto");
+        modalSimularJuros.classList.remove("modal-cliente-direto");
     });
 
 });
