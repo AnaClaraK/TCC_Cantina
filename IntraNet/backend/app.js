@@ -6,7 +6,9 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./swagger.json');
+const swaggerDocument = require('../../Docs/swagger.json');
+console.log('SWAGGER CARREGADO:', require.resolve('../../Docs/swagger.json'));
+console.log('TOTAL DE ROTAS:', Object.keys(swaggerDocument.paths || {}).length);
 
 require('dotenv').config();
 
@@ -15,12 +17,20 @@ const conexao = require('./db.js');
 const app = express();
 
 const porta = 3000;
+// =====================================================
+// JSON + CORS (Devem vir PRIMEIRO)
+// =====================================================
 
-const SECRET = process.env.API_SEGREDO;
+app.use(express.json());
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'bypass-tunnel-reminder']
+}));
 
 
 // =====================================================
-// SWAGGER
+// SWAGGER (Vem DEPOIS do JSON e CORS)
 // =====================================================
 
 app.use(
@@ -40,24 +50,6 @@ app.use(
         path.join(__dirname, 'fonts')
     )
 );
-
-
-// =====================================================
-// JSON + CORS
-// =====================================================
-
-app.use(express.json());
-
-app.use((req, res, next) => {
-
-    console.log(req.method, req.url);
-
-    next();
-
-});
-
-app.use(cors());
-
 
 // =====================================================
 // IMAGENS
@@ -135,6 +127,7 @@ const fiadoRoutes = require('./routes/fiadoRoutes.js');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const pdfRoutes = require('./routes/pdfRoutes');
 const authAppRoutes = require('./routes/authAppRoutes');
+const fechamentoRoutes = require('./routes/fechamentoRoutes');
 
 
 // =====================================================
@@ -163,15 +156,15 @@ app.use(pdfRoutes);
 
 app.use(authAppRoutes);
 
+app.use(fechamentoRoutes);
+
 
 // =====================================================
 // START SERVER
 // =====================================================
 
-app.listen(porta, () => {
+const HOST = '0.0.0.0'; // Libera o acesso para qualquer IP da rede
 
-    console.log(
-        `Servidor rodando em: http://localhost:${porta}`
-    );
-
+app.listen(porta, HOST, () => {
+    console.log(`Servidor rodando em http://${HOST}:${porta}`);
 });

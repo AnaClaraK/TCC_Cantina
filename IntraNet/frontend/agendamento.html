@@ -4,26 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="sidebar_header.js"></script>
+
     <link rel="stylesheet" href="styleag_es.css">
     <link rel="stylesheet" href="layout.css">
-    <title>Agendamento</title>
     <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
+
+    <title>Agendamento</title>
+
+    <style>
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 20px !important;
+        }
+        th.sortable::after {
+            content: " ⇅";
+            opacity: 0.4;
+            font-size: 0.8em;
+        }
+        th.sort-asc::after {
+            content: " ▲";
+            opacity: 1;
+        }
+        th.sort-desc::after {
+            content: " ▼";
+            opacity: 1;
+        }
+    </style>
+
     <script>
-        // Verifica se existe um token no localStorage
         const token = localStorage.getItem("token");
     </script>
 </head>
+
 <body class="fundo-escuro">
     <div class="d_util">
         <h2 class="h_ag">Agendamento</h2>
         <div id="d_inp">
             <div class="busca-box">
-                <img src="../backend/imagens/lupa.png" class="icone-busca">
+                <img src="../backend/imagens/lupa.png" class="icone-busca" alt="Buscar">
 
                 <input type="text" id="inputBusca" placeholder="Buscar por nome ou data...">
 
                 <label for="filtroData" class="icone-calendario">
-                <img src="../backend/imagens/calendariof_p.png" alt="Selecionar data">
+                    <img src="../backend/imagens/calendariof_p.png" alt="Selecionar data">
                 </label>
 
                 <input type="date" id="filtroData">
@@ -39,7 +64,7 @@
                     <th scope="col">Produto</th>
                     <th scope="col">Preço</th>
                     <th scope="col">Quantidade Total</th>
-                    <th scope="col">origem</th>
+                    <th scope="col">Origem</th>
                     <th scope="col">Data</th>
                     <th scope="col">Concluir</th>
                 </tr>
@@ -57,12 +82,96 @@
             </div>
         </div>
     </dialog>
-    
+
 <script>
 const aviso = document.getElementById("d_aviso");
 const msgAviso = document.getElementById("msg_aviso");
 const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
 const bCancelarAviso = document.getElementById("b_cancelar_aviso");
+const inputBusca = document.getElementById("inputBusca");
+const filtroData = document.getElementById("filtroData");
+
+function aplicarOrdenacaoTabela(idTbody, colunasIgnoradas = []) {
+    const tbody = document.getElementById(idTbody);
+    if (!tbody) return;
+
+    const tabela = tbody.closest("table");
+    if (!tabela) return;
+
+    // Salva a ordem original na renderização
+    if (!tbody.dataset.ordemOriginal) {
+        const linhasOriginais = Array.from(tbody.querySelectorAll("tr"));
+        linhasOriginais.forEach((tr, index) => tr.dataset.indexOriginal = index);
+        tbody.dataset.ordemOriginal = "true";
+    }
+
+    const cabecalhos = tabela.querySelectorAll("thead th");
+
+    cabecalhos.forEach((th, indice) => {
+        if (colunasIgnoradas.includes(indice)) return;
+
+        th.classList.add("sortable");
+
+        const novoTh = th.cloneNode(true);
+        th.parentNode.replaceChild(novoTh, th);
+
+        novoTh.addEventListener("click", () => {
+            const estadoAtual = novoTh.dataset.ordem || "none";
+            let novoEstado = "asc";
+
+            if (estadoAtual === "asc") novoEstado = "desc";
+            else if (estadoAtual === "desc") novoEstado = "none";
+
+            // Limpa ordenação em outros cabeçalhos
+            cabecalhos.forEach(c => {
+                c.classList.remove("sort-asc", "sort-desc");
+                c.dataset.ordem = "none";
+            });
+
+            novoTh.dataset.ordem = novoEstado;
+
+            const linhas = Array.from(tbody.querySelectorAll("tr"));
+
+            if (novoEstado === "none") {
+                // 3º Clique: Volta ao estado inicial
+                linhas.sort((a, b) => {
+                    const idxA = parseInt(a.dataset.indexOriginal || 0);
+                    const idxB = parseInt(b.dataset.indexOriginal || 0);
+                    return idxA - idxB;
+                });
+            } else {
+                novoTh.classList.add(novoEstado === "asc" ? "sort-asc" : "sort-desc");
+
+                linhas.sort((a, b) => {
+                    const inputA = a.children[indice]?.querySelector("input");
+                    const inputB = b.children[indice]?.querySelector("input");
+
+                    const valA = inputA ? inputA.value.trim() : a.children[indice]?.textContent.trim() || "";
+                    const valB = inputB ? inputB.value.trim() : b.children[indice]?.textContent.trim() || "";
+
+                    if (indice === 5) { // Coluna de data
+                        const dataA = new Date(a.dataset.data || 0).getTime();
+                        const dataB = new Date(b.dataset.data || 0).getTime();
+                        return novoEstado === "asc" ? dataA - dataB : dataB - dataA;
+                    }
+
+                    const numA = parseFloat(valA.replace("R$", "").replace("#", "").replace(/\./g, "").replace(",", ".").trim());
+                    const numB = parseFloat(valB.replace("R$", "").replace("#", "").replace(/\./g, "").replace(",", ".").trim());
+
+                    if (!isNaN(numA) && !isNaN(numB)) {
+                        return novoEstado === "asc" ? numA - numB : numB - numA;
+                    }
+
+                    return novoEstado === "asc" 
+                        ? valA.localeCompare(valB, "pt-BR", { numeric: true }) 
+                        : valB.localeCompare(valA, "pt-BR", { numeric: true });
+                });
+            }
+
+            linhas.forEach(linha => tbody.appendChild(linha));
+        });
+    });
+}
 
 async function carregarAgendamentos() {
     const tbody = document.getElementById("tb_tbl_produtos");
@@ -80,69 +189,73 @@ async function carregarAgendamentos() {
 
         const dados = await resposta.json();
 
-
-dados.sort((a, b) => {
-    const dataA = new Date(a.data_ag || a.data);
-    const dataB = new Date(b.data_ag || b.data);
-    return dataA - dataB; // Ordem crescente (mais antigo/próximo para o mais distante)
-});
-
-tbody.innerHTML = "";
+        dados.sort((a, b) => {
+            const dataA = new Date(a.data_ag || a.data);
+            const dataB = new Date(b.data_ag || b.data);
+            return dataA - dataB;
+        });
 
         tbody.innerHTML = "";
+        delete tbody.dataset.ordemOriginal;
 
         if (!dados || dados.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="5">Nenhum agendamento encontrado.</td>
+                    <td colspan="7" style="text-align: center;">Nenhum agendamento encontrado.</td>
                 </tr>
             `;
             return;
         }
 
         dados.forEach(item => {
-   // Tenta pegar o campo de data. Se item.data_ag for nulo, tenta item.data ou outros nomes comuns.
-const dataRaw = item.data_ag
+            const dataRaw = item.data_ag || item.data;
+            let dataFormatada = "Horário não definido";
 
-let dataFormatada = "Horário não definido";
+            if (dataRaw) {
+                const dataObjeto = new Date(dataRaw);
 
-if (dataRaw) {
-    const dataObjeto = new Date(dataRaw);
+                if (!isNaN(dataObjeto.getTime())) {
+                    dataFormatada = dataObjeto.toLocaleString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                    });
+                }
+            }
 
-    // Verifica se a data é válida
-    if (!isNaN(dataObjeto)) {
-        dataFormatada = dataObjeto.toLocaleString('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
+            const produtosLista = Array.isArray(item.produtos) 
+                ? item.produtos.map(p => p.nome).join(", ") 
+                : "-";
+
+            const tr = document.createElement("tr");
+            tr.setAttribute("data-id", item.id_pedido);
+            tr.setAttribute("data-data", dataRaw || "");
+
+            tr.innerHTML = `
+                <td>${item.cliente_nome || "Cliente"}</td>
+                <td>${produtosLista}</td>
+                <td>R$ ${Number(item.valor_total || 0).toFixed(2).replace(".", ",")}</td>
+                <td>${item.qtd_total || 0}</td>
+                <td>${item.origem || "-"}</td>
+                <td>${dataFormatada}</td>
+                <td>
+                    <input 
+                        type="checkbox" class="chk-concluido" onchange="concluirAgendamento(${item.id_pedido}, this)"
+                    >
+                </td>
+            `;
+            tbody.appendChild(tr);
         });
-    }
-}
 
-tbody.innerHTML += `
-    <tr data-id="${item.id_pedido}" data-data="${dataRaw}">
-        <td>${item.cliente_nome || "Cliente"}</td>
-        <td>${item.produtos.map(p => p.nome).join(", ")}</td>
-        <td>R$ ${Number(item.valor_total).toFixed(2).replace(".", ",")}</td>
-        <td>${item.qtd_total}</td>
-        <td>${item.origem || "-"}</td>
-        <td>${dataFormatada}</td>
-    <td>
-            <input 
-                type="checkbox" class="chk-concluido" onchange="concluirAgendamento(${item.id_pedido}, this)"
-            >
-        </td>
-    </tr>
-`;
-});
+        aplicarOrdenacaoTabela("tb_tbl_produtos", [6]);
 
     } catch (erro) {
         console.error("Erro ao carregar agendamentos:", erro);
         tbody.innerHTML = `
             <tr>
-                <td colspan="5">Erro ao carregar agendamentos.</td>
+                <td colspan="7" style="text-align: center;">Erro ao carregar agendamentos.</td>
             </tr>
         `;
     }
@@ -181,8 +294,9 @@ async function concluirAgendamento(idPedido, checkbox) {
         true
     );
 }
+
 function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
-    msgAviso.innerText = message = mensagem;
+    msgAviso.innerText = mensagem;
     bCancelarAviso.style.display = mostrarCancelar ? "inline-block" : "none";
     aviso.showModal();
 
@@ -192,17 +306,14 @@ function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
     };
 
     bCancelarAviso.onclick = () => {
-    aviso.close();
-    if (window.checkboxAtual) {
-        window.checkboxAtual.checked = false;
-        window.checkboxAtual.blur();
-        window.checkboxAtual = null;
-    }
-};
+        aviso.close();
+        if (window.checkboxAtual) {
+            window.checkboxAtual.checked = false;
+            window.checkboxAtual.blur();
+            window.checkboxAtual = null;
+        }
+    };
 }
-const inputBusca = document.getElementById("inputBusca");
-const filtroData = document.getElementById("filtroData");
-
 
 function normalizarTexto(texto) {
     return (texto || "")
@@ -219,15 +330,11 @@ function filtrarAgendamentos() {
     const linhas = document.querySelectorAll("#tb_tbl_produtos tr");
 
     linhas.forEach(linha => {
-
         const colunas = linha.getElementsByTagName("td");
 
-        // Ignora a linha de mensagem
         if (colunas.length < 6) return;
 
         const nomeCliente = normalizarTexto(colunas[0].textContent);
-
-        // Data original que veio do banco
         const dataOriginal = linha.dataset.data;
 
         let dataLinha = "";
@@ -244,26 +351,12 @@ function filtrarAgendamentos() {
             }
         }
 
-        // Busca pelo nome
-        const correspondeNome =
-            nomeCliente.includes(termo);
+        const correspondeNome = nomeCliente.includes(termo);
+        const dataFormatada = normalizarTexto(colunas[5].textContent);
+        const correspondeBuscaData = dataFormatada.includes(termo);
+        const correspondeData = !dataSelecionada || dataLinha === dataSelecionada;
 
-        // Busca digitando a data
-        const dataFormatada =
-    normalizarTexto(colunas[5].textContent);
-
-        const correspondeBuscaData =
-            dataFormatada.includes(termo);
-
-        // Filtro do calendário
-        const correspondeData =
-            !dataSelecionada || dataLinha === dataSelecionada;
-
-        // Mostra/esconde a linha
-        if (
-            (correspondeNome || correspondeBuscaData) &&
-            correspondeData
-        ) {
+        if ((correspondeNome || correspondeBuscaData) && correspondeData) {
             linha.style.display = "";
         } else {
             linha.style.display = "none";
@@ -272,9 +365,7 @@ function filtrarAgendamentos() {
 }
 
 inputBusca.addEventListener("input", filtrarAgendamentos);
-
 filtroData.addEventListener("change", filtrarAgendamentos);
-
 
 window.addEventListener("load", carregarAgendamentos);
 </script>
