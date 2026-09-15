@@ -88,7 +88,7 @@
                     >
                 </div>
 
-                <div>
+                                <div>
                     <label class="label-amarela">Preço</label>
                     <input
                         type="number"
@@ -101,6 +101,17 @@
                 </div>
 
             </div>
+
+            <label class="label-amarela">Valor Bruto</label>
+            <input
+                type="number"
+                step="0.01"
+                name="valor_bruto"
+                id="valor_bruto"
+                class="inp_p"
+                disabled
+            >
+
 
             <label class="label-amarela">Quantidade em Estoque</label>
             <input type="number" name="qtd" id="qtd" class="inp_p" disabled>
@@ -121,7 +132,11 @@
                 class="inp_p descricao-produto"
                 disabled
             ></textarea>
+            
 
+            <button type="button" class="btn-p" id="b_abrir_lucro" disabled>
+                Definir % de Lucro
+            </button>
         </div>
 
     </div>
@@ -156,6 +171,18 @@
     </div>
 </dialog>
 
+<dialog id="d_lucro">
+    <div class="aviso_box">
+        <p class="pm">Porcentagem de lucro desejada</p>
+        <input type="number" class="inp_m" id="inp_porcentagem_lucro" placeholder="Ex: 30" step="0.01">
+        <p class="pm">Preço de venda calculado: <span id="s_preco_calculado">R$ 0,00</span></p>
+        <div class="aviso_botoes">
+            <button type="button" id="b_confirmar_lucro">Aplicar</button>
+            <button type="button" id="b_cancelar_lucro">Cancelar</button>
+        </div>
+    </div>
+</dialog>
+
 <script>
 const nome = document.getElementById("nome");
 const codigo = document.getElementById("codigo");
@@ -169,6 +196,8 @@ const qtdMin = document.getElementById("qtd_min");
 const ativo = document.getElementById("ativo"); 
 const inpBusca = document.getElementById("inp_busca_editar");
 const lista = document.getElementById("lista_sugestoes");
+const valorBruto = document.getElementById("valor_bruto");
+const btnAbrirLucro = document.getElementById("b_abrir_lucro");
 
 const modalAviso = document.getElementById("d_aviso");
 const msgAviso = document.getElementById("msg_aviso");
@@ -185,7 +214,9 @@ const camposEdicao = [
     ativo,
     descricao,
     campoNomeImagem,
-    inputImagem
+    inputImagem,
+    valorBruto,
+    btnAbrirLucro
 ];
 
 let produtosCache = [];
@@ -217,7 +248,11 @@ codigo.addEventListener("input", () => {
 // carregar produtos
 async function carregarProdutos(){
     const res = await apiFetch("http://localhost:3000/produtos");
-    produtosCache = await res.json();
+    const dados = await res.json();
+
+    console.log("PRODUTOS CARREGADOS:", dados);
+
+    produtosCache = dados.produtos || dados;
 }
 carregarProdutos();
 
@@ -291,7 +326,6 @@ function selecionarProduto(p){
     if(qtd) qtd.value = p.qtd || 0;
     if(descricao) descricao.value = p.descricao || "";
     if(qtdMin) qtdMin.value = p.qtd_min || 0;
-    if(ativo) ativo.value = Number(p.ativo) === 0 ? "0" : "1";
 
     // IMAGEM ATUAL
     if(p.img){
@@ -316,6 +350,46 @@ camposEdicao.forEach(campo => {
 labelTrocarImagem.classList.add("habilitado");
 lista.innerHTML = "";
 }
+
+const modalLucro = document.getElementById("d_lucro");
+const inpPorcentagemLucro = document.getElementById("inp_porcentagem_lucro");
+const sPrecoCalculado = document.getElementById("s_preco_calculado");
+const btnConfirmarLucro = document.getElementById("b_confirmar_lucro");
+const btnCancelarLucro = document.getElementById("b_cancelar_lucro");
+
+btnAbrirLucro.addEventListener("click", () => {
+    const valorBrutoAtual = parseFloat(valorBruto.value);
+
+    if (!valorBrutoAtual || valorBrutoAtual <= 0) {
+        exibirAviso("Digite o valor bruto antes de definir a porcentagem de lucro.");
+        return;
+    }
+
+    inpPorcentagemLucro.value = "";
+    sPrecoCalculado.textContent = "R$ 0,00";
+    modalLucro.showModal();
+});
+
+inpPorcentagemLucro.addEventListener("input", () => {
+    const valorBrutoAtual = parseFloat(valorBruto.value) || 0;
+    const porcentagem = parseFloat(inpPorcentagemLucro.value) || 0;
+    const precoCalculado = valorBrutoAtual * (1 + porcentagem / 100);
+
+    sPrecoCalculado.textContent = `R$ ${precoCalculado.toFixed(2).replace(".", ",")}`;
+});
+
+btnConfirmarLucro.addEventListener("click", () => {
+    const valorBrutoAtual = parseFloat(valorBruto.value) || 0;
+    const porcentagem = parseFloat(inpPorcentagemLucro.value) || 0;
+    const precoCalculado = valorBrutoAtual * (1 + porcentagem / 100);
+
+    preco.value = precoCalculado.toFixed(2);
+    modalLucro.close();
+});
+
+btnCancelarLucro.addEventListener("click", () => {
+    modalLucro.close();
+});
 
 // preview imagem
 inputImagem.addEventListener("change", () => {

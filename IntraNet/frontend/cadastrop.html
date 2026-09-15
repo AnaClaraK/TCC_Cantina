@@ -27,6 +27,7 @@
 
             <input type="text" name="codigo" id="codigo" class="inp_p" placeholder="Código" inputmode="numeric">
             <input type="text" name="nome" id="nome" class="inp_p" placeholder="Nome">
+            <input type="number" name="valor_bruto" id="valor_bruto" class="inp_p" placeholder="Valor Bruto (custo)" step="0.01">
             <input type="number" name="preco" id="preco" class="inp_p" placeholder="Preço" step="0.01">
             <input type="number" name="quantidade" id="quantidade" class="inp_p" placeholder="Quantidade">
             <input type="text" name="descricao" id="descricao" class="inp_p" placeholder="Descrição">
@@ -41,6 +42,8 @@
         
                 <input type="hidden" name="id_categoria" id="categoria">
             </div>
+
+            <button type="button" class="btn-form" id="b_abrir_lucro">Definir % de Lucro</button>
             
             <label class="file-label">
                 Escolher imagem do produto
@@ -66,6 +69,18 @@
             </div>
         </div>
     </dialog>
+
+    <dialog id="d_lucro">
+    <div class="aviso_box">
+        <p class="pm">Porcentagem de lucro desejada</p>
+        <input type="number" class="inp_m" id="inp_porcentagem_lucro" placeholder="Ex: 30" step="0.01">
+        <p class="pm">Preço de venda calculado: <span id="s_preco_calculado">R$ 0,00</span></p>
+        <div class="aviso_botoes">
+            <button type="button" id="b_confirmar_lucro">Aplicar</button>
+            <button type="button" id="b_cancelar_lucro">Cancelar</button>
+        </div>
+    </div>
+</dialog>
 
     <script>
     const aviso = document.getElementById("d_aviso");
@@ -101,6 +116,48 @@
 
     const inputImagem = document.getElementById("inputImagem");
     const preview = document.getElementById("preview");
+
+    const inputValorBruto = document.getElementById("valor_bruto");
+const btnAbrirLucro = document.getElementById("b_abrir_lucro");
+const modalLucro = document.getElementById("d_lucro");
+const inpPorcentagemLucro = document.getElementById("inp_porcentagem_lucro");
+const sPrecoCalculado = document.getElementById("s_preco_calculado");
+const btnConfirmarLucro = document.getElementById("b_confirmar_lucro");
+const btnCancelarLucro = document.getElementById("b_cancelar_lucro");
+
+btnAbrirLucro.addEventListener("click", () => {
+    const valorBruto = parseFloat(inputValorBruto.value);
+
+    if (!valorBruto || valorBruto <= 0) {
+        exibirAviso("Digite o valor bruto antes de definir a porcentagem de lucro.");
+        return;
+    }
+
+    inpPorcentagemLucro.value = "";
+    sPrecoCalculado.textContent = "R$ 0,00";
+    modalLucro.showModal();
+});
+
+inpPorcentagemLucro.addEventListener("input", () => {
+    const valorBruto = parseFloat(inputValorBruto.value) || 0;
+    const porcentagem = parseFloat(inpPorcentagemLucro.value) || 0;
+    const precoCalculado = valorBruto * (1 + porcentagem / 100);
+
+    sPrecoCalculado.textContent = `R$ ${precoCalculado.toFixed(2).replace(".", ",")}`;
+});
+
+btnConfirmarLucro.addEventListener("click", () => {
+    const valorBruto = parseFloat(inputValorBruto.value) || 0;
+    const porcentagem = parseFloat(inpPorcentagemLucro.value) || 0;
+    const precoCalculado = valorBruto * (1 + porcentagem / 100);
+
+    document.getElementById("preco").value = precoCalculado.toFixed(2);
+    modalLucro.close();
+});
+
+btnCancelarLucro.addEventListener("click", () => {
+    modalLucro.close();
+});
 
     inputImagem.addEventListener("change", () => {
         const file = inputImagem.files[0];
@@ -154,6 +211,13 @@ if (!nomeImagem) {
 
         if (apenasNumeros.test(nome)) {
             exibirAviso("O nome do produto não pode conter apenas números.");
+            return;
+        }
+
+                const valorBruto = document.getElementById("valor_bruto").value;
+
+        if (!valorBruto || valorBruto <= 0) {
+            exibirAviso("Digite o valor bruto do produto.");
             return;
         }
 

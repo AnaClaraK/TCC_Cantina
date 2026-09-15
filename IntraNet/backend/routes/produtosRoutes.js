@@ -24,47 +24,50 @@ const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
 router.post("/produtos", verificarToken, uploadProdutos.single("imagem"), async (req, res) => {
     try {
         const {
-          nome,
-          preco,
-          codigo,
-          quantidade,
-          descricao,
-          id_categoria
-        } = req.body;
+  nome,
+  preco,
+  codigo,
+  quantidade,
+  descricao,
+  id_categoria,
+  valor_bruto
+} = req.body;
 
-        if (!nome || !preco || !codigo || !id_categoria) {
-          return res.status(400).json({
-            erro: "Preencha todos os campos obrigatórios"
-          });
-        }
+if (!nome || !preco || !codigo || !id_categoria || !valor_bruto) {
+  return res.status(400).json({
+    erro: "Preencha todos os campos obrigatórios"
+  });
+}
 
-        const precoFormatado = String(preco).replace(",", ".");
+const precoFormatado = String(preco).replace(",", ".");
+const valorBrutoFormatado = String(valor_bruto).replace(",", ".");
 
         // Se req.file não existir (usuário não enviou foto), usa 'img_ntf.png'
         const imagem = req.file ? req.file.filename : 'img_ntf.png';
 
-        await conexao.query(`
-          INSERT INTO produtos
-          (
-              nome,
-              preco,
-              codigo_barras,
-              qtd,
-              descricao,
-              img,
-              id_categoria,
-              ativo
-          )
-          VALUES (?, ?, ?, ?, ?, ?, ?, 1)
-        `, [
-          nome,
-          precoFormatado,
-          codigo,
-          quantidade || 0,
-          descricao || "",
-          imagem,
-          id_categoria
-        ]);
+          await conexao.query(`
+  INSERT INTO produtos
+  (
+    nome,
+    preco,
+    codigo_barras,
+    qtd,
+    descricao,
+    img,
+    id_categoria,
+    valor_bruto
+  )
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+`, [
+  nome,
+  precoFormatado,
+  codigo,
+  quantidade || 0,
+  descricao || "",
+  imagem,
+  id_categoria,
+  valorBrutoFormatado
+]);
 
         res.status(201).json({
           mensagem: "Produto cadastrado com sucesso"
@@ -216,15 +219,14 @@ router.get("/produtos/id/:id", verificarToken, async (req, res) => {
 });
   
   // Editar PRODUTO
- // =====================================================
-// EDITAR PRODUTO
-// =====================================================
 router.put(
-    "/produtos/id/:id",
+    "/produtos/cod/:id",
     verificarToken,
     uploadProdutos.single("img"),
     async (req, res) => {
+
         try {
+
             console.log("BODY:", req.body);
             console.log("CONTENT-TYPE:", req.headers["content-type"]);
 
@@ -237,6 +239,7 @@ router.put(
                 qtd,
                 qtd_min,
                 descricao,
+                valor_bruto,
                 ativo
             } = req.body;
 
@@ -257,6 +260,7 @@ router.put(
             let ativoFinal = 1;
 
             if (ativo !== undefined && ativo !== "") {
+
                 ativoFinal = Number(ativo);
 
                 if (ativoFinal !== 0 && ativoFinal !== 1) {
@@ -267,8 +271,10 @@ router.put(
                 }
             }
 
+            // Verifica se foi enviada uma nova imagem
             const img = req.file ? req.file.filename : null;
 
+            // Atualiza o produto
             await conexao.query(
                 `
                 UPDATE produtos SET
@@ -278,6 +284,7 @@ router.put(
                     qtd = ?,
                     qtd_min = ?,
                     descricao = ?,
+                    valor_bruto = ?,
                     ativo = ?,
                     img = COALESCE(?, img)
                 WHERE id_produto = ?
@@ -289,6 +296,7 @@ router.put(
                     qtd,
                     qtd_min || 0,
                     descricao,
+                    valor_bruto,
                     ativoFinal,
                     img,
                     id
@@ -301,6 +309,7 @@ router.put(
             });
 
         } catch (error) {
+
             console.error("Erro ao atualizar produto:", error);
 
             return res.status(500).json({
