@@ -57,6 +57,7 @@
                     <div class="itemFiltro" data-origem="PDV">PDV</div>
                     <div class="itemFiltro" data-origem="Agendamento">Agendamento</div>
                     <div class="itemFiltro" data-origem="Fiado">Fiado</div>
+            <div class="itemFiltro" data-origem="CreditoParcelado">Crédito parcelado</div>
                 </div>
             </div>
 
@@ -251,7 +252,8 @@ function aplicarOrdenacaoTabela(idTbody, colunasIgnoradas = []) {
 
 function formatarFormaPagamento(texto) {
     if (!texto) return "-";
-    let limpo = String(texto);
+
+    let limpo = String(texto).trim();
 
     if (limpo.includes("=")) {
         const partes = limpo.split(",").map(p => p.trim()).filter(Boolean);
@@ -265,14 +267,22 @@ function formatarFormaPagamento(texto) {
         return divididos.join(" + ");
     }
 
+    // Como a origem já informa que é Fiado, não repetimos "Fiado".
+    const creditoParcelado = limpo.match(/^fiado\s*\(\s*(cartão\s+de\s+crédito)\s*\)\s*[—-]\s*(\d+)x$/i);
+    if (creditoParcelado) {
+        return `${creditoParcelado[1]} — ${creditoParcelado[2]}x`;
+    }
+
+    limpo = limpo.replace(/^fiado\s*\((.*?)\)$/i, "$1");
+    limpo = limpo.replace(/^fiado\s*$/i, "Fiado");
     limpo = limpo.replace(/f(?:1[0-2]|[1-9])/gi, "");
     limpo = limpo.replace(/[()\[\]]/g, "");
     limpo = limpo.replace(/^[-:\s]+|[-:\s]+$/g, "").trim();
 
     if (!limpo) return "-";
-
-    return limpo.toLowerCase().replace(/(?:^|\s|-)\S/g, a => a.toUpperCase());
+    return limpo.toLowerCase().replace(/(?:^|\s|-)(\S)/g, (_, letra) => letra.toUpperCase());
 }
+
 
 document.addEventListener("DOMContentLoaded", () => {
     buscarProdutosEstoque();
@@ -350,15 +360,19 @@ function aplicarFiltrosEBusca() {
 
     const pedidosFiltrados = pedidosCarregados.filter(pedido => {
         const origemPedido = (pedido.origem || "").toLowerCase();
-        const atendeOrigem = (filtroOrigemAtual === "todos") || 
-                             (origemPedido === filtroOrigemAtual.toLowerCase());
+        const formaPedido = String(pedido.form_pag || "").toLowerCase();
+        const ehCreditoParcelado = formaPedido.includes("cartão de crédito") && /\d+x/.test(formaPedido);
+        const atendeOrigem =
+            (filtroOrigemAtual === "todos") ||
+            (filtroOrigemAtual === "CreditoParcelado" && ehCreditoParcelado) ||
+            (filtroOrigemAtual !== "CreditoParcelado" && origemPedido === filtroOrigemAtual.toLowerCase());
 
         const nomeCliente = (pedido.nome || "consumidor final").toLowerCase();
         const numPedido = (pedido.num_pedido !== undefined && pedido.num_pedido !== null) 
                             ? pedido.num_pedido.toString().toLowerCase() 
                             : "";
 
-        const atendeBusca = nomeCliente.includes(termoBusca) || numPedido.includes(termoBusca);
+        const atendeBusca = nomeCliente.includes(termoBusca) || numPedido.includes(termoBusca) || formaPedido.includes(termoBusca);
 
         return atendeOrigem && atendeBusca;
     });

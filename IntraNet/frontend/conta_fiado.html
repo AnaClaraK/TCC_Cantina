@@ -146,8 +146,6 @@
 .conta-modal-atrasada { border:3px solid #ff1744 !important; box-shadow:0 0 0 2px rgba(255,23,68,.15); }
 .conta_juros_titulo { display:flex; align-items:center; justify-content:space-between; gap:15px; flex-wrap:wrap; }
 .conta-juros-acoes { display:flex; align-items:center; justify-content:flex-end; gap:12px; flex-wrap:wrap; }
-.btn-concluir-conta { border:0; border-radius:7px; padding:9px 14px; background:#00e676; color:#071b0f; font-weight:900; cursor:pointer; }
-.btn-concluir-conta:hover { filter:brightness(1.08); }
 .btn-desbloquear-juros { border:1px solid currentColor; background:transparent; color:inherit; border-radius:6px; padding:3px 7px; font-size:10px; font-weight:900; cursor:pointer; white-space:nowrap; }
 .btn-desbloquear-juros:hover { filter:brightness(1.18); }
 .juros-produto-desbloqueado { opacity:1; }
@@ -157,6 +155,31 @@
 .info-atrasado { display:inline-block; padding:6px 10px; border-radius:7px; background:#ff1744; color:#fff; font-weight:900; }
 .modal-cliente-direto .campo-busca-cliente-juros, .modal-cliente-direto > label[for="buscaClienteJuros"] { display:none; }
 .modal-cliente-direto .pm { margin-top:4px; }
+.modal-resumo-juros-box { width:min(1200px,94vw); max-width:1200px; }
+.modal-resumo-juros-box > div { max-width:100%; }
+
+
+/* ======================================================
+   COMPRAS PARCELADAS NO CARTÃO
+====================================================== */
+#b_compras_parceladas { white-space: nowrap; }
+.modal-parceladas-box { width:min(1180px,94vw); max-width:1180px; }
+.lista-compras-parceladas { display:flex; flex-direction:column; gap:14px; max-height:70vh; overflow:auto; padding:4px; }
+.credito-card { border:2px solid rgba(239,172,74,.55); border-radius:12px; padding:16px; background:rgba(255,255,255,.035); }
+.credito-card-topo { display:flex; justify-content:space-between; gap:15px; align-items:flex-start; flex-wrap:wrap; }
+.credito-card-topo h3 { margin:0 0 5px; }
+.credito-meta { display:flex; gap:14px; flex-wrap:wrap; font-size:13px; opacity:.9; }
+.credito-progresso { font-weight:900; font-size:15px; }
+.credito-parcelas { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:8px; margin-top:14px; }
+.credito-parcela { border:1px solid rgba(255,255,255,.15); border-radius:9px; padding:10px; display:flex; flex-direction:column; gap:4px; }
+.credito-parcela.paga { opacity:.65; }
+.credito-parcela strong { font-size:14px; }
+.credito-parcela small { opacity:.72; }
+.credito-concluido { border-color:#35c76f; }
+.credito-vazio { padding:28px; text-align:center; opacity:.7; }
+.credito-automatico { margin-top:10px; padding:9px 11px; border-radius:8px; background:rgba(239,172,74,.10); border:1px solid rgba(239,172,74,.30); font-size:12px; font-weight:700; }
+.notificacao-parcela-pagina { width:100%; box-sizing:border-box; margin:10px 0 0; }
+.notificacao-parcela { border-left:5px solid #35c76f; padding:12px 14px; margin:0 0 12px; background:rgba(53,199,111,.10); border-radius:8px; font-weight:700; }
 
 @media (max-width: 850px) {
     .juros-produto-linha {
@@ -216,8 +239,16 @@
         Simular Juros
     </button>
 
+    <button
+        id="b_compras_parceladas"
+        type="button"
+    >
+        Compras parceladas
+    </button>
 
-    <div id="d_inp">
+    <div id="notificacaoParcelasConcluidas" class="notificacao-parcela-pagina" aria-live="polite"></div>
+
+<div id="d_inp">
 
         <div class="busca-box">
 
@@ -252,15 +283,8 @@
         <tbody id="tbodyComJuros"></tbody>
     </table>
 
-    <h2 class="titulo-contas">Resumo de juros por cliente</h2>
-    <table class="tabela" id="tabelaJurosCliente">
-        <thead><tr><th>Nome</th><th>Produtos pendentes</th><th>Valor original</th><th>Juros</th><th>Total com juros</th><th>Porcentagem</th><th>Tipo</th></tr></thead>
-        <tbody id="tbodyJurosCliente"></tbody>
-    </table>
+
 </section>
-
-
-
 <!-- ======================================================
      MODAL NOVO CLIENTE
 ====================================================== -->
@@ -678,6 +702,20 @@
 
 
 
+
+<!-- ======================================================
+     COMPRAS PARCELADAS NO CARTÃO
+====================================================== -->
+<dialog id="modalComprasParceladas">
+    <div class="modal_box modal-parceladas-box">
+        <button id="btnFecharComprasParceladas" type="button">x</button>
+        <h2 class="modal_titulo">Compras parceladas</h2>
+        <div id="listaComprasParceladas" class="lista-compras-parceladas">
+            <div class="credito-vazio">Carregando...</div>
+        </div>
+    </div>
+</dialog>
+
 <!-- ======================================================
      MODAL PRODUTOS
 ====================================================== -->
@@ -1018,11 +1056,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const tbodySemJuros = document.getElementById("tbodySemJuros");
     const tbodyComJuros = document.getElementById("tbodyComJuros");
-    const tbodyJurosCliente = document.getElementById("tbodyJurosCliente");
 
     const inputBusca = document.getElementById("inputBusca");
 
     const btnSimularJurosAbrir = document.getElementById("b_simular_juros");
+    const btnComprasParceladas = document.getElementById("b_compras_parceladas");
+    const modalComprasParceladas = document.getElementById("modalComprasParceladas");
+    const btnFecharComprasParceladas = document.getElementById("btnFecharComprasParceladas");
+    const listaComprasParceladas = document.getElementById("listaComprasParceladas");
+    const notificacaoParcelasConcluidas = document.getElementById("notificacaoParcelasConcluidas");
     const btnFecharSimulacaoJuros = document.getElementById("btnFecharSimulacaoJuros");
     const btnCancelarSimulacaoJuros = document.getElementById("btnCancelarSimulacaoJuros");
 
@@ -1052,6 +1094,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let clientesCache = [];
     let produtosCache = [];
+    let comprasParceladasCache = [];
     let produtosSelecionados = [];
     let clienteSelecionado = null;
 
@@ -1729,7 +1772,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
             });
     }
-
+    document.getElementById(
+    "b_salvar_produtos"
+)?.addEventListener(
+    "click",
+    () => {
+        renderProdutosSelecionados();
+        modalProdutos?.close();
+    }
+);
     document.getElementById(
         "inp_busca_produto"
     )?.addEventListener(
@@ -2272,8 +2323,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderLinhaConta(conta) {
         const valorOriginal = Number(conta.valor_original ?? conta.valor ?? 0);
-        const qtd = Number(conta.quantidade_total || 0);
         const produtos = normalizarProdutosConta(conta);
+        const qtd = produtos.reduce((total, produto) => total + Number(produto.quantidade || 0), 0);
         const diasAtraso = Number(conta.dias_atraso ?? calcularDiasAtraso(conta.data_vencimento));
         const idCliente = Number(conta.id_cliente);
         const produtosHtml = produtos.length ? `<div class="produtos-resumo">${produtos.map(p => `<span class="produto-pill">${escaparHTML(p.nome)}${p.quantidade > 0 ? ` <small>×${p.quantidade}</small>` : ""}</span>`).join("")}</div>` : "-";
@@ -2344,10 +2395,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         </td>
                     </tr>
                 `;
-
-        renderResumoJurosPorCliente(
-            comJuros
-        );
     }
 
     async function carregarContasFiado() {
@@ -2421,7 +2468,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             document
                 .querySelectorAll(
-                    "#tbodySemJuros tr, #tbodyComJuros tr, #tbodyJurosCliente tr"
+                    "#tbodySemJuros tr, #tbodyComJuros tr"
                 )
                 .forEach(
                     linha => {
@@ -3003,7 +3050,6 @@ function renderContasParaJuros() {
                 </div>
                 <div class="conta-juros-acoes">
                     <span class="compra-vencimento">Vencimento: ${vencimento}${diasAtraso > 0 ? ` — ${diasAtraso} ${diasAtraso === 1 ? "dia" : "dias"}` : ""}</span>
-                    <button type="button" class="btn-concluir-conta" data-id-conta="${idConta}">Concluir selecionados</button>
                 </div>
             </div>
 
@@ -3022,7 +3068,7 @@ function renderContasParaJuros() {
                     const checkboxBloqueado = jaAplicado && !desbloqueado;
 
                     if (!idProduto) {
-                        return `<div class="juros-produto-linha juros-produto-invalido"><div></div><div class="juros-produto-nome"><strong>${escaparHTML(produto.nome)}</strong></div><div class="juros-produto-valor"><span>Valor</span><strong>R$ ${formatarMoeda(valor)}</strong></div><div class="juros-produto-vencimento"><span>Vencimento</span><strong>${formatarData(produto.dataVencimento || conta.data_vencimento)}</strong></div><div class="juros-produto-dias"><span>Dias</span><strong>${dias}</strong></div><div class="juros-produto-resultado"><span>Juros</span><strong>—</strong></div></div>`;
+                        return `<div class="juros-produto-linha juros-produto-invalido"><div></div><div class="juros-produto-nome"><strong>${escaparHTML(produto.nome)}</strong></div><div class="juros-produto-valor"><span>Original</span><strong>R$ ${formatarMoeda(valor)}</strong></div><div class="juros-produto-vencimento"><span>Vencimento</span><strong>${formatarData(produto.dataVencimento || conta.data_vencimento)}</strong></div><div class="juros-produto-dias"><span>Dias</span><strong>${dias}</strong></div><div class="juros-produto-resultado"><span>Juros</span><strong>—</strong></div></div>`;
                     }
 
                     return `<div class="juros-produto-linha ${jaAplicado ? "juros-produto-ja-aplicado" : ""} ${desbloqueado ? "juros-produto-desbloqueado" : ""}" data-id-conta="${idConta}" data-id-produto="${idProduto}">
@@ -3034,10 +3080,14 @@ function renderContasParaJuros() {
                             ${Number(produto.quantidade || 0) > 0 ? `<span>×${produto.quantidade}</span>` : ""}
                             ${jaAplicado ? `<button type="button" class="btn-desbloquear-juros" data-id-conta="${idConta}" data-id-produto="${idProduto}">${desbloqueado ? "Bloquear" : "Desbloquear"}</button>` : ""}
                         </div>
-                        <div class="juros-produto-valor"><span>Valor</span><strong>R$ ${formatarMoeda(valor)}</strong></div>
+                        <div class="juros-produto-valor"><span>Original</span><strong>R$ ${formatarMoeda(valor)}</strong></div>
                         <div class="juros-produto-vencimento"><span>Vencimento</span><strong>${formatarData(produto.dataVencimento || conta.data_vencimento)}</strong></div>
                         <div class="juros-produto-dias"><span>Dias</span><strong>${dias}</strong></div>
-                        <div class="juros-produto-resultado"><span>Juros</span><strong class="valor-juros-produto" data-id-conta="${idConta}" data-id-produto="${idProduto}">—</strong></div>
+                        <div class="juros-produto-resultado">
+                            <span>Juros</span>
+                            <strong class="valor-juros-produto" data-id-conta="${idConta}" data-id-produto="${idProduto}">${jaAplicado ? `R$ ${formatarMoeda(Math.max(0, Number(produto.valorAtual || 0) - valor))}` : "—"}</strong>
+                            ${jaAplicado ? `<span>Total atual</span><strong>R$ ${formatarMoeda(Number(produto.valorAtual || valor))}</strong>` : ""}
+                        </div>
                     </div>`;
                 }).join("")}
             </div>`;
@@ -3096,24 +3146,6 @@ listaContasJuros?.addEventListener("click", event => {
         return;
     }
 
-    const botao = event.target.closest(".btn-concluir-conta");
-    if (!botao) return;
-
-    const idConta = Number(botao.dataset.idConta);
-    const conta = contasClienteJuros.find(c => Number(c.id_conta) === idConta);
-    if (!conta) {
-        exibirAviso("Conta não encontrada.");
-        return;
-    }
-
-    const produtos = obterProdutosSelecionadosJuros().filter(item => Number(item.id_conta) === idConta);
-
-    if (!produtos.length) {
-        exibirAviso("Selecione pelo menos um produto desta conta.");
-        return;
-    }
-
-    abrirModalConclusao(produtos);
 });
 
 function obterProdutosSelecionadosJuros() {
@@ -3526,9 +3558,18 @@ function limparResultadoSimulacao() {
         )
         .forEach(
             elemento => {
+                const idConta = Number(elemento.dataset.idConta || 0);
+                const idProduto = Number(elemento.dataset.idProduto || 0);
+                const conta = contasClienteJuros.find(c => Number(c.id_conta) === idConta);
+                const produto = conta ? normalizarProdutosConta(conta).find(p => Number(p.idProduto) === idProduto) : null;
 
-                elemento.innerText =
-                    "—";
+                if (produto && produto.jurosAtivo) {
+                    const valorBase = Number(produto.valorBase || 0);
+                    const valorAtual = Number(produto.valorAtual || valorBase);
+                    elemento.innerText = `R$ ${formatarMoeda(Math.max(0, valorAtual - valorBase))}`;
+                } else {
+                    elemento.innerText = "—";
+                }
             }
         );
 
@@ -3545,9 +3586,22 @@ function limparResultadoSimulacao() {
         )
         .forEach(
             elemento => {
+                // Se o elemento também representa um produto já com juros,
+                // não apaga o valor existente ao trocar a seleção.
+                const chave = String(elemento.dataset.jurosProduto || "");
+                const partes = chave.split("-");
+                const idConta = Number(partes[0] || 0);
+                const idProduto = Number(partes[1] || 0);
+                const conta = contasClienteJuros.find(c => Number(c.id_conta) === idConta);
+                const produto = conta ? normalizarProdutosConta(conta).find(p => Number(p.idProduto) === idProduto) : null;
 
-                elemento.innerText =
-                    "—";
+                if (produto && produto.jurosAtivo) {
+                    const valorBase = Number(produto.valorBase || 0);
+                    const valorAtual = Number(produto.valorAtual || valorBase);
+                    elemento.innerText = `R$ ${formatarMoeda(Math.max(0, valorAtual - valorBase))}`;
+                } else {
+                    elemento.innerText = "—";
+                }
             }
         );
 }
@@ -3942,10 +3996,10 @@ async function executarAplicacaoDeJuros() {
                             cliente:
                                 simulacaoJurosAtual.cliente,
 
-                            tipo_juros:
+                            tipo:
                                 simulacaoJurosAtual.tipo,
 
-                            taxa_juros:
+                            percentual:
                                 simulacaoJurosAtual.percentual,
 
                             itens:
@@ -4082,637 +4136,132 @@ async function executarAplicacaoDeJuros() {
     }
 }
     /* ======================================================
-       TABELA AGRUPADA POR CLIENTE
+       ACOMPANHAMENTO DE CRÉDITO PARCELADO
+
+       As parcelas NÃO são concluídas manualmente.
+       O backend verifica a data de vencimento de cada parcela
+       e conclui automaticamente quando ela chega.
     ====================================================== */
 
-    function renderResumoJurosPorCliente(contasComJuros) {
-        const grupos = new Map();
-        contasComJuros.forEach(conta => {
-            const id = Number(conta.id_cliente);
-            if (!grupos.has(id)) grupos.set(id,{nome:conta.nome_completo || "-",produtos:new Map(),original:0,juros:0,total:0,taxas:new Set(),tipos:new Set()});
-            const g=grupos.get(id);
-            const original=Number(conta.valor_original ?? conta.valor ?? 0);
-            const atual=calcularJurosAtualConta(conta);
-            g.original+=original; g.juros+=atual.juros; g.total+=atual.total;
-            normalizarProdutosConta(conta).forEach(p=>{const q=Number(p.quantidade||0);g.produtos.set(p.nome,(g.produtos.get(p.nome)||0)+q);if(p.jurosAtivo && p.taxa>0){g.taxas.add(p.taxa);if(p.tipo)g.tipos.add(p.tipo);}});
-            const cfg=jurosConfigPorConta[String(conta.id_conta)];
-            if(cfg){if(Number.isFinite(Number(cfg.percentual)))g.taxas.add(Number(cfg.percentual));if(cfg.tipo)g.tipos.add(cfg.tipo);}
-            if(Number(conta.taxa_juros)>0)g.taxas.add(Number(conta.taxa_juros));
-            if(conta.tipo_juros)g.tipos.add(String(conta.tipo_juros));
-        });
-        tbodyJurosCliente.innerHTML="";
-        if(!grupos.size){tbodyJurosCliente.innerHTML='<tr><td colspan="7">Nenhum cliente possui juros aplicados.</td></tr>';return;}
-        grupos.forEach(g=>{
-            const taxas=[...g.taxas].filter(Number.isFinite); const tipos=[...g.tipos].filter(Boolean);
-            const percentual=taxas.length===1?`${formatarNumero(taxas[0])}%`:(taxas.length?"Variável":"-");
-            const tipo=tipos.length===1?(tipos[0]==="dia"?"Ao dia":"Ao mês"):(tipos.length?"Variável":"-");
-            const produtos=[...g.produtos.entries()].map(([n,q])=>q>0?`${n} ×${q}`:n).join(", ");
-            const tr=document.createElement('tr');
-            tr.innerHTML=`<td>${escaparHTML(g.nome)}</td><td><div class="produtos-resumo">${escaparHTML(produtos || "-")}</div></td><td>R$ ${formatarMoeda(g.original)}</td><td class="valor-juros">R$ ${formatarMoeda(g.juros)}</td><td><strong class="valor-total-juros">R$ ${formatarMoeda(g.total)}</strong></td><td>${escaparHTML(percentual)}</td><td>${escaparHTML(tipo)}</td>`;
-            tbodyJurosCliente.appendChild(tr);
-        });
+    function escaparHtmlParcela(valor) {
+        return String(valor ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 
-    function formatarNumero(
-        valor
-    ) {
+    function formatarDataParcela(valor) {
+        if (!valor) return "-";
+        const texto = String(valor).slice(0, 10);
+        const partes = texto.split("-");
+        if (partes.length === 3) return `${partes[2]}/${partes[1]}/${partes[0]}`;
+        return formatarData(valor);
+    }
 
-        return Number(
-            valor || 0
-        ).toLocaleString(
-            "pt-BR",
-            {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 2
+    function obterStatusParcela(parcela) {
+        return String(parcela?.status || "Pendente").trim().toLowerCase();
+    }
+
+    async function carregarComprasParceladas(mostrarNotificacao = true) {
+        if (!listaComprasParceladas) return;
+
+        try {
+            const res = await apiFetch("/contas-fiado/parceladas");
+
+            if (res.status === 401 || res.status === 403) {
+                tratarSessaoExpirada();
+                return;
             }
-        );
-    }
 
-    /* ======================================================
-       CONCLUSÃO / PAGAMENTO
-    ====================================================== */
+            const dados = await res.json();
+            if (!res.ok) {
+                throw new Error(dados.erro || "Erro ao carregar compras parceladas.");
+            }
 
-    function obterContasParaConcluir() {
-        const produtos = obterProdutosSelecionadosJuros();
-        const ids = [...new Set(produtos.map(item => item.id_conta))];
-        return contasClienteJuros.filter(conta => ids.includes(Number(conta.id_conta)));
-    }
+            const compras = Array.isArray(dados)
+                ? dados
+                : (Array.isArray(dados.compras) ? dados.compras : []);
 
-    function calcularValorAtualProdutoParaPagamento(item) {
-        const produto = item.produto;
+            comprasParceladasCache = compras;
 
-        const base = Number(
-            produto.valorBase ??
-            ((produto.quantidade || 0) * (produto.valorUnitario || 0))
-        );
+            if (mostrarNotificacao && Array.isArray(dados.notificacoes) && dados.notificacoes.length) {
+                notificacaoParcelasConcluidas.innerHTML = dados.notificacoes.map(n =>
+                    `<div class="notificacao-parcela">${escaparHtmlParcela(n.mensagem || n)}</div>`
+                ).join("");
+            }
 
-        if (produto.jurosAtivo && Number(produto.valorAtual) > 0) {
-            return valueRound(Number(produto.valorAtual));
+            renderComprasParceladas();
+        } catch (erro) {
+            console.error("Erro ao carregar compras parceladas:", erro);
+            listaComprasParceladas.innerHTML = `<div class="credito-vazio">Erro ao carregar as compras parceladas.</div>`;
         }
-
-        return valueRound(base);
     }
 
-    function calcularTotalProdutosSelecionados(produtos) {
-        return valueRound(produtos.reduce((total, item) => {
-            const simulacao = simulacaoJurosAtual?.itens?.find(
-                x => Number(x.id_conta) === item.id_conta && Number(x.id_produto) === item.id_produto
-            );
-            if (simulacao) return total + Number(simulacao.valor_simulado || 0);
-            return total + calcularValorAtualProdutoParaPagamento(item);
-        }, 0));
-    }
+    function renderComprasParceladas() {
+        if (!listaComprasParceladas) return;
 
-    function abrirModalConclusao(produtos) {
-        if (!Array.isArray(produtos) || produtos.length === 0) {
-            exibirAviso("Selecione pelo menos um produto.");
+        if (!comprasParceladasCache.length) {
+            listaComprasParceladas.innerHTML = `<div class="credito-vazio">Nenhuma compra parcelada em andamento.</div>`;
             return;
         }
 
-        produtosParaConcluir = produtos;
-        contasParaConcluir = obterContasParaConcluir();
-        contaParaConcluir = contasParaConcluir.length === 1 ? contasParaConcluir[0] : null;
+        listaComprasParceladas.innerHTML = comprasParceladasCache.map(compra => {
+            const parcelas = Array.isArray(compra.parcelas) ? compra.parcelas : [];
+            const totalParcelas = Number(compra.total_parcelas || parcelas.length || 0);
+            const pagas = parcelas.filter(p => obterStatusParcela(p) === "pago").length;
+            const valor = Number(compra.valor_total || 0);
+            const valorParcela = Number(compra.valor_parcela || 0);
+            const proxima = parcelas.find(p => obterStatusParcela(p) !== "pago");
+            const progresso = `${pagas}/${totalParcelas}`;
 
-        const total = calcularTotalProdutosSelecionados(produtos);
+            return `
+                <article class="credito-card">
+                    <div class="credito-card-topo">
+                        <div>
+                            <h3>${escaparHtmlParcela(compra.nome_completo || compra.nome || "Compra")}</h3>
+                            <div class="credito-meta">
+                                <span>Pedido: <strong>#${escaparHtmlParcela(compra.num_pedido || compra.id_pedido || "-")}</strong></span>
+                                <span>Origem: <strong>${escaparHtmlParcela(compra.origem || "PDV")}</strong></span>
+                                <span>Compra: ${formatarDataParcela(compra.data_compra || compra.data)}</span>
+                                <span>Total: <strong>R$ ${formatarMoeda(valor)}</strong></span>
+                                <span>Parcela: <strong>R$ ${formatarMoeda(valorParcela)}</strong></span>
+                            </div>
+                        </div>
+                        <div class="credito-progresso">${progresso} parcelas concluídas</div>
+                    </div>
 
-        dataConclusao.value = obterDataHojeInput();
-        formaConclusao.value = "";
-        pagamentoTemporario = {
-            forma: "",
-            parcelas: null,
-            valorParcela: null,
-            confirmado: false
-        };
+                    <div class="credito-automatico">
+                        Acompanhamento automático — nenhuma parcela precisa ser concluída manualmente.
+                        ${proxima ? ` Próxima parcela: <strong>${Number(proxima.numero_parcela)}/${totalParcelas}</strong>, em <strong>${formatarDataParcela(proxima.data_vencimento)}</strong>.` : ""}
+                    </div>
 
-        document.getElementById("infoConclusaoFiado").innerHTML = `
-            ${produtos.length}
-            ${produtos.length === 1 ? "produto selecionado" : "produtos selecionados"}.
-            <br><br>
-            Valor total para pagamento:
-            <strong>R$ ${formatarMoeda(total)}</strong>
-        `;
-
-        modalConclusao.showModal();
+                    <div class="credito-parcelas">
+                        ${parcelas.map(parcela => {
+                            const paga = obterStatusParcela(parcela) === "pago";
+                            return `
+                                <div class="credito-parcela ${paga ? "paga" : ""}">
+                                    <strong>${Number(parcela.numero_parcela)}/${totalParcelas} — R$ ${formatarMoeda(Number(parcela.valor || 0))}</strong>
+                                    <small>Data: ${formatarDataParcela(parcela.data_vencimento)}</small>
+                                    <small>${paga ? `Concluída automaticamente em ${formatarDataParcela(parcela.data_pagamento)}` : "Pendente — será concluída automaticamente na data"}</small>
+                                </div>`;
+                        }).join("")}
+                    </div>
+                </article>`;
+        }).join("");
     }
 
-    btnConcluirSelecionados?.addEventListener(
-        "click",
-        () => {
-            if (!clienteSelecionadoJuros) {
-                exibirAviso("Selecione um cliente.");
-                return;
-            }
-
-            const produtos = obterProdutosSelecionadosJuros();
-
-            if (!produtos.length) {
-                exibirAviso("Selecione pelo menos um produto.");
-                return;
-            }
-
-            if (modalSimularJuros.open) {
-                modalSimularJuros.close();
-            }
-
-            abrirModalConclusao(produtos);
-        }
-    );
-
-    function fecharConclusao() {
-
-        if (
-            modalConclusao.open
-        ) {
-            modalConclusao.close();
-        }
-
-        contasParaConcluir =
-            [];
-
-        produtosParaConcluir =
-            [];
-
-        contaParaConcluir =
-            null;
-
-        pagamentoTemporario = {
-            forma: "",
-            parcelas: null,
-            valorParcela: null,
-            confirmado: false
-        };
-    }
-
-    btnFecharConclusao?.addEventListener(
-        "click",
-        fecharConclusao
-    );
-
-    btnCancelarConclusao?.addEventListener(
-        "click",
-        fecharConclusao
-    );
-
-    /* ======================================================
-       MODAL DINHEIRO — MESMO FLUXO DO PDV
-    ====================================================== */
-
-    function abrirModalDinheiro(
-        total
-    ) {
-
-        lblDinheiroTotal.innerText =
-            `R$ ${formatarMoeda(total)}`;
-
-        inpValorPago.value =
-            "";
-
-        lblTroco.innerText =
-            "R$ 0,00";
-
-        modalDinheiro.showModal();
-
-        setTimeout(
-            () =>
-                inpValorPago.focus(),
-            100
-        );
-    }
-
-    btnFecharDinheiro?.addEventListener(
-        "click",
-        () => {
-            modalDinheiro.close();
-        }
-    );
-
-    modalDinheiro?.addEventListener(
-        "cancel",
-        event => {
-            event.preventDefault();
-            modalDinheiro.close();
-        }
-    );
-
-    inpValorPago?.addEventListener(
-        "input",
-        () => {
-
-            const total =
-                calcularTotalProdutosSelecionados(
-                    produtosParaConcluir
-                );
-
-            const valor =
-                Number(
-                    String(
-                        inpValorPago.value
-                    ).replace(
-                        ",",
-                        "."
-                    )
-                ) || 0;
-
-            lblTroco.innerText =
-                `R$ ${formatarMoeda(
-                    Math.max(
-                        0,
-                        valor - total
-                    )
-                )}`;
-        }
-    );
-
-    btnConfirmarDinheiro?.addEventListener(
-        "click",
-        () => {
-
-            const total =
-                calcularTotalProdutosSelecionados(
-                    produtosParaConcluir
-                );
-
-            const valor =
-                Number(
-                    String(
-                        inpValorPago.value
-                    ).replace(
-                        ",",
-                        "."
-                    )
-                ) || 0;
-
-            if (
-                valor < total
-            ) {
-                exibirAviso(
-                    "O valor recebido é menor que o total."
-                );
-                return;
-            }
-
-            pagamentoTemporario = {
-                forma:
-                    "Dinheiro",
-
-                parcelas:
-                    null,
-
-                valorParcela:
-                    null,
-
-                confirmado:
-                    true
-            };
-
-            formaConclusao.value =
-                "Dinheiro";
-
-            modalDinheiro.close();
-
-            modalConclusao.showModal();
-        }
-    );
-
-    /* ======================================================
-       MODAL CRÉDITO — MESMO FLUXO DO PDV
-    ====================================================== */
-
-    function atualizarParcelamentoCredito() {
-
-        const total =
-            calcularTotalProdutosSelecionados(
-                produtosParaConcluir
-            );
-
-        lblCreditoTotal.innerText =
-            `R$ ${formatarMoeda(total)}`;
-
-        const parcelas =
-            Number(
-                selParcelasCredito.value
-            );
-
-        if (
-            !Number.isInteger(
-                parcelas
-            ) ||
-            parcelas <= 0
-        ) {
-
-            pagamentoTemporario.parcelas =
-                null;
-
-            pagamentoTemporario.valorParcela =
-                null;
-
-            lblValorParcela.innerText =
-                "Selecione as parcelas";
-
-            return;
-        }
-
-        const valorParcela =
-            valueRound(
-                total /
-                parcelas
-            );
-
-        pagamentoTemporario.parcelas =
-            parcelas;
-
-        pagamentoTemporario.valorParcela =
-            valorParcela;
-
-        lblValorParcela.innerText =
-            `R$ ${formatarMoeda(
-                valorParcela
-            )}`;
-    }
-
-    function abrirModalCredito(
-        total
-    ) {
-
-        lblCreditoTotal.innerText =
-            `R$ ${formatarMoeda(total)}`;
-
-        selParcelasCredito.value =
-            "";
-
-        pagamentoTemporario.parcelas =
-            null;
-
-        pagamentoTemporario.valorParcela =
-            null;
-
-        pagamentoTemporario.confirmado =
-            false;
-
-        lblValorParcela.innerText =
-            "Selecione as parcelas";
-
-        modalCredito.showModal();
-    }
-
-    selParcelasCredito?.addEventListener(
-        "change",
-        atualizarParcelamentoCredito
-    );
-
-    btnFecharCredito?.addEventListener(
-        "click",
-        () => {
-            modalCredito.close();
-        }
-    );
-
-    modalCredito?.addEventListener(
-        "cancel",
-        event => {
-            event.preventDefault();
-            modalCredito.close();
-        }
-    );
-
-    btnConfirmarCredito?.addEventListener(
-        "click",
-        () => {
-
-            if (
-                !pagamentoTemporario.parcelas
-            ) {
-                exibirAviso(
-                    "Selecione a quantidade de parcelas."
-                );
-                return;
-            }
-
-            pagamentoTemporario.forma =
-                "Cartão de Crédito";
-
-            pagamentoTemporario.confirmado =
-                true;
-
-            formaConclusao.value =
-                "Cartão de Crédito";
-
-            modalCredito.close();
-
-            modalConclusao.showModal();
-        }
-    );
-
-    /* ======================================================
-       FORMA DE PAGAMENTO
-    ====================================================== */
-
-    formaConclusao?.addEventListener(
-        "change",
-        () => {
-
-            const forma =
-                formaConclusao.value;
-
-            if (
-                !forma
-            ) {
-                return;
-            }
-
-            const total =
-                calcularTotalProdutosSelecionados(
-                    produtosParaConcluir
-                );
-
-            if (
-                forma ===
-                "Dinheiro"
-            ) {
-
-                pagamentoTemporario.forma =
-                    "Dinheiro";
-
-                pagamentoTemporario.confirmado =
-                    false;
-
-                abrirModalDinheiro(
-                    total
-                );
-
-                return;
-            }
-
-            if (
-                forma ===
-                "Cartão de Crédito"
-            ) {
-
-                pagamentoTemporario.forma =
-                    "Cartão de Crédito";
-
-                pagamentoTemporario.confirmado =
-                    false;
-
-                abrirModalCredito(
-                    total
-                );
-
-                return;
-            }
-
-            if (
-                forma === "Pix" ||
-                forma === "Cartão de Débito" ||
-                forma === "Voucher/Ticket"
-            ) {
-
-                pagamentoTemporario = {
-                    forma,
-                    parcelas: null,
-                    valorParcela: null,
-                    confirmado: true
-                };
-            }
-        }
-    );
-
-    /* ======================================================
-       CONFIRMAR CONCLUSÃO
-    ====================================================== */
-
-    btnConfirmarConclusao?.addEventListener(
-        "click",
-        async () => {
-
-            const data =
-                dataConclusao.value;
-
-            const forma =
-                formaConclusao.value;
-
-            if (!data) {
-                exibirAviso(
-                    "Informe a data do pagamento."
-                );
-                return;
-            }
-
-            if (!forma) {
-                exibirAviso(
-                    "Selecione a forma de pagamento."
-                );
-                return;
-            }
-
-            if (
-                (
-                    forma === "Dinheiro" ||
-                    forma ===
-                        "Cartão de Crédito"
-                ) &&
-                !pagamentoTemporario.confirmado
-            ) {
-
-                exibirAviso(
-                    "Conclua o controle do pagamento antes de confirmar."
-                );
-
-                return;
-            }
-
-            if (
-                forma ===
-                    "Cartão de Crédito" &&
-                !pagamentoTemporario.parcelas
-            ) {
-
-                exibirAviso(
-                    "Selecione a quantidade de parcelas."
-                );
-
-                return;
-            }
-
-            if (
-                !Array.isArray(produtosParaConcluir) ||
-                produtosParaConcluir.length === 0
-            ) {
-                exibirAviso("Nenhum produto selecionado.");
-                return;
-            }
-
-            try {
-                const itensPagamento = produtosParaConcluir.map(item => ({
-                    id_conta: Number(item.id_conta),
-                    id_produto: Number(item.id_produto)
-                }));
-
-                const corpo = {
-                    data_pagamento: data,
-                    forma_pagamento: forma,
-                    itens: itensPagamento
-                };
-
-                if (forma === "Cartão de Crédito") {
-                    corpo.parcelas = pagamentoTemporario.parcelas;
-                    corpo.valor_parcela = pagamentoTemporario.valorParcela;
-                }
-
-                const res = await apiFetch(
-                    "/contas-fiado/itens/finalizar",
-                    {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(corpo)
-                    }
-                );
-
-                if (res.status === 401 || res.status === 403) {
-                    fecharConclusao();
-                    tratarSessaoExpirada();
-                    return;
-                }
-
-                const dados = await res.json();
-
-                if (!res.ok) {
-                    exibirAviso(dados.erro || "Erro ao concluir os produtos selecionados.");
-                    return;
-                }
-
-                const quantidadeConcluida = produtosParaConcluir.length;
-                const numeroPedido = dados.num_pedido ?? dados.id_pedido ?? null;
-
-                fecharConclusao();
-                await carregarContasFiado();
-
-                if (clienteSelecionadoJuros) {
-                    await carregarContasClienteJuros();
-                }
-
-                exibirAviso(
-                    numeroPedido
-                        ? `${quantidadeConcluida === 1 ? "Produto" : "Produtos selecionados"} concluído(s) com sucesso. Pedido #${numeroPedido} enviado para o histórico.`
-                        : (quantidadeConcluida === 1
-                            ? "Produto selecionado foi pago com sucesso!"
-                            : "Produtos selecionados foram pagos com sucesso!")
-                );
-            } catch (erro) {
-
-                console.error(
-                    "Erro ao finalizar contas:",
-                    erro
-                );
-
-                exibirAviso(
-                    "Erro de conexão ao finalizar o pagamento."
-                );
-            }
-        }
-    );
+    btnComprasParceladas?.addEventListener("click", async () => {
+        modalComprasParceladas.showModal();
+        await carregarComprasParceladas(true);
+    });
+
+    btnFecharComprasParceladas?.addEventListener("click", () => modalComprasParceladas.close());
+    modalComprasParceladas?.addEventListener("cancel", event => {
+        event.preventDefault();
+        modalComprasParceladas.close();
+    });
 
     /* ======================================================
        INICIALIZAÇÃO
@@ -4731,6 +4280,12 @@ async function executarAplicacaoDeJuros() {
     }
 
     carregarContasFiado();
+    carregarComprasParceladas(true);
+
+    // Mantém o acompanhamento automático enquanto a tela estiver aberta.
+    setInterval(() => {
+        carregarComprasParceladas(true);
+    }, 60000);
 
     // O fundo da página não rola enquanto o modal está aberto.
     modalSimularJuros?.addEventListener("wheel", event => {

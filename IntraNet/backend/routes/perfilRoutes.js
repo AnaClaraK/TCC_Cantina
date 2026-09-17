@@ -55,47 +55,36 @@ router.put("/perfil/atualizar", verificarToken, uploadPerfil.single("imagem"), a
     }
 });
 
-// ----- Buscar dados do perfil logado (Protegido)
+//-------- Obter Dados do Perfil do Usuário Logado
 router.get("/perfil/meus-dados", verificarToken, async (req, res) => {
     try {
-        const dadosToken = req.usuario || req.user;
+        // req.usuario.id vem do middleware verificarToken
+        const usuarioId = req.usuario.id;
 
-        if (!dadosToken) {
-            return res.status(401).json({ resposta: "Usuário não autenticado." });
-        }
+        const sql = `
+            SELECT id_cadastro, nome, email, img 
+            FROM cadastro 
+            WHERE id_cadastro = ?
+        `;
 
-        // Pega o e-mail independente de vir como objeto ou string direta no token
-        const emailUsuario = typeof dadosToken === 'string' ? dadosToken : (dadosToken.email || dadosToken.sub);
+        const [usuarios] = await conexao.query(sql, [usuarioId]);
 
-        let query = "SELECT nome, email, img FROM cadastro WHERE email = ?";
-        let params = [emailUsuario];
-
-        if (!emailUsuario && dadosToken.id) {
-            query = "SELECT nome, email, img FROM cadastro WHERE id = ?";
-            params = [dadosToken.id];
-        }
-
-        const resultado = await conexao.query(query, params);
-        const usuarios = Array.isArray(resultado[0]) ? resultado[0] : resultado;
-
-        if (!usuarios || usuarios.length === 0) {
+        if (usuarios.length === 0) {
             return res.status(404).json({ resposta: "Usuário não encontrado." });
         }
 
         const usuario = usuarios[0];
-        const nomeArquivo = usuario.img;
-        
-        const caminhoFotoTratado = nomeArquivo ? (nomeArquivo.startsWith('/imagens/') ? nomeArquivo : `/imagens/${nomeArquivo}`) : null;
 
         return res.json({
+            id: usuario.id_cadastro,
             nome: usuario.nome,
             email: usuario.email,
-            foto: caminhoFotoTratado
+            foto: usuario.img
         });
 
-    } catch (erro) {
-        console.error("Erro ao buscar perfil:", erro);
-        return res.status(500).json({ resposta: "Erro interno no servidor." });
+    } catch (error) {
+        console.error("Erro ao buscar dados do perfil:", error);
+        return res.status(500).json({ resposta: "Erro interno do servidor." });
     }
 });
 

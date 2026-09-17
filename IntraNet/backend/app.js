@@ -124,8 +124,6 @@ const estoqueRoutes = require('./routes/estoqueRoutes');
 const reposicaoRoutes = require('./routes/reposicaoRoutes');
 const agendamentoRoutes = require('./routes/agendamentoRoutes');
 const fiadoRoutes = require('./routes/fiadoRoutes.js');
-const dashboardRoutes = require('./routes/dashboardRoutes');
-const pdfRoutes = require('./routes/pdfRoutes');
 const authAppRoutes = require('./routes/authAppRoutes');
 const fechamentoRoutes = require('./routes/fechamentoRoutes');
 
@@ -149,10 +147,6 @@ app.use(reposicaoRoutes);
 app.use(agendamentoRoutes);
 
 app.use(fiadoRoutes);
-
-app.use(dashboardRoutes);
-
-app.use(pdfRoutes);
 
 app.use(authAppRoutes);
 

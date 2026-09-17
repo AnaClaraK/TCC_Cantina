@@ -1,52 +1,25 @@
-const jwt =
-require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
-
-require('dotenv').config(); 
 const SECRET = process.env.API_SEGREDO;
 
-function verificarToken(
-    req,
-    res,
-    next
-){
+function verificarToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
 
-    const token =
-    req.headers['authorization'];
+    // Garante a leitura do token mesmo se vier com "Bearer " ou apenas a string
+    const token = authHeader && (authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader);
 
-    if(!token){
-
-        return res.status(401).json({
-            resposta:
-            "Acesso negado. Faça login."
-        });
+    if (!token) {
+        return res.status(401).json({ resposta: "Acesso negado. Token não fornecido." });
     }
 
-    const tokenLimpo =
-    token.split(' ')[1]
-    ||
-    token;
-
-    jwt.verify(
-        tokenLimpo,
-        SECRET,
-        (err, decoded) => {
-
-            if(err){
-
-                return res.status(403).json({
-                    resposta:
-                    "Token inválido ou expirado."
-                });
-            }
-
-            req.usuarioId =
-            decoded.id;
-
-            next();
-        }
-    );
+    try {
+        const decoded = jwt.verify(token, SECRET);
+        req.usuario = decoded; // Armazena { id: usuario.id_cadastro }
+        next();
+    } catch (err) {
+        return res.status(401).json({ resposta: "Token inválido ou expirado." });
+    }
 }
 
-module.exports =
-verificarToken;
+module.exports = verificarToken;

@@ -13,7 +13,7 @@ const verificarToken =
 require('../middlewares/auth');
 const SECRET = process.env.API_SEGREDO;
 
-router.post("/cadastrar", async (req, res) => {
+router.post("/cadastrar", verificarToken, async (req, res) => {
     const { nome, cpf, email, senha } = req.body;
 
     if(email.length <= 3){
