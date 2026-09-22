@@ -4369,7 +4369,7 @@ router.get(
 
             return res.status(500).json({
                 resposta:
-                    "Erro ao carregar histórico de pedidos."
+                    "Erro ao carregar histórico de pedhfgidos."
             });
         }
     }
