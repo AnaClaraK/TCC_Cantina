@@ -111,6 +111,15 @@
                 class="inp_p"
                 disabled
             >
+            <label class="label-amarela">Porcentagem de Lucro</label>
+<input
+    type="number"
+    step="0.01"
+    name="porcentagem_lucro"
+    id="porcentagem_lucro"
+    class="inp_p"
+    disabled
+>
 
 
             <label class="label-amarela">Quantidade em Estoque</label>
@@ -197,6 +206,7 @@ const ativo = document.getElementById("ativo");
 const inpBusca = document.getElementById("inp_busca_editar");
 const lista = document.getElementById("lista_sugestoes");
 const valorBruto = document.getElementById("valor_bruto");
+const porcentagemLucro = document.getElementById("porcentagem_lucro");
 const btnAbrirLucro = document.getElementById("b_abrir_lucro");
 
 const modalAviso = document.getElementById("d_aviso");
@@ -216,6 +226,7 @@ const camposEdicao = [
     campoNomeImagem,
     inputImagem,
     valorBruto,
+    porcentagemLucro,
     btnAbrirLucro
 ];
 
@@ -323,6 +334,7 @@ function selecionarProduto(p){
     if(nome) nome.value = p.nome || "";
     if(codigo) codigo.value = p.codigo_barras || "";
     if(preco) preco.value = p.preco || 0;
+    if(porcentagemLucro) porcentagemLucro.value = p.porcentagem_lucro || 0;
     if(qtd) qtd.value = p.qtd || 0;
     if(descricao) descricao.value = p.descricao || "";
     if(qtdMin) qtdMin.value = p.qtd_min || 0;
@@ -365,7 +377,7 @@ btnAbrirLucro.addEventListener("click", () => {
         return;
     }
 
-    inpPorcentagemLucro.value = "";
+    inpPorcentagemLucro.value = porcentagemLucro.value || "";
     sPrecoCalculado.textContent = "R$ 0,00";
     modalLucro.showModal();
 });
