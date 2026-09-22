@@ -20,83 +20,103 @@ require('../config/multer');
 const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
 
 //--------- Cadastro produtos add
-//--------- Cadastro produtos add
-router.post("/produtos", verificarToken, uploadProdutos.single("imagem"), async (req, res) => {
-    try {
-        const {
-  nome,
-  preco,
-  codigo,
-  quantidade,
-  descricao,
-  id_categoria,
-  valor_bruto
-} = req.body;
-
-if (!nome || !preco || !codigo || !id_categoria || !valor_bruto) {
-  return res.status(400).json({
-    erro: "Preencha todos os campos obrigatórios"
-  });
-}
-
-const precoFormatado = String(preco).replace(",", ".");
-const valorBrutoFormatado = String(valor_bruto).replace(",", ".");
-
-        // Se req.file não existir (usuário não enviou foto), usa 'img_ntf.png'
-        const imagem = req.file ? req.file.filename : 'img_ntf.png';
-
-          await conexao.query(`
-  INSERT INTO produtos
-  (
-    nome,
-    preco,
-    codigo_barras,
-    qtd,
-    descricao,
-    img,
-    id_categoria,
-    valor_bruto
-  )
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-`, [
-  nome,
-  precoFormatado,
-  codigo,
-  quantidade || 0,
-  descricao || "",
-  imagem,
-  id_categoria,
-  valorBrutoFormatado
-]);
-
-        res.status(201).json({
-          mensagem: "Produto cadastrado com sucesso"
-        });
-
-    } catch (erro) {
-        console.error("Erro ao cadastrar produto:", erro);
-
-        res.status(500).json({
-          erro: "Erro ao cadastrar produto"
-        });
-    }
-});
-// Rota para buscar o próximo código de barras disponível
+// =====================================================
+// ROTA: Buscar Próximo Código de Barras
+// =====================================================
 router.get("/produtos/proximo-codigo", verificarToken, async (req, res) => {
     try {
-        // Converte o campo codigo_barras para número e pega o maior valor
+        // Busca o código de barras do produto com o MAIOR id_produto
         const [rows] = await conexao.query(`
-            SELECT MAX(CAST(codigo_barras AS UNSIGNED)) AS maior_codigo 
+            SELECT codigo_barras 
             FROM produtos 
-            WHERE codigo_barras REGEXP '^[0-9]+$'
+            ORDER BY id_produto DESC 
+            LIMIT 1
         `);
 
-        const proximoCodigo = (rows[0].maior_codigo || 0) + 1;
+        let proximoCodigo = 1;
+
+        if (rows.length > 0 && rows[0].codigo_barras) {
+            // Tenta converter para número
+            const ultimoCodigo = parseInt(rows[0].codigo_barras, 10);
+            if (!isNaN(ultimoCodigo)) {
+                proximoCodigo = ultimoCodigo + 1;
+            }
+        }
 
         res.json({ proximoCodigo });
     } catch (erro) {
         console.error("Erro ao buscar próximo código:", erro);
         res.status(500).json({ erro: "Erro ao buscar próximo código" });
+    }
+});
+
+// =====================================================
+// ROTA: Cadastrar Produto
+// =====================================================
+router.post("/produtos", verificarToken, uploadProdutos.single("imagem"), async (req, res) => {
+    try {
+        const {
+            nome,
+            preco,
+            codigo,
+            quantidade,
+            qtd_min,
+            descricao,
+            id_categoria,
+            valor_bruto,
+            porcentagem_lucro // Recebe a porcentagem enviada pelo frontend
+        } = req.body;
+
+        if (!nome || !preco || !codigo || !id_categoria || !valor_bruto) {
+            return res.status(400).json({
+                erro: "Preencha todos os campos obrigatórios"
+            });
+        }
+
+        const precoFormatado = String(preco).replace(",", ".");
+        const valorBrutoFormatado = String(valor_bruto).replace(",", ".");
+        const porcentagemFormatada = porcentagem_lucro ? String(porcentagem_lucro).replace(",", ".") : 0;
+        const imagem = req.file ? req.file.filename : 'img_ntf.png';
+
+        // INSERT incluindo 'ativo = 1' e a 'porcentagem_lucro'
+        await conexao.query(`
+            INSERT INTO produtos
+            (
+                nome,
+                preco,
+                codigo_barras,
+                qtd,
+                qtd_min,
+                descricao,
+                img,
+                id_categoria,
+                valor_bruto,
+                porcentagem_lucro,
+                ativo
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+        `, [
+            nome,
+            precoFormatado,
+            codigo,
+            quantidade || 0,
+            qtd_min || 0,
+            descricao || "",
+            imagem,
+            id_categoria,
+            valorBrutoFormatado,
+            porcentagemFormatada
+        ]);
+
+        res.status(201).json({
+            mensagem: "Produto cadastrado com sucesso"
+        });
+
+    } catch (erro) {
+        console.error("Erro ao cadastrar produto:", erro);
+        res.status(500).json({
+            erro: "Erro ao cadastrar produto"
+        });
     }
 });
   // LISTAR CATEGORIAS

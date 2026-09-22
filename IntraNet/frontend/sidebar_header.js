@@ -3,7 +3,7 @@
 // =====================================================
 
 (function () {
-    const paginasPublicas = ["login.html", "cadastrof.html", "rec_senha.html"];
+    const paginasPublicas = ["login.html", "rec_senha.html"];
     const pagina = window.location.pathname.split("/").pop().toLowerCase() || "index.html";
     const token = localStorage.getItem("token");
 
@@ -319,7 +319,8 @@ function adicionarBotaoFechamentoPDV() {
 }
 
 function carregarMenu() {
-    const paginasPublicas = ["login.html", "cadastrof.html", "rec_senha.html"];
+    // Removido "cadastrof.html" para permitir o carregamento do Header e Sidebar nesta página
+    const paginasPublicas = ["login.html", "rec_senha.html"];
     const paginaAtual = window.location.pathname.split("/").pop().toLowerCase();
     
     if (paginasPublicas.includes(paginaAtual)) return;

@@ -267,6 +267,10 @@
         <button type="button" id="b_fechar_credito" class="fechar-modal-pagamento" onclick="document.getElementById('dialogCredito').close();">×</button>
         <h2>PAGAMENTO NO CARTÃO DE CRÉDITO</h2>
         <div class="credito-total"><span>Total da compra</span><strong id="lbl_credito_total">R$ 0,00</strong></div>
+        <div class="credito-campo" id="campoValorCreditoDivisao" style="display:none;">
+            <label for="inp_valor_credito_divisao">Valor pago no cartão de crédito</label>
+            <input type="number" id="inp_valor_credito_divisao" min="0.01" step="0.01" placeholder="Ex.: 25,00">
+        </div>
         <div class="credito-campo">
             <label for="sel_parcelas_credito">Quantidade de parcelas</label>
             <div class="select-personalizado">
@@ -715,6 +719,23 @@ if (botaoDesbloquearPagamento) {
         return Number(valor).toFixed(2).replace(".", ",");
     }
 
+    // Nunca permite que um estoque inválido/negativo seja usado pelo PDV.
+    function normalizarEstoque(valor) {
+        const numero = Number(valor);
+        if (!Number.isFinite(numero) || numero <= 0) {
+            return 0;
+        }
+        return Math.floor(numero);
+    }
+
+    function carrinhoPossuiEstoqueInvalido() {
+        return carrinho.some(item => {
+            const estoque = normalizarEstoque(item.estoque);
+            const qtd = Number(item.qtd);
+            return !Number.isFinite(qtd) || qtd <= 0 || estoque <= 0 || qtd > estoque;
+        });
+    }
+
     function atualizarTabelaNoTopo() {
         tbody.innerHTML = ""; 
         
@@ -778,11 +799,16 @@ if (botaoDesbloquearPagamento) {
         }
     }
     function verificarEstoqueCarrinho() {
-        return carrinho.some(item => item.qtd > item.estoque);
+        return carrinho.some(item => {
+            const estoque = normalizarEstoque(item.estoque);
+            const qtd = Number(item.qtd);
+            return !Number.isFinite(qtd) || qtd <= 0 || estoque <= 0 || qtd > estoque;
+        });
     }
+
     function verificarBotao() {
         const botaoFinalizar = document.getElementById("b_final");
-        if (carrinho.length === 0 || verificarEstoqueCarrinho()) {
+        if (carrinho.length === 0 || carrinhoPossuiEstoqueInvalido()) {
             botaoFinalizar.disabled = true;
         } else {
             botaoFinalizar.disabled = false;
@@ -884,24 +910,14 @@ if (event.key.length === 1) {
 
         estaProcessando = true;
 
-        // A rota /produtos/cod/:codigo não existe na versão atual do backend.
-        // Primeiro tenta a rota antiga e, se ela não existir, usa a busca normal.
-        const buscarPorCodigo = () => apiFetch(`${URL_BACKEND_CAD}/produtos/cod/${encodeURIComponent(codigo)}`, {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            }
-        }).then(async res => {
-            if (res.ok) return res.json();
-
-            if (res.status !== 404) {
-                const erro = await res.json().catch(() => ({}));
-                throw new Error(erro.erro || erro.mensagem || "Erro ao buscar produto.");
-            }
-
+        // O scanner usa a mesma rota de busca que o campo de produtos.
+        // Assim ele não depende de uma rota /produtos/cod/:codigo que pode não
+        // estar disponível no backend que está sendo executado.
+        const buscarPorCodigo = async () => {
             const buscaRes = await apiFetch(
-                `${URL_BACKEND_CAD}/produtos/?busca=${encodeURIComponent(codigo)}`,
+                `${URL_BACKEND_CAD}/produtos/busca?q=${encodeURIComponent(codigo)}`,
                 {
+                    method: "GET",
                     headers: {
                         "Authorization": `Bearer ${localStorage.getItem("token")}`
                     }
@@ -909,50 +925,44 @@ if (event.key.length === 1) {
             );
 
             const buscaJson = await buscaRes.json().catch(() => ({}));
+
             if (!buscaRes.ok) {
-                throw new Error(buscaJson.erro || buscaJson.mensagem || "Produto não encontrado.");
+                throw new Error(
+                    buscaJson.erro ||
+                    buscaJson.mensagem ||
+                    "Erro ao buscar produto."
+                );
             }
 
             const produtos = Array.isArray(buscaJson)
                 ? buscaJson
                 : (Array.isArray(buscaJson.produtos) ? buscaJson.produtos : []);
 
-            const codigoBusca = String(codigo).trim().toLowerCase();
-            const produto = produtos.find(p =>
-                String(p.codigo_barras ?? p.codigo ?? "").trim().toLowerCase() === codigoBusca
+            const codigoBusca = String(codigo).trim();
+
+            // Primeiro tenta igualdade exata no código de barras.
+            const produtoEncontrado = produtos.find(produto =>
+                String(produto.codigo_barras ?? produto.codigo ?? "").trim() === codigoBusca
             );
 
-            if (!produto) {
-                throw new Error("Produto não encontrado ou está inativo");
+            if (!produtoEncontrado) {
+                throw new Error("Produto não encontrado ou está inativo.");
             }
 
-            return produto;
-        });
+            return produtoEncontrado;
+        };
 
         buscarPorCodigo()
-        .then(async res => {
-            if (res.status === 401 || res.status === 403) {
-                exibirAviso("Sua sessão expirou. Faça login novamente.", () => {
-                    window.location.href = "login.html";
-                });
-            }
-
-            const dados = await res.json().catch(() => ({}));
-
-            if (!res.ok) {
-                throw new Error(
-                    dados.erro ||
-                    dados.resposta ||
-                    "Produto não encontrado."
-                );
-            }
-
-            return dados;
-        })
         .then(data => {
             tocarBeep();
+
             const produto = Array.isArray(data) ? data[0] : data;
-            if (!produto) throw new Error("Dados do produto inválidos");
+            if (!produto) throw new Error("Dados do produto inválidos.");
+
+            // Produto inativo nunca pode entrar no PDV.
+            if (Number(produto.ativo) === 0) {
+                throw new Error(`O produto "${produto.nome}" está inativo e não pode ser vendido.`);
+            }
 
             if (produto.img) {
                 const nomeArquivo = produto.img.replace('/images/', '').replace(/^\//, '');
@@ -961,15 +971,39 @@ if (event.key.length === 1) {
                 img_prod.src = IMG_PADRAO;
             }
 
+            const estoqueAtual = normalizarEstoque(produto.qtd);
+
+            // Produto sem estoque nunca entra no carrinho.
+            if (estoqueAtual <= 0) {
+                exibirAviso(`O produto "${produto.nome}" está sem estoque.`);
+                carrinho = carrinho.filter(p => p.codigo != codigo);
+                inp_codb.value = "";
+                document.getElementById("d_qtd").innerText = "0";
+                document.getElementById("d_vl_und").innerText = "R$ 0,00";
+                document.getElementById("d_ttl_i").innerText = "R$ 0,00";
+                document.getElementById("d_estoque").innerText = "0";
+                document.getElementById("aviso_estoque").style.display = "none";
+                img_prod.src = IMG_PADRAO;
+                atualizarTabelaNoTopo();
+                atualizarTotalCompra();
+                verificarBotao();
+                finalizarLeitura("");
+                return;
+            }
+
             let itemExistente = carrinho.find(p => p.codigo == codigo);
 
             if (itemExistente) {
-                if (itemExistente.qtd >= itemExistente.estoque) {
+                itemExistente.estoque = estoqueAtual;
+
+                if (itemExistente.qtd >= estoqueAtual) {
                     atualizarVisores(itemExistente);
                     verificarBotao();
-                    finalizarLeitura(codigo); 
+                    exibirAviso(`O produto "${produto.nome}" possui apenas ${estoqueAtual} unidade(s) em estoque.`);
+                    finalizarLeitura("");
                     return;
                 }
+
                 itemExistente.qtd++;
                 carrinho = carrinho.filter(p => p.codigo != codigo);
                 carrinho.unshift(itemExistente);
@@ -980,49 +1014,28 @@ if (event.key.length === 1) {
                     nome: produto.nome,
                     preco: Number(produto.preco),
                     qtd: 1,
-                    estoque: Number(produto.qtd),
+                    estoque: estoqueAtual,
                     qtd_min: Number(produto.qtd_min || 0),
                     img: produto.img
                 });
             }
 
-            if (Number(produto.qtd) <= 0) {
-                exibirAviso(`O produto "${produto.nome}" está sem estoque.`);
+            atualizarTabelaNoTopo();
+            atualizarVisores(carrinho[0]);
+            atualizarTotalCompra();
+            verificarBotao();
 
-                carrinho = carrinho.filter(p => p.codigo != codigo);
-                inp_codb.value = "";
-
-                document.getElementById("d_qtd").innerText = "0";
-                document.getElementById("d_vl_und").innerText = "R$ 0,00";
-                document.getElementById("d_ttl_i").innerText = "R$ 0,00";
-                document.getElementById("d_estoque").innerText = "-";
-                document.getElementById("aviso_estoque").style.display = "none";
-                img_prod.src = IMG_PADRAO;
-
-                atualizarTabelaNoTopo();
-                atualizarTotalCompra();
-                verificarBotao();
-                finalizarLeitura("");
-                return;
+            if (
+                !comandaAtual &&
+                origemVenda === "PDV" &&
+                carrinho.length > 0
+            ) {
+                atualizarNumeroPedidoPreview();
             }
 
-            atualizarTabelaNoTopo();
-atualizarVisores(carrinho[0]);
-atualizarTotalCompra();
-verificarBotao();
-
-// VENDA NORMAL:
-// assim que o primeiro produto entra no carrinho,
-// já carrega o número do pedido.
-if (
-    !comandaAtual &&
-    origemVenda === "PDV" &&
-    carrinho.length > 0
-) {
-    atualizarNumeroPedidoPreview();
-}
-
-            finalizarLeitura(codigo); 
+            // Depois de adicionar pelo scanner, deixa a caixa pronta
+            // para a próxima leitura.
+            finalizarLeitura("");
         })
         .catch(err => {
             tocarErro();
@@ -1042,60 +1055,57 @@ if (
 
    b_final.addEventListener("click", async () => {
 
-    if (verificarEstoqueCarrinho()) {
+    // Última barreira antes de abrir o pagamento: estoque zero/negativo
+    // ou quantidade inválida nunca pode seguir para a venda.
+    if (carrinhoPossuiEstoqueInvalido()) {
 
-        const item = carrinho.find(i => i.qtd > i.estoque);
+        const itemInvalido = carrinho.find(i => {
+            const estoque = normalizarEstoque(i.estoque);
+            const qtd = Number(i.qtd);
+            return !Number.isFinite(qtd) || qtd <= 0 || estoque <= 0 || qtd > estoque;
+        });
 
+        if (!itemInvalido) {
+            verificarBotao();
+            return;
+        }
+
+        const estoqueSeguro = normalizarEstoque(itemInvalido.estoque);
+
+        // Se o estoque chegou a zero/negativo, remove o item.
+        if (estoqueSeguro <= 0) {
+            carrinho = carrinho.filter(i => i.codigo !== itemInvalido.codigo);
+            atualizarTabelaNoTopo();
+            atualizarTotalCompra();
+            verificarBotao();
+            exibirAviso(`O produto "${itemInvalido.nome}" está sem estoque e não pode ser vendido.`);
+            voltarFoco();
+            return;
+        }
+
+        // Para estoque positivo, ajusta somente até o máximo disponível.
         exibirAviso(
-            `O produto "${item.nome}" possui apenas ${item.estoque} unidade(s) em estoque.\n\nDeseja ajustar automaticamente a quantidade?`,
+            `O produto "${itemInvalido.nome}" possui apenas ${estoqueSeguro} unidade(s) em estoque.\n\nDeseja ajustar automaticamente a quantidade?`,
             async () => {
-
-                item.qtd = item.estoque;
-
-                if (item.qtd === 0) {
-                    carrinho = carrinho.filter(
-                        i => i.codigo !== item.codigo
-                    );
-                }
+                itemInvalido.estoque = estoqueSeguro;
+                itemInvalido.qtd = estoqueSeguro;
 
                 atualizarTabelaNoTopo();
-                atualizarVisores(
-                    carrinho[0] || {
-                        qtd: 0,
-                        preco: 0,
-                        estoque: 0
-                    }
-                );
+                atualizarVisores(itemInvalido);
                 atualizarTotalCompra();
                 verificarBotao();
 
-                if (
-                    !verificarEstoqueCarrinho() &&
-                    carrinho.length > 0
-                ) {
+                if (!carrinhoPossuiEstoqueInvalido() && carrinho.length > 0) {
+                    document.getElementById("s_dt").innerText = new Date().toLocaleString();
 
-                    document.getElementById("s_dt").innerText =
-                        new Date().toLocaleString();
-
-                    if (
-                        !comandaAtual &&
-                        origemVenda === "PDV" &&
-                        carrinho.length > 0
-                    ) {
+                    if (!comandaAtual && origemVenda === "PDV") {
                         await atualizarNumeroPedidoPreview(true);
                     }
 
                     document.getElementById("s_pedido").innerText =
                         comandaAtual
-                            ? (
-                                comandaAtual.num_pedido ??
-                                comandaAtual.numero_pedido ??
-                                "---"
-                              )
-                            : (
-                                numeroPedidoAtual ??
-                                "---"
-                              );
+                            ? (comandaAtual.num_pedido ?? comandaAtual.numero_pedido ?? "---")
+                            : (numeroPedidoAtual ?? "---");
 
                     modal.showModal();
                 }
@@ -1294,6 +1304,10 @@ if (visorPedido) {
     totalCompra = 0;
 
     formaPagamento = "";
+    splitPagamentos = [];
+    splitMetodoSelecionado = "";
+    splitCreditoValorPendente = null;
+    creditoEmDivisao = false;
 
     formaPagamentoComanda = "";
     pagamentoComandaDesbloqueado = false;
@@ -1386,7 +1400,7 @@ window.pdvConfirmarSaida = function (continuar) {
             return;
         }
 
-        const estoque = Number(prod.qtd ?? prod.quantidade ?? prod.estoque ?? 0);
+        const estoque = normalizarEstoque(prod.qtd ?? prod.quantidade ?? prod.estoque ?? 0);
         const preco = Number(prod.preco ?? prod.valor ?? prod.preco_unitario ?? 0);
         const idProduto = prod.id_produto ?? prod.id;
         const imagemProduto = prod.img ?? prod.imagem ?? prod.foto ?? prod.imagem_produto ?? prod.image ?? null;
@@ -1396,10 +1410,17 @@ window.pdvConfirmarSaida = function (continuar) {
             return;
         }
 
+        if (estoque <= 0) {
+            exibirAviso(`O produto "${prod.nome || codigoProduto}" está sem estoque e não pode ser adicionado.`);
+            dialogBusca.close();
+            return;
+        }
+
         const itemExistente = carrinho.find(p => String(p.codigo) === codigoProduto);
 
         if (itemExistente) {
-            if (itemExistente.qtd >= itemExistente.estoque) {
+            itemExistente.estoque = estoque;
+            if (itemExistente.qtd >= estoque) {
                 atualizarVisores(itemExistente);
                 verificarBotao();
                 dialogBusca.close();
@@ -1440,7 +1461,7 @@ window.pdvConfirmarSaida = function (continuar) {
         lista.innerHTML = "";
         inputBusca.value = "";
         indexSelecionado = -1;
-        inp_codb.value = codigoProduto;
+        inp_codb.value = "";
 
         atualizarTabelaNoTopo();
         atualizarVisores(carrinho[0]);
@@ -1490,6 +1511,16 @@ window.pdvConfirmarSaida = function (continuar) {
     if (pedidoFinalizado) {
         resetarPDV();
         document.querySelectorAll(".pagamento").forEach(b => b.disabled = false);
+        return;
+    }
+
+    // Revalidação local final: nenhuma venda pode ser enviada com
+    // estoque zero/negativo ou quantidade maior que o estoque disponível.
+    if (carrinhoPossuiEstoqueInvalido()) {
+        estaProcessando = false;
+        nova_venda.disabled = false;
+        verificarBotao();
+        exibirAviso("Não é possível finalizar: há produto sem estoque ou com quantidade inválida.");
         return;
     }
 
@@ -1555,6 +1586,23 @@ const pagamentoFinalLimpo =
         .replace(/\s*\(F\d+\)\s*/gi, "")
         .trim();
 
+    const pagamentosDivididos = Array.isArray(splitPagamentos) && splitPagamentos.length
+        ? splitPagamentos.map(p => ({
+            metodo: p.metodo,
+            valor: Number(p.valor || 0),
+            parcelas: Number(p.parcelas || 1)
+        }))
+        : null;
+
+    const creditoDividido = pagamentosDivididos?.find(
+        p => String(p.metodo).toLowerCase().includes("cartão de crédito")
+    );
+
+    const ehCreditoParceladoPDV =
+        !comandaAtual &&
+        (pagamentoFinalLimpo === "Cartão de Crédito" || !!creditoDividido) &&
+        Number(creditoDividido?.parcelas || parcelasCredito || 1) > 1;
+
 if (!pagamentoFinalLimpo) {
     exibirAviso("A forma de pagamento não foi definida.");
     estaProcessando = false;
@@ -1575,9 +1623,11 @@ if (!pagamentoFinalLimpo) {
         ),
         
         // ENVIA A FORMA CORRETA
-        form_pag: pagamentoFinalLimpo,
+        form_pag: pagamentoFinalLimpo === "Cartão de Crédito"
+            ? `Cartão de Crédito — ${Number(parcelasCredito || 1)}x`
+            : pagamentoFinalLimpo,
         parcelas: pagamentoFinalLimpo === "Cartão de Crédito" ? parcelasCredito : null,
-        valor_parcela: pagamentoFinalLimpo === "Cartão de Crédito" ? (totalReal / parcelasCredito) : null,
+        valor_parcela: pagamentoFinalLimpo === "Cartão de Crédito" ? (totalReal / Number(parcelasCredito || 1)) : null,
 
         origem: comandaAtual
             ? "APP"
@@ -1613,11 +1663,6 @@ if (!pagamentoFinalLimpo) {
     // Cartão de crédito parcelado (2x ou mais) fica no controle
     // de parcelas do Conta Fiado enquanto houver parcelas pendentes.
     // Cartão 1x e as demais formas continuam indo para /pedidos.
-    const ehCreditoParceladoPDV =
-        !comandaAtual &&
-        pagamentoFinalLimpo === "Cartão de Crédito" &&
-        Number(parcelasCredito) > 1;
-
     const endpointPedido = ehCreditoParceladoPDV
         ? `${URL_BACKEND_CAD}/credito-parcelado-pdv`
         : `${URL_BACKEND_CAD}/pedidos`;
@@ -1626,13 +1671,18 @@ if (!pagamentoFinalLimpo) {
         ? {
             produtos: carrinho.map(item => ({
                 id_produto: item.id_produto,
-                quantidade: item.qtd,
+                quantidade: Number(item.qtd || 0),
                 preco: Number(item.preco || 0)
             })),
             total: totalReal,
-            parcelas: Number(parcelasCredito),
-            valor_parcela: totalReal / Number(parcelasCredito),
-            data_compra: new Date().toISOString().slice(0, 10)
+            parcelas: Number(creditoDividido?.parcelas || parcelasCredito),
+            valor_credito: Number(creditoDividido?.valor || totalReal),
+            valor_parcela: Number(creditoDividido?.valor || totalReal) / Number(creditoDividido?.parcelas || parcelasCredito),
+            pagamentos: pagamentosDivididos || [{
+                metodo: "Cartão de Crédito",
+                valor: totalReal
+            }],
+            data_compra: dataLocalPDV()
         }
         : dadosPedido;
 
@@ -1680,96 +1730,43 @@ if (!pagamentoFinalLimpo) {
 
     .then(async data => {
 
-        console.log(
-            "RESPOSTA DO SERVIDOR:",
-            data
-        );
-        document
-        .getElementById("s_pedido")
-        .innerText = data.num_pedido;
+        console.log("RESPOSTA DO SERVIDOR:", data);
 
-    // FECHA O MODAL ASSIM QUE A VENDA FOI SALVA
-    modal.close();
+        const numeroPedido =
+            data.num_pedido ??
+            data.numero_pedido ??
+            data.id_pedido;
 
-        const numeroPedido = data.num_pedido ?? data.numero_pedido ?? data.id_pedido;
         numeroPedidoAtual = numeroPedido;
-        document
-            .getElementById("s_pedido")
-            .innerText = numeroPedido ?? "---";
 
-        atualizarFormaPagamentoFinal(pagamentoFinal);
-        atualizarSelecaoPagamento(pagamentoFinal);
-        pedidoFinalizado = true;
-        nova_venda.disabled = false;
-        atualizarBloqueioPagamento();
-
-        if (
-            data.alertas &&
-            data.alertas.length > 0
-        ) {
-
-            exibirAviso(
-
-                "⚠️ AVISO DE ESTOQUE:\n\n" +
-                data.alertas.join("\n"),
-
-                async () => {
-
-                    const qtdAdicionados =
-                        await verificarReposicaoAutomatica();
-
-                    if (qtdAdicionados > 0) {
-
-                        exibirAviso(
-
-                            `${qtdAdicionados} produto(s) foram adicionados automaticamente à lista de reposição.`,
-
-                            () => {
-
-                                comandaAtual = null;
-
-                                // Aguarda o operador clicar em Nova Venda.
-
-                            }
-                        );
-
-                    } else {
-
-                        comandaAtual = null;
-
-                        // Aguarda o operador clicar em Nova Venda.
-                    }
-                }
-            );
-
-        } else {
-
-            const qtdAdicionados =
-                await verificarReposicaoAutomatica();
-
-            if (qtdAdicionados > 0) {
-
-                exibirAviso(
-
-                    `${qtdAdicionados} produto(s) foram adicionados automaticamente à lista de reposição.`,
-
-                    () => {
-
-                        comandaAtual = null;
-
-                        // Aguarda o operador clicar em Nova Venda.
-
-                    }
-                );
-
-            } else {
-
-                comandaAtual = null;
-
-                // Aguarda o operador clicar em Nova Venda.
-            }
+        if (document.getElementById("s_pedido")) {
+            document.getElementById("s_pedido").innerText = numeroPedido ?? "---";
         }
 
+        modal.close();
+        pedidoFinalizado = true;
+
+        const concluirLimpezaVenda = async () => {
+            const qtdAdicionados = await verificarReposicaoAutomatica();
+
+            if (qtdAdicionados > 0) {
+                exibirAviso(
+                    `${qtdAdicionados} produto(s) foram adicionados automaticamente à lista de reposição.`,
+                    () => resetarPDV()
+                );
+            } else {
+                resetarPDV();
+            }
+        };
+
+        if (data.alertas && data.alertas.length > 0) {
+            exibirAviso(
+                "⚠️ AVISO DE ESTOQUE:\n\n" + data.alertas.join("\n"),
+                concluirLimpezaVenda
+            );
+        } else {
+            await concluirLimpezaVenda();
+        }
     })
 
     .catch(err => {
@@ -1866,7 +1863,7 @@ function confirmarCancelamento() {
             return;
         }
         try {
-            const resposta = await apiFetch(`${URL_BACKEND_CAD}/produtos/?busca=${encodeURIComponent(q)}`, {
+            const resposta = await apiFetch(`${URL_BACKEND_CAD}/produtos/busca?q=${encodeURIComponent(q)}`, {
                 headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
             });
 
@@ -2673,6 +2670,8 @@ const bFecharFiado = document.getElementById("b_fechar_fiado");
 const dialogCredito = document.getElementById("dialogCredito");
 const selParcelasCredito = document.getElementById("sel_parcelas_credito");
 const lblCreditoTotal = document.getElementById("lbl_credito_total");
+const campoValorCreditoDivisao = document.getElementById("campoValorCreditoDivisao");
+const inpValorCreditoDivisao = document.getElementById("inp_valor_credito_divisao");
 const lblValorParcela = document.getElementById("lbl_valor_parcela");
 const bFecharCredito = document.getElementById("b_fechar_credito");
 const bConfirmarCredito = document.getElementById("b_confirmar_credito");
@@ -2689,6 +2688,8 @@ const splitRestante = document.getElementById("split_restante");
 const splitLista = document.getElementById("split_lista");
 let splitPagamentos = [];
 let splitMetodoSelecionado = "";
+let splitCreditoValorPendente = null;
+let creditoEmDivisao = false;
 
 
 function valorSplitSomado() {
@@ -2734,14 +2735,22 @@ if (bAddSplit) bAddSplit.addEventListener("click",()=>{
     if(!splitMetodoSelecionado){ exibirAviso("Selecione uma forma de pagamento."); return; }
     if(!Number.isFinite(valor)||valor<=0){ exibirAviso("Digite um valor válido."); return; }
     if(valor-restante>0.009){ exibirAviso("O valor informado é maior que o restante da compra."); return; }
-    splitPagamentos.push({metodo:splitMetodoSelecionado,valor:Number(valor.toFixed(2))});
+
+    if (splitMetodoSelecionado === "Cartão de Crédito") {
+        splitCreditoValorPendente = Number(valor.toFixed(2));
+        splitValor.value = "";
+        creditoEmDivisao = true;
+        abrirModalCredito(splitCreditoValorPendente);
+        return;
+    }
+
+    splitPagamentos.push({metodo:splitMetodoSelecionado,valor:Number(valor.toFixed(2)),parcelas:1});
     splitValor.value=""; atualizarResumoSplit(); splitValor.focus();
 });
 function confirmarSplitPagamento(){
     const total=totalAtualPDV(), pago=valorSplitSomado();
     if(Math.abs(total-pago)>0.009){ exibirAviso("O pagamento dividido precisa completar exatamente o total da compra."); return; }
-    formaPagamento = splitPagamentos.map(p=>`${p.metodo}=${Number(p.valor).toFixed(2)}`).join(", ");
-    parcelasCredito = 1;
+    formaPagamento = splitPagamentos.map(p=>`${p.metodo}${p.metodo === "Cartão de Crédito" ? ` — ${Number(p.parcelas || 1)}x` : ""}=${Number(p.valor).toFixed(2)}`).join(", ");
     atualizarFormaPagamentoFinal(formaPagamento);
     dialogDividirPagamento.close();
     nova_venda.disabled=false;
@@ -2954,7 +2963,7 @@ function atualizarParcelamentoCredito() {
 
 // Abrir crédito
 
-function abrirModalCredito() {
+function abrirModalCredito(valorParcial = null) {
 
     const totalReal =
         totalAtualPDV();
@@ -2963,6 +2972,14 @@ function abrirModalCredito() {
     lblCreditoTotal.innerText =
         "R$ " +
         formatar(totalReal);
+
+    if (campoValorCreditoDivisao) {
+        campoValorCreditoDivisao.style.display = valorParcial !== null ? "block" : "none";
+    }
+
+    if (inpValorCreditoDivisao) {
+        inpValorCreditoDivisao.value = valorParcial !== null ? String(valorParcial.toFixed(2)) : "";
+    }
 
 
     /*
@@ -3013,6 +3030,8 @@ if (bFecharCredito && dialogCredito) {
     bFecharCredito.addEventListener("click", () => {
 
         dialogCredito.close();
+        creditoEmDivisao = false;
+        splitCreditoValorPendente = null;
 
         voltarFoco();
 
@@ -3030,6 +3049,8 @@ if (dialogCredito) {
         event.preventDefault();
 
         dialogCredito.close();
+        creditoEmDivisao = false;
+        splitCreditoValorPendente = null;
 
         voltarFoco();
 
@@ -3096,9 +3117,36 @@ if (bConfirmarCredito && dialogCredito) {
         }
 
 
+        if (creditoEmDivisao) {
+            const valorCredito = Number(String(inpValorCreditoDivisao?.value || splitCreditoValorPendente || "").replace(",", "."));
+            const restanteAntes = totalAtualPDV() - valorSplitSomado();
+
+            if (!Number.isFinite(valorCredito) || valorCredito <= 0) {
+                exibirAviso("Informe o valor que será pago no cartão de crédito.");
+                return;
+            }
+
+            if (valorCredito - restanteAntes > 0.009) {
+                exibirAviso("O valor do crédito é maior que o restante da compra.");
+                return;
+            }
+
+            splitPagamentos.push({
+                metodo: "Cartão de Crédito",
+                valor: Number(valorCredito.toFixed(2)),
+                parcelas: Number(parcelasCredito)
+            });
+
+            creditoEmDivisao = false;
+            splitCreditoValorPendente = null;
+            dialogCredito.close();
+            atualizarResumoSplit();
+            splitValor.focus();
+            return;
+        }
+
         formaPagamento =
             "Cartão de Crédito";
-
 
         atualizarSelecaoPagamento(
             formaPagamento
@@ -3107,7 +3155,6 @@ if (bConfirmarCredito && dialogCredito) {
         atualizarFormaPagamentoFinal(
             formaPagamento
         );
-
 
         dialogCredito.close();
 
@@ -3240,6 +3287,58 @@ function dataLocalPDV() {
     const mes = String(agora.getMonth() + 1).padStart(2, "0");
     const dia = String(agora.getDate()).padStart(2, "0");
     return `${ano}-${mes}-${dia}`;
+}
+
+function normalizarDataFechamento(data, usarHojeComoFallback = true) {
+    if (!data) return usarHojeComoFallback ? dataLocalPDV() : null;
+
+    const texto = String(data).trim();
+
+    // Data SQL/HTML correta.
+    if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) {
+        return texto;
+    }
+
+    // ISO retornado pelo backend/MySQL: YYYY-MM-DDTHH:mm:ss...
+    const iso = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (iso) {
+        return `${iso[1]}-${iso[2]}-${iso[3]}`;
+    }
+
+    // Data brasileira.
+    const br = texto.match(/^(\d{2})[\\/](\d{2})[\\/](\d{4})/);
+    if (br) {
+        return `${br[3]}-${br[2]}-${br[1]}`;
+    }
+
+    // IMPORTANTE:
+    // Nunca use new Date("Thu Sep 17") diretamente.
+    // Quando o backend devolve apenas "Thu Sep 17", o JavaScript
+    // assume 2001 e isso fazia o PDV voltar para 17/09/2001.
+    const mesMap = {
+        jan: "01", feb: "02", mar: "03", apr: "04", may: "05", jun: "06",
+        jul: "07", aug: "08", sep: "09", oct: "10", nov: "11", dec: "12"
+    };
+    const semAno = texto.match(/^(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\\s+([A-Za-z]{3})\\s+(\\d{1,2})(?:\\s|$)/i);
+    if (semAno) {
+        const mes = mesMap[semAno[1].toLowerCase()];
+        if (mes) {
+            const anoAtual = new Date().getFullYear();
+            return `${anoAtual}-${mes}-${String(semAno[2]).padStart(2, "0")}`;
+        }
+    }
+
+    // Se houver um ano explícito em uma data textual, aí sim podemos
+    // converter com segurança.
+    const comAno = texto.match(/(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\\s+([A-Za-z]{3})\\s+(\\d{1,2})\\s+(\\d{4})/i);
+    if (comAno) {
+        const mes = mesMap[comAno[1].toLowerCase()];
+        if (mes) {
+            return `${comAno[3]}-${mes}-${String(comAno[2]).padStart(2, "0")}`;
+        }
+    }
+
+    return usarHojeComoFallback ? dataLocalPDV() : null;
 }
 
 function formatarDataFechamento(data) {
@@ -3376,6 +3475,8 @@ async function carregarDadosFechamento(data, abrir = true) {
     if (!data) return;
     limparAlertaFechamento();
 
+    data = normalizarDataFechamento(data);
+
     if (fechamentoData) fechamentoData.value = data;
     if (fechamentoDataConsulta) fechamentoDataConsulta.value = data;
 
@@ -3452,16 +3553,32 @@ async function verificarFechamentoInicial() {
         const dados = tipoResposta.includes("application/json") ? await resposta.json() : { resposta: `Servidor respondeu ${resposta.status} sem JSON.` };
         if (!resposta.ok) throw new Error(dados.resposta || "Não foi possível verificar o fechamento diário.");
 
-        const hoje = dados.hoje || dataLocalPDV();
-        fechamentoForcado = Boolean(dados.data_pendente);
+        const hoje = normalizarDataFechamento(dados.hoje || dataLocalPDV());
+
+        // Só considera pendente uma data REAL, válida e anterior a hoje.
+        // Nunca deixa uma resposta inválida/null virar a data de hoje.
+        const candidatosPendentes = [];
+
+        if (Array.isArray(dados.dias_pendentes)) {
+            candidatosPendentes.push(...dados.dias_pendentes);
+        } else if (dados.data_pendente) {
+            candidatosPendentes.push(dados.data_pendente);
+        }
+
+        const dataPendenteNormalizada = candidatosPendentes
+            .map(data => normalizarDataFechamento(data, false))
+            .filter(data => data && /^\d{4}-\d{2}-\d{2}$/.test(data) && data < hoje)
+            .sort()[0] || null;
+
+        fechamentoForcado = Boolean(dataPendenteNormalizada);
         const chaveAberturaPDV = `pdv_fechamento_apresentado_${hoje}`;
         const jaApresentadoHoje = localStorage.getItem(chaveAberturaPDV) === "1";
 
         if (fechamentoForcado) {
             mostrarAlertaFechamento(
-                `Existe um fechamento pendente do dia ${formatarDataFechamento(dados.data_pendente)}.\nFeche esse dia antes de iniciar novas vendas.`
+                `Existe um fechamento pendente do dia ${formatarDataFechamento(dataPendenteNormalizada)}.\nFeche o dia ${formatarDataFechamento(dataPendenteNormalizada)} antes de iniciar novas vendas.`
             );
-            await carregarDadosFechamento(dados.data_pendente, true);
+            await carregarDadosFechamento(dataPendenteNormalizada, true);
             fecharTravaPDV(true);
         } else {
             const abrirAutomaticamente = !jaApresentadoHoje;
