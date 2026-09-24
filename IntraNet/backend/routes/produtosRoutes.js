@@ -140,6 +140,86 @@ router.get("/categorias", verificarToken, async (req, res) => {
       });
     }
   });
+  router.post(
+    "/categorias",
+    verificarToken,
+    async (req, res) => {
+
+        try {
+
+            const nome =
+                String(
+                    req.body?.nome || ""
+                ).trim();
+
+            if (!nome) {
+                return res.status(400).json({
+                    erro:
+                        "Informe o nome da categoria."
+                });
+            }
+
+            if (nome.length > 100) {
+                return res.status(400).json({
+                    erro:
+                        "O nome da categoria deve ter no máximo 100 caracteres."
+                });
+            }
+
+            const [existente] =
+                await conexao.query(
+                    `
+                    SELECT
+                        id_categoria,
+                        nome
+                    FROM categorias
+                    WHERE LOWER(TRIM(nome)) =
+                          LOWER(TRIM(?))
+                    LIMIT 1
+                    `,
+                    [nome]
+                );
+
+            if (existente.length > 0) {
+                return res.status(409).json({
+                    erro:
+                        "Já existe uma categoria com esse nome."
+                });
+            }
+
+            const [resultado] =
+                await conexao.query(
+                    `
+                    INSERT INTO categorias
+                    (
+                        nome
+                    )
+                    VALUES (?)
+                    `,
+                    [nome]
+                );
+
+            return res.status(201).json({
+                sucesso: true,
+                id_categoria:
+                    resultado.insertId,
+                nome
+            });
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao cadastrar categoria:",
+                erro
+            );
+
+            return res.status(500).json({
+                erro:
+                    "Erro ao cadastrar categoria."
+            });
+        }
+    }
+);
 //-----Busca
 router.get("/produtos/busca", verificarToken, async (req, res) => {
     try {

@@ -1599,7 +1599,6 @@ const pagamentoFinalLimpo =
     );
 
     const ehCreditoParceladoPDV =
-        !comandaAtual &&
         (pagamentoFinalLimpo === "Cartão de Crédito" || !!creditoDividido) &&
         Number(creditoDividido?.parcelas || parcelasCredito || 1) > 1;
 
@@ -1669,6 +1668,7 @@ if (!pagamentoFinalLimpo) {
 
     const corpoPedido = ehCreditoParceladoPDV
         ? {
+            id_pedido: comandaAtual?.id_pedido ?? null,
             produtos: carrinho.map(item => ({
                 id_produto: item.id_produto,
                 quantidade: Number(item.qtd || 0),
@@ -1680,7 +1680,8 @@ if (!pagamentoFinalLimpo) {
             valor_parcela: Number(creditoDividido?.valor || totalReal) / Number(creditoDividido?.parcelas || parcelasCredito),
             pagamentos: pagamentosDivididos || [{
                 metodo: "Cartão de Crédito",
-                valor: totalReal
+                valor: totalReal,
+                parcelas: Number(parcelasCredito || 1)
             }],
             data_compra: dataLocalPDV()
         }
@@ -1715,6 +1716,7 @@ if (!pagamentoFinalLimpo) {
                 .then(data => {
 
                     throw new Error(
+                        data.mensagem ||
                         data.resposta ||
                         data.erro ||
                         "Erro ao salvar pedido."
@@ -1863,31 +1865,38 @@ function confirmarCancelamento() {
             return;
         }
         try {
-            const resposta = await apiFetch(`${URL_BACKEND_CAD}/produtos/busca?q=${encodeURIComponent(q)}`, {
+            const resposta = await apiFetch(`${URL_BACKEND_CAD}/produtos/?busca=${encodeURIComponent(q)}`, {
                 headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
             });
 
             const respostaJson = await resposta.json();
-            const dados = Array.isArray(respostaJson)
+
+            const dadosBrutos = Array.isArray(respostaJson)
                 ? respostaJson
-                : (Array.isArray(respostaJson.produtos) ? respostaJson.produtos : []);
+                : (Array.isArray(respostaJson.produtos)
+                    ? respostaJson.produtos
+                    : []);
 
-            if (!Array.isArray(dados)) return;
+            const dados = dadosBrutos.filter(prod =>
+                prod &&
+                prod.nome != null
+            );
 
-const termo = q.toLowerCase();
+            const termo = q.toLowerCase();
 
-dados.sort((a, b) => {
-    const aNome = a.nome.toLowerCase();
-    const bNome = b.nome.toLowerCase();
+            dados.sort((a, b) => {
+                const aNome = String(a.nome).toLowerCase();
+                const bNome = String(b.nome).toLowerCase();
 
-    const aComeca = aNome.startsWith(termo);
-    const bComeca = bNome.startsWith(termo);
+                const aComeca = aNome.startsWith(termo);
+                const bComeca = bNome.startsWith(termo);
 
-    if (aComeca && !bComeca) return -1;
-    if (!aComeca && bComeca) return 1;
+                if (aComeca && !bComeca) return -1;
+                if (!aComeca && bComeca) return 1;
 
-    return aNome.localeCompare(bNome);
-});
+                return aNome.localeCompare(bNome);
+            });
+
             produtosFiltrados = dados; 
             lista.innerHTML = "";
             dados.forEach((prod, index) => {
@@ -3311,26 +3320,17 @@ function normalizarDataFechamento(data, usarHojeComoFallback = true) {
         return `${br[3]}-${br[2]}-${br[1]}`;
     }
 
-    // IMPORTANTE:
-    // Nunca use new Date("Thu Sep 17") diretamente.
-    // Quando o backend devolve apenas "Thu Sep 17", o JavaScript
-    // assume 2001 e isso fazia o PDV voltar para 17/09/2001.
+    // Datas textuais sem ano, como "Thu Sep 17", são AMBÍGUAS.
+    // Não podemos transformá-las em 2026-09-17, porque isso pode fazer
+    // o PDV considerar um fechamento antigo como pendente e tentar
+    // carregar uma data que o backend não reconhece.
+    //
+    // Só aceitamos uma data textual se ela trouxer o ano explicitamente.
     const mesMap = {
         jan: "01", feb: "02", mar: "03", apr: "04", may: "05", jun: "06",
         jul: "07", aug: "08", sep: "09", oct: "10", nov: "11", dec: "12"
     };
-    const semAno = texto.match(/^(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\\s+([A-Za-z]{3})\\s+(\\d{1,2})(?:\\s|$)/i);
-    if (semAno) {
-        const mes = mesMap[semAno[1].toLowerCase()];
-        if (mes) {
-            const anoAtual = new Date().getFullYear();
-            return `${anoAtual}-${mes}-${String(semAno[2]).padStart(2, "0")}`;
-        }
-    }
-
-    // Se houver um ano explícito em uma data textual, aí sim podemos
-    // converter com segurança.
-    const comAno = texto.match(/(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\\s+([A-Za-z]{3})\\s+(\\d{1,2})\\s+(\\d{4})/i);
+    const comAno = texto.match(/(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+([A-Za-z]{3})\s+(\d{1,2})\s+(\d{4})/i);
     if (comAno) {
         const mes = mesMap[comAno[1].toLowerCase()];
         if (mes) {

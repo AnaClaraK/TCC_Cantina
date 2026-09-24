@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,42 +18,36 @@
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-
         .form-row {
             display: flex;
             gap: 15px;
             margin-bottom: 15px;
         }
-
         .form-group {
             flex: 1;
             display: flex;
             flex-direction: column;
         }
-
         .form-group label {
             font-weight: bold;
             margin-bottom: 5px;
             font-size: 14px;
             color: #333;
         }
-
-        .form-group input, 
-        .form-group select, 
+        .form-group input,
+        .form-group select,
         .form-group textarea {
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 14px;
         }
-
         .input-disabled {
             background-color: #e9ecef;
             cursor: not-allowed;
             font-weight: bold;
             color: #2b2b2b;
         }
-
         .btn-submit {
             background-color: #28a745;
             color: #fff;
@@ -66,24 +61,96 @@
             margin-top: 10px;
             transition: background 0.3s;
         }
-
         .btn-submit:hover {
             background-color: #218838;
         }
+
+        /* MODAL NOVA CATEGORIA */
+        #modalNovaCategoria {
+            border: none;
+            border-radius: 10px;
+            padding: 0;
+            width: min(420px, 90vw);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        }
+
+        #modalNovaCategoria::backdrop {
+            background: rgba(0,0,0,0.55);
+        }
+
+        .modal-categoria-box {
+            padding: 25px;
+            background: #fff;
+        }
+
+        .modal-categoria-box h2 {
+            margin: 0 0 8px;
+            color: #242628;
+        }
+
+        .modal-categoria-box p {
+            margin: 0 0 18px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .modal-categoria-box label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .modal-categoria-box input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 15px;
+        }
+
+        .modal-categoria-acoes {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-categoria-acoes button {
+            border: none;
+            border-radius: 5px;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #btnCancelarCategoria {
+            background: #e5e5e5;
+            color: #242628;
+        }
+
+        #btnSalvarCategoria {
+            background: #efac4a;
+            color: #242628;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="form-container">
         <h2>Cadastrar Novo Produto</h2>
-        
+
         <form id="form_cadastrar_produto" enctype="multipart/form-data">
+
             <!-- NOME E CATEGORIA -->
             <div class="form-row">
                 <div class="form-group" style="flex: 2;">
                     <label for="nome">Nome do Produto *</label>
                     <input type="text" id="nome" required placeholder="Ex: Pão de Queijo">
                 </div>
+
                 <div class="form-group" style="flex: 1;">
                     <label for="id_categoria">Categoria *</label>
                     <select id="id_categoria" required>
@@ -147,115 +214,304 @@
         </form>
     </div>
 
- <script>
-    const API_BASE_URL = "http://localhost:3000";
+    <!-- MODAL NOVA CATEGORIA -->
+    <dialog id="modalNovaCategoria">
+        <div class="modal-categoria-box">
+            <h2>Nova Categoria</h2>
+            <p>Cadastre uma nova categoria para utilizar nos produtos.</p>
 
-    // 1. Carregar Categorias no <select>
-    async function carregarCategorias() {
-        const selectCategoria = document.getElementById("id_categoria");
-        try {
-            const res = await fetch(`${API_BASE_URL}/categorias`, {
-                headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
-            });
+            <form id="formNovaCategoria">
+                <label for="nomeNovaCategoria">Nome da categoria *</label>
+                <input
+                    type="text"
+                    id="nomeNovaCategoria"
+                    maxlength="100"
+                    required
+                    placeholder="Ex: Bebidas"
+                >
 
-            if (!res.ok) throw new Error("Erro ao buscar categorias");
+                <div class="modal-categoria-acoes">
+                    <button type="button" id="btnCancelarCategoria">Cancelar</button>
+                    <button type="submit" id="btnSalvarCategoria">Cadastrar categoria</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
 
-            const categorias = await res.json();
-            selectCategoria.innerHTML = '<option value="">Selecione...</option>';
+    <script>
+        const API_BASE_URL = "http://localhost:3000";
 
-            categorias.forEach(cat => {
-                selectCategoria.innerHTML += `<option value="${cat.id_categoria}">${cat.nome}</option>`;
-            });
-        } catch (err) {
-            console.error("Erro ao carregar categorias:", err);
-            selectCategoria.innerHTML = '<option value="">Erro ao carregar</option>';
-        }
-    }
+        // 1. Carregar Categorias no <select>
+        async function carregarCategorias() {
+            const selectCategoria = document.getElementById("id_categoria");
 
-    // 2. Buscar o Próximo Código de Barras (Baseado no último ID cadastrado no banco)
-    async function carregarProximoCodigo() {
-        const inputCodigo = document.getElementById("codigo");
-        try {
-            const res = await fetch(`${API_BASE_URL}/produtos/proximo-codigo`, {
-                headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
-            });
+            try {
+                const res = await fetch(`${API_BASE_URL}/categorias`, {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    }
+                });
 
-            if (!res.ok) throw new Error("Erro ao buscar próximo código");
+                if (!res.ok) {
+                    throw new Error("Erro ao buscar categorias");
+                }
 
-            const dados = await res.json();
-            if (dados.proximoCodigo) {
-                inputCodigo.value = dados.proximoCodigo;
+                const categorias = await res.json();
+
+                selectCategoria.innerHTML = '<option value="">Selecione...</option>';
+
+                categorias.forEach(cat => {
+                    const option = document.createElement("option");
+                    option.value = cat.id_categoria;
+                    option.textContent = cat.nome;
+                    selectCategoria.appendChild(option);
+                });
+
+            } catch (err) {
+                console.error("Erro ao carregar categorias:", err);
+                selectCategoria.innerHTML = '<option value="">Erro ao carregar</option>';
             }
-        } catch (err) {
-            console.error("Erro ao carregar próximo código:", err);
-            inputCodigo.placeholder = "Digite o código";
-        }
-    }
-
-    // 3. Cálculo Dinâmico do Preço Final
-    function calcularPrecoVenda() {
-        const valorBruto = parseFloat(document.getElementById("valor_bruto").value) || 0;
-        const porcentagem = parseFloat(document.getElementById("porcentagem_lucro").value) || 0;
-
-        const precoVenda = valorBruto + (valorBruto * (porcentagem / 100));
-        document.getElementById("preco_final").value = precoVenda.toFixed(2).replace(".", ",");
-    }
-
-    document.getElementById("valor_bruto").addEventListener("input", calcularPrecoVenda);
-    document.getElementById("porcentagem_lucro").addEventListener("input", calcularPrecoVenda);
-
-    // 4. Envio do Formulário de Cadastro
-    document.getElementById("form_cadastrar_produto").addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const valorBruto = parseFloat(document.getElementById("valor_bruto").value) || 0;
-        const porcentagem = parseFloat(document.getElementById("porcentagem_lucro").value) || 0;
-        const precoCalculado = (valorBruto + (valorBruto * (porcentagem / 100))).toFixed(2);
-
-        const formData = new FormData();
-        formData.append("nome", document.getElementById("nome").value);
-        formData.append("codigo", document.getElementById("codigo").value);
-        formData.append("valor_bruto", valorBruto);
-        formData.append("porcentagem_lucro", porcentagem); // <--- Porcentagem enviada para salvar no banco
-        formData.append("preco", precoCalculado);
-        formData.append("quantidade", document.getElementById("quantidade").value);
-        formData.append("qtd_min", document.getElementById("qtd_min").value);
-        formData.append("descricao", document.getElementById("descricao").value);
-        formData.append("id_categoria", document.getElementById("id_categoria").value);
-
-        const fileInput = document.getElementById("imagem");
-        if (fileInput.files[0]) {
-            formData.append("imagem", fileInput.files[0]);
         }
 
-        try {
-            const resposta = await fetch(`${API_BASE_URL}/produtos`, {
-                method: "POST",
-                headers: { 
-                    "Authorization": `Bearer ${localStorage.getItem("token")}` 
-                },
-                body: formData
+        // 2. Abrir modal de nova categoria a partir do header
+        window.abrirModalNovaCategoria = function () {
+            const modal = document.getElementById("modalNovaCategoria");
+            const input = document.getElementById("nomeNovaCategoria");
+
+            if (!modal || !input) {
+                return;
+            }
+
+            input.value = "";
+            modal.showModal();
+
+            setTimeout(() => {
+                input.focus();
+            }, 80);
+        };
+
+        // 3. Fechar modal de nova categoria
+        document.getElementById("btnCancelarCategoria")?.addEventListener("click", () => {
+            document.getElementById("modalNovaCategoria")?.close();
+        });
+
+        // 4. Cadastrar nova categoria
+        document.getElementById("formNovaCategoria")?.addEventListener("submit", async event => {
+            event.preventDefault();
+
+            const input = document.getElementById("nomeNovaCategoria");
+            const nome = input.value.trim();
+            const botao = document.getElementById("btnSalvarCategoria");
+
+            if (!nome) {
+                alert("Informe o nome da categoria.");
+                input.focus();
+                return;
+            }
+
+            try {
+                botao.disabled = true;
+
+                const resposta = await fetch(`${API_BASE_URL}/categorias`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    },
+                    body: JSON.stringify({
+                        nome
+                    })
+                });
+
+                const dados = await resposta.json().catch(() => ({}));
+
+                if (!resposta.ok) {
+                    throw new Error(
+                        dados.erro ||
+                        "Erro ao cadastrar categoria."
+                    );
+                }
+
+                await carregarCategorias();
+
+                const selectCategoria = document.getElementById("id_categoria");
+
+                if (dados.id_categoria) {
+                    selectCategoria.value = String(dados.id_categoria);
+                }
+
+                document.getElementById("modalNovaCategoria")?.close();
+
+                alert("Categoria cadastrada com sucesso!");
+
+            } catch (erro) {
+                console.error("Erro ao cadastrar categoria:", erro);
+                alert(erro.message || "Erro de conexão ao cadastrar categoria.");
+            } finally {
+                botao.disabled = false;
+            }
+        });
+
+        // 5. Buscar o Próximo Código de Barras
+        async function carregarProximoCodigo() {
+            const inputCodigo = document.getElementById("codigo");
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/produtos/proximo-codigo`, {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    }
+                });
+
+                if (!res.ok) {
+                    throw new Error("Erro ao buscar próximo código");
+                }
+
+                const dados = await res.json();
+
+                if (dados.proximoCodigo) {
+                    inputCodigo.value = dados.proximoCodigo;
+                }
+
+            } catch (err) {
+                console.error("Erro ao carregar próximo código:", err);
+                inputCodigo.placeholder = "Digite o código";
+            }
+        }
+
+        // 6. Cálculo Dinâmico do Preço Final
+        function calcularPrecoVenda() {
+            const valorBruto =
+                parseFloat(document.getElementById("valor_bruto").value) || 0;
+
+            const porcentagem =
+                parseFloat(document.getElementById("porcentagem_lucro").value) || 0;
+
+            const precoVenda =
+                valorBruto + (valorBruto * (porcentagem / 100));
+
+            document.getElementById("preco_final").value =
+                precoVenda.toFixed(2).replace(".", ",");
+        }
+
+        document
+            .getElementById("valor_bruto")
+            .addEventListener("input", calcularPrecoVenda);
+
+        document
+            .getElementById("porcentagem_lucro")
+            .addEventListener("input", calcularPrecoVenda);
+
+        // 7. Envio do Formulário de Cadastro
+        document
+            .getElementById("form_cadastrar_produto")
+            .addEventListener("submit", async e => {
+                e.preventDefault();
+
+                const valorBruto =
+                    parseFloat(document.getElementById("valor_bruto").value) || 0;
+
+                const porcentagem =
+                    parseFloat(document.getElementById("porcentagem_lucro").value) || 0;
+
+                const precoCalculado =
+                    (valorBruto + (valorBruto * (porcentagem / 100))).toFixed(2);
+
+                const formData = new FormData();
+
+                formData.append(
+                    "nome",
+                    document.getElementById("nome").value
+                );
+
+                formData.append(
+                    "codigo",
+                    document.getElementById("codigo").value
+                );
+
+                formData.append(
+                    "valor_bruto",
+                    valorBruto
+                );
+
+                formData.append(
+                    "porcentagem_lucro",
+                    porcentagem
+                );
+
+                formData.append(
+                    "preco",
+                    precoCalculado
+                );
+
+                formData.append(
+                    "quantidade",
+                    document.getElementById("quantidade").value
+                );
+
+                formData.append(
+                    "qtd_min",
+                    document.getElementById("qtd_min").value
+                );
+
+                formData.append(
+                    "descricao",
+                    document.getElementById("descricao").value
+                );
+
+                formData.append(
+                    "id_categoria",
+                    document.getElementById("id_categoria").value
+                );
+
+                const fileInput =
+                    document.getElementById("imagem");
+
+                if (fileInput.files[0]) {
+                    formData.append(
+                        "imagem",
+                        fileInput.files[0]
+                    );
+                }
+
+                try {
+                    const resposta = await fetch(
+                        `${API_BASE_URL}/produtos`,
+                        {
+                            method: "POST",
+                            headers: {
+                                "Authorization":
+                                    `Bearer ${localStorage.getItem("token")}`
+                            },
+                            body: formData
+                        }
+                    );
+
+                    const dados =
+                        await resposta.json();
+
+                    if (resposta.ok) {
+                        alert("Produto cadastrado com sucesso!");
+                        location.reload();
+                    } else {
+                        alert(
+                            dados.erro ||
+                            "Erro ao cadastrar produto"
+                        );
+                    }
+
+                } catch (erro) {
+                    console.error("Erro no cadastro:", erro);
+                    alert("Erro de conexão ao cadastrar produto.");
+                }
             });
 
-            const dados = await resposta.json();
+        // Inicialização ao carregar a página
+        document.addEventListener("DOMContentLoaded", () => {
+            carregarCategorias();
+            carregarProximoCodigo();
+        });
+    </script>
 
-            if (resposta.ok) {
-                alert("Produto cadastrado com sucesso!");
-                location.reload();
-            } else {
-                alert(dados.erro || "Erro ao cadastrar produto");
-            }
-        } catch (erro) {
-            console.error("Erro no cadastro:", erro);
-            alert("Erro de conexão ao cadastrar produto.");
-        }
-    });
-
-    // Inicialização ao carregar a página
-    document.addEventListener("DOMContentLoaded", () => {
-        carregarCategorias();
-        carregarProximoCodigo();
-    });
-</script>
 </body>
 </html>

@@ -11,9 +11,12 @@
     <link rel="stylesheet" href="styleag_es.css">
     <link rel="stylesheet" href="style_clientef.css">
     <script src="sidebar_header.js"></script>
+<script>
+    let contaParaConcluirFiado = null;
+    let itensParaConcluirFiado = null;
 
-    <style>
-.linha-conta-clicavel{cursor:pointer;transition:background .15s ease}.linha-conta-clicavel:hover{filter:brightness(1.08)}.linha-conta-clicavel:focus{outline:2px solid #efac4a;outline-offset:-2px}.btn-nome-cliente-fiado{background:none;border:0;color:inherit;font:inherit;padding:0;cursor:pointer;text-align:left}.detalhes-conta-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}.detalhe-conta-item{background:rgba(255,255,255,.05);padding:12px 14px;border-radius:10px}.detalhe-conta-item strong{display:block;margin-bottom:4px}.detalhes-conta-acoes{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}.detalhes-conta-acoes button{cursor:pointer} .modal-detalhes-conta{width:min(760px,94vw);max-width:760px;border:0;border-radius:16px;padding:0;background:transparent;color:inherit}.modal-detalhes-conta::backdrop{background:rgba(0,0,0,.72)}.modal-detalhes-conta .modal-content{position:relative;background:#1d1d1d;border-radius:16px;padding:24px;max-height:85vh;overflow:auto;box-sizing:border-box}.modal-detalhes-conta .close{position:absolute;top:10px;right:14px;border:0;background:transparent;color:inherit;font-size:28px;cursor:pointer}.modal-detalhes-conta[open]{display:block}</style>
+</script>
+
 <script>
         (function () {
 
@@ -26,186 +29,6 @@
 
         })();
     </script>
-
-
-<style id="juros-html-fallback">
-/* Ajustes locais da simulação de juros.
-   Não substitui os CSS compartilhados. */
-
-#listaContasJuros {
-    max-height: 430px;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-.conta_juros_item {
-    width: 100%;
-    box-sizing: border-box;
-    margin-bottom: 10px;
-}
-
-.conta_juros_titulo {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 7px 10px;
-}
-
-.conta_juros_produtos_lista {
-    width: 100%;
-}
-
-.juros-produto-linha {
-    display: grid;
-    grid-template-columns:
-        34px
-        minmax(180px, 1fr)
-        105px
-        125px
-        60px
-        105px;
-
-    align-items: center;
-    gap: 8px;
-
-    min-height: 48px;
-    padding: 6px 10px;
-    box-sizing: border-box;
-}
-
-.juros-produto-selecao {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.juros-produto-nome,
-.juros-produto-valor,
-.juros-produto-vencimento,
-.juros-produto-dias,
-.juros-produto-resultado {
-    min-width: 0;
-}
-
-.juros-produto-nome {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-}
-
-.juros-produto-nome strong {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.juros-produto-valor,
-.juros-produto-vencimento,
-.juros-produto-dias,
-.juros-produto-resultado {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.juros-produto-valor span,
-.juros-produto-vencimento span,
-.juros-produto-dias span,
-.juros-produto-resultado span {
-    font-size: 10px;
-    opacity: .65;
-    text-transform: uppercase;
-}
-
-.juros-produto-valor strong,
-.juros-produto-vencimento strong,
-.juros-produto-dias strong,
-.juros-produto-resultado strong {
-    font-size: 13px;
-}
-
-.compra-vencimento {
-    font-size: 12px;
-    opacity: .75;
-    white-space: nowrap;
-}
-
-.juros-produto-ja-aplicado {
-    opacity: .55;
-}
-
-/* ======================================================
-   AJUSTES — CLIENTE / ATRASO / CONCLUIR CONTA
-====================================================== */
-.btn-nome-cliente-fiado { border:0; background:transparent; padding:0; color:inherit; font:inherit; font-weight:800; cursor:pointer; text-align:left; text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:3px; }
-.btn-nome-cliente-fiado:hover { opacity:.72; }
-.linha-conta-atrasada td { border-top:3px solid #ff1744; border-bottom:3px solid #ff1744; }
-.vencimento-celula { display:flex; flex-direction:column; align-items:flex-start; gap:4px; }
-.badge-atrasado,.badge-atrasado-modal { display:inline-flex; align-items:center; justify-content:center; background:#ff1744; color:#fff; font-weight:900; padding:4px 9px; border-radius:6px; font-size:11px; letter-spacing:.5px; }
-.badge-atrasado-modal { margin-left:8px; }
-.dias-atraso { font-weight:800; }
-.conta-modal-atrasada { border:3px solid #ff1744 !important; box-shadow:0 0 0 2px rgba(255,23,68,.15); }
-.conta_juros_titulo { display:flex; align-items:center; justify-content:space-between; gap:15px; flex-wrap:wrap; }
-.conta-juros-acoes { display:flex; align-items:center; justify-content:flex-end; gap:12px; flex-wrap:wrap; }
-.btn-desbloquear-juros { border:1px solid currentColor; background:transparent; color:inherit; border-radius:6px; padding:3px 7px; font-size:10px; font-weight:900; cursor:pointer; white-space:nowrap; }
-.btn-desbloquear-juros:hover { filter:brightness(1.18); }
-.juros-produto-desbloqueado { opacity:1; }
-.juros-produto-ja-aplicado .btn-desbloquear-juros { opacity:1; }
-.conta-valor-resumo { padding:7px 10px; font-size:13px; }
-.conta-valor-resumo strong { font-size:15px; }
-.info-atrasado { display:inline-block; padding:6px 10px; border-radius:7px; background:#ff1744; color:#fff; font-weight:900; }
-.modal-cliente-direto .campo-busca-cliente-juros, .modal-cliente-direto > label[for="buscaClienteJuros"] { display:none; }
-.modal-cliente-direto .pm { margin-top:4px; }
-.modal-resumo-juros-box { width:min(1200px,94vw); max-width:1200px; }
-.modal-resumo-juros-box > div { max-width:100%; }
-
-
-/* ======================================================
-   COMPRAS PARCELADAS NO CARTÃO
-====================================================== */
-#b_compras_parceladas { white-space: nowrap; }
-.modal-parceladas-box { width:min(1180px,94vw); max-width:1180px; }
-.lista-compras-parceladas { display:flex; flex-direction:column; gap:14px; max-height:70vh; overflow:auto; padding:4px; }
-.credito-card { border:2px solid rgba(239,172,74,.55); border-radius:12px; padding:16px; background:rgba(255,255,255,.035); }
-.credito-card-topo { display:flex; justify-content:space-between; gap:15px; align-items:flex-start; flex-wrap:wrap; }
-.credito-card-topo h3 { margin:0 0 5px; }
-.credito-meta { display:flex; gap:14px; flex-wrap:wrap; font-size:13px; opacity:.9; }
-.credito-progresso { font-weight:900; font-size:15px; }
-.credito-parcelas { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:8px; margin-top:14px; }
-.credito-parcela { border:1px solid rgba(255,255,255,.15); border-radius:9px; padding:10px; display:flex; flex-direction:column; gap:4px; }
-.credito-parcela.paga { opacity:.65; }
-.credito-parcela strong { font-size:14px; }
-.credito-parcela small { opacity:.72; }
-.credito-concluido { border-color:#35c76f; }
-.credito-vazio { padding:28px; text-align:center; opacity:.7; }
-.credito-automatico { margin-top:10px; padding:9px 11px; border-radius:8px; background:rgba(239,172,74,.10); border:1px solid rgba(239,172,74,.30); font-size:12px; font-weight:700; }
-.notificacao-parcela-pagina { width:100%; box-sizing:border-box; margin:10px 0 0; }
-.notificacao-parcela { border-left:5px solid #35c76f; padding:12px 14px; margin:0 0 12px; background:rgba(53,199,111,.10); border-radius:8px; font-weight:700; }
-
-@media (max-width: 850px) {
-    .juros-produto-linha {
-        grid-template-columns:
-            30px
-            minmax(140px, 1fr)
-            90px
-            100px
-            50px
-            90px;
-        gap: 5px;
-        padding-left: 6px;
-        padding-right: 6px;
-    }
-}
-</style>
-
-<style>
-.modal-pagamento-dividido .conteudo-dividir{width:min(620px,92vw);padding:28px;border-radius:18px;background:#fff}
-.lista-divisoes{display:flex;flex-direction:column;gap:8px;margin:14px 0;max-height:220px;overflow:auto}
-.divisao-item{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid #ddd;border-radius:10px}
-.divisao-item button{border:0;background:transparent;font-size:22px;cursor:pointer}
-.modal-pagamento-dividido .acoes-modal{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
-</style>
 </head>
 
 
@@ -361,11 +184,16 @@
         >
 
 
-        <label for="dataVencimentoPadraoCliente">Vencimento padrão do cliente</label>
+        <label for="diaVencimentoPadraoCliente">Dia de vencimento do cliente</label>
         <input
-            type="date"
+            type="number"
             class="inp_m"
-            id="dataVencimentoPadraoCliente"
+            id="diaVencimentoPadraoCliente"
+            min="1"
+            max="31"
+            step="1"
+            inputmode="numeric"
+            placeholder="Dia (1 a 31)"
         >
 
 
@@ -456,11 +284,15 @@
         >
 
 
-        <input
-            type="date"
-            class="inp_m"
-            id="inp_data_fiado"
-        >
+        <p class="pm">
+
+            Dia de vencimento:
+
+            <span id="s_dia_vencimento">
+                ---
+            </span>
+
+        </p>
 
 
         <button
@@ -528,9 +360,9 @@
 
         </p>
 
-        <div class="conta-juros-acoes" style="justify-content:flex-start;margin:8px 0 14px;">
+        <div class="conta-juros-acoes">
             <button type="button" id="btnBloquearClienteJuros">Bloquear cliente</button>
-            <span id="statusBloqueioClienteJuros" class="info-atrasado" style="display:none;background:#555;">Cliente bloqueado</span>
+            <span id="statusBloqueioClienteJuros" class="info-atrasado" hidden>Cliente bloqueado</span>
         </div>
 
 
@@ -638,7 +470,7 @@
         <div
             id="resumoSimulacaoJuros"
             class="resumo_juros"
-            style="display:none;"
+            hidden
         >
 
             <div>
@@ -838,110 +670,60 @@
 
 
 <!-- ======================================================
-     MODAL CONCLUSÃO / PAGAMENTO
+     MODAL CONCLUSÃO / PAGAMENTO — VISUAL DO PDV
 ====================================================== -->
 
 <dialog id="modalConclusaoFiado">
+    <article>
+        <section>
+            <div>
+                <h2 class="titulo-central">Finalizar pagamento</h2>
 
-    <div class="modal_box">
+                <div class="bloco-info-venda">
+                    <div class="info-item">
+                        <h2 class="info-label">Cliente</h2>
+                        <span id="s_cliente_conclusao" class="info-valor">---</span>
+                    </div>
 
+                    <div class="info-item">
+                        <h2 class="info-label">Data do pagamento</h2>
+                        <input type="date" id="dataConclusaoFiado" class="data-pagamento-pdv">
+                    </div>
 
-        <button
-            id="btnFecharConclusao"
-            type="button"
-        >
-            x
-        </button>
+                    <div class="info-item total-box">
+                        <h2 class="info-label">Total da Compra</h2>
+                        <span id="s_total_conclusao" class="info-valor-total">R$ 0,00</span>
+                    </div>
 
+                    <div class="info-item">
+                        <h2 class="info-label">Forma de Pagamento</h2>
+                        <span id="s_forma_conclusao" class="info-valor">---</span>
+                    </div>
+                </div>
 
-        <h2 class="modal_titulo">
-            Concluir conta
-        </h2>
+                <p id="infoConclusaoFiado" class="info-conclusao-pdv">Informe os dados do pagamento para concluir a conta.</p>
+                <input type="hidden" id="formaPagamentoFiado" value="">
 
+<div class="secao-pagamento">
+                    <h2 class="label-pagamento">Forma de Pagamento</h2>
+                    <div class="area_pagamento">
+                        <button type="button" class="pagamento" id="b_dividir_pagamento">💰 DIVIDIR</button>
+                        <button type="button" class="pagamento" id="pg_dinheiro">Dinheiro (F2)</button>
+                        <button type="button" class="pagamento" id="pg_credito">Cartão de Crédito (F3)</button>
+                        <button type="button" class="pagamento" id="pg_debito">Cartão de Débito (F4)</button>
+                        <button type="button" class="pagamento" id="pg_pix">PIX (F6)</button>
+                        <button type="button" class="pagamento" id="pg_voucher">Voucher/Ticket</button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        <p id="infoConclusaoFiado">
-            Informe os dados do pagamento para concluir a conta.
-        </p>
-
-
-        <label for="dataConclusaoFiado">
-            Data do pagamento
-        </label>
-
-
-        <input
-            type="date"
-            class="inp_m"
-            id="dataConclusaoFiado"
-        >
-
-
-        <label for="formaPagamentoFiado">
-            Forma de pagamento
-        </label>
-
-
-        <select
-            class="inp_m"
-            id="formaPagamentoFiado"
-        >
-
-            <option value="">
-                Selecione
-            </option>
-
-            <option value="Dinheiro">
-                Dinheiro
-            </option>
-
-            <option value="Pix">
-                Pix
-            </option>
-
-            <option value="Cartão de Débito">
-                Cartão de Débito
-            </option>
-
-            <option value="Cartão de Crédito">
-                Cartão de Crédito
-            </option>
-            <option value="Voucher/Ticket">
-                Voucher/Ticket
-            </option>
-
-            <option value="Dividir Pagamento">
-                Dividir Pagamento
-            </option>
-
-        </select>
-
-
-
-        <div class="aviso_botoes">
-
-
-            <button
-                id="btnCancelarConclusao"
-                type="button"
-            >
-                Cancelar
-            </button>
-
-
-            <button
-                id="btnConfirmarConclusao"
-                type="button"
-            >
-                Confirmar pagamento
-            </button>
-
-        </div>
-
-    </div>
-
+        <footer class="footer-conclusao-pdv">
+            <button type="button" id="btnCancelarConclusao">Cancelar</button>
+            <button type="button" id="btnConfirmarConclusao" disabled>Confirmar pagamento</button>
+        </footer>
+    </article>
 </dialog>
-
-
 
 
 <!-- ======================================================
@@ -1137,7 +919,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const inputBusca = document.getElementById("inputBusca");
 
-    const dataVencimentoPadraoCliente = document.getElementById("dataVencimentoPadraoCliente");
+    const diaVencimentoPadraoCliente = document.getElementById("diaVencimentoPadraoCliente");
     const btnBloquearClienteJuros = document.getElementById("btnBloquearClienteJuros");
     const statusBloqueioClienteJuros = document.getElementById("statusBloqueioClienteJuros");
 
@@ -1184,8 +966,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let clienteSelecionadoJuros = null;
     let contasClienteJuros = [];
     let simulacaoJurosAtual = null;
-    let contaParaConcluirFiado = null;
-    let itensParaConcluirFiado = null;
 
     let indiceClienteJuros = -1;
 
@@ -1466,18 +1246,21 @@ document.addEventListener("DOMContentLoaded", () => {
                     "endereco"
                 ).value.trim();
 
-            const dataVencimentoPadrao =
-                dataVencimentoPadraoCliente?.value || null;
+            const diaVencimento =
+                Number(diaVencimentoPadraoCliente?.value || 0);
 
             if (
                 !nome ||
                 cpf.length !== 11 ||
                 telefone.length < 10 ||
                 telefone.length > 11 ||
-                !endereco
+                !endereco ||
+                !Number.isInteger(diaVencimento) ||
+                diaVencimento < 1 ||
+                diaVencimento > 31
             ) {
                 exibirAviso(
-                    "Preencha nome, CPF, telefone e endereço corretamente."
+                    "Preencha nome, CPF, telefone, endereço e um dia de vencimento entre 1 e 31."
                 );
                 return;
             }
@@ -1500,7 +1283,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                     cpf,
                                     telefone,
                                     endereco,
-                                    data_vencimento_padrao: dataVencimentoPadrao
+                                    dia_vencimento: diaVencimento
                                 })
                         }
                     );
@@ -1540,8 +1323,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     "endereco"
                 ).value = "";
 
-                if (dataVencimentoPadraoCliente) {
-                    dataVencimentoPadraoCliente.value = "";
+                if (diaVencimentoPadraoCliente) {
+                    diaVencimentoPadraoCliente.value = "";
                 }
 
                 modalCliente.close();
@@ -1684,6 +1467,13 @@ document.addEventListener("DOMContentLoaded", () => {
         cliente
     ) {
 
+        if (Number(cliente?.bloqueado || 0)) {
+            exibirAviso(
+                "Este cliente está bloqueado e não pode fazer novas compras."
+            );
+            return;
+        }
+
         clienteSelecionado =
             cliente;
 
@@ -1699,10 +1489,14 @@ document.addEventListener("DOMContentLoaded", () => {
             cliente.nome_completo ||
             "";
 
-        const dataPadrao = cliente.data_vencimento_padrao || "";
-        const campoVencimentoCompra = document.getElementById("inp_data_fiado");
-        if (campoVencimentoCompra) {
-            campoVencimentoCompra.value = dataPadrao || obterDataHojeInput();
+        const diaVencimento = Number(cliente.dia_vencimento || 0);
+        const campoDiaVencimentoCompra = document.getElementById("s_dia_vencimento");
+
+        if (campoDiaVencimentoCompra) {
+            campoDiaVencimentoCompra.textContent =
+                diaVencimento >= 1 && diaVencimento <= 31
+                    ? String(diaVencimento)
+                    : "---";
         }
 
         listaClientes.innerHTML = "";
@@ -2165,11 +1959,6 @@ document.addEventListener("DOMContentLoaded", () => {
         "click",
         async () => {
 
-            const data =
-                document.getElementById(
-                    "inp_data_fiado"
-                ).value;
-
             const origem =
                 document.getElementById(
                     "inp_origem_fiado"
@@ -2194,13 +1983,6 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!origem) {
                 exibirAviso(
                     "Informe a origem da compra."
-                );
-                return;
-            }
-
-            if (!data) {
-                exibirAviso(
-                    "Informe a data de vencimento."
                 );
                 return;
             }
@@ -2239,9 +2021,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
                                     valor:
                                         total,
-
-                                    vencimento:
-                                        data,
 
                                     origem:
                                         origem,
@@ -2314,10 +2093,12 @@ document.addEventListener("DOMContentLoaded", () => {
             "inp_origem_fiado"
         ).value = "";
 
-        document.getElementById(
-            "inp_data_fiado"
-        ).value =
-            obterDataHojeInput();
+        const campoDiaVencimentoCompra =
+            document.getElementById("s_dia_vencimento");
+
+        if (campoDiaVencimentoCompra) {
+            campoDiaVencimentoCompra.textContent = "---";
+        }
 
         document.getElementById(
             "inp_busca_produto"
@@ -2353,6 +2134,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
         dataConclusao.value = obterDataHojeInput();
         formaConclusao.value = "";
+        if (btnConfirmarConclusao) btnConfirmarConclusao.disabled = true;
+
+        const nomeClienteConclusao =
+            contaParaConcluirFiado.nome_completo ||
+            contaParaConcluirFiado.cliente ||
+            "cliente";
+
+        const clienteVisual = document.getElementById("s_cliente_conclusao");
+        const formaVisual = document.getElementById("s_forma_conclusao");
+        const totalVisual = document.getElementById("s_total_conclusao");
+
+        if (clienteVisual) clienteVisual.textContent = nomeClienteConclusao;
+        if (formaVisual) formaVisual.textContent = "---";
+        if (totalVisual) totalVisual.textContent = "R$ 0,00";
 
         const produtos = normalizarProdutosConta(contaParaConcluirFiado)
             .filter(p => String(p.statusPagamento || "Pendente").trim().toLowerCase() !== "pago");
@@ -2361,9 +2156,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const quantidade = produtos.reduce((soma, p) => soma + Number(p.quantidade || 0), 0);
 
         infoConclusaoFiado.textContent =
-            `Conta de ${contaParaConcluirFiado.nome_completo || contaParaConcluirFiado.cliente || "cliente"} — ` +
-            `${itensParaConcluirFiado ? itensParaConcluirFiado.length : produtos.length} produto(s), ` +
-            `R$ ${formatarMoeda(total)}${quantidade ? ` — ${quantidade} item(ns)` : ""}.`;
+            `${itensParaConcluirFiado ? itensParaConcluirFiado.length : produtos.length} produto(s) selecionado(s)` +
+            `${quantidade ? ` — ${quantidade} item(ns)` : ""}.`;
+
+        if (totalVisual) totalVisual.textContent = `R$ ${formatarMoeda(total)}`;
 
         modalConclusao.showModal();
     }
@@ -2495,13 +2291,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    btnConfirmarConclusao?.addEventListener("click", async () => {
-        if (itensParaConcluirFiado) {
-            await concluirProdutosSelecionadosFiado();
-        } else {
-            await concluirContaInteiraFiado();
-        }
-    });
+    /* A confirmação do pagamento é tratada pelo script de pagamento abaixo,
+       que usa explicitamente o backend em http://localhost:3000. */
 
     btnFecharConclusao?.addEventListener("click", () => {
         modalConclusao.close();
@@ -2526,7 +2317,16 @@ document.addEventListener("DOMContentLoaded", () => {
         itensParaConcluirFiado = itens;
         dataConclusao.value = obterDataHojeInput();
         formaConclusao.value = "";
-        infoConclusaoFiado.textContent = `Concluir ${itens.length} produto(s) selecionado(s) da conta de ${itens[0].conta.nome_completo || "cliente"}.`;
+        if (btnConfirmarConclusao) btnConfirmarConclusao.disabled = true;
+        const clienteSelecionadoConclusao = itens[0].conta.nome_completo || "cliente";
+        const clienteVisual = document.getElementById("s_cliente_conclusao");
+        const formaVisual = document.getElementById("s_forma_conclusao");
+        const totalVisual = document.getElementById("s_total_conclusao");
+        if (clienteVisual) clienteVisual.textContent = clienteSelecionadoConclusao;
+        if (formaVisual) formaVisual.textContent = "---";
+        const totalSelecionados = itens.reduce((soma, item) => soma + Number(item.valorAtual || item.valorBase || 0), 0);
+        if (totalVisual) totalVisual.textContent = `R$ ${formatarMoeda(totalSelecionados)}`;
+        infoConclusaoFiado.textContent = `Concluir ${itens.length} produto(s) selecionado(s).`;
         modalConclusao.showModal();
     });
 
@@ -2960,7 +2760,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             clientesJuros = clientes
                 .filter(cliente =>
-                    !Number(cliente.bloqueado || 0) &&
                     idsComContasPendentes.has(
                         Number(cliente.id_cliente)
                     )
@@ -3250,9 +3049,16 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!res.ok) throw new Error(dados.erro || "Não foi possível alterar o bloqueio do cliente.");
             clienteSelecionadoJuros.bloqueado = novoBloqueio ? 1 : 0;
             atualizarBotaoBloqueioClienteJuros();
-            if (novoBloqueio) listaContasJuros.innerHTML = `<div class="juros_vazio">Cliente bloqueado para a simulação de juros.</div>`;
-            else await carregarContasClienteJuros();
-            exibirAviso(novoBloqueio ? "Cliente bloqueado para a simulação de juros." : "Cliente desbloqueado.");
+
+            // O bloqueio impede novas compras, mas não impede
+            // consultar contas atrasadas nem simular/aplicar juros.
+            await carregarContasClienteJuros();
+
+            exibirAviso(
+                novoBloqueio
+                    ? "Cliente bloqueado para novas compras. A simulação e a aplicação de juros continuam disponíveis."
+                    : "Cliente desbloqueado para novas compras."
+            );
         } catch (erro) {
             console.error("Erro ao alterar bloqueio do cliente:", erro);
             exibirAviso(erro.message || "Erro ao alterar o bloqueio do cliente.");
@@ -4506,7 +4312,13 @@ async function executarAplicacaoDeJuros() {
         if (!listaComprasParceladas) return;
 
         try {
-            const res = await apiFetch("/contas-fiado/parceladas");
+            const token = localStorage.getItem("token");
+            const res = await fetch("http://localhost:3000/contas-fiado/parceladas", {
+                method: "GET",
+                headers: token
+                    ? { Authorization: `Bearer ${token}` }
+                    : {}
+            });
 
             if (res.status === 401 || res.status === 403) {
                 tratarSessaoExpirada();
@@ -4608,10 +4420,12 @@ async function executarAplicacaoDeJuros() {
        INICIALIZAÇÃO
     ====================================================== */
 
-    document.getElementById(
-        "inp_data_fiado"
-    ).value =
-        obterDataHojeInput();
+    const campoDiaVencimentoInicial =
+        document.getElementById("s_dia_vencimento");
+
+    if (campoDiaVencimentoInicial) {
+        campoDiaVencimentoInicial.textContent = "---";
+    }
 
     if (!obterToken()) {
         modalProdutos?.close?.();
@@ -4740,6 +4554,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmar = document.getElementById("btnConfirmarConclusao");
     const cancelar = document.getElementById("btnCancelarConclusao");
 
+    /* API deste script: não usa o apiFetch global do sidebar_header.js,
+       pois ele recebe URLs relativas e acabaria indo para o Live Server (5501). */
+    const API_CONTA_FIADO = "http://localhost:3000";
+
+    async function apiFetchContaFiado(url, opcoes = {}) {
+        const headers = {
+            ...(opcoes.headers || {})
+        };
+
+        const token = localStorage.getItem("token");
+        if (token) {
+            headers.Authorization = `Bearer ${token}`;
+        }
+
+        return fetch(`${API_CONTA_FIADO}${url}`, {
+            ...opcoes,
+            headers
+        });
+    }
+
     const dinheiro = document.getElementById("dialogDinheiro");
     const dinheiroTotal = document.getElementById("lbl_dinheiro_total");
     const dinheiroPago = document.getElementById("inp_valor_pago");
@@ -4792,6 +4626,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function totalConclusao() {
+        const totalVisual = document.getElementById("s_total_conclusao");
+        const textoVisual = totalVisual?.textContent || "";
+        const matchVisual = textoVisual.match(/R\$\s*([\d.,]+)/);
+
+        if (matchVisual) {
+            const valorVisual = Number(matchVisual[1].replace(/\./g, "").replace(",", "."));
+            if (Number.isFinite(valorVisual) && valorVisual > 0) {
+                return Math.round(valorVisual * 100) / 100;
+            }
+        }
+
         const itens = produtosConclusao();
         if (itens.length) {
             return Math.round(itens.reduce((s, item) => {
@@ -4819,6 +4664,8 @@ document.addEventListener("DOMContentLoaded", () => {
             confirmado: false
         };
         if (forma) forma.value = "";
+        const confirmarBtn = document.getElementById("btnConfirmarConclusao");
+        if (confirmarBtn) confirmarBtn.disabled = true;
     }
 
     function atualizarResumoDivisao() {
@@ -4886,7 +4733,58 @@ document.addEventListener("DOMContentLoaded", () => {
         pagamento.forma = formaSelecionada;
         pagamento.pagamentos = [{ metodo: formaSelecionada, valor: total }];
         pagamento.confirmado = true;
+        const confirmarBtn = document.getElementById("btnConfirmarConclusao");
+        if (confirmarBtn) confirmarBtn.disabled = false;
     }
+
+    function selecionarFormaPeloBotao(metodo, idBotao) {
+        resetarPagamento();
+
+        if (forma) {
+            forma.value = metodo;
+        }
+
+        document.querySelectorAll("#modalConclusaoFiado .pagamento").forEach(botao => {
+            botao.classList.remove("selecionado");
+        });
+
+        const botaoSelecionado = document.getElementById(idBotao);
+        if (botaoSelecionado) {
+            botaoSelecionado.classList.add("selecionado");
+        }
+
+        abrirFormaPagamento(metodo);
+    }
+
+    document.getElementById("pg_dinheiro")?.addEventListener("click", event => {
+        event.preventDefault();
+        selecionarFormaPeloBotao("Dinheiro", "pg_dinheiro");
+    });
+
+    document.getElementById("pg_credito")?.addEventListener("click", event => {
+        event.preventDefault();
+        selecionarFormaPeloBotao("Cartão de Crédito", "pg_credito");
+    });
+
+    document.getElementById("pg_debito")?.addEventListener("click", event => {
+        event.preventDefault();
+        selecionarFormaPeloBotao("Cartão de Débito", "pg_debito");
+    });
+
+    document.getElementById("pg_pix")?.addEventListener("click", event => {
+        event.preventDefault();
+        selecionarFormaPeloBotao("Pix", "pg_pix");
+    });
+
+    document.getElementById("pg_voucher")?.addEventListener("click", event => {
+        event.preventDefault();
+        selecionarFormaPeloBotao("Voucher/Ticket", "pg_voucher");
+    });
+
+    document.getElementById("b_dividir_pagamento")?.addEventListener("click", event => {
+        event.preventDefault();
+        selecionarFormaPeloBotao("Dividir Pagamento", "b_dividir_pagamento");
+    });
 
     forma?.addEventListener("change", () => {
         resetarPagamento();
@@ -4912,6 +4810,8 @@ document.addEventListener("DOMContentLoaded", () => {
         pagamento.parcelasCredito = null;
         pagamento.valorParcelaCredito = null;
         pagamento.confirmado = true;
+        const confirmarBtn = document.getElementById("btnConfirmarConclusao");
+        if (confirmarBtn) confirmarBtn.disabled = false;
         dinheiro.close();
     });
 
@@ -4956,6 +4856,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         pagamento.pagamentos = [pagamentoCredito];
         pagamento.confirmado = true;
+        const confirmarBtn = document.getElementById("btnConfirmarConclusao");
+        if (confirmarBtn) confirmarBtn.disabled = false;
         credito.close();
     });
 
@@ -5000,6 +4902,8 @@ document.addEventListener("DOMContentLoaded", () => {
         pagamento.parcelasCredito = creditoParte ? Number(creditoParte.parcelas || 1) : null;
         pagamento.valorParcelaCredito = creditoParte ? Number(creditoParte.valorParcela || 0) : null;
         pagamento.confirmado = true;
+        const confirmarBtn = document.getElementById("btnConfirmarConclusao");
+        if (confirmarBtn) confirmarBtn.disabled = false;
         dividir.close();
     });
 
@@ -5058,7 +4962,7 @@ document.addEventListener("DOMContentLoaded", () => {
             let res;
 
             if (Array.isArray(itensParaConcluirFiado) && itensParaConcluirFiado.length) {
-                res = await apiFetch("/contas-fiado/itens/finalizar", {
+                res = await apiFetchContaFiado("/contas-fiado/itens/finalizar", {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -5067,14 +4971,24 @@ document.addEventListener("DOMContentLoaded", () => {
                     })
                 });
             } else {
-                res = await apiFetch(`/contas-fiado/${idConta}/finalizar`, {
+                res = await apiFetchContaFiado(`/contas-fiado/${idConta}/finalizar`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(bodyBase)
                 });
             }
 
-            resposta = await res.json();
+            const respostaTexto = await res.text();
+            resposta = {};
+
+            if (respostaTexto.trim()) {
+                try {
+                    resposta = JSON.parse(respostaTexto);
+                } catch {
+                    resposta = { mensagem: respostaTexto };
+                }
+            }
+
             if (res.status === 401 || res.status === 403) {
                 tratarSessaoExpirada();
                 return;

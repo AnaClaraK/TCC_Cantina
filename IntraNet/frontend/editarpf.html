@@ -106,214 +106,550 @@
 		</div>
 	</dialog>
 
-	<script>
-		const modalAviso = document.getElementById("d_aviso");
-		const msgAviso = document.getElementById("msg_aviso");
-		const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
-		const inputImagem = document.getElementById("inputImagemPerfil");
-		const preview = document.getElementById("preview-perfil");
+<script>
+    const modalAviso = document.getElementById("d_aviso");
+    const msgAviso = document.getElementById("msg_aviso");
+    const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
 
-		function exibirAviso(mensagem, callback = null) {
-			msgAviso.innerHTML = mensagem;
-			modalAviso.showModal();
+    const inputImagem = document.getElementById("inputImagemPerfil");
+    const preview = document.getElementById("preview-perfil");
+    const formPerfil = document.getElementById("formPerfil");
 
-			bConfirmarAviso.onclick = () => {
-				modalAviso.close();
+    let emailOriginalPerfil = "";
 
-				if (callback) {
-					callback();
-				}
-			};
-		}
+    function exibirAviso(mensagem, callback = null) {
+        msgAviso.innerHTML = mensagem;
 
-		function montarUrlFoto(foto) {
-			if (!foto || foto === "null" || foto === "undefined" || foto === "") {
-				return "images/def_avt.jpg";
-			}
+        if (modalAviso.open) {
+            modalAviso.close();
+        }
 
-			if (foto.startsWith("http://") || foto.startsWith("https://")) {
-				return foto;
-			}
+        modalAviso.showModal();
 
-			const caminho = foto.startsWith("/") ? foto : "/" + foto;
+        bConfirmarAviso.onclick = () => {
+            modalAviso.close();
 
-			return "http://localhost:3000" + caminho;
-		}
+            if (callback) {
+                callback();
+            }
+        };
+    }
 
-		async function carregarPerfil() {
-			const token = localStorage.getItem("token");
+    function normalizarFoto(foto) {
+        if (
+            !foto ||
+            foto === "null" ||
+            foto === "undefined"
+        ) {
+            return null;
+        }
 
-			if (!token) {
-				window.location.replace("login.html");
-				return;
-			}
+        let valor = String(foto).trim();
 
-			const nomeLocal = localStorage.getItem("usuarioNome");
-			const emailLocal = localStorage.getItem("usuarioEmail");
-			const fotoLocal = localStorage.getItem("usuarioFoto");
+        if (!valor) {
+            return null;
+        }
 
-			if (nomeLocal) {
-				document.getElementById("edit-nome").value = nomeLocal;
-			}
+        if (
+            valor.startsWith("http://") ||
+            valor.startsWith("https://")
+        ) {
+            return valor;
+        }
 
-			if (emailLocal) {
-				document.getElementById("edit-email").value = emailLocal;
-			}
+        if (valor.startsWith("/imagens/")) {
+            return `http://localhost:3000${valor}`;
+        }
 
-			preview.src = montarUrlFoto(fotoLocal);
+        if (valor.startsWith("imagens/")) {
+            return `http://localhost:3000/${valor}`;
+        }
 
-			try {
-				const response = await fetch("http://localhost:3000/perfil/meus-dados", {
-					method: "GET",
-					headers: {
-						"Authorization": `Bearer ${token}`
-					}
-				});
+        if (valor.startsWith("/")) {
+            return `http://localhost:3000${valor}`;
+        }
 
-				if (response.status === 401 || response.status === 403) {
-					return;
-				}
+        return `http://localhost:3000/imagens/${valor}`;
+    }
 
-				if (!response.ok) {
-					return;
-				}
+    function caminhoFotoParaStorage(foto) {
+        if (
+            !foto ||
+            foto === "null" ||
+            foto === "undefined"
+        ) {
+            return null;
+        }
 
-				const dados = await response.json();
+        let valor = String(foto).trim();
 
-				if (dados.nome) {
-					document.getElementById("edit-nome").value = dados.nome;
-					localStorage.setItem("usuarioNome", dados.nome);
-				}
+        if (!valor) {
+            return null;
+        }
 
-				if (dados.email) {
-					document.getElementById("edit-email").value = dados.email;
-					localStorage.setItem("usuarioEmail", dados.email);
-				}
+        if (
+            valor.startsWith("http://localhost:3000")
+        ) {
+            valor = valor.substring(
+                "http://localhost:3000".length
+            );
+        }
 
-				if (dados.foto) {
-					localStorage.setItem("usuarioFoto", dados.foto);
-					preview.src = montarUrlFoto(dados.foto);
-				} else {
-					localStorage.removeItem("usuarioFoto");
-					preview.src = "images/def_avt.jpg";
-				}
-			} catch (erro) {
-				console.error("Erro ao carregar perfil:", erro);
-			}
-		}
+        if (
+            valor.startsWith("https://localhost:3000")
+        ) {
+            valor = valor.substring(
+                "https://localhost:3000".length
+            );
+        }
 
-		inputImagem.addEventListener("change", function() {
-			const file = inputImagem.files[0];
+        if (valor.startsWith("/imagens/")) {
+            return valor;
+        }
 
-			if (!file) {
-				return;
-			}
+        if (valor.startsWith("imagens/")) {
+            return `/${valor}`;
+        }
 
-			if (!file.type.startsWith("image/")) {
-				exibirAviso("Selecione um arquivo de imagem válido.");
-				inputImagem.value = "";
-				return;
-			}
+        if (valor.startsWith("/")) {
+            return valor;
+        }
 
-			preview.src = URL.createObjectURL(file);
-		});
+        return `/imagens/${valor}`;
+    }
 
-		document.getElementById("formPerfil").addEventListener("submit", async function(e) {
-			e.preventDefault();
+    function aplicarFotoPerfil(foto) {
+        const urlBase = normalizarFoto(foto);
 
-			const nome = document.getElementById("edit-nome").value.trim();
-			const email = document.getElementById("edit-email").value.trim();
-			const senhaAtual = document.getElementById("senha_atual").value;
-			const novaSenha = document.getElementById("nova_senha").value;
-			const confSenha = document.getElementById("conf_senha").value;
+        if (!urlBase) {
+            localStorage.removeItem("usuarioFoto");
 
-			if (!nome || nome.length < 3) {
-				exibirAviso("O nome deve ter pelo menos 3 caracteres.");
-				return;
-			}
+            preview.src =
+                "../backend/imagens/def_avt.jpg";
 
-			if (/^\d+$/.test(nome)) {
-				exibirAviso("O nome não pode conter apenas números.");
-				return;
-			}
+            return;
+        }
 
-			if (!email) {
-				exibirAviso("Digite um e-mail válido.");
-				return;
-			}
+        const caminhoStorage =
+            caminhoFotoParaStorage(foto);
 
-			if (novaSenha || confSenha || senhaAtual) {
-				if (!senhaAtual) {
-					exibirAviso("Digite sua senha atual para alterar as credenciais.");
-					return;
-				}
+        if (caminhoStorage) {
+            localStorage.setItem(
+                "usuarioFoto",
+                caminhoStorage
+            );
+        }
 
-				if (novaSenha.length < 8) {
-					exibirAviso("A nova senha deve ter pelo menos 8 caracteres.");
-					return;
-				}
+        preview.src =
+            `${urlBase}?v=${Date.now()}`;
+    }
 
-				if (!/[!@#$%^&*(),.?":{}|<>\_\-+=]/.test(novaSenha)) {
-					exibirAviso("A nova senha deve conter pelo menos um caractere especial.");
-					return;
-				}
+    async function carregarPerfil() {
+        const token =
+            localStorage.getItem("token");
 
-				if (novaSenha !== confSenha) {
-					exibirAviso("A nova senha e a confirmação não coincidem.");
-					return;
-				}
-			}
+        if (!token) {
+            window.location.replace(
+                "login.html"
+            );
+            return;
+        }
 
-			const formData = new FormData(e.target);
+        try {
+            const response =
+                await fetch(
+                    "http://localhost:3000/perfil/meus-dados",
+                    {
+                        method: "GET",
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`
+                        }
+                    }
+                );
 
-			formData.append(
-				"emailAntigo",
-				localStorage.getItem("usuarioEmail")
-			);
+            if (
+                response.status === 401 ||
+                response.status === 403
+            ) {
+                return;
+            }
 
-			try {
-				const response = await apiFetch(
-					"http://localhost:3000/perfil/atualizar",
-					{
-						method: "PUT",
-						body: formData
-					}
-				);
+            if (!response.ok) {
+                return;
+            }
 
-				const dados = await response.json();
+            const dados =
+                await response.json();
 
-				if (response.ok) {
-					localStorage.setItem("usuarioNome", dados.novoNome);
-					localStorage.setItem("usuarioEmail", dados.novoEmail);
+            if (dados.nome) {
+                document.getElementById(
+                    "edit-nome"
+                ).value = dados.nome;
 
-					if (dados.novaFoto) {
-						localStorage.setItem("usuarioFoto", dados.novaFoto);
-						preview.src = montarUrlFoto(dados.novaFoto);
-					}
+                localStorage.setItem(
+                    "usuarioNome",
+                    dados.nome
+                );
+            }
 
-					exibirAviso(
-						dados.resposta || "Perfil atualizado com sucesso!",
-						() => {
-							window.location.reload();
-						}
-					);
-				} else {
-					exibirAviso(
-						dados.resposta || "Erro ao salvar."
-					);
-				}
-			} catch (error) {
-				console.error("Erro ao atualizar perfil:", error);
+            if (dados.email) {
+                document.getElementById(
+                    "edit-email"
+                ).value = dados.email;
 
-				exibirAviso(
-					"Erro de conexão ao servidor."
-				);
-			}
-		});
+                emailOriginalPerfil =
+                    dados.email;
 
-		document.addEventListener("DOMContentLoaded", () => {
-			carregarPerfil();
-		});
-	</script>
+                localStorage.setItem(
+                    "usuarioEmail",
+                    dados.email
+                );
+            }
+
+            aplicarFotoPerfil(
+                dados.foto
+            );
+
+        } catch (erro) {
+            console.error(
+                "Erro ao carregar perfil:",
+                erro
+            );
+
+            const fotoLocal =
+                localStorage.getItem(
+                    "usuarioFoto"
+                );
+
+            aplicarFotoPerfil(
+                fotoLocal
+            );
+        }
+    }
+
+    inputImagem.addEventListener(
+        "change",
+        function () {
+            const file =
+                inputImagem.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            if (
+                !file.type.startsWith(
+                    "image/"
+                )
+            ) {
+                exibirAviso(
+                    "Selecione um arquivo de imagem válido."
+                );
+
+                inputImagem.value = "";
+
+                return;
+            }
+
+            const url =
+                URL.createObjectURL(file);
+
+            preview.src = url;
+
+            preview.onload = () => {
+                URL.revokeObjectURL(url);
+            };
+        }
+    );
+
+    formPerfil.addEventListener(
+        "submit",
+        async function (e) {
+            e.preventDefault();
+
+            const nome =
+                document.getElementById(
+                    "edit-nome"
+                ).value.trim();
+
+            const email =
+                document.getElementById(
+                    "edit-email"
+                ).value.trim();
+
+            const senhaAtual =
+                document.getElementById(
+                    "senha_atual"
+                ).value;
+
+            const novaSenha =
+                document.getElementById(
+                    "nova_senha"
+                ).value;
+
+            const confSenha =
+                document.getElementById(
+                    "conf_senha"
+                ).value;
+
+            if (
+                !nome ||
+                nome.length < 3
+            ) {
+                exibirAviso(
+                    "O nome deve ter pelo menos 3 caracteres."
+                );
+                return;
+            }
+
+            if (/^\d+$/.test(nome)) {
+                exibirAviso(
+                    "O nome não pode conter apenas números."
+                );
+                return;
+            }
+
+            if (!email) {
+                exibirAviso(
+                    "Digite um e-mail válido."
+                );
+                return;
+            }
+
+            if (
+                novaSenha ||
+                confSenha ||
+                senhaAtual
+            ) {
+                if (!senhaAtual) {
+                    exibirAviso(
+                        "Digite sua senha atual para alterar as credenciais."
+                    );
+                    return;
+                }
+
+                if (novaSenha.length < 8) {
+                    exibirAviso(
+                        "A nova senha deve ter pelo menos 8 caracteres."
+                    );
+                    return;
+                }
+
+                if (
+                    !/[!@#$%^&*(),.?":{}|<>_\-+=]/.test(
+                        novaSenha
+                    )
+                ) {
+                    exibirAviso(
+                        "A nova senha deve conter pelo menos um caractere especial."
+                    );
+                    return;
+                }
+
+                if (
+                    novaSenha !==
+                    confSenha
+                ) {
+                    exibirAviso(
+                        "A nova senha e a confirmação não coincidem."
+                    );
+                    return;
+                }
+            }
+
+            const formData =
+                new FormData(
+                    formPerfil
+                );
+
+            formData.set(
+                "emailAntigo",
+                emailOriginalPerfil ||
+                localStorage.getItem(
+                    "usuarioEmail"
+                ) ||
+                email
+            );
+
+            try {
+                const response =
+                    await apiFetch(
+                        "http://localhost:3000/perfil/atualizar",
+                        {
+                            method: "PUT",
+                            body: formData
+                        }
+                    );
+
+                const textoResposta =
+                    await response.text();
+
+                let dados = {};
+
+                try {
+                    dados =
+                        textoResposta
+                            ? JSON.parse(
+                                textoResposta
+                            )
+                            : {};
+                } catch {
+                    dados = {};
+                }
+
+                if (!response.ok) {
+                    exibirAviso(
+                        dados.resposta ||
+                        dados.erro ||
+                        "Erro ao salvar o perfil."
+                    );
+
+                    return;
+                }
+
+                /*
+                 * Primeiro salva nome/e-mail recebidos.
+                 */
+                if (dados.novoNome) {
+                    localStorage.setItem(
+                        "usuarioNome",
+                        dados.novoNome
+                    );
+                }
+
+                if (dados.novoEmail) {
+                    localStorage.setItem(
+                        "usuarioEmail",
+                        dados.novoEmail
+                    );
+
+                    emailOriginalPerfil =
+                        dados.novoEmail;
+                }
+
+                /*
+                 * NÃO depende somente de novaFoto.
+                 * Busca novamente o perfil no banco.
+                 */
+                const respostaPerfil =
+                    await fetch(
+                        "http://localhost:3000/perfil/meus-dados",
+                        {
+                            method: "GET",
+                            headers: {
+                                Authorization:
+                                    `Bearer ${localStorage.getItem("token")}`
+                            }
+                        }
+                    );
+
+                if (
+                    respostaPerfil.ok
+                ) {
+                    const perfilAtualizado =
+                        await respostaPerfil.json();
+
+                    if (
+                        perfilAtualizado.nome
+                    ) {
+                        localStorage.setItem(
+                            "usuarioNome",
+                            perfilAtualizado.nome
+                        );
+
+                        document.getElementById(
+                            "edit-nome"
+                        ).value =
+                            perfilAtualizado.nome;
+                    }
+
+                    if (
+                        perfilAtualizado.email
+                    ) {
+                        localStorage.setItem(
+                            "usuarioEmail",
+                            perfilAtualizado.email
+                        );
+
+                        emailOriginalPerfil =
+                            perfilAtualizado.email;
+
+                        document.getElementById(
+                            "edit-email"
+                        ).value =
+                            perfilAtualizado.email;
+                    }
+
+                    /*
+                     * Essa é a parte importante:
+                     * pega a foto REALMENTE salva no banco.
+                     */
+                    if (
+                        perfilAtualizado.foto
+                    ) {
+                        aplicarFotoPerfil(
+                            perfilAtualizado.foto
+                        );
+                    } else if (
+                        dados.novaFoto
+                    ) {
+                        aplicarFotoPerfil(
+                            dados.novaFoto
+                        );
+                    }
+                } else if (
+                    dados.novaFoto
+                ) {
+                    aplicarFotoPerfil(
+                        dados.novaFoto
+                    );
+                }
+
+                /*
+                 * Limpa os campos de senha.
+                 */
+                document.getElementById(
+                    "senha_atual"
+                ).value = "";
+
+                document.getElementById(
+                    "nova_senha"
+                ).value = "";
+
+                document.getElementById(
+                    "conf_senha"
+                ).value = "";
+
+                /*
+                 * Não recarrega a página.
+                 * Assim a foto recém salva permanece
+                 * imediatamente visível.
+                 */
+                exibirAviso(
+                    dados.resposta ||
+                    "Perfil atualizado com sucesso!"
+                );
+
+            } catch (error) {
+                console.error(
+                    "Erro ao atualizar perfil:",
+                    error
+                );
+
+                exibirAviso(
+                    "Erro de conexão ao servidor."
+                );
+            }
+        }
+    );
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        () => {
+            carregarPerfil();
+        }
+    );
+</script>
 </body>
 </html>

@@ -267,6 +267,29 @@ function formatarFormaPagamento(texto) {
         return divididos.map(item => `<div style="line-height:1.5;">${item}</div>`).join("");
     }
 
+    // Crédito parcelado: mostra também o valor de cada parcela.
+    const creditoParceladoComValor = limpo.match(
+        /^(.*?)\s*[—-]\s*(\d+)x\s*:\s*R\$\s*([\d.,]+)$/i
+    );
+    if (creditoParceladoComValor) {
+        const forma = creditoParceladoComValor[1].trim();
+        const parcelas = Number(creditoParceladoComValor[2]);
+        const valorInformado = Number(
+            creditoParceladoComValor[3]
+                .replace(/\./g, "")
+                .replace(",", ".")
+        );
+
+        if (
+            Number.isFinite(parcelas) &&
+            parcelas > 1 &&
+            Number.isFinite(valorInformado)
+        ) {
+            const valorParcela = valorInformado / parcelas;
+            return `${forma} — ${parcelas}x — R$ ${valorParcela.toFixed(2).replace(".", ",")} / parcela`;
+        }
+    }
+
     // Como a origem já informa que é Fiado, não repetimos "Fiado".
     const creditoParcelado = limpo.match(/^fiado\s*\(\s*(cartão\s+de\s+crédito)\s*\)\s*[—-]\s*(\d+)x$/i);
     if (creditoParcelado) {
@@ -302,7 +325,19 @@ async function buscarProdutosEstoque() {
 
         if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
 
-        pedidosCarregados = await response.json();
+        const dadosHistorico =
+            await response.json();
+
+        pedidosCarregados =
+            Array.isArray(dadosHistorico)
+                ? dadosHistorico.filter(
+                    pedido =>
+                        String(
+                            pedido?.status || ""
+                        ).trim().toLowerCase() === "finalizado"
+                )
+                : [];
+
         calcularRankingProdutos();
 
         if (pedidosCarregados.length === 0) {
@@ -389,7 +424,7 @@ function renderizarTabela(pedidos) {
     if (!pedidos || pedidos.length === 0) {
         corpoTabela.innerHTML = `
             <tr>
-                <td colspan="6" style="text-align: center;">Nenhum pedido encontrado.</td>
+                <td colspan="6" style="text-align: center;">Nenhum pedido finalizado encontrado.</td>
             </tr>
         `;
         return;

@@ -920,11 +920,11 @@ router.get(
 /* ======================================================
    CRIAR CONTA FIADO
 ====================================================== */
-
 router.post(
     "/contas-fiado",
     verificarToken,
     async (req, res) => {
+
         const {
             id_cliente,
             vencimento,
@@ -932,7 +932,13 @@ router.post(
             origem
         } = req.body;
 
-        if (!id_cliente) {
+        const idCliente =
+            Number(id_cliente);
+
+        if (
+            !Number.isInteger(idCliente) ||
+            idCliente <= 0
+        ) {
             return res.status(400).json({
                 erro:
                     "Cliente não informado."
@@ -959,72 +965,104 @@ router.post(
             });
         }
 
+        /*
+            A tela já envia a data de vencimento.
+            Não dependemos de dia_vencimento para
+            criar a compra.
+        */
+        const vencimentoFinal =
+            normalizarDataTexto(
+                vencimento
+            );
+
+        if (!vencimentoFinal) {
+            return res.status(400).json({
+                erro:
+                    "Data de vencimento inválida."
+            });
+        }
+
         const conn =
             await conexao.getConnection();
 
         try {
+
             await conn.beginTransaction();
 
-            const [cliente] =
+
+            /* ==================================================
+               1. CLIENTE
+            ================================================== */
+
+            const [
+                cliente
+            ] =
                 await conn.query(
                     `
-                    SELECT id_cliente, bloqueado, dia_vencimento
+                    SELECT
+                        id_cliente,
+                        bloqueado
                     FROM clientes_fiado
                     WHERE id_cliente = ?
+                    FOR UPDATE
                     `,
-                    [id_cliente]
+                    [
+                        idCliente
+                    ]
                 );
 
-            if (cliente.length === 0) {
-                throw new Error("Cliente não encontrado.");
+
+            if (
+                !cliente.length
+            ) {
+                throw new Error(
+                    "Cliente não encontrado."
+                );
             }
 
-            if (Number(cliente[0].bloqueado) === 1) {
-                throw new Error("Este cliente está bloqueado para novas compras fiado.");
+
+            if (
+                Number(
+                    cliente[0].bloqueado || 0
+                ) === 1
+            ) {
+                throw new Error(
+                    "Este cliente está bloqueado para novas compras fiado."
+                );
             }
 
-            const diaVencimento = Number(cliente[0].dia_vencimento || 1);
-            const hojeData = dataSomenteLocal(dataHojeISO());
-            let vencimentoCalculado = normalizarDataTexto(vencimento);
 
-            if (!vencimentoCalculado) {
-                const ano = hojeData.getFullYear();
-                const mes = hojeData.getMonth();
-                const ultimoDiaMes = new Date(ano, mes + 1, 0).getDate();
-                const dia = Math.min(diaVencimento, ultimoDiaMes);
-                let candidata = new Date(ano, mes, dia);
+            /* ==================================================
+               2. NORMALIZA OS PRODUTOS
 
-                if (candidata < hojeData) {
-                    const proximoAno = mes === 11 ? ano + 1 : ano;
-                    const proximoMes = (mes + 1) % 12;
-                    const ultimoDiaProximo = new Date(proximoAno, proximoMes + 1, 0).getDate();
-                    candidata = new Date(proximoAno, proximoMes, Math.min(diaVencimento, ultimoDiaProximo));
-                }
+               Se o mesmo produto aparecer mais de uma vez,
+               soma as quantidades antes do INSERT.
+            ================================================== */
 
-                vencimentoCalculado = [
-                    candidata.getFullYear(),
-                    String(candidata.getMonth() + 1).padStart(2, "0"),
-                    String(candidata.getDate()).padStart(2, "0")
-                ].join("-");
-            }
+            const mapaProdutos =
+                new Map();
 
-            let total = 0;
-
-            const itensValidados = [];
 
             for (
                 const produto
                 of produtos
             ) {
+
                 const idProduto =
                     Number(
-                        produto.id_produto
+                        produto?.id_produto ??
+                        produto?.id ??
+                        0
                     );
 
                 const quantidade =
                     Number(
-                        produto.qtdSelecionada
+                        produto?.qtdSelecionada ??
+                        produto?.qtd ??
+                        produto?.quantidade ??
+                        0
                     );
+
 
                 if (
                     !Number.isInteger(
@@ -1037,6 +1075,7 @@ router.post(
                     );
                 }
 
+
                 if (
                     !Number.isFinite(
                         quantidade
@@ -1048,40 +1087,105 @@ router.post(
                     );
                 }
 
-                const [dadosProduto] =
+
+                mapaProdutos.set(
+                    idProduto,
+                    (
+                        mapaProdutos.get(
+                            idProduto
+                        ) || 0
+                    ) + quantidade
+                );
+            }
+
+
+            /* ==================================================
+               3. VALIDA PRODUTOS / ESTOQUE
+            ================================================== */
+
+            const itensValidados =
+                [];
+
+            let total =
+                0;
+
+
+            for (
+                const [
+                    idProduto,
+                    quantidade
+                ]
+                of mapaProdutos
+            ) {
+
+                const [
+                    dadosProduto
+                ] =
                     await conn.query(
                         `
                         SELECT
                             id_produto,
                             nome,
                             qtd,
-                            preco
+                            preco,
+                            ativo
                         FROM produtos
                         WHERE id_produto = ?
+                        FOR UPDATE
                         `,
-                        [idProduto]
+                        [
+                            idProduto
+                        ]
                     );
 
+
                 if (
-                    dadosProduto.length === 0
+                    !dadosProduto.length
                 ) {
                     throw new Error(
                         "Produto não encontrado."
                     );
                 }
 
+
                 const produtoBanco =
                     dadosProduto[0];
+
+
+                if (
+                    Number(
+                        produtoBanco.ativo
+                    ) === 0
+                ) {
+                    throw new Error(
+                        `O produto "${produtoBanco.nome}" está inativo e não pode ser vendido.`
+                    );
+                }
+
 
                 const estoque =
                     Number(
                         produtoBanco.qtd
                     );
 
+
                 const preco =
                     Number(
                         produtoBanco.preco
                     );
+
+
+                if (
+                    !Number.isFinite(
+                        preco
+                    ) ||
+                    preco < 0
+                ) {
+                    throw new Error(
+                        `Preço inválido para: ${produtoBanco.nome}`
+                    );
+                }
+
 
                 if (
                     estoque <= 0
@@ -1091,6 +1195,7 @@ router.post(
                     );
                 }
 
+
                 if (
                     quantidade > estoque
                 ) {
@@ -1099,24 +1204,45 @@ router.post(
                     );
                 }
 
+
                 total +=
                     preco *
                     quantidade;
 
+
                 itensValidados.push({
                     id_produto:
                         idProduto,
+
                     qtd:
                         quantidade,
+
                     valor_unit:
                         preco
                 });
             }
 
+
             total =
                 arredondar(total);
 
-            const [conta] =
+
+            if (
+                total <= 0
+            ) {
+                throw new Error(
+                    "O valor total da compra deve ser maior que zero."
+                );
+            }
+
+
+            /* ==================================================
+               4. CRIA A CONTA FIADO
+            ================================================== */
+
+            const [
+                conta
+            ] =
                 await conn.query(
                     `
                     INSERT INTO contas_fiado
@@ -1130,29 +1256,40 @@ router.post(
                         juros_aplicado
                     )
                     VALUES (
-                        ?, ?, ?, ?, ?,
+                        ?,
+                        ?,
+                        ?,
+                        ?,
+                        ?,
                         'Pendente',
                         FALSE
                     )
                     `,
                     [
-                        id_cliente,
+                        idCliente,
                         total,
                         total,
-                        vencimentoCalculado,
+                        vencimentoFinal,
                         String(
                             origem
                         ).trim()
                     ]
                 );
 
+
             const idConta =
                 conta.insertId;
+
+
+            /* ==================================================
+               5. PRODUTOS DA CONTA
+            ================================================== */
 
             for (
                 const item
                 of itensValidados
             ) {
+
                 await conn.query(
                     `
                     INSERT INTO conta_fiado_prod
@@ -1165,7 +1302,10 @@ router.post(
                         juros_ativo
                     )
                     VALUES (
-                        ?, ?, ?, ?,
+                        ?,
+                        ?,
+                        ?,
+                        ?,
                         'Pendente',
                         FALSE
                     )
@@ -1179,15 +1319,29 @@ router.post(
                 );
             }
 
+
             await conn.commit();
 
-            res.json({
-                ok: true,
+
+            return res.status(201).json({
+                ok:
+                    true,
+
+                sucesso:
+                    true,
+
                 id_conta:
-                    idConta
+                    idConta,
+
+                valor_total:
+                    total
             });
 
-        } catch (err) {
+
+        } catch (
+            err
+        ) {
+
             await conn.rollback();
 
             console.error(
@@ -1195,12 +1349,23 @@ router.post(
                 err
             );
 
-            res.status(500).json({
-                erro: err.message
+            return res.status(400).json({
+                ok:
+                    false,
+
+                sucesso:
+                    false,
+
+                erro:
+                    err.message ||
+                    "Erro ao criar conta fiado."
             });
 
+
         } finally {
+
             conn.release();
+
         }
     }
 );
@@ -3742,35 +3907,21 @@ router.post(
         let conn;
 
         try {
-
             conn = await conexao.getConnection();
-
             await conn.beginTransaction();
 
             const {
+                id_pedido,
                 produtos,
                 total,
                 parcelas,
                 valor_parcela,
                 data_compra,
-                pagamentos,
-                valor_credito
+                valor_credito,
+                pagamentos
             } = req.body;
 
             const qtdParcelas = Number(parcelas);
-
-            // ==================================================
-            // VALIDAÇÕES
-            // ==================================================
-
-            if (
-                !Array.isArray(produtos) ||
-                produtos.length === 0
-            ) {
-                throw new Error(
-                    "Nenhum produto informado para o parcelamento."
-                );
-            }
 
             if (
                 !Number.isInteger(qtdParcelas) ||
@@ -3785,57 +3936,270 @@ router.post(
             const dataCompra =
                 normalizarDataCompra(data_compra);
 
-            // ==================================================
-            // GERA O NÚMERO DO PEDIDO
-            // ==================================================
+            const idPedidoComanda = Number(id_pedido);
 
-            const [ultimoPedido] = await conn.query(`
-                SELECT MAX(num_pedido) AS max_num
-                FROM pedidos
-                FOR UPDATE
-            `);
+            const veioDeComanda =
+                Number.isInteger(idPedidoComanda) &&
+                idPedidoComanda > 0;
 
-            const numeroPedido =
-                Number(
-                    ultimoPedido[0]?.max_num || 0
-                ) + 1;
+            let numeroPedido = null;
+            let idPedido = null;
+            let origem = "PDV";
+            let codigoComanda = null;
+            let produtosProcessar = [];
 
-            // ==================================================
-            // VALOR TOTAL
-            // ==================================================
+            /*
+            ============================================================
+            COMANDA DO PDV
+            ============================================================
+            */
 
-            let valorTotal = Number(total);
+            if (veioDeComanda) {
+
+                const [comandas] =
+                    await conn.query(
+                        `
+                        SELECT
+                            id_pedido,
+                            num_pedido,
+                            codigo_comanda,
+                            origem,
+                            status,
+                            valor_total,
+                            qtd_total
+                        FROM pedidos
+                        WHERE id_pedido = ?
+                        FOR UPDATE
+                        `,
+                        [
+                            idPedidoComanda
+                        ]
+                    );
+
+                if (!comandas.length) {
+                    throw new Error(
+                        "Comanda não encontrada."
+                    );
+                }
+
+                const comanda =
+                    comandas[0];
+
+                if (
+                    String(
+                        comanda.status || ""
+                    )
+                        .trim()
+                        .toLowerCase() ===
+                    "finalizado"
+                ) {
+                    throw new Error(
+                        "Esta comanda já foi finalizada."
+                    );
+                }
+
+                const [itensComanda] =
+                    await conn.query(
+                        `
+                        SELECT
+                            pi.id_produto,
+                            pi.qtd AS quantidade,
+                            pi.preco_unitario AS preco,
+                            p.nome,
+                            p.qtd AS estoque,
+                            p.qtd_min,
+                            p.ativo
+                        FROM pedidos_itens pi
+                        INNER JOIN produtos p
+                            ON p.id_produto =
+                               pi.id_produto
+                        WHERE pi.id_pedido = ?
+                        FOR UPDATE
+                        `,
+                        [
+                            idPedidoComanda
+                        ]
+                    );
+
+                if (!itensComanda.length) {
+                    throw new Error(
+                        "A comanda não possui itens."
+                    );
+                }
+
+                const [parcelasExistentes] =
+                    await conn.query(
+                        `
+                        SELECT
+                            id_parcela
+                        FROM conta_fiado_parcelas
+                        WHERE id_pedido = ?
+                          AND LOWER(
+                                COALESCE(
+                                    status,
+                                    'Pendente'
+                                )
+                              ) <> 'pago'
+                        LIMIT 1
+                        FOR UPDATE
+                        `,
+                        [
+                            idPedidoComanda
+                        ]
+                    );
+
+                if (parcelasExistentes.length) {
+                    throw new Error(
+                        "Esta comanda já possui um parcelamento pendente."
+                    );
+                }
+
+                produtosProcessar =
+                    itensComanda.map(
+                        item => ({
+                            id_produto:
+                                Number(
+                                    item.id_produto
+                                ),
+
+                            quantidade:
+                                Number(
+                                    item.quantidade
+                                ),
+
+                            preco:
+                                Number(
+                                    item.preco || 0
+                                ),
+
+                            nome:
+                                item.nome,
+
+                            estoque:
+                                Number(
+                                    item.estoque
+                                ),
+
+                            qtd_min:
+                                Number(
+                                    item.qtd_min || 0
+                                ),
+
+                            ativo:
+                                Number(
+                                    item.ativo
+                                )
+                        })
+                    );
+
+                idPedido =
+                    idPedidoComanda;
+
+                numeroPedido =
+                    comanda.num_pedido;
+
+                origem =
+                    comanda.origem ||
+                    "APP";
+
+                codigoComanda =
+                    comanda.codigo_comanda;
+
+            } else {
+
+                /*
+                ========================================================
+                VENDA NORMAL DO PDV
+                ========================================================
+                */
+
+                if (
+                    !Array.isArray(produtos) ||
+                    produtos.length === 0
+                ) {
+                    throw new Error(
+                        "Nenhum produto informado para o parcelamento."
+                    );
+                }
+
+                const [ultimoPedido] =
+                    await conn.query(
+                        `
+                        SELECT
+                            MAX(num_pedido) AS max_num
+                        FROM pedidos
+                        FOR UPDATE
+                        `
+                    );
+
+                numeroPedido =
+                    Number(
+                        ultimoPedido[0]?.max_num ||
+                        0
+                    ) + 1;
+
+                produtosProcessar =
+                    produtos.map(
+                        item => ({
+                            id_produto:
+                                Number(
+                                    item.id_produto ||
+                                    item.id
+                                ),
+
+                            quantidade:
+                                Number(
+                                    item.quantidade ||
+                                    item.qtd ||
+                                    1
+                                ),
+
+                            preco:
+                                Number(
+                                    item.preco ??
+                                    item.preco_unitario ??
+                                    0
+                                )
+                        })
+                    );
+            }
+
+            /*
+            ============================================================
+            TOTAL
+            ============================================================
+            */
+
+            let valorTotal =
+                Number(total);
 
             if (
-                !Number.isFinite(valorTotal) ||
+                !Number.isFinite(
+                    valorTotal
+                ) ||
                 valorTotal <= 0
             ) {
-                valorTotal = produtos.reduce(
-                    (soma, item) => {
-
-                        const quantidade =
+                valorTotal =
+                    produtosProcessar.reduce(
+                        (
+                            soma,
+                            item
+                        ) =>
+                            soma +
                             Number(
-                                item.quantidade ||
-                                item.qtd ||
-                                1
-                            );
-
-                        const preco =
+                                item.quantidade || 0
+                            ) *
                             Number(
-                                item.preco ||
-                                item.preco_unitario ||
-                                0
-                            );
-
-                        return soma +
-                            quantidade * preco;
-                    },
-                    0
-                );
+                                item.preco || 0
+                            ),
+                        0
+                    );
             }
 
             if (
-                !Number.isFinite(valorTotal) ||
+                !Number.isFinite(
+                    valorTotal
+                ) ||
                 valorTotal <= 0
             ) {
                 throw new Error(
@@ -3843,280 +4207,423 @@ router.post(
                 );
             }
 
-            // ==================================================
-            // VALOR DE CADA PARCELA
-            // ==================================================
+            /*
+            ============================================================
+            VALOR DO CRÉDITO
+            ============================================================
+            */
 
-            let valorParcelaCalculado =
-                Number(valor_parcela);
+            let valorCredito =
+                Number(
+                    valor_credito
+                );
 
             if (
-                !Number.isFinite(valorParcelaCalculado) ||
+                !Number.isFinite(
+                    valorCredito
+                ) ||
+                valorCredito <= 0
+            ) {
+                valorCredito =
+                    valorTotal;
+            }
+
+            if (
+                valorCredito >
+                valorTotal + 0.009
+            ) {
+                throw new Error(
+                    "O valor do crédito não pode ser maior que o total da compra."
+                );
+            }
+
+            let valorParcelaCalculado =
+                Number(
+                    valor_parcela
+                );
+
+            if (
+                !Number.isFinite(
+                    valorParcelaCalculado
+                ) ||
                 valorParcelaCalculado <= 0
             ) {
                 valorParcelaCalculado =
-                    valorTotal / qtdParcelas;
+                    valorCredito /
+                    qtdParcelas;
             }
 
-            // ==================================================
-            // PAGAMENTO DIVIDIDO
-            // ==================================================
+            valorParcelaCalculado =
+                arredondar(
+                    valorParcelaCalculado
+                );
 
-            const pagamentosNormalizados = Array.isArray(pagamentos) && pagamentos.length
-                ? pagamentos.map(p => ({
-                    metodo: String(p.metodo || "").trim(),
-                    valor: Number(p.valor || 0)
-                })).filter(p => p.metodo && Number.isFinite(p.valor) && p.valor > 0)
-                : [{
-                    metodo: "Cartão de Crédito",
-                    valor: valorTotal
-                }];
+            /*
+            ============================================================
+            FORMA DE PAGAMENTO PARA O HISTÓRICO
+            ============================================================
+            */
 
-            const totalPagamentos = pagamentosNormalizados.reduce(
-                (soma, pagamento) => soma + pagamento.valor,
-                0
-            );
+            const formaHistorico =
+                Array.isArray(pagamentos) &&
+                pagamentos.length
+                    ? pagamentos
+                        .map(
+                            p => {
 
-            if (Math.abs(totalPagamentos - valorTotal) > 0.009) {
-                throw new Error("Os valores das formas de pagamento não completam o total da compra.");
-            }
+                                const metodo =
+                                    String(
+                                        p.metodo ||
+                                        ""
+                                    ).trim();
 
-            const pagamentoCredito = pagamentosNormalizados.find(
-                pagamento => pagamento.metodo.toLowerCase().includes("cartão de crédito")
-            );
+                                const parcelasTexto =
+                                    metodo ===
+                                    "Cartão de Crédito"
+                                        ? ` — ${Number(
+                                            p.parcelas ||
+                                            qtdParcelas
+                                        )}x`
+                                        : "";
 
-            const valorCredito = Number(
-                valor_credito ?? pagamentoCredito?.valor ?? valorTotal
-            );
+                                return (
+                                    `${metodo}${parcelasTexto}: R$ ${Number(
+                                        p.valor || 0
+                                    ).toFixed(2)}`
+                                );
+                            }
+                        )
+                        .join(" + ")
+                    :
+                    `Cartão de Crédito — ${qtdParcelas}x: R$ ${Number(
+                        valorCredito
+                    ).toFixed(2)}`;
 
-            if (!pagamentoCredito || !Number.isFinite(valorCredito) || valorCredito <= 0) {
-                throw new Error("O valor pago no cartão de crédito não foi informado.");
-            }
+            /*
+            ============================================================
+            COMANDA
+            ============================================================
+            */
 
-            if (Math.abs(valorCredito - pagamentoCredito.valor) > 0.009) {
-                throw new Error("O valor do crédito não corresponde ao valor informado para o cartão de crédito.");
-            }
+            if (veioDeComanda) {
 
-            valorParcelaCalculado = valorCredito / qtdParcelas;
+                for (
+                    const item
+                    of produtosProcessar
+                ) {
 
-            const formaHistorico = pagamentosNormalizados.map(pagamento => {
-                const valorFormatado = Number(pagamento.valor).toFixed(2);
-                const credito = pagamento.metodo.toLowerCase().includes("cartão de crédito");
-                return `${pagamento.metodo}: R$ ${valorFormatado}${credito ? ` — ${qtdParcelas}x` : ""}`;
-            }).join(" + ");
+                    if (
+                        !Number.isInteger(
+                            item.id_produto
+                        ) ||
+                        item.id_produto <= 0
+                    ) {
+                        throw new Error(
+                            "Produto inválido."
+                        );
+                    }
 
-            // ==================================================
-            // USUÁRIO LOGADO
-            // ==================================================
+                    if (
+                        !Number.isInteger(
+                            item.quantidade
+                        ) ||
+                        item.quantidade <= 0
+                    ) {
+                        throw new Error(
+                            "Quantidade de produto inválida."
+                        );
+                    }
 
-            const idUser =
-                req.user?.id_user ??
-                req.user?.id ??
-                req.usuario?.id_user ??
-                req.usuario?.id ??
-                null;
+                    if (
+                        item.ativo === 0
+                    ) {
+                        throw new Error(
+                            `O produto "${item.nome}" está inativo e não pode ser vendido.`
+                        );
+                    }
 
-            // ==================================================
-            // CRIA O PEDIDO
-            //
-            // id_conta_fiado = NULL
-            // origem = PDV
-            // status = Pendente
-            //
-            // Portanto:
-            // - aparece no controle de parcelas
-            // - não aparece no histórico enquanto pendente
-            // ==================================================
-
-            const [pedidoResult] = await conn.query(`
-                INSERT INTO pedidos (
-                    id_user,
-                    id_conta_fiado,
-                    num_pedido,
-                    codigo_comanda,
-                    data,
-                    data_ag,
-                    status,
-                    origem,
-                    valor_total,
-                    qtd_total,
-                    form_pag
-                )
-                VALUES (
-                    ?,
-                    NULL,
-                    ?,
-                    NULL,
-                    ?,
-                    NULL,
-                    'Pendente',
-                    'PDV',
-                    ?,
-                    ?,
-                    ?
-                )
-            `, [
-                idUser,
-                numeroPedido,
-                dataCompra,
-                valorTotal,
-
-                produtos.reduce(
-                    (soma, item) =>
-                        soma +
+                    const novaQtd =
                         Number(
-                            item.quantidade ||
-                            item.qtd ||
-                            1
+                            item.estoque
+                        ) -
+                        Number(
+                            item.quantidade
+                        );
+
+                    if (
+                        novaQtd < 0
+                    ) {
+                        throw new Error(
+                            `Estoque insuficiente para: ${item.nome}`
+                        );
+                    }
+
+                    await conn.query(
+                        `
+                        UPDATE produtos
+                        SET qtd = ?
+                        WHERE id_produto = ?
+                        `,
+                        [
+                            novaQtd,
+                            item.id_produto
+                        ]
+                    );
+                }
+
+                await conn.query(
+                    `
+                    UPDATE pedidos
+                    SET
+                        status = 'Pendente',
+                        valor_total = ?,
+                        qtd_total = ?,
+                        form_pag = ?,
+                        data = ?
+                    WHERE id_pedido = ?
+                    `,
+                    [
+                        valorTotal,
+
+                        produtosProcessar.reduce(
+                            (
+                                soma,
+                                item
+                            ) =>
+                                soma +
+                                Number(
+                                    item.quantidade ||
+                                    0
+                                ),
+                            0
                         ),
-                    0
-                ),
 
-                formaHistorico
-            ]);
+                        formaHistorico,
 
-            const idPedido =
-                pedidoResult.insertId;
+                        dataCompra,
 
-            // ==================================================
-            // PRODUTOS DO PEDIDO + BAIXA DO ESTOQUE
-            // ==================================================
+                        idPedidoComanda
+                    ]
+                );
 
-            for (const item of produtos) {
+            } else {
 
-                const idProduto =
-                    Number(
-                        item.id_produto ||
-                        item.id
-                    );
+                /*
+                ========================================================
+                NOVA VENDA DIRETA DO PDV
+                ========================================================
+                */
 
-                const quantidade =
-                    Number(
-                        item.quantidade ||
-                        item.qtd ||
-                        1
-                    );
-
-                if (
-                    !Number.isInteger(idProduto) ||
-                    idProduto <= 0
-                ) {
-                    throw new Error(
-                        "Produto inválido."
-                    );
-                }
-
-                if (
-                    !Number.isInteger(quantidade) ||
-                    quantidade <= 0
-                ) {
-                    throw new Error(
-                        "Quantidade de produto inválida."
-                    );
-                }
-
-                // Busca o produto com bloqueio para evitar
-                // venda acima do estoque.
-                const [produto] = await conn.query(`
-                    SELECT
-                        id_produto,
-                        nome,
-                        preco,
-                        qtd,
-                        ativo
-                    FROM produtos
-                    WHERE id_produto = ?
-                    FOR UPDATE
-                `, [
-                    idProduto
-                ]);
-
-                if (!produto.length) {
-                    throw new Error(
-                        `Produto ${idProduto} não encontrado.`
-                    );
-                }
-
-                if (
-                    Number(produto[0].ativo) === 0
-                ) {
-                    throw new Error(
-                        `O produto "${produto[0].nome}" está inativo e não pode ser vendido.`
-                    );
-                }
-
-                if (
-                    Number(produto[0].qtd) < quantidade
-                ) {
-                    throw new Error(
-                        `Estoque insuficiente para: ${produto[0].nome}`
-                    );
-                }
-
-                const preco =
-                    Number(
-                        item.preco ??
-                        item.preco_unitario ??
-                        produto[0].preco ??
-                        0
-                    );
-
-                if (
-                    !Number.isFinite(preco) ||
-                    preco < 0
-                ) {
-                    throw new Error(
-                        `Preço inválido para: ${produto[0].nome}`
-                    );
-                }
-
-                await conn.query(`
-                    INSERT INTO pedidos_itens (
-                        id_pedido,
-                        id_produto,
-                        qtd,
-                        preco_unitario
-                    )
-                    VALUES (?, ?, ?, ?)
-                `, [
-                    idPedido,
-                    idProduto,
-                    quantidade,
-                    preco
-                ]);
+                const idUser =
+                    req.user?.id_user ??
+                    req.user?.id ??
+                    req.usuario?.id_user ??
+                    req.usuario?.id ??
+                    null;
 
                 const [
-                    estoqueAtualizado
-                ] = await conn.query(`
-                    UPDATE produtos
-                    SET qtd = qtd - ?
-                    WHERE id_produto = ?
-                      AND qtd >= ?
-                `, [
-                    quantidade,
-                    idProduto,
-                    quantidade
-                ]);
+                    pedidoResult
+                ] =
+                    await conn.query(
+                        `
+                        INSERT INTO pedidos (
+                            id_user,
+                            id_conta_fiado,
+                            num_pedido,
+                            codigo_comanda,
+                            data,
+                            data_ag,
+                            status,
+                            origem,
+                            valor_total,
+                            qtd_total,
+                            form_pag
+                        )
+                        VALUES (
+                            ?,
+                            NULL,
+                            ?,
+                            NULL,
+                            ?,
+                            NULL,
+                            'Pendente',
+                            'PDV',
+                            ?,
+                            ?,
+                            ?
+                        )
+                        `,
+                        [
+                            idUser,
+                            numeroPedido,
+                            dataCompra,
+                            valorTotal,
 
-                if (
-                    estoqueAtualizado.affectedRows !== 1
-                ) {
-                    throw new Error(
-                        `Estoque insuficiente para: ${produto[0].nome}`
+                            produtosProcessar.reduce(
+                                (
+                                    soma,
+                                    item
+                                ) =>
+                                    soma +
+                                    Number(
+                                        item.quantidade ||
+                                        0
+                                    ),
+                                0
+                            ),
+
+                            formaHistorico
+                        ]
                     );
+
+                idPedido =
+                    pedidoResult.insertId;
+
+                for (
+                    const item
+                    of produtosProcessar
+                ) {
+
+                    if (
+                        !Number.isInteger(
+                            item.id_produto
+                        ) ||
+                        item.id_produto <= 0
+                    ) {
+                        throw new Error(
+                            "Produto inválido."
+                        );
+                    }
+
+                    if (
+                        !Number.isInteger(
+                            item.quantidade
+                        ) ||
+                        item.quantidade <= 0
+                    ) {
+                        throw new Error(
+                            "Quantidade de produto inválida."
+                        );
+                    }
+
+                    const [
+                        produto
+                    ] =
+                        await conn.query(
+                            `
+                            SELECT
+                                id_produto,
+                                nome,
+                                preco,
+                                qtd,
+                                ativo
+                            FROM produtos
+                            WHERE id_produto = ?
+                            FOR UPDATE
+                            `,
+                            [
+                                item.id_produto
+                            ]
+                        );
+
+                    if (
+                        !produto.length
+                    ) {
+                        throw new Error(
+                            `Produto ${item.id_produto} não encontrado.`
+                        );
+                    }
+
+                    if (
+                        Number(
+                            produto[0].ativo
+                        ) === 0
+                    ) {
+                        throw new Error(
+                            `O produto "${produto[0].nome}" está inativo e não pode ser vendido.`
+                        );
+                    }
+
+                    if (
+                        Number(
+                            produto[0].qtd
+                        ) <
+                        item.quantidade
+                    ) {
+                        throw new Error(
+                            `Estoque insuficiente para: ${produto[0].nome}`
+                        );
+                    }
+
+                    const preco =
+                        Number(
+                            item.preco ??
+                            item.preco_unitario ??
+                            produto[0].preco ??
+                            0
+                        );
+
+                    if (
+                        !Number.isFinite(
+                            preco
+                        ) ||
+                        preco < 0
+                    ) {
+                        throw new Error(
+                            `Preço inválido para: ${produto[0].nome}`
+                        );
+                    }
+
+                    await conn.query(
+                        `
+                        INSERT INTO pedidos_itens (
+                            id_pedido,
+                            id_produto,
+                            qtd,
+                            preco_unitario
+                        )
+                        VALUES (?, ?, ?, ?)
+                        `,
+                        [
+                            idPedido,
+                            item.id_produto,
+                            item.quantidade,
+                            preco
+                        ]
+                    );
+
+                    const [
+                        estoqueAtualizado
+                    ] =
+                        await conn.query(
+                            `
+                            UPDATE produtos
+                            SET qtd = qtd - ?
+                            WHERE id_produto = ?
+                              AND qtd >= ?
+                            `,
+                            [
+                                item.quantidade,
+                                item.id_produto,
+                                item.quantidade
+                            ]
+                        );
+
+                    if (
+                        estoqueAtualizado.affectedRows !== 1
+                    ) {
+                        throw new Error(
+                            `Estoque insuficiente para: ${produto[0].nome}`
+                        );
+                    }
                 }
             }
 
-            // ==================================================
-            // CRIA AS PARCELAS
-            //
-            // Exemplo:
-            // compra em 17/09
-            //
-            // 1/3 -> 17/10
-            // 2/3 -> 17/11
-            // 3/3 -> 17/12
-            // ==================================================
+            /*
+            ============================================================
+            CRIA AS PARCELAS
+            ============================================================
+            */
 
             for (
                 let numero = 1;
@@ -4130,7 +4637,8 @@ router.post(
                         numero
                     );
 
-                await conn.query(`
+                await conn.query(
+                    `
                     INSERT INTO conta_fiado_parcelas (
                         id_conta,
                         id_pedido,
@@ -4149,23 +4657,23 @@ router.post(
                         ?,
                         ?
                     )
-                `, [
-                    idPedido,
-                    numero,
-                    qtdParcelas,
-                    valorParcelaCalculado,
-                    vencimento,
-                    numero === 1 ? 'Pago' : 'Pendente'
-                ]);
+                    `,
+                    [
+                        idPedido,
 
-                if (numero === 1) {
-                    await conn.query(`
-                        UPDATE conta_fiado_parcelas
-                        SET data_pagamento = ?
-                        WHERE id_pedido = ?
-                          AND numero_parcela = 1
-                    `, [dataCompra, idPedido]);
-                }
+                        numero,
+
+                        qtdParcelas,
+
+                        valorParcelaCalculado,
+
+                        vencimento,
+
+                        numero === 1
+                            ? "Pago"
+                            : "Pendente"
+                    ]
+                );
             }
 
             await conn.commit();
@@ -4174,10 +4682,13 @@ router.post(
                 sucesso: true,
                 id_pedido: idPedido,
                 num_pedido: numeroPedido,
-                parcelas: qtdParcelas,
+                codigo_comanda:
+                    codigoComanda,
+                origem,
+                parcelas:
+                    qtdParcelas,
                 valor_parcela:
-                    valorParcelaCalculado,
-                origem: "PDV"
+                    valorParcelaCalculado
             });
 
         } catch (erro) {
@@ -4206,7 +4717,6 @@ router.post(
         }
     }
 );
-
 
 
 /* ======================================================
@@ -4334,11 +4844,15 @@ router.post(
 /* ======================================================
    FINALIZAR CONTA INTEIRA
 ====================================================== */
+/* ======================================================
+   FINALIZAR CONTA INTEIRA
+====================================================== */
 
 router.put(
     "/contas-fiado/:id/finalizar",
     verificarToken,
     async (req, res) => {
+
         const idConta =
             Number(
                 req.params.id
@@ -4346,8 +4860,13 @@ router.put(
 
         const {
             data_conclusao,
-            forma_pagamento
+            forma_pagamento,
+            parcelas,
+            valor_parcela,
+            valor_credito,
+            pagamentos
         } = req.body;
+
 
         if (
             !Number.isInteger(
@@ -4361,6 +4880,7 @@ router.put(
             });
         }
 
+
         if (
             !data_conclusao
         ) {
@@ -4369,6 +4889,7 @@ router.put(
                     "Data do pagamento não informada."
             });
         }
+
 
         if (
             !forma_pagamento
@@ -4379,96 +4900,1279 @@ router.put(
             });
         }
 
+
         const conn =
             await conexao.getConnection();
 
+
         try {
+
             await conn.beginTransaction();
 
-            const [conta] =
+
+            /* ==================================================
+               1. LOCALIZA A CONTA
+            ================================================== */
+
+            const [
+                contas
+            ] =
                 await conn.query(
                     `
                     SELECT
-                        id_conta
-                    FROM contas_fiado
-                    WHERE id_conta = ?
+                        c.id_conta,
+                        c.id_cliente
+                    FROM contas_fiado c
+                    WHERE c.id_conta = ?
                     FOR UPDATE
                     `,
-                    [idConta]
+                    [
+                        idConta
+                    ]
                 );
 
+
             if (
-                conta.length === 0
+                !contas.length
             ) {
                 throw new Error(
                     "Conta fiado não encontrada."
                 );
             }
 
-            await conn.query(
-                `
-                UPDATE conta_fiado_prod
-                SET
-                    status_pagamento = 'Pago',
-                    data_pagamento = ?,
-                    forma_pagamento = ?,
-                    juros_ativo = FALSE
-                WHERE id_conta = ?
-                  AND LOWER(
-                        TRIM(
-                            COALESCE(
-                                status_pagamento,
-                                'Pendente'
-                            )
-                        )
+
+            /* ==================================================
+               2. BUSCA TODOS OS PRODUTOS PENDENTES DA CONTA
+            ================================================== */
+
+            const [
+                itensConta
+            ] =
+                await conn.query(
+                    `
+                    SELECT
+                        cf.id_conta,
+                        cf.id_produto,
+                        cf.qtd,
+                        cf.valor_unit,
+                        cf.status_pagamento,
+                        cf.juros_ativo,
+                        cf.valor_juros_inicio,
+                        cf.tipo_juros,
+                        cf.taxa_juros,
+                        cf.data_inicio_juros,
+
+                        p.nome,
+
+                        c.data_vencimento
+
+                    FROM conta_fiado_prod cf
+
+                    INNER JOIN contas_fiado c
+                        ON c.id_conta =
+                           cf.id_conta
+
+                    INNER JOIN produtos p
+                        ON p.id_produto =
+                           cf.id_produto
+
+                    WHERE cf.id_conta = ?
+
+                      AND LOWER(
+                          TRIM(
+                              COALESCE(
+                                  cf.status_pagamento,
+                                  'Pendente'
+                              )
+                          )
                       ) <> 'pago'
-                `,
-                [
-                    data_conclusao,
-                    forma_pagamento,
-                    idConta
-                ]
+
+                    FOR UPDATE
+                    `,
+                    [
+                        idConta
+                    ]
+                );
+
+
+            if (
+                !itensConta.length
+            ) {
+                throw new Error(
+                    "Esta conta não possui produtos pendentes."
+                );
+            }
+
+
+            /* ==================================================
+               3. MONTA OS PRODUTOS QUE IRÃO PARA O PEDIDO
+            ================================================== */
+
+            const produtosHistorico =
+                [];
+
+
+            for (
+                const produto
+                of itensConta
+            ) {
+
+                const valorOriginal =
+                    Number(
+                        produto.qtd || 0
+                    ) *
+                    Number(
+                        produto.valor_unit || 0
+                    );
+
+
+                let valorFinal =
+                    valorOriginal;
+
+
+                /* ------------------------------------------
+                   APLICA JUROS, SE EXISTIREM
+                ------------------------------------------ */
+
+                if (
+                    Number(
+                        produto.juros_ativo
+                    ) === 1 &&
+
+                    Number(
+                        produto.valor_juros_inicio
+                    ) > 0
+                ) {
+
+                    const diasAtraso =
+                        calcularDiasAtraso(
+                            produto.data_vencimento
+                        );
+
+
+                    const tipo =
+                        normalizarTipoJuros(
+                            produto.tipo_juros
+                        );
+
+
+                    const taxa =
+                        Number(
+                            produto.taxa_juros || 0
+                        );
+
+
+                    const valorBase =
+                        Number(
+                            produto.valor_juros_inicio
+                        ) > 0
+
+                            ? Number(
+                                produto.valor_juros_inicio
+                            )
+
+                            : valorOriginal;
+
+
+                    valorFinal =
+                        calcularJurosSimples(
+                            valorBase,
+                            taxa,
+                            tipo,
+                            diasAtraso
+                        );
+                }
+
+
+                produtosHistorico.push({
+                    id_produto:
+                        Number(
+                            produto.id_produto
+                        ),
+
+                    qtd:
+                        Number(
+                            produto.qtd || 0
+                        ),
+
+                    preco_unitario:
+                        Number(
+                            produto.valor_unit || 0
+                        ),
+
+                    valor_total:
+                        Number(
+                            valorFinal || 0
+                        ),
+
+                    nome:
+                        produto.nome
+                });
+
+
+                /* ------------------------------------------
+                   O FIADO ORIGINAL FOI QUITADO.
+                   
+                   Isso não significa que o novo pedido
+                   de cartão já foi quitado.
+                ------------------------------------------ */
+
+                await conn.query(
+                    `
+                    UPDATE conta_fiado_prod
+
+                    SET
+                        status_pagamento = 'Pago',
+                        data_pagamento = ?,
+                        forma_pagamento = ?,
+                        juros_ativo = FALSE
+
+                    WHERE id_conta = ?
+                      AND id_produto = ?
+                    `,
+                    [
+                        data_conclusao,
+                        forma_pagamento,
+                        idConta,
+                        produto.id_produto
+                    ]
+                );
+            }
+
+
+            /* ==================================================
+               4. ATUALIZA O STATUS DA CONTA FIADO
+            ================================================== */
+
+            await atualizarStatusConta(
+                conn,
+                idConta
             );
 
-            /*
-                A função agora escolhe automaticamente
-                um valor de status aceito pela coluna.
-            */
-            const novoStatus =
-                await atualizarStatusConta(
-                    conn,
-                    idConta
+
+            /* ==================================================
+               5. TOTAL DA COMPRA
+            ================================================== */
+
+            const valorTotal =
+                arredondar(
+                    produtosHistorico.reduce(
+                        (
+                            total,
+                            item
+                        ) =>
+                            total +
+                            Number(
+                                item.valor_total || 0
+                            ),
+                        0
+                    )
                 );
+
+
+            const qtdTotal =
+                produtosHistorico.reduce(
+                    (
+                        total,
+                        item
+                    ) =>
+                        total +
+                        Number(
+                            item.qtd || 0
+                        ),
+                    0
+                );
+
+
+            /* ==================================================
+               6. DETECTA SE O PAGAMENTO TEM CARTÃO DE CRÉDITO
+            ================================================== */
+
+            const formaNormalizada =
+                normalizarFormaPagamentoInterna(
+                    forma_pagamento
+                );
+
+
+            const creditoNosPagamentos =
+                Array.isArray(
+                    pagamentos
+                ) &&
+                pagamentos.some(
+                    p =>
+                        normalizarFormaPagamentoInterna(
+                            p?.metodo
+                        ).includes(
+                            "cartao de credito"
+                        )
+                );
+
+
+            const ehCredito =
+                formaNormalizada.includes(
+                    "cartao de credito"
+                ) ||
+                creditoNosPagamentos;
+
+
+            /* ==================================================
+               7. QUANTIDADE DE PARCELAS
+            ================================================== */
+
+            let qtdParcelas =
+                Number(
+                    parcelas
+                );
+
+
+            if (
+                !Number.isInteger(
+                    qtdParcelas
+                ) ||
+                qtdParcelas < 1
+            ) {
+
+                const pagamentoCredito =
+                    Array.isArray(
+                        pagamentos
+                    )
+                        ? pagamentos.find(
+                            p =>
+                                normalizarFormaPagamentoInterna(
+                                    p?.metodo
+                                ).includes(
+                                    "cartao de credito"
+                                )
+                        )
+                        : null;
+
+
+                qtdParcelas =
+                    Number(
+                        pagamentoCredito?.parcelas ||
+                        1
+                    );
+            }
+
+
+            if (
+                ehCredito &&
+                (
+                    qtdParcelas < 1 ||
+                    qtdParcelas > 12
+                )
+            ) {
+                throw new Error(
+                    "O cartão de crédito deve ter entre 1 e 12 parcelas."
+                );
+            }
+
+
+            /* ==================================================
+               8. VALOR QUE FOI PAGO NO CRÉDITO
+            ================================================== */
+
+            let valorCredito =
+                Number(
+                    valor_credito
+                );
+
+
+            if (
+                !Number.isFinite(
+                    valorCredito
+                ) ||
+                valorCredito <= 0
+            ) {
+
+                if (
+                    Array.isArray(
+                        pagamentos
+                    ) &&
+                    pagamentos.length
+                ) {
+
+                    valorCredito =
+                        pagamentos
+                            .filter(
+                                p =>
+                                    normalizarFormaPagamentoInterna(
+                                        p?.metodo
+                                    ).includes(
+                                        "cartao de credito"
+                                    )
+                            )
+                            .reduce(
+                                (
+                                    total,
+                                    p
+                                ) =>
+                                    total +
+                                    Number(
+                                        p?.valor || 0
+                                    ),
+                                0
+                            );
+                }
+            }
+
+
+            if (
+                !ehCredito
+            ) {
+
+                valorCredito =
+                    0;
+
+                qtdParcelas =
+                    null;
+
+            } else if (
+                !Number.isFinite(
+                    valorCredito
+                ) ||
+                valorCredito <= 0
+            ) {
+
+                valorCredito =
+                    valorTotal;
+            }
+
+
+            if (
+                ehCredito &&
+                valorCredito >
+                    valorTotal + 0.009
+            ) {
+                throw new Error(
+                    "O valor do crédito não pode ser maior que o total da compra."
+                );
+            }
+
+
+            /* ==================================================
+               9. VALOR DE CADA PARCELA
+            ================================================== */
+
+            let valorParcelaCalculado =
+                null;
+
+
+            if (
+                ehCredito
+            ) {
+
+                valorParcelaCalculado =
+                    Number(
+                        valor_parcela
+                    );
+
+
+                if (
+                    !Number.isFinite(
+                        valorParcelaCalculado
+                    ) ||
+                    valorParcelaCalculado <= 0
+                ) {
+
+                    valorParcelaCalculado =
+                        valorCredito /
+                        qtdParcelas;
+                }
+
+
+                valorParcelaCalculado =
+                    arredondar(
+                        valorParcelaCalculado
+                    );
+            }
+
+
+            /* ==================================================
+               10. USUÁRIO
+            ================================================== */
+
+            const idUser =
+                req.user?.id_user ??
+                req.user?.id ??
+                req.usuario?.id_user ??
+                req.usuario?.id ??
+                null;
+
+
+            /* ==================================================
+               11. PRÓXIMO NÚMERO DO PEDIDO
+            ================================================== */
+
+            const [
+                ultimoPedido
+            ] =
+                await conn.query(
+                    `
+                    SELECT
+                        MAX(num_pedido) AS max_num
+                    FROM pedidos
+                    FOR UPDATE
+                    `
+                );
+
+
+            const numPedido =
+                Number(
+                    ultimoPedido[0]?.max_num || 0
+                ) + 1;
+
+
+            /* ==================================================
+               12. FORMA DE PAGAMENTO DO HISTÓRICO
+            ================================================== */
+
+            const formaHistorico =
+                Array.isArray(
+                    pagamentos
+                ) &&
+                pagamentos.length
+
+                    ? pagamentos
+                        .map(
+                            p => {
+
+                                const metodo =
+                                    String(
+                                        p?.metodo || ""
+                                    ).trim();
+
+
+                                const parcelasTexto =
+                                    normalizarFormaPagamentoInterna(
+                                        metodo
+                                    ).includes(
+                                        "cartao de credito"
+                                    )
+
+                                        ? ` — ${
+                                            Number(
+                                                p?.parcelas ||
+                                                qtdParcelas ||
+                                                1
+                                            )
+                                        }x`
+
+                                        : "";
+
+
+                                return (
+                                    `${metodo}${parcelasTexto}: R$ ${
+                                        Number(
+                                            p?.valor || 0
+                                        ).toFixed(2)
+                                    }`
+                                );
+                            }
+                        )
+                        .join(" + ")
+
+                    : ehCredito
+
+                        ? `Fiado(Cartão de Crédito — ${qtdParcelas}x)`
+
+                        : `Fiado(${String(
+                            forma_pagamento
+                        ).trim()})`;
+
+
+            /* ==================================================
+               13. CRIA O PEDIDO NO HISTÓRICO
+               
+               CRÉDITO:
+               fica Pendente enquanto houver parcelas.
+
+               OUTRAS FORMAS:
+               fica Finalizado imediatamente.
+            ================================================== */
+
+            const [
+                pedido
+            ] =
+                await conn.query(
+                    `
+                    INSERT INTO pedidos
+                    (
+                        id_user,
+                        id_conta_fiado,
+                        num_pedido,
+                        codigo_comanda,
+                        data,
+                        data_ag,
+                        status,
+                        origem,
+                        valor_total,
+                        qtd_total,
+                        form_pag
+                    )
+
+                    VALUES
+                    (
+                        ?,
+                        ?,
+                        ?,
+                        NULL,
+                        ?,
+                        NULL,
+                        ?,
+                        'Fiado',
+                        ?,
+                        ?,
+                        ?
+                    )
+                    `,
+                    [
+                        idUser,
+
+                        idConta,
+
+                        numPedido,
+
+                        data_conclusao,
+
+                        ehCredito
+                            ? "Pendente"
+                            : "Finalizado",
+
+                        valorTotal,
+
+                        qtdTotal,
+
+                        formaHistorico
+                    ]
+                );
+
+
+            /* ==================================================
+               14. CRIA OS ITENS DO PEDIDO
+            ================================================== */
+
+            for (
+                const item
+                of produtosHistorico
+            ) {
+
+                await conn.query(
+                    `
+                    INSERT INTO pedidos_itens
+                    (
+                        id_pedido,
+                        id_produto,
+                        qtd,
+                        preco_unitario
+                    )
+
+                    VALUES (?, ?, ?, ?)
+                    `,
+                    [
+                        pedido.insertId,
+
+                        item.id_produto,
+
+                        item.qtd,
+
+                        item.preco_unitario
+                    ]
+                );
+            }
+
+
+            /* ==================================================
+               15. CARTÃO DE CRÉDITO
+               
+               CRIA AS PARCELAS NO BANCO.
+
+               Todas começam como Pendente.
+               
+               A primeira vence um mês após a compra.
+            ================================================== */
+
+            if (
+                ehCredito
+            ) {
+
+                const dataCompra =
+                    normalizarDataCompra(
+                        data_conclusao
+                    );
+
+
+                for (
+                    let numero = 1;
+                    numero <= qtdParcelas;
+                    numero++
+                ) {
+
+                    const vencimento =
+                        adicionarMesesData(
+                            dataCompra,
+                            numero
+                        );
+
+
+                    await conn.query(
+                        `
+                        INSERT INTO conta_fiado_parcelas
+                        (
+                            id_conta,
+                            id_pedido,
+                            numero_parcela,
+                            total_parcelas,
+                            valor,
+                            data_vencimento,
+                            status
+                        )
+
+                        VALUES (
+                            ?,
+                            ?,
+                            ?,
+                            ?,
+                            ?,
+                            ?,
+                            'Pendente'
+                        )
+                        `,
+                        [
+                            idConta,
+
+                            pedido.insertId,
+
+                            numero,
+
+                            qtdParcelas,
+
+                            valorParcelaCalculado,
+
+                            vencimento
+                        ]
+                    );
+                }
+            }
+
+
+            /* ==================================================
+               16. FINALIZA A TRANSAÇÃO
+            ================================================== */
 
             await conn.commit();
 
-            res.json({
-                ok: true,
+
+            return res.json({
+
+                ok:
+                    true,
+
+                sucesso:
+                    true,
+
                 status:
-                    novoStatus,
+                    ehCredito
+                        ? "Pendente"
+                        : "Finalizado",
+
+                id_pedido:
+                    pedido.insertId,
+
+                num_pedido:
+                    numPedido,
+
+                parcelas:
+                    ehCredito
+                        ? qtdParcelas
+                        : null,
+
+                valor_parcela:
+                    ehCredito
+                        ? valorParcelaCalculado
+                        : null,
+
                 mensagem:
-                    "Todos os produtos da conta foram pagos."
+                    ehCredito
+
+                        ? "Compra registrada no cartão de crédito. As parcelas ficaram pendentes e aparecerão em Compras Parceladas e no Histórico de Pedidos."
+
+                        : "Todos os produtos da conta foram pagos e a compra foi registrada no histórico."
             });
 
-        } catch (err) {
+
+        } catch (
+            err
+        ) {
+
             await conn.rollback();
+
 
             console.error(
                 "Erro ao finalizar conta:",
                 err
             );
 
-            res.status(400).json({
+
+            return res.status(400).json({
+                sucesso:
+                    false,
+
                 erro:
                     err.message
             });
 
+
         } finally {
+
             conn.release();
+
         }
     }
 );
 
+router.get(
+    "/contas-fiado/parceladas",
+    verificarToken,
+    async (req, res) => {
+        let conn;
+
+        try {
+            conn =
+                await conexao.getConnection();
+
+            const hoje =
+                dataHojeISO();
+
+            const notificacoes =
+                [];
+
+
+            /* ==================================================
+               1. LOCALIZA PARCELAS QUE JÁ CHEGARAM AO VENCIMENTO
+            ================================================== */
+
+            const [
+                parcelasVencidas
+            ] =
+                await conn.query(
+                    `
+                    SELECT
+                        cfp.*,
+
+                        p.num_pedido,
+                        p.valor_total,
+                        p.id_conta_fiado,
+                        p.origem,
+
+                        c.nome_completo
+
+                    FROM conta_fiado_parcelas cfp
+
+                    INNER JOIN pedidos p
+                        ON p.id_pedido =
+                           cfp.id_pedido
+
+                    LEFT JOIN contas_fiado cf
+                        ON cf.id_conta =
+                           p.id_conta_fiado
+
+                    LEFT JOIN clientes_fiado c
+                        ON c.id_cliente =
+                           cf.id_cliente
+
+                    WHERE LOWER(
+                        COALESCE(
+                            cfp.status,
+                            'Pendente'
+                        )
+                    ) <> 'pago'
+
+                      AND cfp.data_vencimento <= ?
+
+                    ORDER BY
+                        cfp.data_vencimento ASC,
+                        cfp.numero_parcela ASC
+                    `,
+                    [
+                        hoje
+                    ]
+                );
+
+
+            /* ==================================================
+               2. PAGA AUTOMATICAMENTE CADA PARCELA VENCIDA
+            ================================================== */
+
+            for (
+                const parcela
+                of parcelasVencidas
+            ) {
+
+                const [
+                    resultadoPagamento
+                ] =
+                    await conn.query(
+                        `
+                        UPDATE conta_fiado_parcelas
+
+                        SET
+                            status = 'Pago',
+                            data_pagamento = ?
+
+                        WHERE id_parcela = ?
+
+                          AND LOWER(
+                              COALESCE(
+                                  status,
+                                  'Pendente'
+                              )
+                          ) <> 'pago'
+                        `,
+                        [
+                            hoje,
+                            parcela.id_parcela
+                        ]
+                    );
+
+
+                if (
+                    resultadoPagamento.affectedRows === 0
+                ) {
+                    continue;
+                }
+
+
+                /* ==================================================
+                   3. VERIFICA SE AINDA EXISTEM PARCELAS PENDENTES
+                ================================================== */
+
+                const [
+                    parcelasPendentes
+                ] =
+                    await conn.query(
+                        `
+                        SELECT
+                            COUNT(*) AS total
+
+                        FROM conta_fiado_parcelas
+
+                        WHERE id_pedido = ?
+
+                          AND LOWER(
+                              COALESCE(
+                                  status,
+                                  'Pendente'
+                              )
+                          ) <> 'pago'
+                        `,
+                        [
+                            parcela.id_pedido
+                        ]
+                    );
+
+
+                const totalPendentes =
+                    Number(
+                        parcelasPendentes[0]?.total || 0
+                    );
+
+
+                /* ==================================================
+                   4. SE NÃO EXISTIR MAIS NENHUMA:
+                      ESSA FOI A ÚLTIMA PARCELA
+                ================================================== */
+
+                if (
+                    totalPendentes === 0
+                ) {
+
+                    /* ------------------------------------------
+                       SE O PEDIDO VEIO DO CONTA FIADO,
+                       FINALIZA OS PRODUTOS DA CONTA ORIGINAL
+                    ------------------------------------------ */
+
+                    if (
+                        parcela.id_conta_fiado
+                    ) {
+
+                        await conn.query(
+                            `
+                            UPDATE conta_fiado_prod cf
+
+                            INNER JOIN pedidos_itens pi
+                                ON pi.id_produto =
+                                   cf.id_produto
+
+                            SET
+                                cf.status_pagamento = 'Pago',
+                                cf.data_pagamento = ?,
+                                cf.juros_ativo = FALSE
+
+                            WHERE cf.id_conta = ?
+
+                              AND pi.id_pedido = ?
+
+                              AND LOWER(
+                                  COALESCE(
+                                      cf.status_pagamento,
+                                      'Pendente'
+                                  )
+                              ) <> 'pago'
+                            `,
+                            [
+                                hoje,
+                                parcela.id_conta_fiado,
+                                parcela.id_pedido
+                            ]
+                        );
+
+
+                        await atualizarStatusConta(
+                            conn,
+                            parcela.id_conta_fiado
+                        );
+                    }
+
+
+                    /* ------------------------------------------
+                       PEDIDO CONCLUÍDO:
+                       AGORA ELE PODE IR PARA O HISTÓRICO
+                    ------------------------------------------ */
+
+                    await conn.query(
+                        `
+                        UPDATE pedidos
+
+                        SET
+                            status = 'Finalizado'
+
+                        WHERE id_pedido = ?
+                        `,
+                        [
+                            parcela.id_pedido
+                        ]
+                    );
+
+
+                    /* ------------------------------------------
+                       NOTIFICAÇÃO PARA O CONTA FIADO
+                    ------------------------------------------ */
+
+                    notificacoes.push(
+                        `Compra concluída! O pedido #${parcela.num_pedido} foi enviado para o histórico de pedidos.`
+                    );
+                }
+            }
+
+
+            /* ==================================================
+               5. BUSCA COMPRAS QUE AINDA POSSUEM PARCELAS
+                  PENDENTES
+
+               Não filtra pela origem.
+
+               Portanto:
+               PDV
+               Comanda
+               Conta Fiado
+               todos entram aqui se tiverem parcelas.
+            ================================================== */
+
+            const [
+                compras
+            ] =
+                await conn.query(
+                    `
+                    SELECT
+                        p.id_pedido,
+                        p.num_pedido,
+                        p.id_conta_fiado,
+                        p.origem,
+                        p.data,
+                        p.valor_total,
+
+                        SUM(
+                            cfp.valor
+                        ) AS valor_credito,
+
+                        p.form_pag,
+
+                        c.nome_completo,
+
+                        COUNT(
+                            cfp.id_parcela
+                        ) AS total_parcelas,
+
+                        SUM(
+                            CASE
+                                WHEN LOWER(
+                                    COALESCE(
+                                        cfp.status,
+                                        'Pendente'
+                                    )
+                                ) = 'pago'
+                                THEN 1
+                                ELSE 0
+                            END
+                        ) AS parcelas_pagas,
+
+                        MIN(
+                            CASE
+                                WHEN LOWER(
+                                    COALESCE(
+                                        cfp.status,
+                                        'Pendente'
+                                    )
+                                ) <> 'pago'
+                                THEN cfp.data_vencimento
+                                ELSE NULL
+                            END
+                        ) AS proxima_parcela
+
+                    FROM pedidos p
+
+                    INNER JOIN conta_fiado_parcelas cfp
+                        ON cfp.id_pedido =
+                           p.id_pedido
+
+                    LEFT JOIN contas_fiado cf
+                        ON cf.id_conta =
+                           p.id_conta_fiado
+
+                    LEFT JOIN clientes_fiado c
+                        ON c.id_cliente =
+                           cf.id_cliente
+
+                    WHERE EXISTS (
+                        SELECT 1
+
+                        FROM conta_fiado_parcelas cfp2
+
+                        WHERE cfp2.id_pedido =
+                              p.id_pedido
+
+                          AND LOWER(
+                              COALESCE(
+                                  cfp2.status,
+                                  'Pendente'
+                              )
+                          ) <> 'pago'
+                    )
+
+                    GROUP BY
+                        p.id_pedido,
+                        p.num_pedido,
+                        p.id_conta_fiado,
+                        p.origem,
+                        p.data,
+                        p.valor_total,
+                        p.form_pag,
+                        c.nome_completo
+
+                    ORDER BY
+                        proxima_parcela ASC
+                    `
+                );
+
+
+            /* ==================================================
+               6. CARREGA AS PARCELAS DE CADA COMPRA
+            ================================================== */
+
+            for (
+                const compra
+                of compras
+            ) {
+
+                const [
+                    parcelasCompra
+                ] =
+                    await conn.query(
+                        `
+                        SELECT
+                            id_parcela,
+                            numero_parcela,
+                            total_parcelas,
+                            valor,
+                            data_vencimento,
+                            status,
+                            data_pagamento
+
+                        FROM conta_fiado_parcelas
+
+                        WHERE id_pedido = ?
+
+                        ORDER BY
+                            numero_parcela ASC
+                        `,
+                        [
+                            compra.id_pedido
+                        ]
+                    );
+
+
+                compra.parcelas =
+                    parcelasCompra;
+
+
+                compra.valor_parcela =
+                    Number(
+                        parcelasCompra[0]?.valor || 0
+                    );
+
+
+                compra.valor_credito =
+                    Number(
+                        compra.valor_credito || 0
+                    );
+            }
+
+
+            /* ==================================================
+               7. RETORNA COMPRAS + NOTIFICAÇÕES
+            ================================================== */
+
+            return res.json({
+                sucesso:
+                    true,
+
+                compras,
+
+                notificacoes
+            });
+
+
+        } catch (
+            erro
+        ) {
+
+            console.error(
+                "Erro ao carregar compras parceladas:",
+                erro
+            );
+
+
+            return res.status(500).json({
+                sucesso:
+                    false,
+
+                mensagem:
+                    "Erro ao carregar compras parceladas."
+            });
+
+
+        } finally {
+
+            if (
+                conn
+            ) {
+                conn.release();
+            }
+        }
+    }
+);
+// ==================== HISTÓRICO DE PEDIDOS ====================
 
 router.get(
     "/historico-pedidos",
@@ -4480,9 +6184,11 @@ router.get(
             const apenasMeus =
                 req.query.apenas_meus === "true";
 
+
             const idUserLogado =
                 req.user?.id_user ||
                 req.user?.id;
+
 
             let queryPedidos = `
                 SELECT
@@ -4505,26 +6211,22 @@ router.get(
                 FROM pedidos p
 
                 LEFT JOIN users u
-                    ON p.id_user = u.id_user
+                    ON p.id_user =
+                       u.id_user
 
-                WHERE NOT EXISTS (
-                    SELECT 1
-                    FROM conta_fiado_parcelas cfp
-                    WHERE cfp.id_pedido = p.id_pedido
-                      AND LOWER(
-                          COALESCE(
-                              cfp.status,
-                              'Pendente'
-                          )
-                      ) <> 'pago'
-                )
+                WHERE LOWER(
+                    TRIM(
+                        COALESCE(
+                            p.status,
+                            ''
+                        )
+                    )
+                ) = 'finalizado'
             `;
+
 
             const params = [];
 
-            // ==================================================
-            // FILTRO "APENAS MEUS"
-            // ==================================================
 
             if (
                 apenasMeus &&
@@ -4540,16 +6242,21 @@ router.get(
                 );
             }
 
+
             queryPedidos += `
-                ORDER BY p.data DESC
+                ORDER BY
+                    p.data DESC
             `;
+
 
             const [
                 pedidos
-            ] = await conexao.execute(
-                queryPedidos,
-                params
-            );
+            ] =
+                await conexao.execute(
+                    queryPedidos,
+                    params
+                );
+
 
             if (
                 !pedidos ||
@@ -4558,19 +6265,19 @@ router.get(
                 return res.json([]);
             }
 
-            // ==================================================
-            // BUSCA OS ITENS DOS PEDIDOS
-            // ==================================================
 
             const idsPedidos =
                 pedidos.map(
-                    p => p.id_pedido
+                    p =>
+                        p.id_pedido
                 );
+
 
             const placeholders =
                 idsPedidos
                     .map(() => "?")
                     .join(",");
+
 
             const queryItens = `
                 SELECT
@@ -4595,12 +6302,15 @@ router.get(
                 )
             `;
 
+
             const [
                 itens
-            ] = await conexao.execute(
-                queryItens,
-                idsPedidos
-            );
+            ] =
+                await conexao.execute(
+                    queryItens,
+                    idsPedidos
+                );
+
 
             const resultadoFinal =
                 pedidos.map(
@@ -4620,20 +6330,25 @@ router.get(
                     })
                 );
 
+
             return res.json(
                 resultadoFinal
             );
 
-        } catch (erro) {
+
+        } catch (
+            error
+        ) {
 
             console.error(
-                "Erro ao carregar histórico de pedidos:",
-                erro
+                "Erro ao buscar histórico:",
+                error
             );
 
+
             return res.status(500).json({
-                resposta:
-                    "Erro ao carregar histórico de pedidos."
+                erro:
+                    "Erro ao processar consulta no banco."
             });
         }
     }
