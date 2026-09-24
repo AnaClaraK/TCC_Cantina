@@ -156,7 +156,7 @@
                     // =================================================
 
                     if (resposta.ok) {
-
+                        sessionStorage.removeItem("estoqueBaixoExibido");
                         pMessageEl.innerText = "Login realizado! Redirecionando...";
                         pMessageEl.style.color = "green";
 

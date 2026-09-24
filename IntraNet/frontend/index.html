@@ -301,14 +301,18 @@ atualizarCalendario();
 async function verificarEstoqueBaixo() {
     try {
         const resposta = await fetch("http://localhost:3000/produtos", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
         });
 
         if (!resposta.ok) throw new Error(`Erro HTTP: ${resposta.status}`);
 
         const produtos = await resposta.json();
 
-        const baixoEstoque = produtos.filter(p => (p.qtd || 0) < (p.qtd_min || 0));
+        const baixoEstoque = produtos.filter(
+            p => (p.qtd || 0) < (p.qtd_min || 0)
+        );
 
         if (baixoEstoque.length === 0) return;
 
@@ -322,6 +326,9 @@ async function verificarEstoqueBaixo() {
         `;
 
         exibirAviso(mensagem, confirmarLeituraEstoqueBaixo, false);
+
+        // Marca somente depois que o aviso realmente foi exibido
+        sessionStorage.setItem("estoqueBaixoExibido", "true");
 
     } catch (erro) {
         console.error("Erro ao verificar estoque baixo:", erro);
@@ -341,10 +348,21 @@ function confirmarLeituraEstoqueBaixo() {
 }
 
 window.addEventListener("load", () => {
+
+    // Se não estiver logado, não executa nada do sistema
+    if (!localStorage.getItem("token")) {
+        return;
+    }
+
     atualizarCalendario();
     carregarAgendamentosHome();
-    verificarEstoqueBaixo();
+
+    // Mostra o aviso somente uma vez após o login
+    if (!sessionStorage.getItem("estoqueBaixoExibido")) {
+        verificarEstoqueBaixo();
+    }
 });
+
 function mostrarAgendamentosDoDia(dataSelecionada) {
     const tbody = document.getElementById("tb_agendamentos_home");
 

@@ -1,189 +1,594 @@
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <script src="sidebar_header.js"></script>
     <link rel="stylesheet" href="layout.css">
-    <link rel="stylesheet" href="stylecadp.css">
     <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
-    <title>Editar Produto</title>
-    <script>
-        // Verifica se existe um token no localStorage
-        const token = localStorage.getItem("token");
-    
-        if (!token) {
-            // Se não tem token, impede a leitura do HTML e joga para o login
-            window.location.replace("login.html");
+
+    <title>Editar Produto - Grano Vita</title>
+
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-    </script>
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .input-disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+            font-weight: bold;
+            color: #2b2b2b;
+        }
+
+        .btn-submit {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+
+        .btn-submit:hover {
+            background-color: #218838;
+        }
+
+        .btn-cancelar {
+            background-color: #6c757d;
+        }
+
+        .btn-cancelar:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-lucro {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .btn-lucro:hover {
+            background-color: #218838;
+        }
+
+        .busca-container {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .busca-container label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        #inp_busca_editar {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        #lista_sugestoes {
+            list-style: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin: 4px 0 0;
+            padding: 0;
+            border-radius: 5px;
+            overflow: hidden;
+            z-index: 1000;
+            background: #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        #lista_sugestoes li {
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-top: none;
+            cursor: pointer;
+        }
+
+        #lista_sugestoes li:hover,
+        #lista_sugestoes li.ativo {
+            background: #f2f2f2;
+        }
+
+        .selecionado {
+            margin: 8px 0 15px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .produto-img-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .produto-img {
+            width: 90px;
+            height: 90px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow: hidden;
+            background: #f1f1f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .produto-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .imagem-info {
+            flex: 1;
+        }
+
+        .imagem-info label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .imagem-info input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 8px;
+        }
+
+        .imagem-info input[type="file"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: #fff;
+        }
+
+        .botoes {
+            display: flex;
+            gap: 10px;
+        }
+
+        .botoes .btn-submit {
+            flex: 1;
+        }
+
+        dialog {
+            border: none;
+            border-radius: 8px;
+            padding: 0;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.25);
+        }
+
+        dialog::backdrop {
+            background: rgba(0,0,0,0.45);
+        }
+
+        .modal-box {
+            width: 360px;
+            padding: 25px;
+            background: #fff;
+        }
+
+        .modal-box h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .modal-box input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .modal-box p {
+            color: #333;
+            font-size: 14px;
+        }
+
+        .modal-botoes {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .modal-botoes button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #b_confirmar_lucro,
+        #b_confirmar_aviso {
+            background: #28a745;
+            color: #fff;
+        }
+
+        #b_cancelar_lucro,
+        #b_cancelar_aviso {
+            background: #6c757d;
+            color: #fff;
+        }
+
+        #msg_aviso {
+            padding: 25px;
+            font-size: 15px;
+            color: #333;
+        }
+
+        #d_aviso .modal-botoes {
+            padding: 0 25px 25px;
+        }
+
+        @media (max-width: 700px) {
+            .form-container {
+                margin: 10px;
+                padding: 18px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .botoes {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 
-<body class="fundo-escuro">
+<body>
 
+<div class="form-container">
 
-   <form id="formProduto" enctype="multipart/form-data" class="form-editar-produto">
     <h2>Editar Produto</h2>
 
-    <div class="container-flex">
+    <form id="formProduto" enctype="multipart/form-data">
 
-        <!-- COLUNA ESQUERDA -->
-        <div class="coluna">
-
-            <label class="label-amarela">Buscar Produto</label>
+        <!-- BUSCA DO PRODUTO -->
+        <div class="busca-container">
+            <label for="inp_busca_editar">Buscar Produto *</label>
 
             <input
                 type="text"
-                class="inp_m"
                 id="inp_busca_editar"
-                placeholder="Código ou nome"
+                placeholder="Digite o código ou nome do produto..."
+                autocomplete="off"
             >
 
             <ul id="lista_sugestoes"></ul>
 
-            <p class="pm selecionado-produto">
-                Selecionado:
-                <span id="s_produto">---</span>
+            <p class="selecionado">
+                Produto selecionado:
+                <strong id="s_produto">---</strong>
             </p>
-
-            <div class="produto-img">
-    <img id="preview-img" src="images/img_ntf.png">
         </div>
 
-            <label class="label-amarela" style="margin-top:12px;">Nome da Imagem</label>
+        <!-- NOME E STATUS -->
+        <div class="form-row">
 
-            <input
-                type="text"
-                name="img_nome"
-                id="img_nome"
-                class="inp_p"
-                placeholder="Ex: strog_carne"
-                disabled
-            >
+            <div class="form-group" style="flex: 2;">
+                <label for="nome">Nome do Produto *</label>
 
-            <label id="labelTrocarImagem" class="file-label file-label-editar">
-                Trocar Imagem
-                <input type="file" name="img" id="inputImagem" accept="image/*" disabled>
-            </label>
+                <input
+                    type="text"
+                    name="nome"
+                    id="nome"
+                    required
+                    disabled
+                    placeholder="Selecione um produto"
+                >
+            </div>
+
+            <div class="form-group" style="flex: 1;">
+                <label for="ativo">Status do Produto</label>
+
+                <select
+                    name="ativo"
+                    id="ativo"
+                    disabled
+                >
+                    <option value="1">Ativo</option>
+                    <option value="0">Inativo</option>
+                </select>
+            </div>
 
         </div>
 
+        <!-- VALOR BRUTO, LUCRO E PREÇO DE VENDA -->
+        <div class="form-row">
 
-        <!-- COLUNA DIREITA -->
-        <div class="coluna">
+            <div class="form-group">
+                <label for="valor_bruto">
+                    Valor Custo/Bruto (R$) *
+                </label>
 
-            <label class="label-amarela">Nome</label>
-            <input type="text" name="nome" id="nome" class="inp_p" disabled>
+                <input
+                    type="number"
+                    step="0.01"
+                    name="valor_bruto"
+                    id="valor_bruto"
+                    placeholder="0.00"
+                    required
+                    disabled
+                >
+            </div>
 
-            <div class="linha-campos">
+            <div class="form-group">
+                <label for="porcentagem_lucro">
+                    Lucro (%)
+                </label>
 
-                <div>
-                    <label class="label-amarela">Código</label>
-                    <input
-                        type="text"
-                        name="codigo_barras"
-                        id="codigo"
-                        class="inp_p"
-                        inputmode="numeric"
-                        pattern="[0-9]*"
-                        disabled
-                    >
-                </div>
+                <input
+                    type="number"
+                    step="0.1"
+                    name="porcentagem_lucro"
+                    id="porcentagem_lucro"
+                    value="50"
+                    placeholder="50"
+                    disabled
+                >
+            </div>
 
-                                <div>
-                    <label class="label-amarela">Preço</label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        name="preco"
-                        id="preco"
-                        class="inp_p"
-                        disabled
-                    >
+            <div class="form-group">
+                <label for="preco">
+                    Preço Venda (R$)
+                </label>
+
+                <input
+                    type="text"
+                    name="preco"
+                    id="preco"
+                    placeholder="0,00"
+                    class="input-disabled"
+                    readonly
+                    disabled
+                >
+            </div>
+
+        </div>
+
+        <!-- CÓDIGO E ESTOQUE -->
+        <div class="form-row">
+
+            <div class="form-group">
+                <label for="codigo">
+                    Código de Barras *
+                </label>
+
+                <input
+                    type="text"
+                    name="codigo_barras"
+                    id="codigo"
+                    placeholder="Selecione um produto"
+                    required
+                    disabled
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="qtd">
+                    Qtd Atual
+                </label>
+
+                <input
+                    type="number"
+                    name="qtd"
+                    id="qtd"
+                    value="0"
+                    min="0"
+                    disabled
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="qtd_min">
+                    Qtd Mínima
+                </label>
+
+                <input
+                    type="number"
+                    name="qtd_min"
+                    id="qtd_min"
+                    value="5"
+                    min="0"
+                    disabled
+                >
+            </div>
+
+        </div>
+
+        <!-- DESCRIÇÃO -->
+        <div class="form-row">
+
+            <div class="form-group">
+
+                <label for="descricao">
+                    Descrição
+                </label>
+
+                <textarea
+                    name="descricao"
+                    id="descricao"
+                    rows="3"
+                    placeholder="Descrição opcional do produto..."
+                    disabled
+                ></textarea>
+
+            </div>
+
+        </div>
+
+        <!-- IMAGEM -->
+        <div class="form-row">
+
+            <div class="form-group">
+
+                <label>
+                    Imagem do Produto
+                </label>
+
+                <div class="produto-img-container">
+
+                    <div class="produto-img">
+                        <img
+                            id="preview-img"
+                            src="images/img_ntf.png"
+                            alt="Imagem do produto"
+                        >
+                    </div>
+
+                    <div class="imagem-info">
+
+                        <input
+                            type="text"
+                            name="img_nome"
+                            id="img_nome"
+                            placeholder="Nome da imagem"
+                            disabled
+                        >
+
+                        <input
+                            type="file"
+                            name="img"
+                            id="inputImagem"
+                            accept="image/*"
+                            disabled
+                        >
+
+                    </div>
+
                 </div>
 
             </div>
 
-            <label class="label-amarela">Valor Bruto</label>
-            <input
-                type="number"
-                step="0.01"
-                name="valor_bruto"
-                id="valor_bruto"
-                class="inp_p"
-                disabled
+        </div>
+
+        <!-- BOTÕES -->
+        <div class="botoes">
+
+            <button
+                type="submit"
+                class="btn-submit"
             >
-
-
-            <label class="label-amarela">Quantidade em Estoque</label>
-            <input type="number" name="qtd" id="qtd" class="inp_p" disabled>
-
-            <label class="label-amarela">Qtd. Mínima</label>
-            <input type="number" name="qtd_min" id="qtd_min" class="inp_p" disabled>
-
-            <label class="label-amarela">Status do Produto</label>
-            <select name="ativo" id="ativo" class="inp_p" disabled>
-                <option value="1">Ativo</option>
-                <option value="0">Inativo</option>
-            </select>
-
-            <label class="label-amarela">Descrição</label>
-            <textarea
-                name="descricao"
-                id="descricao"
-                class="inp_p descricao-produto"
-                disabled
-            ></textarea>
-            
-
-            <button type="button" class="btn-p" id="b_abrir_lucro" disabled>
-                Definir % de Lucro
+                Salvar Alterações
             </button>
+
+            <button
+                type="button"
+                class="btn-submit btn-cancelar"
+                onclick="window.location.href='estoque.html'"
+            >
+                Cancelar
+            </button>
+
         </div>
 
-    </div>
+    </form>
+
+</div>
 
 
-    <!-- BOTÕES ABAIXO DAS DUAS COLUNAS -->
-    <div class="botoes-fileira">
-
-        <button type="submit" class="btn-p">
-            Salvar Alterações
-        </button>
-
-        <button
-            type="button"
-            onclick="window.location.href='estoque.html'"
-            class="btn-p btn-cinza"
-        >
-            Cancelar
-        </button>
-
-    </div>
-
-</form>
-
+<!-- MODAL DE AVISO -->
 <dialog id="d_aviso">
-    <div class="aviso_box">
+
+    <div class="modal-box">
+
         <div id="msg_aviso"></div>
-        <div class="aviso_botoes">
-            <button id="b_confirmar_aviso">OK</button>
-            <button id="b_cancelar_aviso">Cancelar</button>
-        </div>
-    </div>
-</dialog>
 
-<dialog id="d_lucro">
-    <div class="aviso_box">
-        <p class="pm">Porcentagem de lucro desejada</p>
-        <input type="number" class="inp_m" id="inp_porcentagem_lucro" placeholder="Ex: 30" step="0.01">
-        <p class="pm">Preço de venda calculado: <span id="s_preco_calculado">R$ 0,00</span></p>
-        <div class="aviso_botoes">
-            <button type="button" id="b_confirmar_lucro">Aplicar</button>
-            <button type="button" id="b_cancelar_lucro">Cancelar</button>
-        </div>
-    </div>
-</dialog>
+        <div class="modal-botoes">
 
+            <button id="b_confirmar_aviso">
+                OK
+            </button>
+
+            <button
+                id="b_cancelar_aviso"
+                style="display:none;"
+            >
+                Cancelar
+            </button>
+
+        </div>
+
+    </div>
+
+</dialog>
 <script>
+
 const nome = document.getElementById("nome");
 const codigo = document.getElementById("codigo");
 const preco = document.getElementById("preco");
@@ -193,18 +598,37 @@ const previewImg = document.getElementById("preview-img");
 const inputImagem = document.getElementById("inputImagem");
 const formProduto = document.getElementById("formProduto");
 const qtdMin = document.getElementById("qtd_min");
-const ativo = document.getElementById("ativo"); 
-const inpBusca = document.getElementById("inp_busca_editar");
-const lista = document.getElementById("lista_sugestoes");
-const valorBruto = document.getElementById("valor_bruto");
-const btnAbrirLucro = document.getElementById("b_abrir_lucro");
+const ativo = document.getElementById("ativo");
 
-const modalAviso = document.getElementById("d_aviso");
-const msgAviso = document.getElementById("msg_aviso");
-const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
-const bCancelarAviso = document.getElementById("b_cancelar_aviso");
-const campoNomeImagem = document.getElementById("img_nome");
-const labelTrocarImagem = document.getElementById("labelTrocarImagem");
+const inpBusca =
+    document.getElementById("inp_busca_editar");
+
+const lista =
+    document.getElementById("lista_sugestoes");
+
+const valorBruto =
+    document.getElementById("valor_bruto");
+
+const porcentagemLucro =
+    document.getElementById("porcentagem_lucro");
+
+
+const modalAviso =
+    document.getElementById("d_aviso");
+
+const msgAviso =
+    document.getElementById("msg_aviso");
+
+const bConfirmarAviso =
+    document.getElementById("b_confirmar_aviso");
+
+const bCancelarAviso =
+    document.getElementById("b_cancelar_aviso");
+
+const campoNomeImagem =
+    document.getElementById("img_nome");
+
+
 const camposEdicao = [
     nome,
     codigo,
@@ -216,245 +640,589 @@ const camposEdicao = [
     campoNomeImagem,
     inputImagem,
     valorBruto,
-    btnAbrirLucro
+    porcentagemLucro
 ];
+
 
 let produtosCache = [];
 let produtoSelecionado = null;
 let indexSelecionado = -1;
 
-// Função genérica de aviso estruturada com o seu layout CSS
-function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
+
+/* =====================================================
+   AVISO
+===================================================== */
+
+function exibirAviso(
+    mensagem,
+    callback = null,
+    mostrarCancelar = false
+) {
+
     msgAviso.innerHTML = mensagem;
-    
-    bCancelarAviso.style.display = mostrarCancelar ? "inline-block" : "none";
+
+    bCancelarAviso.style.display =
+        mostrarCancelar
+            ? "inline-block"
+            : "none";
 
     modalAviso.showModal();
 
     bConfirmarAviso.onclick = () => {
+
         modalAviso.close();
-        if (callback) callback();
+
+        if (callback) {
+            callback();
+        }
+
     };
 
     bCancelarAviso.onclick = () => {
         modalAviso.close();
     };
-}
-// Permite somente números no código de barras
-codigo.addEventListener("input", () => {
-    codigo.value = codigo.value.replace(/\D/g, "");
-});
 
-// carregar produtos
-async function carregarProdutos(){
-    const res = await apiFetch("http://localhost:3000/produtos");
-    const dados = await res.json();
-
-    console.log("PRODUTOS CARREGADOS:", dados);
-
-    produtosCache = dados.produtos || dados;
-}
-carregarProdutos();
-
-// busca
-inpBusca.addEventListener("input", () => {
-    const termo = inpBusca.value.toLowerCase();
-    lista.innerHTML = "";
-    indexSelecionado = -1;
-
-    if(!termo) return;
-
-    // Nesta tela administrativa, produtos ativos e inativos devem aparecer.
-    // A restrição de ativo=1 não se aplica à edição/reativação.
-    const filtrados = produtosCache.filter(p =>
-        (p.nome || "").toLowerCase().includes(termo) ||
-        (p.codigo_barras || "").startsWith(termo)
-    ).slice(0, 5);
-
-    filtrados.forEach((p, i) => {
-        const li = document.createElement("li");
-        li.textContent = p.nome;
-
-        li.onclick = () => selecionarProduto(p);
-
-        lista.appendChild(li);
-    });
-});
-
-// teclado (↑ ↓ ENTER)
-inpBusca.addEventListener("keydown", (e) => {
-    const itens = lista.querySelectorAll("li");
-
-    if(e.key === "ArrowDown"){
-        indexSelecionado++;
-        if(indexSelecionado >= itens.length) indexSelecionado = 0;
-        atualizarSelecao(itens);
-    }
-
-    if(e.key === "ArrowUp"){
-        indexSelecionado--;
-        if(indexSelecionado < 0) indexSelecionado = itens.length - 1;
-        atualizarSelecao(itens);
-    }
-
-    if(e.key === "Enter"){
-        e.preventDefault();
-        if(itens[indexSelecionado]){
-            itens[indexSelecionado].click();
-        }
-    }
-});
-
-function atualizarSelecao(itens){
-    itens.forEach(li => li.classList.remove("ativo"));
-
-    if(itens[indexSelecionado]){
-        itens[indexSelecionado].classList.add("ativo");
-    }
 }
 
-// selecionar produto
-function selecionarProduto(p){
-    produtoSelecionado = p;
 
-    inpBusca.value = p.nome;
-    document.getElementById("s_produto").innerText = p.nome;
+/* =====================================================
+   CÓDIGO DE BARRAS
+===================================================== */
 
-    if(nome) nome.value = p.nome || "";
-    if(codigo) codigo.value = p.codigo_barras || "";
-    if(preco) preco.value = p.preco || 0;
-    if(qtd) qtd.value = p.qtd || 0;
-    if(descricao) descricao.value = p.descricao || "";
-    if(qtdMin) qtdMin.value = p.qtd_min || 0;
+codigo.addEventListener(
+    "input",
+    () => {
 
-    // IMAGEM ATUAL
-    if(p.img){
-        previewImg.src = `http://localhost:3000/images/${p.img}`;
-        previewImg.style.display = "block";
-    } else {
-        previewImg.src = "images/img_ntf.png";
+        codigo.value =
+            codigo.value.replace(/\D/g, "");
+
     }
+);
 
-    // NOME DA IMAGEM
-    if (p.img) {
-        campoNomeImagem.value = p.img.replace(/\.[^/.]+$/, "");
-    } else {
-        campoNomeImagem.value = "";
-    }
 
-// HABILITA TODOS OS CAMPOS DE EDIÇÃO
-camposEdicao.forEach(campo => {
-    campo.disabled = false;
-});
+/* =====================================================
+   CARREGAR PRODUTOS
+===================================================== */
 
-labelTrocarImagem.classList.add("habilitado");
-lista.innerHTML = "";
-}
-
-const modalLucro = document.getElementById("d_lucro");
-const inpPorcentagemLucro = document.getElementById("inp_porcentagem_lucro");
-const sPrecoCalculado = document.getElementById("s_preco_calculado");
-const btnConfirmarLucro = document.getElementById("b_confirmar_lucro");
-const btnCancelarLucro = document.getElementById("b_cancelar_lucro");
-
-btnAbrirLucro.addEventListener("click", () => {
-    const valorBrutoAtual = parseFloat(valorBruto.value);
-
-    if (!valorBrutoAtual || valorBrutoAtual <= 0) {
-        exibirAviso("Digite o valor bruto antes de definir a porcentagem de lucro.");
-        return;
-    }
-
-    inpPorcentagemLucro.value = "";
-    sPrecoCalculado.textContent = "R$ 0,00";
-    modalLucro.showModal();
-});
-
-inpPorcentagemLucro.addEventListener("input", () => {
-    const valorBrutoAtual = parseFloat(valorBruto.value) || 0;
-    const porcentagem = parseFloat(inpPorcentagemLucro.value) || 0;
-    const precoCalculado = valorBrutoAtual * (1 + porcentagem / 100);
-
-    sPrecoCalculado.textContent = `R$ ${precoCalculado.toFixed(2).replace(".", ",")}`;
-});
-
-btnConfirmarLucro.addEventListener("click", () => {
-    const valorBrutoAtual = parseFloat(valorBruto.value) || 0;
-    const porcentagem = parseFloat(inpPorcentagemLucro.value) || 0;
-    const precoCalculado = valorBrutoAtual * (1 + porcentagem / 100);
-
-    preco.value = precoCalculado.toFixed(2);
-    modalLucro.close();
-});
-
-btnCancelarLucro.addEventListener("click", () => {
-    modalLucro.close();
-});
-
-// preview imagem
-inputImagem.addEventListener("change", () => {
-    const file = inputImagem.files[0];
-    if(file){
-        previewImg.src = URL.createObjectURL(file);
-    }
-});
-
-// salvar
-formProduto.addEventListener("submit", async (e)=>{
-    e.preventDefault();
-
-    if(!produtoSelecionado){
-        exibirAviso("Selecione um produto primeiro antes de salvar alterações.");
-        return;
-    }
-
-    const formData = new FormData(formProduto);
-    
+async function carregarProdutos() {
 
     try {
-        console.log(formData.get("img"));
-        const res = await apiFetch(`http://localhost:3000/produtos/id/${produtoSelecionado.id_produto}`, {
-            method: "PUT",
-            body: formData
+
+        const res = await apiFetch(
+            "http://localhost:3000/produtos"
+        );
+
+        const dados =
+            await res.json();
+
+        console.log(
+            "PRODUTOS CARREGADOS:",
+            dados
+        );
+
+        produtosCache =
+            dados.produtos || dados;
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar produtos:",
+            erro
+        );
+
+    }
+
+}
+
+carregarProdutos();
+
+
+/* =====================================================
+   BUSCA
+===================================================== */
+
+inpBusca.addEventListener(
+    "input",
+    () => {
+
+        const termo =
+            inpBusca.value
+                .toLowerCase();
+
+        lista.innerHTML = "";
+
+        indexSelecionado = -1;
+
+        if (!termo) {
+            return;
+        }
+
+        const filtrados =
+            produtosCache
+                .filter(p =>
+
+                    (p.nome || "")
+                        .toLowerCase()
+                        .includes(termo)
+
+                    ||
+
+                    (p.codigo_barras || "")
+                        .startsWith(termo)
+
+                )
+                .slice(0, 5);
+
+
+        filtrados.forEach(p => {
+
+            const li =
+                document.createElement("li");
+
+            li.textContent =
+                p.nome;
+
+            li.onclick = () =>
+                selecionarProduto(p);
+
+            lista.appendChild(li);
+
         });
 
-        if (res.ok) {
-            exibirAviso("Produto atualizado com sucesso!", () => {
-               formProduto.reset();
-
-                produtoSelecionado = null;
-
-                document.getElementById("s_produto").innerText = "---";
-
-                previewImg.src = "images/img_ntf.png";
-
-                inpBusca.value = "";
-
-                // BLOQUEIA TODOS OS CAMPOS NOVAMENTE
-camposEdicao.forEach(campo => {
-    campo.disabled = true;
-});
-
-labelTrocarImagem.classList.remove("habilitado");
-                formProduto.reset(); 
-                produtoSelecionado = null;
-
-                document.getElementById("s_produto").innerText = "---"; 
-                previewImg.src = "images/img_ntf.png"; 
-                inpBusca.value = ""; 
-                labelTrocarImagem.classList.remove("habilitado");
-
-                                
-                carregarProdutos(); 
-            });
-        } else {
-            exibirAviso("Erro ao atualizar o produto no servidor.");
-        }
-    } catch (erro) {
-        console.error("Erro:", erro);
-        exibirAviso("Erro de conexão com o servidor.");
     }
-});
+);
+
+
+/* =====================================================
+   TECLADO DA BUSCA
+===================================================== */
+
+inpBusca.addEventListener(
+    "keydown",
+    e => {
+
+        const itens =
+            lista.querySelectorAll("li");
+
+
+        if (e.key === "ArrowDown") {
+
+            indexSelecionado++;
+
+            if (
+                indexSelecionado >=
+                itens.length
+            ) {
+                indexSelecionado = 0;
+            }
+
+            atualizarSelecao(itens);
+
+        }
+
+
+        if (e.key === "ArrowUp") {
+
+            indexSelecionado--;
+
+            if (indexSelecionado < 0) {
+
+                indexSelecionado =
+                    itens.length - 1;
+
+            }
+
+            atualizarSelecao(itens);
+
+        }
+
+
+        if (e.key === "Enter") {
+
+            e.preventDefault();
+
+            if (itens[indexSelecionado]) {
+
+                itens[indexSelecionado]
+                    .click();
+
+            }
+
+        }
+
+    }
+);
+
+
+function atualizarSelecao(itens) {
+
+    itens.forEach(li => {
+
+        li.classList.remove("ativo");
+
+    });
+
+
+    if (itens[indexSelecionado]) {
+
+        itens[indexSelecionado]
+            .classList
+            .add("ativo");
+
+    }
+
+}
+
+
+/* =====================================================
+   CÁLCULO DO PREÇO
+   MESMA LÓGICA DO CADASTRO
+===================================================== */
+
+function calcularPrecoVenda() {
+
+    const valorBrutoAtual =
+        parseFloat(
+            valorBruto.value
+        ) || 0;
+
+    const porcentagem =
+        parseFloat(
+            porcentagemLucro.value
+        ) || 0;
+
+
+    const precoVenda =
+        valorBrutoAtual +
+        (
+            valorBrutoAtual *
+            (porcentagem / 100)
+        );
+
+
+    preco.value =
+        precoVenda.toFixed(2);
+
+}
+
+
+/* =====================================================
+   SELECIONAR PRODUTO
+===================================================== */
+
+function selecionarProduto(p) {
+
+    produtoSelecionado = p;
+
+    inpBusca.value =
+        p.nome || "";
+
+    document.getElementById(
+        "s_produto"
+    ).innerText =
+        p.nome || "---";
+
+
+    nome.value =
+        p.nome || "";
+
+
+    codigo.value =
+        p.codigo_barras || "";
+
+
+    valorBruto.value =
+        p.valor_bruto || 0;
+
+
+    porcentagemLucro.value =
+        p.porcentagem_lucro || 0;
+
+
+    qtd.value =
+        p.qtd || 0;
+
+
+    qtdMin.value =
+        p.qtd_min || 0;
+
+
+    descricao.value =
+        p.descricao || "";
+
+
+    if (p.ativo !== undefined) {
+
+        ativo.value =
+            p.ativo;
+
+    } else {
+
+        ativo.value = "1";
+
+    }
+
+
+    /* Calcula o preço usando exatamente
+       a mesma fórmula do Cadastro */
+
+    calcularPrecoVenda();
+
+
+    /* IMAGEM */
+
+    if (p.img) {
+
+        previewImg.src =
+            `http://localhost:3000/images/${p.img}`;
+
+    } else {
+
+        previewImg.src =
+            "images/img_ntf.png";
+
+    }
+
+
+    /* NOME DA IMAGEM */
+
+    if (p.img) {
+
+        campoNomeImagem.value =
+            p.img.replace(
+                /\.[^/.]+$/,
+                ""
+            );
+
+    } else {
+
+        campoNomeImagem.value =
+            "";
+
+    }
+
+
+    /* HABILITAR CAMPOS */
+
+    camposEdicao.forEach(
+        campo => {
+
+            campo.disabled = false;
+
+        }
+    );
+
+
+    /* O preço continua bloqueado,
+       pois é calculado automaticamente */
+
+    preco.disabled = true;
+
+    lista.innerHTML = "";
+
+}
+
+
+/* =====================================================
+   RECALCULAR AUTOMATICAMENTE
+===================================================== */
+
+valorBruto.addEventListener(
+    "input",
+    calcularPrecoVenda
+);
+
+porcentagemLucro.addEventListener(
+    "input",
+    calcularPrecoVenda
+);
+
+
+/* =====================================================
+   PREVIEW DA IMAGEM
+===================================================== */
+
+inputImagem.addEventListener(
+    "change",
+    () => {
+
+        const file =
+            inputImagem.files[0];
+
+        if (file) {
+
+            previewImg.src =
+                URL.createObjectURL(file);
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   SALVAR PRODUTO
+===================================================== */
+
+formProduto.addEventListener(
+    "submit",
+    async e => {
+
+        e.preventDefault();
+
+
+        if (!produtoSelecionado) {
+
+            exibirAviso(
+                "Selecione um produto primeiro antes de salvar alterações."
+            );
+
+            return;
+
+        }
+
+
+        /* Mesma lógica do Cadastro */
+
+        const valorBrutoAtual =
+            parseFloat(
+                valorBruto.value
+            ) || 0;
+
+
+        const porcentagem =
+            parseFloat(
+                porcentagemLucro.value
+            ) || 0;
+
+
+        const precoCalculado =
+            valorBrutoAtual +
+            (
+                valorBrutoAtual *
+                (porcentagem / 100)
+            );
+
+
+        preco.value =
+            precoCalculado.toFixed(2);
+
+
+        const formData =
+            new FormData(formProduto);
+
+
+        /*
+           Como alguns campos são disabled,
+           garantimos que os valores sejam enviados.
+        */
+
+        formData.set(
+            "valor_bruto",
+            valorBrutoAtual
+        );
+
+
+        formData.set(
+            "porcentagem_lucro",
+            porcentagem
+        );
+
+
+        formData.set(
+            "preco",
+            precoCalculado.toFixed(2)
+        );
+
+
+        try {
+
+            const res =
+                await apiFetch(
+                    `http://localhost:3000/produtos/cod/${produtoSelecionado.id_produto}`,
+                    {
+                        method: "PUT",
+                        body: formData
+                    }
+                );
+
+
+            if (res.ok) {
+
+                exibirAviso(
+                    "Produto atualizado com sucesso!",
+                    () => {
+
+                        formProduto.reset();
+
+                        produtoSelecionado =
+                            null;
+
+
+                        document.getElementById(
+                            "s_produto"
+                        ).innerText =
+                            "---";
+
+
+                        previewImg.src =
+                            "images/img_ntf.png";
+
+
+                        inpBusca.value =
+                            "";
+
+
+                        camposEdicao.forEach(
+                            campo => {
+
+                                campo.disabled =
+                                    true;
+
+                            }
+                        );
+
+
+                        preco.disabled = true;
+
+                        carregarProdutos();
+
+                    }
+                );
+
+            } else {
+
+                const dados =
+                    await res
+                        .json()
+                        .catch(
+                            () => ({})
+                        );
+
+
+                exibirAviso(
+                    dados.erro ||
+                    "Erro ao atualizar o produto no servidor."
+                );
+
+            }
+
+        } catch (erro) {
+
+            console.error(
+                "Erro:",
+                erro
+            );
+
+            exibirAviso(
+                "Erro de conexão com o servidor."
+            );
+
+        }
+
+    }
+);
+
 </script>
 
 </body>
