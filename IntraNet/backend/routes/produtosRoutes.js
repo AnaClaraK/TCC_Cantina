@@ -253,15 +253,16 @@ router.put(
             const { id } = req.params;
 
             const {
-                nome,
-                codigo_barras,
-                preco,
-                qtd,
-                qtd_min,
-                descricao,
-                valor_bruto,
-                ativo
-            } = req.body;
+    nome,
+    codigo_barras,
+    preco,
+    qtd,
+    qtd_min,
+    descricao,
+    valor_bruto,
+    porcentagem_lucro,
+    ativo
+} = req.body;
 
             // Verifica se o produto existe
             const [produto] = await conexao.query(
@@ -298,29 +299,33 @@ router.put(
             await conexao.query(
                 `
                 UPDATE produtos SET
-                    nome = ?,
-                    codigo_barras = ?,
-                    preco = ?,
-                    qtd = ?,
-                    qtd_min = ?,
-                    descricao = ?,
-                    valor_bruto = ?,
-                    ativo = ?,
-                    img = COALESCE(?, img)
-                WHERE id_produto = ?
+    nome = ?,
+    codigo_barras = ?,
+    preco = ?,
+    qtd = ?,
+    qtd_min = ?,
+    descricao = ?,
+    valor_bruto = ?,
+    porcentagem_lucro = ?,
+    ativo = ?,
+    img = COALESCE(?, img)
+WHERE id_produto = ?
                 `,
-                [
-                    nome,
-                    codigo_barras,
-                    preco,
-                    qtd,
-                    qtd_min || 0,
-                    descricao,
-                    valor_bruto,
-                    ativoFinal,
-                    img,
-                    id
-                ]
+                
+                    [
+    nome,
+    codigo_barras,
+    preco,
+    qtd,
+    qtd_min || 0,
+    descricao,
+    valor_bruto,
+    porcentagem_lucro || 0,
+    ativoFinal,
+    img,
+    id
+]
+                
             );
 
             return res.json({
