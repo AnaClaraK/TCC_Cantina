@@ -3,21 +3,22 @@
 (function () {
 
     const paginasPublicas = [
-        "login.html",
-        "cadastrof.html"
+        "login.html"
     ];
 
     const pagina =
         window.location.pathname
             .split("/")
-            .pop();
+            .pop()
+            .toLowerCase();
 
     const token =
         localStorage.getItem("token");
 
     if (
         !token &&
-        !paginasPublicas.includes(pagina)
+        !paginasPublicas.includes(pagina) &&
+        pagina !== ""
     ) {
 
         document.addEventListener(
@@ -53,8 +54,6 @@
 
         return;
     }
-
-    // já logado → não volta pro login
 
     if (
         token &&
@@ -120,19 +119,45 @@ function tokenExpirado() {
 
 function logoutForcado() {
 
+    const paginasPublicas = [
+        "login.html"
+    ];
+
+    const pagina =
+        window.location.pathname
+            .split("/")
+            .pop()
+            .toLowerCase();
+
     localStorage.removeItem(
         "token"
     );
 
-    window.location.replace(
-        "login.html"
-    );
+    if (!paginasPublicas.includes(pagina)) {
+        window.location.replace(
+            "login.html"
+        );
+    }
 
 }
 
 
 
 function checarSessao() {
+
+    const paginasPublicas = [
+        "login.html"
+    ];
+
+    const pagina =
+        window.location.pathname
+            .split("/")
+            .pop()
+            .toLowerCase();
+
+    if (paginasPublicas.includes(pagina)) {
+        return;
+    }
 
     if (tokenExpirado()) {
 
@@ -152,6 +177,20 @@ setInterval(
 
 
 function interceptarEventos() {
+
+    const paginasPublicas = [
+        "login.html"
+    ];
+
+    const pagina =
+        window.location.pathname
+            .split("/")
+            .pop()
+            .toLowerCase();
+
+    if (paginasPublicas.includes(pagina)) {
+        return;
+    }
 
     if (tokenExpirado()) {
 
@@ -188,14 +227,14 @@ document.addEventListener(
     () => {
 
         const paginasPublicas = [
-            "login.html",
-            "cadastrof.html"
+            "login.html"
         ];
 
         const pagina =
             window.location.pathname
                 .split("/")
-                .pop();
+                .pop()
+                .toLowerCase();
 
         const token =
             localStorage.getItem("token");
@@ -287,6 +326,20 @@ async function apiFetch(
 
 function validarSessao() {
 
+    const paginasPublicas = [
+        "login.html"
+    ];
+
+    const pagina =
+        window.location.pathname
+            .split("/")
+            .pop()
+            .toLowerCase();
+
+    if (paginasPublicas.includes(pagina)) {
+        return;
+    }
+
     const token =
         localStorage.getItem("token");
 
@@ -318,8 +371,6 @@ setInterval(
 // =====================================================
 
 function irParaGranoVita(event) {
-
-    // Só interfere quando estiver no PDV
 
     if (
         window.location.pathname
@@ -353,7 +404,7 @@ function irParaGranoVita(event) {
 
 
 // =====================================================
-// HEADER
+// HEADER & SIDEBAR
 // =====================================================
 
 const headerHTML = `
@@ -388,7 +439,6 @@ const headerHTML = `
                 <img
                     class="l_img"
                     data-name="logo"
-                    src="imagens/logo_p.png"
                     alt="Logo"
                 />
 
@@ -403,10 +453,6 @@ const headerHTML = `
 `;
 
 
-
-// =====================================================
-// SIDEBAR
-// =====================================================
 
 const ehPDV =
     window.location.pathname
@@ -466,7 +512,6 @@ const sidebarHTML = `
             <img
                 class="i_img"
                 data-name="inicio"
-                src="imagens/inicio_p.png"
                 alt="Início"
             />
 
@@ -486,7 +531,6 @@ const sidebarHTML = `
             <img
                 class="i_img"
                 data-name="pdv"
-                src="imagens/pdv_p.png"
                 alt="PDV"
             />
 
@@ -512,7 +556,6 @@ const sidebarHTML = `
                     <img
                         class="i_img"
                         data-name="fechamento"
-                        src="imagens/fechamento_p.png"
                         alt="Fechamento"
                     />
 
@@ -536,7 +579,6 @@ const sidebarHTML = `
             <img
                 class="i_img"
                 data-name="estoque"
-                src="imagens/estoque_p.png"
                 alt="Estoque"
             />
 
@@ -556,7 +598,6 @@ const sidebarHTML = `
             <img
                 class="i_img"
                 data-name="agendamento"
-                src="imagens/agendamento_p.png"
                 alt="Agendamentos"
             />
 
@@ -576,7 +617,6 @@ const sidebarHTML = `
             <img
                 class="i_img"
                 data-name="pedidos"
-                src="imagens/pedidos_p.png"
                 alt="Pedidos"
             />
 
@@ -596,7 +636,6 @@ const sidebarHTML = `
             <img
                 class="i_img"
                 data-name="contas"
-                src="imagens/contas_p.png"
                 alt="Contas"
             />
 
@@ -617,7 +656,6 @@ const sidebarHTML = `
                 class="i_img"
                 data-name="editarprod"
                 id="icon_edp"
-                src="imagens/editarprod_p.png"
                 alt="Editar Produtos"
             />
 
@@ -638,7 +676,6 @@ const sidebarHTML = `
                 class="i_img"
                 data-name="reposicao"
                 id="icon_comp"
-                src="imagens/reposicao_p.png"
                 alt="Reposição"
             />
 
@@ -658,7 +695,6 @@ const sidebarHTML = `
             <img
                 class="i_img"
                 data-name="cadastrop"
-                src="imagens/cadastrop_p.png"
                 alt="Cadastro de Produtos"
             />
 
@@ -681,7 +717,6 @@ const sidebarHTML = `
                 class="i_img"
                 data-name="cadastrof"
                 id="icon_cadp"
-                src="imagens/cadastrof_p.png"
                 alt="Cadastro de Funcionários"
             />
 
@@ -740,8 +775,6 @@ function obterCandidatosFotoUsuario(
 
 
 
-    // Data URL
-
     if (
         valor.startsWith("data:image/")
     ) {
@@ -754,8 +787,6 @@ function obterCandidatosFotoUsuario(
     }
 
 
-
-    // URL completa
 
     if (
         valor.startsWith("http://") ||
@@ -772,8 +803,6 @@ function obterCandidatosFotoUsuario(
 
 
 
-    // Já está no formato usado pelo frontend
-
     if (
         valor.startsWith(
             "../backend/"
@@ -788,8 +817,6 @@ function obterCandidatosFotoUsuario(
 
 
 
-    // Caminho absoluto do backend
-
     if (
         valor.startsWith("/backend/")
     ) {
@@ -803,8 +830,6 @@ function obterCandidatosFotoUsuario(
 
 
 
-    // Caminho absoluto
-
     if (
         valor.startsWith("/")
     ) {
@@ -817,8 +842,6 @@ function obterCandidatosFotoUsuario(
     }
 
 
-
-    // Caminho relativo começando por backend
 
     if (
         valor.startsWith("backend/")
@@ -838,8 +861,6 @@ function obterCandidatosFotoUsuario(
 
 
 
-    // Caminho relativo começando por imagens
-
     if (
         valor.startsWith("imagens/")
     ) {
@@ -857,8 +878,6 @@ function obterCandidatosFotoUsuario(
     }
 
 
-
-    // Caminho relativo comum
 
     if (
         !valor.startsWith("../") &&
@@ -885,17 +904,11 @@ function obterCandidatosFotoUsuario(
 
 
 
-    // Mantém o próprio valor como tentativa,
-    // caso o backend já entregue um caminho relativo válido.
-
     candidatos.push(
         valor
     );
 
 
-
-    // Tenta pelo nome do arquivo nas pastas
-    // mais comuns do backend.
 
     const nomeArquivo =
         valor.split("/").pop();
@@ -1013,35 +1026,14 @@ function atualizarFotoSidebar(
 
 
 // =====================================================
-// AÇÕES ESPECÍFICAS DO HEADER
+// CARREGAR MENU
 // =====================================================
 
-function configurarAcoesEspecificasHeader() {
+function carregarMenu() {
 
-    const header =
-        document.querySelector(
-            ".custom-header"
-        );
-
-    if (!header) {
-        return;
-    }
-
-
-
-    const areaHeader =
-        header.firstElementChild;
-
-    if (!areaHeader) {
-        return;
-    }
-
-
-
-    areaHeader.style.width =
-        "100%";
-
-
+    const paginasPublicas = [
+        "login.html"
+    ];
 
     const paginaAtual =
         window.location.pathname
@@ -1049,394 +1041,33 @@ function configurarAcoesEspecificasHeader() {
             .pop()
             .toLowerCase();
 
-
-
-    // -------------------------------------------------
-    // FECHAMENTO DIÁRIO — SOMENTE NO PDV
-    // -------------------------------------------------
-
-    if (
-        paginaAtual === "pdv.html" &&
-        !document.getElementById(
-            "btn-fechamento-pdv"
-        )
-    ) {
-
-        const btnFechamento =
-            document.createElement(
-                "button"
-            );
-
-        btnFechamento.type =
-            "button";
-
-        btnFechamento.id =
-            "btn-fechamento-pdv";
-
-        btnFechamento.className =
-            "header-fechamento-pdv";
-
-        btnFechamento.title =
-            "Fechamento do Caixa";
-
-        btnFechamento.style.marginLeft =
-            "auto";
-
-        btnFechamento.style.marginRight =
-            "18px";
-
-        btnFechamento.style.width =
-            "42px";
-
-        btnFechamento.style.height =
-            "42px";
-
-        btnFechamento.style.padding =
-            "4px";
-
-        btnFechamento.style.border =
-            "0";
-
-        btnFechamento.style.background =
-            "transparent";
-
-        btnFechamento.style.display =
-            "flex";
-
-        btnFechamento.style.alignItems =
-            "center";
-
-        btnFechamento.style.justifyContent =
-            "center";
-
-        btnFechamento.style.cursor =
-            "pointer";
-
-        btnFechamento.setAttribute(
-            "aria-label",
-            "Fechamento do Caixa"
-        );
-
-
-
-        const imagem =
-            document.createElement(
-                "img"
-            );
-
-        imagem.className =
-            "l_img";
-
-        imagem.setAttribute(
-            "data-name",
-            "fechamento"
-        );
-
-        imagem.src =
-            "../backend/imagens/fechamento_p.png";
-
-        imagem.alt =
-            "Fechamento";
-
-        imagem.style.width =
-            "32px";
-
-        imagem.style.height =
-            "32px";
-
-        imagem.style.objectFit =
-            "contain";
-
-        imagem.style.display =
-            "block";
-
-
-
-        btnFechamento.appendChild(
-            imagem
-        );
-
-
-
-        areaHeader.appendChild(
-            btnFechamento
-        );
-
-
-
-        btnFechamento.addEventListener(
-            "click",
-            event => {
-
-                event.preventDefault();
-
-                event.stopPropagation();
-
-
-
-                function tentarAbrirFechamento(
-                    tentativa = 0
-                ) {
-
-                    if (
-                        typeof window
-                            .abrirFechamentoDiario ===
-                        "function"
-                    ) {
-
-                        window
-                            .abrirFechamentoDiario();
-
-                        return;
-
-                    }
-
-
-
-                    if (
-                        tentativa < 40
-                    ) {
-
-                        setTimeout(
-                            () =>
-                                tentarAbrirFechamento(
-                                    tentativa + 1
-                                ),
-                            50
-                        );
-
-                        return;
-
-                    }
-
-
-
-                    console.error(
-                        "A função abrirFechamentoDiario não ficou disponível no PDV."
-                    );
-
-                }
-
-
-
-                tentarAbrirFechamento();
-
-            }
-        );
-
+    if (paginasPublicas.includes(paginaAtual)) {
+        return;
     }
-
-
-
-    // -------------------------------------------------
-    // NOVA CATEGORIA — SOMENTE NO CADASTRO DE PRODUTO
-    // -------------------------------------------------
-
-    if (
-        paginaAtual === "cadastrop.html" &&
-        !document.getElementById(
-            "btn-nova-categoria-header"
-        )
-    ) {
-
-        const btnCategoria =
-            document.createElement(
-                "button"
-            );
-
-        btnCategoria.type =
-            "button";
-
-        btnCategoria.id =
-            "btn-nova-categoria-header";
-
-        btnCategoria.className =
-            "header-categoria-produto";
-
-        btnCategoria.title =
-            "Cadastrar nova categoria";
-
-        btnCategoria.setAttribute(
-            "aria-label",
-            "Cadastrar nova categoria"
-        );
-
-        btnCategoria.style.marginLeft =
-            "auto";
-
-        btnCategoria.style.marginRight =
-            "18px";
-
-        btnCategoria.style.width =
-            "42px";
-
-        btnCategoria.style.height =
-            "42px";
-
-        btnCategoria.style.padding =
-            "4px";
-
-        btnCategoria.style.border =
-            "0";
-
-        btnCategoria.style.background =
-            "transparent";
-
-        btnCategoria.style.display =
-            "flex";
-
-        btnCategoria.style.alignItems =
-            "center";
-
-        btnCategoria.style.justifyContent =
-            "center";
-
-        btnCategoria.style.cursor =
-            "pointer";
-
-
-
-        const imagemCategoria =
-            document.createElement(
-                "img"
-            );
-
-        imagemCategoria.src =
-            "../backend/imagens/categoria_p.png";
-
-        imagemCategoria.alt =
-            "Nova categoria";
-
-        imagemCategoria.style.width =
-            "32px";
-
-        imagemCategoria.style.height =
-            "32px";
-
-        imagemCategoria.style.objectFit =
-            "contain";
-
-        imagemCategoria.style.display =
-            "block";
-
-
-
-        btnCategoria.appendChild(
-            imagemCategoria
-        );
-
-
-
-        areaHeader.appendChild(
-            btnCategoria
-        );
-
-
-
-        btnCategoria.addEventListener(
-            "mouseenter",
-            () => {
-
-                imagemCategoria.style.filter =
-                    "brightness(0.96)";
-
-            }
-        );
-
-
-
-        btnCategoria.addEventListener(
-            "mouseleave",
-            () => {
-
-                imagemCategoria.style.filter =
-                    "none";
-
-            }
-        );
-
-
-
-        btnCategoria.addEventListener(
-            "click",
-            event => {
-
-                event.preventDefault();
-
-
-
-                const modal =
-                    document.getElementById(
-                        "modalNovaCategoria"
-                    );
-
-                const input =
-                    document.getElementById(
-                        "nomeNovaCategoria"
-                    );
-
-
-
-                if (!modal) {
-                    return;
-                }
-
-
-
-                if (input) {
-
-                    input.value =
-                        "";
-
-                }
-
-
-
-                if (
-                    typeof modal.showModal ===
-                    "function"
-                ) {
-
-                    modal.showModal();
-
-                } else {
-
-                    modal.setAttribute(
-                        "open",
-                        ""
-                    );
-
-                }
-
-
-
-                if (input) {
-
-                    setTimeout(
-                        () =>
-                            input.focus(),
-                        80
-                    );
-
-                }
-
-            }
-        );
-
-    }
-
-}
-
-
-
-// =====================================================
-// CARREGAR MENU
-// =====================================================
-
-function carregarMenu() {
 
     const body =
         document.body;
+
+
+
+    // -------------------------------------------------
+    // DETECÇÃO AUTOMÁTICA DE TEMA (FUNDO ESCURO OU LARANJA)
+    // -------------------------------------------------
+
+    const paginasFundoEscuro = [
+        "editarprod.html",
+        "cadastrop.html",
+        "cadastrof.html"
+    ];
+
+    if (
+        paginasFundoEscuro.includes(paginaAtual) ||
+        window.getComputedStyle(body).backgroundColor === "rgb(36, 38, 40)"
+    ) {
+
+        body.classList.add("fundo-laranja");
+
+    }
 
 
 
@@ -1456,10 +1087,6 @@ function carregarMenu() {
         );
 
     }
-
-
-
-    configurarAcoesEspecificasHeader();
 
 
 
@@ -1524,8 +1151,6 @@ function carregarMenu() {
         );
 
 
-
-        // Garante que o sidebar exista
 
         body.classList.add(
             "sidebar-closed"
@@ -1703,13 +1328,6 @@ function carregarMenu() {
 
 
 
-    const paginaAtual =
-        window.location.pathname
-            .split("/")
-            .pop();
-
-
-
     links.forEach(
         link => {
 
@@ -1761,6 +1379,20 @@ function normalizarTexto(
 // =====================================================
 
 async function sincronizarPerfilUsuario() {
+
+    const paginasPublicas = [
+        "login.html"
+    ];
+
+    const pagina =
+        window.location.pathname
+            .split("/")
+            .pop()
+            .toLowerCase();
+
+    if (paginasPublicas.includes(pagina)) {
+        return;
+    }
 
     const token =
         localStorage.getItem(
@@ -1866,10 +1498,6 @@ async function sincronizarPerfilUsuario() {
         }
 
 
-
-        // -------------------------------------------------
-        // FOTO
-        // -------------------------------------------------
 
         if (
             dados.foto !==
