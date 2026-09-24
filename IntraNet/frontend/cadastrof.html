@@ -133,13 +133,8 @@
                 const dados = await resposta.json();
 
                 if (resposta.ok) {
-                    pMessageEl.innerText = "Cadastro realizado com sucesso! Redirecionando...";
+                    pMessageEl.innerText = "Cadastro realizado com sucesso!";
                     pMessageEl.style.color = "green";
-                    
-                    // Exibe o modal de sucesso antes de fazer o redirecionamento
-                    exibirAviso("Cadastro realizado com sucesso!", () => {
-                        window.location.href = 'login.html';
-                    });
                 } else {
                     const msgErro = dados.resposta || "Erro ao cadastrar funcionário.";
                     pMessageEl.innerText = msgErro;

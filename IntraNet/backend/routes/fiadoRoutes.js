@@ -681,7 +681,8 @@ router.post(
                 nome_completo,
                 cpf,
                 telefone,
-                endereco
+                endereco,
+                dia_vencimento
             } = req.body;
 
             nome_completo =
@@ -709,6 +710,14 @@ router.post(
                         endereco
                     ).trim()
                     : "";
+
+            dia_vencimento = Number(dia_vencimento);
+
+            if (!Number.isInteger(dia_vencimento) || dia_vencimento < 1 || dia_vencimento > 31) {
+                return res.status(400).json({
+                    erro: "O dia de vencimento deve estar entre 1 e 31."
+                });
+            }
 
             if (
                 !nome_completo ||
@@ -756,15 +765,17 @@ router.post(
                     nome_completo,
                     cpf,
                     telefone,
-                    endereco
+                    endereco,
+                    dia_vencimento
                 )
-                VALUES (?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?)
                 `,
                 [
                     nome_completo,
                     cpf,
                     telefone,
-                    endereco
+                    endereco,
+                    dia_vencimento
                 ]
             );
 
@@ -811,6 +822,43 @@ router.get(
             res.status(500).json({
                 erro: err.message
             });
+        }
+    }
+);
+
+
+/* ======================================================
+   BLOQUEAR / DESBLOQUEAR CLIENTE FIADO
+====================================================== */
+
+router.put(
+    "/clientes-fiado/:id/bloqueio",
+    verificarToken,
+    async (req, res) => {
+        try {
+            const idCliente = Number(req.params.id);
+            const bloqueado = Number(req.body?.bloqueado) === 1 ? 1 : 0;
+
+            if (!Number.isInteger(idCliente) || idCliente <= 0) {
+                return res.status(400).json({ erro: "Cliente inválido." });
+            }
+
+            const [resultado] = await conexao.query(
+                `UPDATE clientes_fiado SET bloqueado = ? WHERE id_cliente = ?`,
+                [bloqueado, idCliente]
+            );
+
+            if (!resultado.affectedRows) {
+                return res.status(404).json({ erro: "Cliente não encontrado." });
+            }
+
+            return res.json({
+                sucesso: true,
+                bloqueado
+            });
+        } catch (err) {
+            console.error("Erro ao alterar bloqueio do cliente:", err);
+            return res.status(500).json({ erro: err.message });
         }
     }
 );
@@ -891,13 +939,6 @@ router.post(
             });
         }
 
-        if (!vencimento) {
-            return res.status(400).json({
-                erro:
-                    "Data de vencimento não informada."
-            });
-        }
-
         if (
             !origem ||
             !String(origem).trim()
@@ -927,19 +968,44 @@ router.post(
             const [cliente] =
                 await conn.query(
                     `
-                    SELECT id_cliente
+                    SELECT id_cliente, bloqueado, dia_vencimento
                     FROM clientes_fiado
                     WHERE id_cliente = ?
                     `,
                     [id_cliente]
                 );
 
-            if (
-                cliente.length === 0
-            ) {
-                throw new Error(
-                    "Cliente não encontrado."
-                );
+            if (cliente.length === 0) {
+                throw new Error("Cliente não encontrado.");
+            }
+
+            if (Number(cliente[0].bloqueado) === 1) {
+                throw new Error("Este cliente está bloqueado para novas compras fiado.");
+            }
+
+            const diaVencimento = Number(cliente[0].dia_vencimento || 1);
+            const hojeData = dataSomenteLocal(dataHojeISO());
+            let vencimentoCalculado = normalizarDataTexto(vencimento);
+
+            if (!vencimentoCalculado) {
+                const ano = hojeData.getFullYear();
+                const mes = hojeData.getMonth();
+                const ultimoDiaMes = new Date(ano, mes + 1, 0).getDate();
+                const dia = Math.min(diaVencimento, ultimoDiaMes);
+                let candidata = new Date(ano, mes, dia);
+
+                if (candidata < hojeData) {
+                    const proximoAno = mes === 11 ? ano + 1 : ano;
+                    const proximoMes = (mes + 1) % 12;
+                    const ultimoDiaProximo = new Date(proximoAno, proximoMes + 1, 0).getDate();
+                    candidata = new Date(proximoAno, proximoMes, Math.min(diaVencimento, ultimoDiaProximo));
+                }
+
+                vencimentoCalculado = [
+                    candidata.getFullYear(),
+                    String(candidata.getMonth() + 1).padStart(2, "0"),
+                    String(candidata.getDate()).padStart(2, "0")
+                ].join("-");
             }
 
             let total = 0;
@@ -1073,7 +1139,7 @@ router.post(
                         id_cliente,
                         total,
                         total,
-                        vencimento,
+                        vencimentoCalculado,
                         String(
                             origem
                         ).trim()
@@ -2687,6 +2753,12 @@ router.put(
             valor_parcela
         } = req.body;
 
+        if (Number(parcelas) > 1) {
+            return res.status(400).json({
+                erro: "Use o fluxo de pagamento parcelado no cartão para compras em 2x ou mais."
+            });
+        }
+
         if (!data_pagamento) {
             return res.status(400).json({
                 erro: "Data do pagamento não informada."
@@ -3469,10 +3541,6 @@ router.get(
                     continue;
                 }
 
-                notificacoes.push(
-                    `Parcela ${parcela.numero_parcela}/${parcela.total_parcelas} da compra #${parcela.num_pedido} foi concluída automaticamente.`
-                );
-
                 // Verifica se ainda existe alguma parcela pendente
                 // para este mesmo pedido.
                 const [parcelasPendentes] = await conn.query(`
@@ -3501,29 +3569,23 @@ router.get(
                     if (parcela.id_conta_fiado) {
 
                         await conn.query(`
-                            UPDATE conta_fiado_prod
+                            UPDATE conta_fiado_prod cf
+                            INNER JOIN pedidos_itens pi
+                                ON pi.id_produto = cf.id_produto
                             SET
-                                status_pagamento = 'Pago',
-                                data_pagamento = ?
-                            WHERE id_conta = ?
-                              AND LOWER(
-                                  COALESCE(
-                                      status_pagamento,
-                                      'Pendente'
-                                  )
-                              ) <> 'pago'
+                                cf.status_pagamento = 'Pago',
+                                cf.data_pagamento = ?,
+                                cf.juros_ativo = FALSE
+                            WHERE cf.id_conta = ?
+                              AND pi.id_pedido = ?
+                              AND LOWER(COALESCE(cf.status_pagamento, 'Pendente')) <> 'pago'
                         `, [
                             hoje,
-                            parcela.id_conta_fiado
+                            parcela.id_conta_fiado,
+                            parcela.id_pedido
                         ]);
 
-                        await conn.query(`
-                            UPDATE contas_fiado
-                            SET status = 'Pago'
-                            WHERE id_conta = ?
-                        `, [
-                            parcela.id_conta_fiado
-                        ]);
+                        await atualizarStatusConta(conn, parcela.id_conta_fiado);
                     }
 
                     // --------------------------------------------------
@@ -3563,6 +3625,7 @@ router.get(
                     p.origem,
                     p.data,
                     p.valor_total,
+                    SUM(cfp.valor) AS valor_credito,
                     p.form_pag,
 
                     c.nome_completo,
@@ -3620,6 +3683,26 @@ router.get(
                     proxima_parcela ASC
             `);
 
+            for (const compra of compras) {
+                const [parcelasCompra] = await conn.query(`
+                    SELECT
+                        id_parcela,
+                        numero_parcela,
+                        total_parcelas,
+                        valor,
+                        data_vencimento,
+                        status,
+                        data_pagamento
+                    FROM conta_fiado_parcelas
+                    WHERE id_pedido = ?
+                    ORDER BY numero_parcela ASC
+                `, [compra.id_pedido]);
+
+                compra.parcelas = parcelasCompra;
+                compra.valor_parcela = Number(parcelasCompra[0]?.valor || 0);
+                compra.valor_credito = Number(compra.valor_credito || 0);
+            }
+
             return res.json({
                 sucesso: true,
                 compras,
@@ -3669,7 +3752,9 @@ router.post(
                 total,
                 parcelas,
                 valor_parcela,
-                data_compra
+                data_compra,
+                pagamentos,
+                valor_credito
             } = req.body;
 
             const qtdParcelas = Number(parcelas);
@@ -3774,6 +3859,53 @@ router.post(
             }
 
             // ==================================================
+            // PAGAMENTO DIVIDIDO
+            // ==================================================
+
+            const pagamentosNormalizados = Array.isArray(pagamentos) && pagamentos.length
+                ? pagamentos.map(p => ({
+                    metodo: String(p.metodo || "").trim(),
+                    valor: Number(p.valor || 0)
+                })).filter(p => p.metodo && Number.isFinite(p.valor) && p.valor > 0)
+                : [{
+                    metodo: "Cartão de Crédito",
+                    valor: valorTotal
+                }];
+
+            const totalPagamentos = pagamentosNormalizados.reduce(
+                (soma, pagamento) => soma + pagamento.valor,
+                0
+            );
+
+            if (Math.abs(totalPagamentos - valorTotal) > 0.009) {
+                throw new Error("Os valores das formas de pagamento não completam o total da compra.");
+            }
+
+            const pagamentoCredito = pagamentosNormalizados.find(
+                pagamento => pagamento.metodo.toLowerCase().includes("cartão de crédito")
+            );
+
+            const valorCredito = Number(
+                valor_credito ?? pagamentoCredito?.valor ?? valorTotal
+            );
+
+            if (!pagamentoCredito || !Number.isFinite(valorCredito) || valorCredito <= 0) {
+                throw new Error("O valor pago no cartão de crédito não foi informado.");
+            }
+
+            if (Math.abs(valorCredito - pagamentoCredito.valor) > 0.009) {
+                throw new Error("O valor do crédito não corresponde ao valor informado para o cartão de crédito.");
+            }
+
+            valorParcelaCalculado = valorCredito / qtdParcelas;
+
+            const formaHistorico = pagamentosNormalizados.map(pagamento => {
+                const valorFormatado = Number(pagamento.valor).toFixed(2);
+                const credito = pagamento.metodo.toLowerCase().includes("cartão de crédito");
+                return `${pagamento.metodo}: R$ ${valorFormatado}${credito ? ` — ${qtdParcelas}x` : ""}`;
+            }).join(" + ");
+
+            // ==================================================
             // USUÁRIO LOGADO
             // ==================================================
 
@@ -3840,7 +3972,7 @@ router.post(
                     0
                 ),
 
-                `Cartão de Crédito — ${qtdParcelas}x`
+                formaHistorico
             ]);
 
             const idPedido =
@@ -4015,15 +4147,25 @@ router.post(
                         ?,
                         ?,
                         ?,
-                        'Pendente'
+                        ?
                     )
                 `, [
                     idPedido,
                     numero,
                     qtdParcelas,
                     valorParcelaCalculado,
-                    vencimento
+                    vencimento,
+                    numero === 1 ? 'Pago' : 'Pendente'
                 ]);
+
+                if (numero === 1) {
+                    await conn.query(`
+                        UPDATE conta_fiado_parcelas
+                        SET data_pagamento = ?
+                        WHERE id_pedido = ?
+                          AND numero_parcela = 1
+                    `, [dataCompra, idPedido]);
+                }
             }
 
             await conn.commit();
@@ -4065,6 +4207,128 @@ router.post(
     }
 );
 
+
+
+/* ======================================================
+   PAGAMENTO PARCELADO NO CARTÃO — CONTA FIADO
+====================================================== */
+
+router.post(
+    "/contas-fiado/itens/credito-parcelado",
+    verificarToken,
+    async (req, res) => {
+        let conn;
+        try {
+            const {
+                data_pagamento,
+                forma_pagamento,
+                itens,
+                parcelas,
+                valor_credito,
+                valor_total
+            } = req.body;
+
+            const qtdParcelas = Number(parcelas);
+            if (!data_pagamento) throw new Error("Data do pagamento não informada.");
+            if (!Array.isArray(itens) || !itens.length) throw new Error("Nenhum produto foi selecionado.");
+            if (!Number.isInteger(qtdParcelas) || qtdParcelas < 2 || qtdParcelas > 12) {
+                throw new Error("O cartão de crédito deve ter entre 2 e 12 parcelas.");
+            }
+
+            conn = await conexao.getConnection();
+            await conn.beginTransaction();
+
+            const idsContas = [...new Set(itens.map(i => Number(i.id_conta)).filter(Number.isInteger))];
+            if (idsContas.length !== 1) throw new Error("Selecione produtos da mesma conta para parcelar no cartão.");
+            const idConta = idsContas[0];
+
+            const produtos = [];
+            for (const item of itens) {
+                const idProduto = Number(item.id_produto);
+                const [rows] = await conn.query(`
+                    SELECT cf.id_conta, cf.id_produto, cf.qtd, cf.valor_unit,
+                           cf.status_pagamento, p.nome
+                    FROM conta_fiado_prod cf
+                    INNER JOIN produtos p ON p.id_produto = cf.id_produto
+                    WHERE cf.id_conta = ? AND cf.id_produto = ?
+                    FOR UPDATE
+                `, [idConta, idProduto]);
+
+                if (!rows.length) throw new Error(`Produto ${idProduto} não encontrado nessa conta.`);
+                if (String(rows[0].status_pagamento || 'Pendente').toLowerCase() === 'pago') {
+                    throw new Error(`O produto "${rows[0].nome}" já foi pago.`);
+                }
+                produtos.push(rows[0]);
+            }
+
+            const totalItens = produtos.reduce((s, p) => s + Number(p.qtd || 0) * Number(p.valor_unit || 0), 0);
+            const totalInformado = Number(valor_total);
+            const totalBase = Number.isFinite(totalInformado) && totalInformado > 0 ? totalInformado : totalItens;
+            const credito = Number(valor_credito);
+            if (!Number.isFinite(credito) || credito <= 0 || credito - totalBase > 0.009) {
+                throw new Error("Valor do cartão de crédito inválido.");
+            }
+
+            const valorParcela = credito / qtdParcelas;
+            const [ultimo] = await conn.query(`SELECT MAX(num_pedido) AS max_num FROM pedidos FOR UPDATE`);
+            const numPedido = Number(ultimo[0]?.max_num || 0) + 1;
+            const idUser = req.user?.id_user ?? req.user?.id ?? null;
+            const forma = String(forma_pagamento || `Cartão de Crédito — ${qtdParcelas}x`).trim();
+
+            const [pedido] = await conn.query(`
+                INSERT INTO pedidos (
+                    id_user, id_conta_fiado, num_pedido, codigo_comanda,
+                    data, data_ag, status, origem, valor_total, qtd_total, form_pag
+                ) VALUES (?, ?, ?, NULL, ?, NULL, 'Pendente', 'Fiado', ?, ?, ?)
+            `, [
+                idUser, idConta, numPedido, data_pagamento,
+                totalBase,
+                produtos.reduce((s, p) => s + Number(p.qtd || 0), 0),
+                forma
+            ]);
+
+            const idPedido = pedido.insertId;
+            for (const p of produtos) {
+                await conn.query(`
+                    INSERT INTO pedidos_itens (id_pedido, id_produto, qtd, preco_unitario)
+                    VALUES (?, ?, ?, ?)
+                `, [idPedido, p.id_produto, p.qtd, p.valor_unit]);
+            }
+
+            for (let numero = 1; numero <= qtdParcelas; numero++) {
+                const vencimento = adicionarMesesData(normalizarDataCompra(data_pagamento), numero);
+                const valor = numero === qtdParcelas
+                    ? Number((credito - valorParcela * (qtdParcelas - 1)).toFixed(2))
+                    : Number(valorParcela.toFixed(2));
+                await conn.query(`
+                    INSERT INTO conta_fiado_parcelas
+                    (id_conta, id_pedido, numero_parcela, total_parcelas, valor, data_vencimento, status, data_pagamento)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                `, [
+                    idConta, idPedido, numero, qtdParcelas, valor, vencimento,
+                    numero === 1 ? 'Pago' : 'Pendente',
+                    numero === 1 ? data_pagamento : null
+                ]);
+            }
+
+            await conn.commit();
+            return res.json({
+                sucesso: true,
+                id_pedido: idPedido,
+                num_pedido: numPedido,
+                parcelas: qtdParcelas,
+                valor_parcela: Number(valorParcela.toFixed(2)),
+                mensagem: `Pagamento em ${qtdParcelas}x registrado. A 1ª parcela já está paga; as próximas serão concluídas automaticamente na data de cada parcela.`
+            });
+        } catch (erro) {
+            if (conn) await conn.rollback();
+            console.error("Erro ao criar parcelamento do Conta Fiado:", erro);
+            return res.status(400).json({ sucesso: false, erro: erro.message || "Erro ao criar parcelamento." });
+        } finally {
+            if (conn) conn.release();
+        }
+    }
+);
 
 
 /* ======================================================

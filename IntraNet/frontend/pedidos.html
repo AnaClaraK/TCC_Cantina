@@ -264,7 +264,7 @@ function formatarFormaPagamento(texto) {
             const valor = Number(parte.slice(idx + 1).trim().replace(",", "."));
             return Number.isFinite(valor) ? `${forma}: R$ ${valor.toFixed(2).replace(".", ",")}` : forma;
         });
-        return divididos.join(" + ");
+        return divididos.map(item => `<div style="line-height:1.5;">${item}</div>`).join("");
     }
 
     // Como a origem já informa que é Fiado, não repetimos "Fiado".

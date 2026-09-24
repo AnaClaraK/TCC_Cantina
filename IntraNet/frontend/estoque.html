@@ -396,13 +396,14 @@ async function carregarProdutos() {
                 const novoStatus = e.target.value;
 
                 try {
-                    const resStatus = await apiFetch(`http://localhost:3000/produtos/${idProduto}/status`, {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${localStorage.getItem("token")}`
-                        },
-                        body: JSON.stringify({ ativo: novoStatus })
+                   // Em estoque.html (por volta da linha 400)
+                const resStatus = await apiFetch(`http://localhost:3000/produtos/id/${idProduto}/status`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    },
+                    body: JSON.stringify({ ativo: novoStatus })
                     });
 
                     if (!resStatus.ok) {
