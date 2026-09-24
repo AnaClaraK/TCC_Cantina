@@ -229,6 +229,136 @@ function limparModal() {
     indexSelecionado = -1;
 }
 
+let contadorOrdenacao = 0;
+
+function aplicarOrdenacaoTabela(idTbody, colunasIgnoradas = []) {
+    const tbody = typeof idTbody === "string"
+        ? document.getElementById(idTbody)
+        : idTbody?.querySelector?.("tbody") || idTbody;
+
+    if (!tbody) return;
+
+    const tabela = tbody.closest("table");
+    if (!tabela) return;
+
+    const linhasOriginais = Array.from(tbody.querySelectorAll("tr"));
+    linhasOriginais.forEach((tr, index) => {
+        if (tr.dataset.indexOriginal === undefined) {
+            tr.dataset.indexOriginal = index;
+        }
+    });
+
+    const cabecalhos = Array.from(tabela.querySelectorAll("thead th"));
+
+    cabecalhos.forEach((th, indice) => {
+        if (colunasIgnoradas.includes(indice)) return;
+
+        th.classList.add("sortable");
+        if (!th.dataset.ordem) th.dataset.ordem = "none";
+
+        const novoTh = th.cloneNode(true);
+        novoTh.dataset.ordem = th.dataset.ordem || "none";
+        novoTh.dataset.prioridadeOrdenacao = th.dataset.prioridadeOrdenacao || "";
+        th.parentNode.replaceChild(novoTh, th);
+
+        novoTh.addEventListener("click", () => {
+            const estadoAtual = novoTh.dataset.ordem || "none";
+            const novoEstado = estadoAtual === "none"
+                ? "asc"
+                : estadoAtual === "asc"
+                    ? "desc"
+                    : "none";
+
+            novoTh.dataset.ordem = novoEstado;
+            novoTh.classList.remove("sort-asc", "sort-desc");
+
+            if (novoEstado === "asc") {
+                novoTh.classList.add("sort-asc");
+                novoTh.dataset.prioridadeOrdenacao = ++contadorOrdenacao;
+            } else if (novoEstado === "desc") {
+                novoTh.classList.add("sort-desc");
+                novoTh.dataset.prioridadeOrdenacao = ++contadorOrdenacao;
+            } else {
+                novoTh.dataset.prioridadeOrdenacao = "";
+            }
+
+            const ordenacoesAtivas = Array.from(tabela.querySelectorAll("thead th"))
+                .map((cab, idx) => ({
+                    indice: idx,
+                    estado: cab.dataset.ordem || "none",
+                    prioridade: Number(cab.dataset.prioridadeOrdenacao || 0)
+                }))
+                .filter(item => item.estado !== "none")
+                .sort((a, b) => b.prioridade - a.prioridade);
+
+            const linhas = Array.from(tbody.querySelectorAll("tr"));
+
+            if (ordenacoesAtivas.length === 0) {
+                linhas.sort((a, b) =>
+                    Number(a.dataset.indexOriginal || 0) - Number(b.dataset.indexOriginal || 0)
+                );
+            } else {
+                const obterValor = (linha, indice) => {
+                    const celula = linha.children[indice];
+                    if (!celula) return "";
+                    const controle = celula.querySelector("input, select");
+                    return controle ? controle.value.trim() : celula.textContent.trim();
+                };
+
+                const eAgendamento = tabela.querySelectorAll("thead th").length === 7 && tbody.id === "tb_tbl_produtos";
+
+                linhas.sort((a, b) => {
+                    for (const ordem of ordenacoesAtivas) {
+                        let resultado;
+
+                        // No Agendamento, a coluna Data usa o valor original guardado no <tr>.
+                        if (eAgendamento && ordem.indice === 5) {
+                            const dataA = new Date(a.dataset.data || 0).getTime();
+                            const dataB = new Date(b.dataset.data || 0).getTime();
+                            resultado = dataA - dataB;
+                        } else {
+                            const valA = obterValor(a, ordem.indice);
+                            const valB = obterValor(b, ordem.indice);
+                            const textoA = String(valA || "").trim();
+                            const textoB = String(valB || "").trim();
+
+                            const numA = parseFloat(textoA
+                                .replace(/R\$/g, "")
+                                .replace(/#/g, "")
+                                .replace(/\./g, "")
+                                .replace(",", ".")
+                                .trim());
+                            const numB = parseFloat(textoB
+                                .replace(/R\$/g, "")
+                                .replace(/#/g, "")
+                                .replace(/\./g, "")
+                                .replace(",", ".")
+                                .trim());
+
+                            if (!Number.isNaN(numA) && !Number.isNaN(numB) && textoA !== "" && textoB !== "") {
+                                resultado = numA - numB;
+                            } else {
+                                resultado = textoA.localeCompare(textoB, "pt-BR", {
+                                    numeric: true,
+                                    sensitivity: "base"
+                                });
+                            }
+                        }
+
+                        if (resultado !== 0) {
+                            return ordem.estado === "asc" ? resultado : -resultado;
+                        }
+                    }
+
+                    return Number(a.dataset.indexOriginal || 0) - Number(b.dataset.indexOriginal || 0);
+                });
+            }
+
+            linhas.forEach(linha => tbody.appendChild(linha));
+        });
+    });
+}
+
 async function carregarProdutos() {
     try {
         const res = await apiFetch("http://localhost:3000/produtos", {
@@ -266,13 +396,14 @@ async function carregarProdutos() {
                 const novoStatus = e.target.value;
 
                 try {
-                    const resStatus = await apiFetch(`http://localhost:3000/produtos/${idProduto}/status`, {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${localStorage.getItem("token")}`
-                        },
-                        body: JSON.stringify({ ativo: novoStatus })
+                   // Em estoque.html (por volta da linha 400)
+                const resStatus = await apiFetch(`http://localhost:3000/produtos/id/${idProduto}/status`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    },
+                    body: JSON.stringify({ ativo: novoStatus })
                     });
 
                     if (!resStatus.ok) {
@@ -409,4 +540,4 @@ b_close_modal_btn.addEventListener("click", () => {
 document.addEventListener("DOMContentLoaded", carregarProdutos);
 </script>
 </body>
-</html>
+</html> 

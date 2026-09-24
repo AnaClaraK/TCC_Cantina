@@ -12,7 +12,9 @@
     <link rel="stylesheet" href="style_clientef.css">
     <script src="sidebar_header.js"></script>
 
-    <script>
+    <style>
+.linha-conta-clicavel{cursor:pointer;transition:background .15s ease}.linha-conta-clicavel:hover{filter:brightness(1.08)}.linha-conta-clicavel:focus{outline:2px solid #efac4a;outline-offset:-2px}.btn-nome-cliente-fiado{background:none;border:0;color:inherit;font:inherit;padding:0;cursor:pointer;text-align:left}.detalhes-conta-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}.detalhe-conta-item{background:rgba(255,255,255,.05);padding:12px 14px;border-radius:10px}.detalhe-conta-item strong{display:block;margin-bottom:4px}.detalhes-conta-acoes{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}.detalhes-conta-acoes button{cursor:pointer} .modal-detalhes-conta{width:min(760px,94vw);max-width:760px;border:0;border-radius:16px;padding:0;background:transparent;color:inherit}.modal-detalhes-conta::backdrop{background:rgba(0,0,0,.72)}.modal-detalhes-conta .modal-content{position:relative;background:#1d1d1d;border-radius:16px;padding:24px;max-height:85vh;overflow:auto;box-sizing:border-box}.modal-detalhes-conta .close{position:absolute;top:10px;right:14px;border:0;background:transparent;color:inherit;font-size:28px;cursor:pointer}.modal-detalhes-conta[open]{display:block}</style>
+<script>
         (function () {
 
             const token =
@@ -133,6 +135,54 @@
     opacity: .55;
 }
 
+/* ======================================================
+   AJUSTES — CLIENTE / ATRASO / CONCLUIR CONTA
+====================================================== */
+.btn-nome-cliente-fiado { border:0; background:transparent; padding:0; color:inherit; font:inherit; font-weight:800; cursor:pointer; text-align:left; text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:3px; }
+.btn-nome-cliente-fiado:hover { opacity:.72; }
+.linha-conta-atrasada td { border-top:3px solid #ff1744; border-bottom:3px solid #ff1744; }
+.vencimento-celula { display:flex; flex-direction:column; align-items:flex-start; gap:4px; }
+.badge-atrasado,.badge-atrasado-modal { display:inline-flex; align-items:center; justify-content:center; background:#ff1744; color:#fff; font-weight:900; padding:4px 9px; border-radius:6px; font-size:11px; letter-spacing:.5px; }
+.badge-atrasado-modal { margin-left:8px; }
+.dias-atraso { font-weight:800; }
+.conta-modal-atrasada { border:3px solid #ff1744 !important; box-shadow:0 0 0 2px rgba(255,23,68,.15); }
+.conta_juros_titulo { display:flex; align-items:center; justify-content:space-between; gap:15px; flex-wrap:wrap; }
+.conta-juros-acoes { display:flex; align-items:center; justify-content:flex-end; gap:12px; flex-wrap:wrap; }
+.btn-desbloquear-juros { border:1px solid currentColor; background:transparent; color:inherit; border-radius:6px; padding:3px 7px; font-size:10px; font-weight:900; cursor:pointer; white-space:nowrap; }
+.btn-desbloquear-juros:hover { filter:brightness(1.18); }
+.juros-produto-desbloqueado { opacity:1; }
+.juros-produto-ja-aplicado .btn-desbloquear-juros { opacity:1; }
+.conta-valor-resumo { padding:7px 10px; font-size:13px; }
+.conta-valor-resumo strong { font-size:15px; }
+.info-atrasado { display:inline-block; padding:6px 10px; border-radius:7px; background:#ff1744; color:#fff; font-weight:900; }
+.modal-cliente-direto .campo-busca-cliente-juros, .modal-cliente-direto > label[for="buscaClienteJuros"] { display:none; }
+.modal-cliente-direto .pm { margin-top:4px; }
+.modal-resumo-juros-box { width:min(1200px,94vw); max-width:1200px; }
+.modal-resumo-juros-box > div { max-width:100%; }
+
+
+/* ======================================================
+   COMPRAS PARCELADAS NO CARTÃO
+====================================================== */
+#b_compras_parceladas { white-space: nowrap; }
+.modal-parceladas-box { width:min(1180px,94vw); max-width:1180px; }
+.lista-compras-parceladas { display:flex; flex-direction:column; gap:14px; max-height:70vh; overflow:auto; padding:4px; }
+.credito-card { border:2px solid rgba(239,172,74,.55); border-radius:12px; padding:16px; background:rgba(255,255,255,.035); }
+.credito-card-topo { display:flex; justify-content:space-between; gap:15px; align-items:flex-start; flex-wrap:wrap; }
+.credito-card-topo h3 { margin:0 0 5px; }
+.credito-meta { display:flex; gap:14px; flex-wrap:wrap; font-size:13px; opacity:.9; }
+.credito-progresso { font-weight:900; font-size:15px; }
+.credito-parcelas { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:8px; margin-top:14px; }
+.credito-parcela { border:1px solid rgba(255,255,255,.15); border-radius:9px; padding:10px; display:flex; flex-direction:column; gap:4px; }
+.credito-parcela.paga { opacity:.65; }
+.credito-parcela strong { font-size:14px; }
+.credito-parcela small { opacity:.72; }
+.credito-concluido { border-color:#35c76f; }
+.credito-vazio { padding:28px; text-align:center; opacity:.7; }
+.credito-automatico { margin-top:10px; padding:9px 11px; border-radius:8px; background:rgba(239,172,74,.10); border:1px solid rgba(239,172,74,.30); font-size:12px; font-weight:700; }
+.notificacao-parcela-pagina { width:100%; box-sizing:border-box; margin:10px 0 0; }
+.notificacao-parcela { border-left:5px solid #35c76f; padding:12px 14px; margin:0 0 12px; background:rgba(53,199,111,.10); border-radius:8px; font-weight:700; }
+
 @media (max-width: 850px) {
     .juros-produto-linha {
         grid-template-columns:
@@ -149,10 +199,30 @@
 }
 </style>
 
+<style>
+.modal-pagamento-dividido .conteudo-dividir{width:min(620px,92vw);padding:28px;border-radius:18px;background:#fff}
+.lista-divisoes{display:flex;flex-direction:column;gap:8px;margin:14px 0;max-height:220px;overflow:auto}
+.divisao-item{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid #ddd;border-radius:10px}
+.divisao-item button{border:0;background:transparent;font-size:22px;cursor:pointer}
+.modal-pagamento-dividido .acoes-modal{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+</style>
 </head>
 
 
 <body class="fundo-escuro">
+
+<dialog id="modalDetalhesContaFiado" class="modal-detalhes-conta">
+ <div class="modal-content">
+  <button type="button" class="close" id="fecharDetalhesContaFiado" aria-label="Fechar">&times;</button>
+  <h2 id="detalhesContaTitulo">Detalhes da conta</h2>
+  <div id="detalhesContaConteudo"></div>
+  <div class="detalhes-conta-acoes">
+   <button type="button" id="btnConcluirDetalhesConta">Concluir pagamento</button>
+   <button type="button" id="btnEditarJurosDetalhesConta">Editar juros</button>
+  </div>
+ </div>
+</dialog>
+
 
 
 <!-- ======================================================
@@ -191,8 +261,16 @@
         Simular Juros
     </button>
 
+    <button
+        id="b_compras_parceladas"
+        type="button"
+    >
+        Compras parceladas
+    </button>
 
-    <div id="d_inp">
+    <div id="notificacaoParcelasConcluidas" class="notificacao-parcela-pagina" aria-live="polite"></div>
+
+<div id="d_inp">
 
         <div class="busca-box">
 
@@ -221,21 +299,14 @@
         <tbody id="tbodySemJuros"></tbody>
     </table>
 
-    <h2 class="titulo-contas">Resumo de juros por cliente</h2>
-    <table class="tabela" id="tabelaJurosCliente">
-        <thead><tr><th>Nome</th><th>Produtos pendentes</th><th>Valor original</th><th>Juros</th><th>Total com juros</th><th>Porcentagem</th><th>Tipo</th></tr></thead>
-        <tbody id="tbodyJurosCliente"></tbody>
-    </table>
-
     <h2 class="titulo-contas">Contas com Juros</h2>
     <table class="tabela" id="tabelaComJuros">
         <thead><tr><th>Nome</th><th>Produtos</th><th>Valor original</th><th>Quantidade</th><th>Origem</th><th>Vencimento</th></tr></thead>
         <tbody id="tbodyComJuros"></tbody>
     </table>
+
+
 </section>
-
-
-
 <!-- ======================================================
      MODAL NOVO CLIENTE
 ====================================================== -->
@@ -287,6 +358,14 @@
             class="inp_m"
             id="endereco"
             placeholder="Endereço"
+        >
+
+
+        <label for="dataVencimentoPadraoCliente">Vencimento padrão do cliente</label>
+        <input
+            type="date"
+            class="inp_m"
+            id="dataVencimentoPadraoCliente"
         >
 
 
@@ -448,6 +527,11 @@
             </strong>
 
         </p>
+
+        <div class="conta-juros-acoes" style="justify-content:flex-start;margin:8px 0 14px;">
+            <button type="button" id="btnBloquearClienteJuros">Bloquear cliente</button>
+            <span id="statusBloqueioClienteJuros" class="info-atrasado" style="display:none;background:#555;">Cliente bloqueado</span>
+        </div>
 
 
 
@@ -653,6 +737,20 @@
 
 
 
+
+<!-- ======================================================
+     COMPRAS PARCELADAS NO CARTÃO
+====================================================== -->
+<dialog id="modalComprasParceladas">
+    <div class="modal_box modal-parceladas-box">
+        <button id="btnFecharComprasParceladas" type="button">x</button>
+        <h2 class="modal_titulo">Compras parceladas</h2>
+        <div id="listaComprasParceladas" class="lista-compras-parceladas">
+            <div class="credito-vazio">Carregando...</div>
+        </div>
+    </div>
+</dialog>
+
 <!-- ======================================================
      MODAL PRODUTOS
 ====================================================== -->
@@ -811,6 +909,10 @@
                 Voucher/Ticket
             </option>
 
+            <option value="Dividir Pagamento">
+                Dividir Pagamento
+            </option>
+
         </select>
 
 
@@ -945,6 +1047,45 @@
     </div>
 </dialog>
 
+<dialog id="dialogDividirPagamento" class="modal-pagamento-dividido">
+    <div class="conteudo-dividir">
+        <button type="button" id="b_fechar_dividir" class="fechar-modal-pagamento" aria-label="Fechar">×</button>
+        <h2>DIVIDIR PAGAMENTO</h2>
+        <div class="credito-total">
+            <span>Total da compra</span>
+            <strong id="lbl_dividir_total">R$ 0,00</strong>
+        </div>
+        <div class="credito-total">
+            <span>Já informado</span>
+            <strong id="lbl_dividir_pago">R$ 0,00</strong>
+        </div>
+        <div class="credito-total">
+            <span>Restante</span>
+            <strong id="lbl_dividir_restante">R$ 0,00</strong>
+        </div>
+        <div class="credito-campo">
+            <label for="sel_metodo_divisao">Forma</label>
+            <select id="sel_metodo_divisao">
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="Pix">Pix</option>
+                <option value="Cartão de Débito">Cartão de Débito</option>
+                <option value="Cartão de Crédito">Cartão de Crédito</option>
+                <option value="Voucher/Ticket">Voucher/Ticket</option>
+            </select>
+        </div>
+        <div class="credito-campo">
+            <label for="inp_valor_divisao">Valor desta parte</label>
+            <input type="number" id="inp_valor_divisao" min="0.01" step="0.01" placeholder="0,00">
+        </div>
+        <div id="lista_divisoes" class="lista-divisoes"></div>
+        <div class="acoes-modal">
+            <button type="button" id="b_cancelar_dividir">Cancelar</button>
+            <button type="button" id="b_adicionar_divisao">Adicionar parte</button>
+            <button type="button" id="b_confirmar_dividir">Confirmar pagamento</button>
+        </div>
+    </div>
+</dialog>
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -993,11 +1134,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const tbodySemJuros = document.getElementById("tbodySemJuros");
     const tbodyComJuros = document.getElementById("tbodyComJuros");
-    const tbodyJurosCliente = document.getElementById("tbodyJurosCliente");
 
     const inputBusca = document.getElementById("inputBusca");
 
+    const dataVencimentoPadraoCliente = document.getElementById("dataVencimentoPadraoCliente");
+    const btnBloquearClienteJuros = document.getElementById("btnBloquearClienteJuros");
+    const statusBloqueioClienteJuros = document.getElementById("statusBloqueioClienteJuros");
+
     const btnSimularJurosAbrir = document.getElementById("b_simular_juros");
+    const btnComprasParceladas = document.getElementById("b_compras_parceladas");
+    const modalComprasParceladas = document.getElementById("modalComprasParceladas");
+    const btnFecharComprasParceladas = document.getElementById("btnFecharComprasParceladas");
+    const listaComprasParceladas = document.getElementById("listaComprasParceladas");
+    const notificacaoParcelasConcluidas = document.getElementById("notificacaoParcelasConcluidas");
     const btnFecharSimulacaoJuros = document.getElementById("btnFecharSimulacaoJuros");
     const btnCancelarSimulacaoJuros = document.getElementById("btnCancelarSimulacaoJuros");
 
@@ -1027,6 +1176,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let clientesCache = [];
     let produtosCache = [];
+    let comprasParceladasCache = [];
     let produtosSelecionados = [];
     let clienteSelecionado = null;
 
@@ -1034,6 +1184,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let clienteSelecionadoJuros = null;
     let contasClienteJuros = [];
     let simulacaoJurosAtual = null;
+    let contaParaConcluirFiado = null;
+    let itensParaConcluirFiado = null;
 
     let indiceClienteJuros = -1;
 
@@ -1042,6 +1194,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let contaParaConcluir = null;
     let contasParaConcluir = [];
     let produtosParaConcluir = [];
+    let produtosDesbloqueadosJuros = new Set();
 
     let pagamentoTemporario = {
         forma: "",
@@ -1313,6 +1466,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     "endereco"
                 ).value.trim();
 
+            const dataVencimentoPadrao =
+                dataVencimentoPadraoCliente?.value || null;
+
             if (
                 !nome ||
                 cpf.length !== 11 ||
@@ -1343,7 +1499,8 @@ document.addEventListener("DOMContentLoaded", () => {
                                         nome,
                                     cpf,
                                     telefone,
-                                    endereco
+                                    endereco,
+                                    data_vencimento_padrao: dataVencimentoPadrao
                                 })
                         }
                     );
@@ -1382,6 +1539,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById(
                     "endereco"
                 ).value = "";
+
+                if (dataVencimentoPadraoCliente) {
+                    dataVencimentoPadraoCliente.value = "";
+                }
 
                 modalCliente.close();
 
@@ -1537,6 +1698,12 @@ document.addEventListener("DOMContentLoaded", () => {
         ).value =
             cliente.nome_completo ||
             "";
+
+        const dataPadrao = cliente.data_vencimento_padrao || "";
+        const campoVencimentoCompra = document.getElementById("inp_data_fiado");
+        if (campoVencimentoCompra) {
+            campoVencimentoCompra.value = dataPadrao || obterDataHojeInput();
+        }
 
         listaClientes.innerHTML = "";
         listaClientes.style.display =
@@ -1703,7 +1870,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
             });
     }
-
+    document.getElementById(
+    "b_salvar_produtos"
+)?.addEventListener(
+    "click",
+    () => {
+        renderProdutosSelecionados();
+        modalProdutos?.close();
+    }
+);
     document.getElementById(
         "inp_busca_produto"
     )?.addEventListener(
@@ -2164,6 +2339,228 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ======================================================
+       CONCLUSÃO DE CONTAS / PRODUTOS
+    ====================================================== */
+
+    function abrirModalConclusaoContaFiado(conta, itens = null) {
+        contaParaConcluirFiado = conta || null;
+        itensParaConcluirFiado = Array.isArray(itens) ? itens : null;
+
+        if (!contaParaConcluirFiado) {
+            exibirAviso("Nenhuma conta foi selecionada.");
+            return;
+        }
+
+        dataConclusao.value = obterDataHojeInput();
+        formaConclusao.value = "";
+
+        const produtos = normalizarProdutosConta(contaParaConcluirFiado)
+            .filter(p => String(p.statusPagamento || "Pendente").trim().toLowerCase() !== "pago");
+
+        const total = produtos.reduce((soma, p) => soma + Number(p.valorAtual || p.valorBase || 0), 0);
+        const quantidade = produtos.reduce((soma, p) => soma + Number(p.quantidade || 0), 0);
+
+        infoConclusaoFiado.textContent =
+            `Conta de ${contaParaConcluirFiado.nome_completo || contaParaConcluirFiado.cliente || "cliente"} — ` +
+            `${itensParaConcluirFiado ? itensParaConcluirFiado.length : produtos.length} produto(s), ` +
+            `R$ ${formatarMoeda(total)}${quantidade ? ` — ${quantidade} item(ns)` : ""}.`;
+
+        modalConclusao.showModal();
+    }
+
+    async function concluirContaInteiraFiado() {
+        if (!contaParaConcluirFiado) {
+            exibirAviso("Nenhuma conta foi selecionada.");
+            return;
+        }
+
+        const dataPagamento = dataConclusao.value;
+        const formaPagamento = formaConclusao.value;
+
+        if (!dataPagamento) {
+            exibirAviso("Por favor, informe a data do pagamento.");
+            return;
+        }
+
+        if (!formaPagamento) {
+            exibirAviso("Por favor, selecione a forma de pagamento.");
+            return;
+        }
+
+        const agora = new Date();
+        const dataHora = `${dataPagamento} ${String(agora.getHours()).padStart(2, "0")}:${String(agora.getMinutes()).padStart(2, "0")}:${String(agora.getSeconds()).padStart(2, "0")}`;
+
+        try {
+            btnConfirmarConclusao.disabled = true;
+
+            const res = await apiFetch(
+                `/contas-fiado/${Number(contaParaConcluirFiado.id_conta)}/finalizar`,
+                {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        data_conclusao: dataHora,
+                        forma_pagamento: formaPagamento
+                    })
+                }
+            );
+
+            const resposta = await res.json();
+
+            if (res.status === 401 || res.status === 403) {
+                tratarSessaoExpirada();
+                return;
+            }
+
+            if (!res.ok) {
+                throw new Error(resposta.erro || resposta.mensagem || "Erro ao concluir a conta.");
+            }
+
+            modalConclusao.close();
+            contaParaConcluirFiado = null;
+            itensParaConcluirFiado = null;
+            await carregarContasFiado();
+
+            exibirAviso(resposta.mensagem || "Pagamento registrado e conta concluída com sucesso!");
+        } catch (erro) {
+            console.error("Erro ao concluir conta fiado:", erro);
+            exibirAviso(erro.message || "Erro ao concluir a conta.");
+        } finally {
+            btnConfirmarConclusao.disabled = false;
+        }
+    }
+
+    async function concluirProdutosSelecionadosFiado() {
+        const itens = obterProdutosSelecionadosJuros();
+
+        if (!itens.length) {
+            exibirAviso("Selecione pelo menos um produto para concluir.");
+            return;
+        }
+
+        const dataPagamento = dataConclusao.value;
+        const formaPagamento = formaConclusao.value;
+
+        if (!dataPagamento) {
+            exibirAviso("Por favor, informe a data do pagamento.");
+            return;
+        }
+
+        if (!formaPagamento) {
+            exibirAviso("Por favor, selecione a forma de pagamento.");
+            return;
+        }
+
+        const agora = new Date();
+        const dataHora = `${dataPagamento} ${String(agora.getHours()).padStart(2, "0")}:${String(agora.getMinutes()).padStart(2, "0")}:${String(agora.getSeconds()).padStart(2, "0")}`;
+
+        try {
+            btnConfirmarConclusao.disabled = true;
+
+            const res = await apiFetch("/contas-fiado/itens/finalizar", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    data_pagamento: dataHora,
+                    forma_pagamento: formaPagamento,
+                    itens: itens.map(item => ({
+                        id_conta: item.id_conta,
+                        id_produto: item.id_produto
+                    }))
+                })
+            });
+
+            const resposta = await res.json();
+
+            if (res.status === 401 || res.status === 403) {
+                tratarSessaoExpirada();
+                return;
+            }
+
+            if (!res.ok) {
+                throw new Error(resposta.erro || resposta.mensagem || "Erro ao concluir os produtos.");
+            }
+
+            modalConclusao.close();
+            simulacaoJurosAtual = null;
+            await carregarContasFiado();
+            if (clienteSelecionadoJuros) await carregarContasClienteJuros();
+
+            exibirAviso(resposta.mensagem || "Produtos selecionados concluídos com sucesso!");
+        } catch (erro) {
+            console.error("Erro ao concluir produtos selecionados:", erro);
+            exibirAviso(erro.message || "Erro ao concluir os produtos selecionados.");
+        } finally {
+            btnConfirmarConclusao.disabled = false;
+        }
+    }
+
+    btnConfirmarConclusao?.addEventListener("click", async () => {
+        if (itensParaConcluirFiado) {
+            await concluirProdutosSelecionadosFiado();
+        } else {
+            await concluirContaInteiraFiado();
+        }
+    });
+
+    btnFecharConclusao?.addEventListener("click", () => {
+        modalConclusao.close();
+        contaParaConcluirFiado = null;
+        itensParaConcluirFiado = null;
+    });
+
+    btnCancelarConclusao?.addEventListener("click", () => {
+        modalConclusao.close();
+        contaParaConcluirFiado = null;
+        itensParaConcluirFiado = null;
+    });
+
+    btnConcluirSelecionados?.addEventListener("click", () => {
+        const itens = obterProdutosSelecionadosJuros();
+        if (!itens.length) {
+            exibirAviso("Selecione pelo menos um produto.");
+            return;
+        }
+
+        contaParaConcluirFiado = itens[0].conta;
+        itensParaConcluirFiado = itens;
+        dataConclusao.value = obterDataHojeInput();
+        formaConclusao.value = "";
+        infoConclusaoFiado.textContent = `Concluir ${itens.length} produto(s) selecionado(s) da conta de ${itens[0].conta.nome_completo || "cliente"}.`;
+        modalConclusao.showModal();
+    });
+
+    window.abrirConclusaoContaFiado = abrirModalConclusaoContaFiado;
+
+    window.editarJurosContaFiado = async function(conta) {
+        const idCliente = Number(conta?.id_cliente);
+        const cliente = clientesJuros.find(c => Number(c.id_cliente) === idCliente) ||
+                        clientesCache.find(c => Number(c.id_cliente) === idCliente);
+        if (!cliente) {
+            exibirAviso("Não foi possível localizar o cliente desta conta.");
+            return;
+        }
+
+        limparModalJuros();
+        clienteSelecionadoJuros =
+            cliente;
+        buscaClienteJuros.value = cliente.nome_completo || "";
+        atualizarBotaoBloqueioClienteJuros();
+        clienteJurosSelecionado.innerText = cliente.nome_completo || "---";
+        modalSimularJuros.classList.add("modal-cliente-direto");
+        document.body.classList.add("modal-conta-juros-aberto");
+        modalSimularJuros.showModal();
+
+        await carregarContasClienteJuros();
+
+        document.querySelectorAll(".checkbox-produto-juros").forEach(cb => {
+            cb.checked = Number(cb.dataset.idConta) === Number(conta.id_conta);
+        });
+
+        limparResultadoSimulacao();
+    };
+
+    /* ======================================================
        TABELAS PRINCIPAIS
     ====================================================== */
 
@@ -2189,6 +2586,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         tipo: item.tipo_juros || "",
                         valorJurosAtual: Number(item.valor_juros_atual ?? 0),
                         valorAtual: Number(item.valor_atual ?? item.valor_base ?? 0),
+                        statusPagamento: String(item.status_pagamento ?? "Pendente").trim(),
                         diasAtraso: Number(item.dias_atraso ?? 0),
                         dataVencimento: item.data_vencimento || conta?.data_vencimento || null,
                         dataInicioJuros: item.data_inicio_juros || null
@@ -2214,6 +2612,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     tipo: "",
                     valorJurosAtual: 0,
                     valorAtual: 0,
+                    statusPagamento: "Pendente",
                     diasAtraso: calcularDiasAtraso(conta?.data_vencimento),
                     dataVencimento: conta?.data_vencimento || null,
                     dataInicioJuros: null
@@ -2239,15 +2638,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderVencimentoComAtraso(data) {
         const dias = calcularDiasAtraso(data);
-        return `<div class="vencimento-celula"><span>${formatarData(data)}</span>${dias > 0 ? `<span class="dias-atraso">${dias} ${dias === 1 ? "dia" : "dias"}</span>` : ""}</div>`;
+        return `<div class="vencimento-celula"><span>${formatarData(data)}</span>${dias > 0 ? `<span class="badge-atrasado">ATRASADO — ${dias} ${dias === 1 ? "dia" : "dias"}</span>` : ""}</div>`;
     }
 
     function renderLinhaConta(conta) {
         const valorOriginal = Number(conta.valor_original ?? conta.valor ?? 0);
-        const qtd = Number(conta.quantidade_total || 0);
         const produtos = normalizarProdutosConta(conta);
+        const qtd = produtos.reduce((total, produto) => total + Number(produto.quantidade || 0), 0);
+        const diasAtraso = Number(conta.dias_atraso ?? calcularDiasAtraso(conta.data_vencimento));
+        const idCliente = Number(conta.id_cliente);
         const produtosHtml = produtos.length ? `<div class="produtos-resumo">${produtos.map(p => `<span class="produto-pill">${escaparHTML(p.nome)}${p.quantidade > 0 ? ` <small>×${p.quantidade}</small>` : ""}</span>`).join("")}</div>` : "-";
-        return `<tr><td>${escaparHTML(conta.nome_completo || conta.cliente || "-")}</td><td>${produtosHtml}</td><td>R$ ${formatarMoeda(valorOriginal)}</td><td>${qtd}</td><td>${escaparHTML(conta.origem || "-")}</td><td>${renderVencimentoComAtraso(conta.data_vencimento)}</td></tr>`;
+        return `<tr class="${diasAtraso > 0 ? "linha-conta-atrasada" : ""} linha-conta-clicavel" data-id-conta="${Number(conta.id_conta)}" data-id-cliente="${idCliente}" tabindex="0" role="button"><td><button type="button" class="btn-nome-cliente-fiado" data-id-conta="${Number(conta.id_conta)}" onclick="event.preventDefault();event.stopPropagation();window.abrirModalContaPeloNome&&window.abrirModalContaPeloNome(${Number(conta.id_conta)});">${escaparHTML(conta.nome_completo || conta.cliente || "-")}</button></td><td>${produtosHtml}</td><td>R$ ${formatarMoeda(valorOriginal)}</td><td>${qtd}</td><td>${escaparHTML(conta.origem || "-")}</td><td>${renderVencimentoComAtraso(conta.data_vencimento)}</td></tr>`;
     }
 
     function renderTabelas(
@@ -2259,30 +2660,32 @@ document.addEventListener("DOMContentLoaded", () => {
                 ? dados
                 : [];
 
+        window.contasAtuais = contasAtuais;
+
+        const temJurosAplicado = conta => {
+            const itens = normalizarProdutosConta(conta);
+            const jurosNosItens = itens.some(item =>
+                !!item.jurosAtivo ||
+                Number(item.valorAtual || item.valor_atual || 0) >
+                Number(item.valorBase || item.valor_base || 0) + 0.009
+            );
+
+            return (
+                Number(conta.juros_aplicado) === 1 ||
+                conta.juros_aplicado === true ||
+                Number(conta.valor_final) > Number(conta.valor_original) + 0.009 ||
+                jurosNosItens
+            );
+        };
+
         const semJuros =
             contasAtuais.filter(
-                conta =>
-                    !(
-                        Number(
-                            conta.juros_aplicado
-                        ) === 1 ||
-                        conta.juros_aplicado === true ||
-                        Number(
-                            conta.valor_final
-                        ) >
-                        Number(
-                            conta.valor_original
-                        )
-                    )
+                conta => !temJurosAplicado(conta)
             );
 
         const comJuros =
             contasAtuais.filter(
-                conta =>
-                    Number(
-                        conta.juros_aplicado
-                    ) === 1 ||
-                    conta.juros_aplicado === true
+                conta => temJurosAplicado(conta)
             );
 
         tbodySemJuros.innerHTML =
@@ -2314,10 +2717,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         </td>
                     </tr>
                 `;
-
-        renderResumoJurosPorCliente(
-            comJuros
-        );
     }
 
     async function carregarContasFiado() {
@@ -2391,7 +2790,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             document
                 .querySelectorAll(
-                    "#tbodySemJuros tr, #tbodyComJuros tr, #tbodyJurosCliente tr"
+                    "#tbodySemJuros tr, #tbodyComJuros tr"
                 )
                 .forEach(
                     linha => {
@@ -2476,6 +2875,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             limparModalJuros();
 
+            modalSimularJuros.classList.remove("modal-cliente-direto");
             document.body.classList.add("modal-conta-juros-aberto");
             modalSimularJuros.showModal();
 
@@ -2497,6 +2897,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         limparModalJuros();
+        modalSimularJuros.classList.remove("modal-cliente-direto");
     }
 
     btnFecharSimulacaoJuros?.addEventListener(
@@ -2559,6 +2960,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             clientesJuros = clientes
                 .filter(cliente =>
+                    !Number(cliente.bloqueado || 0) &&
                     idsComContasPendentes.has(
                         Number(cliente.id_cliente)
                     )
@@ -2823,8 +3225,39 @@ document.addEventListener("DOMContentLoaded", () => {
         indiceClienteJuros =
             -1;
 
+        atualizarBotaoBloqueioClienteJuros();
         carregarContasClienteJuros();
     }
+
+    function atualizarBotaoBloqueioClienteJuros() {
+        if (!btnBloquearClienteJuros) return;
+        const bloqueado = !!Number(clienteSelecionadoJuros?.bloqueado || 0);
+        btnBloquearClienteJuros.textContent = bloqueado ? "Desbloquear cliente" : "Bloquear cliente";
+        btnBloquearClienteJuros.style.display = clienteSelecionadoJuros ? "inline-block" : "none";
+        if (statusBloqueioClienteJuros) statusBloqueioClienteJuros.style.display = bloqueado ? "inline-flex" : "none";
+    }
+
+    btnBloquearClienteJuros?.addEventListener("click", async () => {
+        if (!clienteSelecionadoJuros) { exibirAviso("Selecione um cliente primeiro."); return; }
+        const novoBloqueio = !Number(clienteSelecionadoJuros.bloqueado || 0);
+        try {
+            const res = await apiFetch(`/clientes-fiado/${Number(clienteSelecionadoJuros.id_cliente)}/bloqueio`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ bloqueado: novoBloqueio })
+            });
+            const dados = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(dados.erro || "Não foi possível alterar o bloqueio do cliente.");
+            clienteSelecionadoJuros.bloqueado = novoBloqueio ? 1 : 0;
+            atualizarBotaoBloqueioClienteJuros();
+            if (novoBloqueio) listaContasJuros.innerHTML = `<div class="juros_vazio">Cliente bloqueado para a simulação de juros.</div>`;
+            else await carregarContasClienteJuros();
+            exibirAviso(novoBloqueio ? "Cliente bloqueado para a simulação de juros." : "Cliente desbloqueado.");
+        } catch (erro) {
+            console.error("Erro ao alterar bloqueio do cliente:", erro);
+            exibirAviso(erro.message || "Erro ao alterar o bloqueio do cliente.");
+        }
+    });
 
     async function carregarContasClienteJuros() {
 
@@ -2936,254 +3369,115 @@ document.addEventListener("DOMContentLoaded", () => {
 ====================================================== */
 
 function renderContasParaJuros() {
-
     listaContasJuros.innerHTML = "";
 
-    if (
-        !Array.isArray(contasClienteJuros) ||
-        contasClienteJuros.length === 0
-    ) {
-        listaContasJuros.innerHTML = `
-            <div class="juros_vazio">
-                Este cliente não possui produtos pendentes.
-            </div>
-        `;
+    if (!Array.isArray(contasClienteJuros) || contasClienteJuros.length === 0) {
+        listaContasJuros.innerHTML = `<div class="juros_vazio">Este cliente não possui produtos pendentes.</div>`;
         return;
     }
 
+    let encontrouProdutoPendente = false;
+
     contasClienteJuros.forEach(conta => {
+        const idConta = Number(conta.id_conta);
+        const produtos = normalizarProdutosConta(conta).filter(produto => {
+            return String(produto.statusPagamento || "Pendente").trim().toLowerCase() !== "pago";
+        });
 
-        const idConta =
-            Number(conta.id_conta);
+        // Produtos já concluídos/pagos não aparecem no modal.
+        if (!produtos.length) return;
+        encontrouProdutoPendente = true;
 
-        const produtos =
-            normalizarProdutosConta(conta);
+        const bloco = document.createElement("div");
+        const diasAtraso = Number(conta.dias_atraso ?? calcularDiasAtraso(conta.data_vencimento));
+        bloco.className = `conta_juros_item ${diasAtraso > 0 ? "conta-modal-atrasada" : ""}`;
+        bloco.dataset.idConta = idConta;
 
-        if (!produtos.length) {
-            return;
-        }
-
-        const bloco =
-            document.createElement("div");
-
-        bloco.className =
-            "conta_juros_item";
-
-        bloco.dataset.idConta =
-            idConta;
-
-        const vencimento =
-            formatarData(
-                conta.data_vencimento
-            );
+        const vencimento = formatarData(conta.data_vencimento);
+        const totalConta = produtos.reduce((total, produto) => total + Number(produto.valorAtual || produto.valorBase || 0), 0);
 
         bloco.innerHTML = `
             <div class="conta_juros_titulo">
-                <strong>
-                    Compra #${idConta}
-                </strong>
+                <div>
+                    <strong>Conta #${idConta}</strong>
+                    ${diasAtraso > 0 ? `<span class="badge-atrasado-modal">ATRASADO</span>` : ""}
+                </div>
+                <div class="conta-juros-acoes">
+                    <span class="compra-vencimento">Vencimento: ${vencimento}${diasAtraso > 0 ? ` — ${diasAtraso} ${diasAtraso === 1 ? "dia" : "dias"}` : ""}</span>
+                </div>
+            </div>
 
-                <span class="compra-vencimento">
-                    Vencimento: ${vencimento}
-                </span>
+            <div class="conta-valor-resumo">
+                Total pendente: <strong>R$ ${formatarMoeda(totalConta)}</strong>
             </div>
 
             <div class="conta_juros_produtos_lista">
-
                 ${produtos.map(produto => {
+                    const idProduto = Number(produto.idProduto);
+                    const dias = Math.max(0, calcularDiasAtraso(produto.dataVencimento || conta.data_vencimento));
+                    const valor = valueRound(Number(produto.valorBase || 0));
+                    const jaAplicado = produto.jurosAtivo;
+                    const chave = `${idConta}-${idProduto}`;
+                    const desbloqueado = jaAplicado && produtosDesbloqueadosJuros.has(chave);
+                    const checkboxBloqueado = jaAplicado && !desbloqueado;
 
-                    const idProduto =
-                        Number(produto.idProduto);
-
-                    const dias =
-                        Math.max(
-                            0,
-                            calcularDiasAtraso(
-                                produto.dataVencimento ||
-                                conta.data_vencimento
-                            )
-                        );
-
-                    const valor =
-                        valueRound(
-                            Number(
-                                produto.valorBase || 0
-                            )
-                        );
-
-                    const jaAplicado =
-                        produto.jurosAtivo;
-
-                    /*
-                        Produtos sem id não podem ser
-                        enviados para aplicação.
-                    */
                     if (!idProduto) {
-                        return `
-                            <div class="juros-produto-linha juros-produto-invalido">
-                                <div></div>
-
-                                <div class="juros-produto-nome">
-                                    <strong>
-                                        ${escaparHTML(
-                                            produto.nome
-                                        )}
-                                    </strong>
-                                </div>
-
-                                <div class="juros-produto-valor">
-                                    <span>Valor</span>
-                                    <strong>
-                                        R$ ${formatarMoeda(valor)}
-                                    </strong>
-                                </div>
-
-                                <div class="juros-produto-vencimento">
-                                    <span>Vencimento</span>
-                                    <strong>
-                                        ${formatarData(
-                                            produto.dataVencimento ||
-                                            conta.data_vencimento
-                                        )}
-                                    </strong>
-                                </div>
-
-                                <div class="juros-produto-dias">
-                                    <span>Dias</span>
-                                    <strong>${dias}</strong>
-                                </div>
-
-                                <div class="juros-produto-resultado">
-                                    <span>Juros</span>
-                                    <strong>—</strong>
-                                </div>
-                            </div>
-                        `;
+                        return `<div class="juros-produto-linha juros-produto-invalido"><div></div><div class="juros-produto-nome"><strong>${escaparHTML(produto.nome)}</strong></div><div class="juros-produto-valor"><span>Original</span><strong>R$ ${formatarMoeda(valor)}</strong></div><div class="juros-produto-vencimento"><span>Vencimento</span><strong>${formatarData(produto.dataVencimento || conta.data_vencimento)}</strong></div><div class="juros-produto-dias"><span>Dias</span><strong>${dias}</strong></div><div class="juros-produto-resultado"><span>Juros</span><strong>—</strong></div></div>`;
                     }
 
-                    return `
-                        <div
-                            class="juros-produto-linha ${
-                                jaAplicado
-                                    ? "juros-produto-ja-aplicado"
-                                    : ""
-                            }"
-                            data-id-conta="${idConta}"
-                            data-id-produto="${idProduto}"
-                        >
-
-                            <div class="juros-produto-selecao">
-
-                                <input
-                                    type="checkbox"
-                                    class="checkbox-produto-juros"
-                                    data-id-conta="${idConta}"
-                                    data-id-produto="${idProduto}"
-                                    ${jaAplicado ? "disabled" : ""}
-                                >
-
-                            </div>
-
-                            <div class="juros-produto-nome">
-
-                                <strong>
-                                    ${escaparHTML(
-                                        produto.nome
-                                    )}
-                                </strong>
-
-                                ${
-                                    Number(
-                                        produto.quantidade || 0
-                                    ) > 0
-                                        ? `
-                                            <span>
-                                                ×${produto.quantidade}
-                                            </span>
-                                          `
-                                        : ""
-                                }
-
-                            </div>
-
-                            <div class="juros-produto-valor">
-
-                                <span>Valor</span>
-
-                                <strong>
-                                    R$ ${formatarMoeda(valor)}
-                                </strong>
-
-                            </div>
-
-                            <div class="juros-produto-vencimento">
-
-                                <span>Vencimento</span>
-
-                                <strong>
-                                    ${formatarData(
-                                        produto.dataVencimento ||
-                                        conta.data_vencimento
-                                    )}
-                                </strong>
-
-                            </div>
-
-                            <div class="juros-produto-dias">
-
-                                <span>Dias</span>
-
-                                <strong>
-                                    ${dias}
-                                </strong>
-
-                            </div>
-
-                            <div class="juros-produto-resultado">
-
-                                <span>Juros</span>
-
-                                <strong
-                                    class="valor-juros-produto"
-                                    data-id-conta="${idConta}"
-                                    data-id-produto="${idProduto}"
-                                >
-                                    —
-                                </strong>
-
-                            </div>
-
+                    return `<div class="juros-produto-linha ${jaAplicado ? "juros-produto-ja-aplicado" : ""} ${desbloqueado ? "juros-produto-desbloqueado" : ""}" data-id-conta="${idConta}" data-id-produto="${idProduto}">
+                        <div class="juros-produto-selecao">
+                            <input type="checkbox" class="checkbox-produto-juros" data-id-conta="${idConta}" data-id-produto="${idProduto}" ${checkboxBloqueado ? "disabled" : ""}>
                         </div>
-                    `;
+                        <div class="juros-produto-nome">
+                            <strong>${escaparHTML(produto.nome)}</strong>
+                            ${Number(produto.quantidade || 0) > 0 ? `<span>×${produto.quantidade}</span>` : ""}
+                            ${jaAplicado ? `<button type="button" class="btn-desbloquear-juros" data-id-conta="${idConta}" data-id-produto="${idProduto}">${desbloqueado ? "Bloquear" : "Desbloquear"}</button>` : ""}
+                        </div>
+                        <div class="juros-produto-valor"><span>Original</span><strong>R$ ${formatarMoeda(valor)}</strong></div>
+                        <div class="juros-produto-vencimento"><span>Vencimento</span><strong>${formatarData(produto.dataVencimento || conta.data_vencimento)}</strong></div>
+                        <div class="juros-produto-dias"><span>Dias</span><strong>${dias}</strong></div>
+                        <div class="juros-produto-resultado">
+                            <span>Juros</span>
+                            <strong class="valor-juros-produto" data-id-conta="${idConta}" data-id-produto="${idProduto}">${jaAplicado ? `R$ ${formatarMoeda(Math.max(0, Number(produto.valorAtual || 0) - valor))}` : "—"}</strong>
+                            ${jaAplicado ? `<span>Total atual</span><strong>R$ ${formatarMoeda(Number(produto.valorAtual || valor))}</strong>` : ""}
+                        </div>
+                    </div>`;
                 }).join("")}
+            </div>`;
 
-            </div>
-        `;
-
-        listaContasJuros.appendChild(
-            bloco
-        );
+        listaContasJuros.appendChild(bloco);
     });
 
-    /*
-        Seleção de produto invalida a simulação anterior.
-    */
+    if (!encontrouProdutoPendente) {
+        listaContasJuros.innerHTML = `<div class="juros_vazio">Este cliente não possui produtos pendentes.</div>`;
+        return;
+    }
 
-    listaContasJuros
-        .querySelectorAll(
-            ".checkbox-produto-juros"
-        )
-        .forEach(checkbox => {
-
-            checkbox.addEventListener(
-                "change",
-                () => {
-                    limparResultadoSimulacao();
-                }
-            );
-        });
+    listaContasJuros.querySelectorAll(".checkbox-produto-juros").forEach(checkbox => {
+        checkbox.addEventListener("change", () => limparResultadoSimulacao());
+    });
 }
 
+
+/* ======================================================
+   CONCLUIR SOMENTE OS PRODUTOS SELECIONADOS DA CONTA
+====================================================== */
+listaContasJuros?.addEventListener("click", event => {
+    const desbloquear = event.target.closest(".btn-desbloquear-juros");
+    if (desbloquear) {
+        const chave = `${Number(desbloquear.dataset.idConta)}-${Number(desbloquear.dataset.idProduto)}`;
+        if (produtosDesbloqueadosJuros.has(chave)) {
+            produtosDesbloqueadosJuros.delete(chave);
+        } else {
+            produtosDesbloqueadosJuros.add(chave);
+        }
+        limparResultadoSimulacao();
+        renderContasParaJuros();
+        return;
+    }
+
+});
 
 function obterProdutosSelecionadosJuros() {
 
@@ -3232,6 +3526,13 @@ function obterProdutosSelecionadosJuros() {
                     );
 
                 if (!produto) {
+                    return;
+                }
+
+                if (produto.jurosAtivo) {
+                    const checkboxAtual = checkbox;
+                    checkboxAtual.checked = false;
+                    checkboxAtual.disabled = true;
                     return;
                 }
 
@@ -3595,9 +3896,18 @@ function limparResultadoSimulacao() {
         )
         .forEach(
             elemento => {
+                const idConta = Number(elemento.dataset.idConta || 0);
+                const idProduto = Number(elemento.dataset.idProduto || 0);
+                const conta = contasClienteJuros.find(c => Number(c.id_conta) === idConta);
+                const produto = conta ? normalizarProdutosConta(conta).find(p => Number(p.idProduto) === idProduto) : null;
 
-                elemento.innerText =
-                    "—";
+                if (produto && produto.jurosAtivo) {
+                    const valorBase = Number(produto.valorBase || 0);
+                    const valorAtual = Number(produto.valorAtual || valorBase);
+                    elemento.innerText = `R$ ${formatarMoeda(Math.max(0, valorAtual - valorBase))}`;
+                } else {
+                    elemento.innerText = "—";
+                }
             }
         );
 
@@ -3614,9 +3924,22 @@ function limparResultadoSimulacao() {
         )
         .forEach(
             elemento => {
+                // Se o elemento também representa um produto já com juros,
+                // não apaga o valor existente ao trocar a seleção.
+                const chave = String(elemento.dataset.jurosProduto || "");
+                const partes = chave.split("-");
+                const idConta = Number(partes[0] || 0);
+                const idProduto = Number(partes[1] || 0);
+                const conta = contasClienteJuros.find(c => Number(c.id_conta) === idConta);
+                const produto = conta ? normalizarProdutosConta(conta).find(p => Number(p.idProduto) === idProduto) : null;
 
-                elemento.innerText =
-                    "—";
+                if (produto && produto.jurosAtivo) {
+                    const valorBase = Number(produto.valorBase || 0);
+                    const valorAtual = Number(produto.valorAtual || valorBase);
+                    elemento.innerText = `R$ ${formatarMoeda(Math.max(0, valorAtual - valorBase))}`;
+                } else {
+                    elemento.innerText = "—";
+                }
             }
         );
 }
@@ -3761,7 +4084,12 @@ btnSimularJuros?.addEventListener(
                         resultado.juros,
 
                     valor_simulado:
-                        resultado.valorFinal
+                        resultado.valorFinal,
+
+                    reaplicar: Boolean(
+                        item.produto.jurosAtivo &&
+                        produtosDesbloqueadosJuros.has(`${item.id_conta}-${item.id_produto}`)
+                    )
                 });
 
 
@@ -4006,14 +4334,16 @@ async function executarAplicacaoDeJuros() {
                             cliente:
                                 simulacaoJurosAtual.cliente,
 
-                            tipo_juros:
+                            tipo:
                                 simulacaoJurosAtual.tipo,
 
-                            taxa_juros:
+                            percentual:
                                 simulacaoJurosAtual.percentual,
 
                             itens:
-                                simulacaoJurosAtual.itens
+                                simulacaoJurosAtual.itens,
+
+                            reaplicar: simulacaoJurosAtual.itens.some(item => item.reaplicar === true)
                         })
                 }
             );
@@ -4144,640 +4474,135 @@ async function executarAplicacaoDeJuros() {
     }
 }
     /* ======================================================
-       TABELA AGRUPADA POR CLIENTE
+       ACOMPANHAMENTO DE CRÉDITO PARCELADO
+
+       As parcelas NÃO são concluídas manualmente.
+       O backend verifica a data de vencimento de cada parcela
+       e conclui automaticamente quando ela chega.
     ====================================================== */
 
-    function renderResumoJurosPorCliente(contasComJuros) {
-        const grupos = new Map();
-        contasComJuros.forEach(conta => {
-            const id = Number(conta.id_cliente);
-            if (!grupos.has(id)) grupos.set(id,{nome:conta.nome_completo || "-",produtos:new Map(),original:0,juros:0,total:0,taxas:new Set(),tipos:new Set()});
-            const g=grupos.get(id);
-            const original=Number(conta.valor_original ?? conta.valor ?? 0);
-            const atual=calcularJurosAtualConta(conta);
-            g.original+=original; g.juros+=atual.juros; g.total+=atual.total;
-            normalizarProdutosConta(conta).forEach(p=>{const q=Number(p.quantidade||0);g.produtos.set(p.nome,(g.produtos.get(p.nome)||0)+q);if(p.jurosAtivo && p.taxa>0){g.taxas.add(p.taxa);if(p.tipo)g.tipos.add(p.tipo);}});
-            const cfg=jurosConfigPorConta[String(conta.id_conta)];
-            if(cfg){if(Number.isFinite(Number(cfg.percentual)))g.taxas.add(Number(cfg.percentual));if(cfg.tipo)g.tipos.add(cfg.tipo);}
-            if(Number(conta.taxa_juros)>0)g.taxas.add(Number(conta.taxa_juros));
-            if(conta.tipo_juros)g.tipos.add(String(conta.tipo_juros));
-        });
-        tbodyJurosCliente.innerHTML="";
-        if(!grupos.size){tbodyJurosCliente.innerHTML='<tr><td colspan="7">Nenhum cliente possui juros aplicados.</td></tr>';return;}
-        grupos.forEach(g=>{
-            const taxas=[...g.taxas].filter(Number.isFinite); const tipos=[...g.tipos].filter(Boolean);
-            const percentual=taxas.length===1?`${formatarNumero(taxas[0])}%`:(taxas.length?"Variável":"-");
-            const tipo=tipos.length===1?(tipos[0]==="dia"?"Ao dia":"Ao mês"):(tipos.length?"Variável":"-");
-            const produtos=[...g.produtos.entries()].map(([n,q])=>q>0?`${n} ×${q}`:n).join(", ");
-            const tr=document.createElement('tr');
-            tr.innerHTML=`<td>${escaparHTML(g.nome)}</td><td><div class="produtos-resumo">${escaparHTML(produtos || "-")}</div></td><td>R$ ${formatarMoeda(g.original)}</td><td class="valor-juros">R$ ${formatarMoeda(g.juros)}</td><td><strong class="valor-total-juros">R$ ${formatarMoeda(g.total)}</strong></td><td>${escaparHTML(percentual)}</td><td>${escaparHTML(tipo)}</td>`;
-            tbodyJurosCliente.appendChild(tr);
-        });
+    function escaparHtmlParcela(valor) {
+        return String(valor ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 
-    function formatarNumero(
-        valor
-    ) {
+    function formatarDataParcela(valor) {
+        if (!valor) return "-";
+        const texto = String(valor).slice(0, 10);
+        const partes = texto.split("-");
+        if (partes.length === 3) return `${partes[2]}/${partes[1]}/${partes[0]}`;
+        return formatarData(valor);
+    }
 
-        return Number(
-            valor || 0
-        ).toLocaleString(
-            "pt-BR",
-            {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 2
+    function obterStatusParcela(parcela) {
+        return String(parcela?.status || "Pendente").trim().toLowerCase();
+    }
+
+    async function carregarComprasParceladas(mostrarNotificacao = true) {
+        if (!listaComprasParceladas) return;
+
+        try {
+            const res = await apiFetch("/contas-fiado/parceladas");
+
+            if (res.status === 401 || res.status === 403) {
+                tratarSessaoExpirada();
+                return;
             }
-        );
-    }
 
-    /* ======================================================
-       CONCLUSÃO / PAGAMENTO
-    ====================================================== */
+            const dados = await res.json();
+            if (!res.ok) {
+                throw new Error(dados.erro || "Erro ao carregar compras parceladas.");
+            }
 
-    function obterContasParaConcluir() {
-        const produtos = obterProdutosSelecionadosJuros();
-        const ids = [...new Set(produtos.map(item => item.id_conta))];
-        return contasClienteJuros.filter(conta => ids.includes(Number(conta.id_conta)));
-    }
+            const compras = Array.isArray(dados)
+                ? dados
+                : (Array.isArray(dados.compras) ? dados.compras : []);
 
-    function calcularValorAtualProdutoParaPagamento(item) {
-        const produto = item.produto;
+            comprasParceladasCache = compras;
 
-        const base = Number(
-            produto.valorBase ??
-            ((produto.quantidade || 0) * (produto.valorUnitario || 0))
-        );
+            // As parcelas são atualizadas automaticamente pelo backend.
+            // Não exibimos mais um aviso dizendo que elas precisam ser concluídas manualmente.
+            if (notificacaoParcelasConcluidas) {
+                notificacaoParcelasConcluidas.innerHTML = "";
+            }
 
-        if (produto.jurosAtivo && Number(produto.valorAtual) > 0) {
-            return valueRound(Number(produto.valorAtual));
+            renderComprasParceladas();
+        } catch (erro) {
+            console.error("Erro ao carregar compras parceladas:", erro);
+            listaComprasParceladas.innerHTML = `<div class="credito-vazio">Erro ao carregar as compras parceladas.</div>`;
         }
-
-        return valueRound(base);
     }
 
-    function calcularTotalProdutosSelecionados(produtos) {
-        return valueRound(produtos.reduce((total, item) => {
-            const simulacao = simulacaoJurosAtual?.itens?.find(
-                x => Number(x.id_conta) === item.id_conta && Number(x.id_produto) === item.id_produto
-            );
-            if (simulacao) return total + Number(simulacao.valor_simulado || 0);
-            return total + calcularValorAtualProdutoParaPagamento(item);
-        }, 0));
-    }
+    function renderComprasParceladas() {
+        if (!listaComprasParceladas) return;
 
-    function abrirModalConclusao(produtos) {
-        if (!Array.isArray(produtos) || produtos.length === 0) {
-            exibirAviso("Selecione pelo menos um produto.");
+        if (!comprasParceladasCache.length) {
+            listaComprasParceladas.innerHTML = `<div class="credito-vazio">Nenhuma compra parcelada em andamento.</div>`;
             return;
         }
 
-        produtosParaConcluir = produtos;
-        contasParaConcluir = obterContasParaConcluir();
-        contaParaConcluir = contasParaConcluir.length === 1 ? contasParaConcluir[0] : null;
+        listaComprasParceladas.innerHTML = comprasParceladasCache.map(compra => {
+            const parcelas = Array.isArray(compra.parcelas) ? compra.parcelas : [];
+            const totalParcelas = Number(compra.total_parcelas || parcelas.length || 0);
+            const pagas = parcelas.filter(p => obterStatusParcela(p) === "pago").length;
+            const valor = Number(compra.valor_total || 0);
+            const valorCredito = Number(compra.valor_credito || valor || 0);
+            const valorParcela = Number(compra.valor_parcela || parcelas[0]?.valor || 0);
+            const proxima = parcelas.find(p => obterStatusParcela(p) !== "pago");
+            const progresso = `${pagas}/${totalParcelas}`;
 
-        const total = calcularTotalProdutosSelecionados(produtos);
+            return `
+                <article class="credito-card">
+                    <div class="credito-card-topo">
+                        <div>
+                            <h3>${escaparHtmlParcela(compra.nome_completo || compra.nome || "Compra")}</h3>
+                            <div class="credito-meta">
+                                <span>Pedido: <strong>#${escaparHtmlParcela(compra.num_pedido || compra.id_pedido || "-")}</strong></span>
+                                <span>Origem: <strong>${escaparHtmlParcela(compra.origem || "PDV")}</strong></span>
+                                <span>Compra: ${formatarDataParcela(compra.data_compra || compra.data)}</span>
+                                <span>Total da compra: <strong>R$ ${formatarMoeda(valor)}</strong></span>
+                                <span>No crédito: <strong>R$ ${formatarMoeda(valorCredito)}</strong></span>
+                                <span>Parcelamento: <strong>${totalParcelas}x de R$ ${formatarMoeda(valorParcela)}</strong></span>
+                            </div>
+                        </div>
+                        <div class="credito-progresso">${progresso} parcelas concluídas</div>
+                    </div>
 
-        dataConclusao.value = obterDataHojeInput();
-        formaConclusao.value = "";
-        pagamentoTemporario = {
-            forma: "",
-            parcelas: null,
-            valorParcela: null,
-            confirmado: false
-        };
+                    ${proxima ? `
+                        <div class="credito-proxima">
+                            Próxima parcela: <strong>${Number(proxima.numero_parcela)}/${totalParcelas}</strong> — vencimento em <strong>${formatarDataParcela(proxima.data_vencimento)}</strong>.
+                        </div>
+                    ` : ""}
 
-        document.getElementById("infoConclusaoFiado").innerHTML = `
-            ${produtos.length}
-            ${produtos.length === 1 ? "produto selecionado" : "produtos selecionados"}.
-            <br><br>
-            Valor total para pagamento:
-            <strong>R$ ${formatarMoeda(total)}</strong>
-        `;
-
-        modalConclusao.showModal();
+                    <div class="credito-parcelas">
+                        ${parcelas.map(parcela => {
+                            const paga = obterStatusParcela(parcela) === "pago";
+                            return `
+                                <div class="credito-parcela ${paga ? "paga" : ""}">
+                                    <strong>${Number(parcela.numero_parcela)}/${totalParcelas} — R$ ${formatarMoeda(Number(parcela.valor || 0))}</strong>
+                                    <small>Data: ${formatarDataParcela(parcela.data_vencimento)}</small>
+                                    <small>${paga ? (Number(parcela.numero_parcela) === 1 ? "Paga no momento da compra" : `Paga automaticamente em ${formatarDataParcela(parcela.data_pagamento)}`) : "Pendente — será paga na data de vencimento"}</small>
+                                </div>`;
+                        }).join("")}
+                    </div>
+                </article>`;
+        }).join("");
     }
 
-    btnConcluirSelecionados?.addEventListener(
-        "click",
-        () => {
-            if (!clienteSelecionadoJuros) {
-                exibirAviso("Selecione um cliente.");
-                return;
-            }
-
-            const produtos = obterProdutosSelecionadosJuros();
-
-            if (!produtos.length) {
-                exibirAviso("Selecione pelo menos um produto.");
-                return;
-            }
-
-            if (modalSimularJuros.open) {
-                modalSimularJuros.close();
-            }
-
-            abrirModalConclusao(produtos);
-        }
-    );
-
-    function fecharConclusao() {
-
-        if (
-            modalConclusao.open
-        ) {
-            modalConclusao.close();
-        }
-
-        contasParaConcluir =
-            [];
-
-        produtosParaConcluir =
-            [];
-
-        contaParaConcluir =
-            null;
-
-        pagamentoTemporario = {
-            forma: "",
-            parcelas: null,
-            valorParcela: null,
-            confirmado: false
-        };
-    }
-
-    btnFecharConclusao?.addEventListener(
-        "click",
-        fecharConclusao
-    );
-
-    btnCancelarConclusao?.addEventListener(
-        "click",
-        fecharConclusao
-    );
-
-    /* ======================================================
-       MODAL DINHEIRO — MESMO FLUXO DO PDV
-    ====================================================== */
-
-    function abrirModalDinheiro(
-        total
-    ) {
-
-        lblDinheiroTotal.innerText =
-            `R$ ${formatarMoeda(total)}`;
-
-        inpValorPago.value =
-            "";
-
-        lblTroco.innerText =
-            "R$ 0,00";
-
-        modalDinheiro.showModal();
-
-        setTimeout(
-            () =>
-                inpValorPago.focus(),
-            100
-        );
-    }
-
-    btnFecharDinheiro?.addEventListener(
-        "click",
-        () => {
-            modalDinheiro.close();
-        }
-    );
-
-    modalDinheiro?.addEventListener(
-        "cancel",
-        event => {
-            event.preventDefault();
-            modalDinheiro.close();
-        }
-    );
-
-    inpValorPago?.addEventListener(
-        "input",
-        () => {
-
-            const total =
-                calcularTotalProdutosSelecionados(
-                    produtosParaConcluir
-                );
-
-            const valor =
-                Number(
-                    String(
-                        inpValorPago.value
-                    ).replace(
-                        ",",
-                        "."
-                    )
-                ) || 0;
-
-            lblTroco.innerText =
-                `R$ ${formatarMoeda(
-                    Math.max(
-                        0,
-                        valor - total
-                    )
-                )}`;
-        }
-    );
-
-    btnConfirmarDinheiro?.addEventListener(
-        "click",
-        () => {
-
-            const total =
-                calcularTotalProdutosSelecionados(
-                    produtosParaConcluir
-                );
-
-            const valor =
-                Number(
-                    String(
-                        inpValorPago.value
-                    ).replace(
-                        ",",
-                        "."
-                    )
-                ) || 0;
-
-            if (
-                valor < total
-            ) {
-                exibirAviso(
-                    "O valor recebido é menor que o total."
-                );
-                return;
-            }
-
-            pagamentoTemporario = {
-                forma:
-                    "Dinheiro",
-
-                parcelas:
-                    null,
-
-                valorParcela:
-                    null,
-
-                confirmado:
-                    true
-            };
-
-            formaConclusao.value =
-                "Dinheiro";
-
-            modalDinheiro.close();
-
-            modalConclusao.showModal();
-        }
-    );
-
-    /* ======================================================
-       MODAL CRÉDITO — MESMO FLUXO DO PDV
-    ====================================================== */
-
-    function atualizarParcelamentoCredito() {
-
-        const total =
-            calcularTotalProdutosSelecionados(
-                produtosParaConcluir
-            );
-
-        lblCreditoTotal.innerText =
-            `R$ ${formatarMoeda(total)}`;
-
-        const parcelas =
-            Number(
-                selParcelasCredito.value
-            );
-
-        if (
-            !Number.isInteger(
-                parcelas
-            ) ||
-            parcelas <= 0
-        ) {
-
-            pagamentoTemporario.parcelas =
-                null;
-
-            pagamentoTemporario.valorParcela =
-                null;
-
-            lblValorParcela.innerText =
-                "Selecione as parcelas";
-
-            return;
-        }
-
-        const valorParcela =
-            valueRound(
-                total /
-                parcelas
-            );
-
-        pagamentoTemporario.parcelas =
-            parcelas;
-
-        pagamentoTemporario.valorParcela =
-            valorParcela;
-
-        lblValorParcela.innerText =
-            `R$ ${formatarMoeda(
-                valorParcela
-            )}`;
-    }
-
-    function abrirModalCredito(
-        total
-    ) {
-
-        lblCreditoTotal.innerText =
-            `R$ ${formatarMoeda(total)}`;
-
-        selParcelasCredito.value =
-            "";
-
-        pagamentoTemporario.parcelas =
-            null;
-
-        pagamentoTemporario.valorParcela =
-            null;
-
-        pagamentoTemporario.confirmado =
-            false;
-
-        lblValorParcela.innerText =
-            "Selecione as parcelas";
-
-        modalCredito.showModal();
-    }
-
-    selParcelasCredito?.addEventListener(
-        "change",
-        atualizarParcelamentoCredito
-    );
-
-    btnFecharCredito?.addEventListener(
-        "click",
-        () => {
-            modalCredito.close();
-        }
-    );
-
-    modalCredito?.addEventListener(
-        "cancel",
-        event => {
-            event.preventDefault();
-            modalCredito.close();
-        }
-    );
-
-    btnConfirmarCredito?.addEventListener(
-        "click",
-        () => {
-
-            if (
-                !pagamentoTemporario.parcelas
-            ) {
-                exibirAviso(
-                    "Selecione a quantidade de parcelas."
-                );
-                return;
-            }
-
-            pagamentoTemporario.forma =
-                "Cartão de Crédito";
-
-            pagamentoTemporario.confirmado =
-                true;
-
-            formaConclusao.value =
-                "Cartão de Crédito";
-
-            modalCredito.close();
-
-            modalConclusao.showModal();
-        }
-    );
-
-    /* ======================================================
-       FORMA DE PAGAMENTO
-    ====================================================== */
-
-    formaConclusao?.addEventListener(
-        "change",
-        () => {
-
-            const forma =
-                formaConclusao.value;
-
-            if (
-                !forma
-            ) {
-                return;
-            }
-
-            const total =
-                calcularTotalProdutosSelecionados(
-                    produtosParaConcluir
-                );
-
-            if (
-                forma ===
-                "Dinheiro"
-            ) {
-
-                pagamentoTemporario.forma =
-                    "Dinheiro";
-
-                pagamentoTemporario.confirmado =
-                    false;
-
-                abrirModalDinheiro(
-                    total
-                );
-
-                return;
-            }
-
-            if (
-                forma ===
-                "Cartão de Crédito"
-            ) {
-
-                pagamentoTemporario.forma =
-                    "Cartão de Crédito";
-
-                pagamentoTemporario.confirmado =
-                    false;
-
-                abrirModalCredito(
-                    total
-                );
-
-                return;
-            }
-
-            if (
-                forma === "Pix" ||
-                forma ===
-                    "Cartão de Débito"
-            ) {
-
-                pagamentoTemporario = {
-                    forma,
-                    parcelas: null,
-                    valorParcela: null,
-                    confirmado: true
-                };
-            }
-        }
-    );
-
-    /* ======================================================
-       CONFIRMAR CONCLUSÃO
-    ====================================================== */
-
-    btnConfirmarConclusao?.addEventListener(
-        "click",
-        async () => {
-
-            const data =
-                dataConclusao.value;
-
-            const forma =
-                formaConclusao.value;
-
-            if (!data) {
-                exibirAviso(
-                    "Informe a data do pagamento."
-                );
-                return;
-            }
-
-            if (!forma) {
-                exibirAviso(
-                    "Selecione a forma de pagamento."
-                );
-                return;
-            }
-
-            if (
-                (
-                    forma === "Dinheiro" ||
-                    forma ===
-                        "Cartão de Crédito"
-                ) &&
-                !pagamentoTemporario.confirmado
-            ) {
-
-                exibirAviso(
-                    "Conclua o controle do pagamento antes de confirmar."
-                );
-
-                return;
-            }
-
-            if (
-                forma ===
-                    "Cartão de Crédito" &&
-                !pagamentoTemporario.parcelas
-            ) {
-
-                exibirAviso(
-                    "Selecione a quantidade de parcelas."
-                );
-
-                return;
-            }
-
-            if (
-                !Array.isArray(produtosParaConcluir) ||
-                produtosParaConcluir.length === 0
-            ) {
-                exibirAviso("Nenhum produto selecionado.");
-                return;
-            }
-
-            try {
-                for (const selecionado of produtosParaConcluir) {
-                    const idConta = Number(selecionado.id_conta);
-                    const idProduto = Number(selecionado.id_produto);
-
-                    const corpo = {
-                        data_pagamento: data,
-                        forma_pagamento: forma
-                    };
-
-                    if (forma === "Cartão de Crédito") {
-                        corpo.parcelas = pagamentoTemporario.parcelas;
-                        corpo.valor_parcela = pagamentoTemporario.valorParcela;
-                    }
-
-                    const res = await apiFetch(
-                        `/contas-fiado/item/${idConta}/${idProduto}/pagar`,
-                        {
-                            method: "PUT",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(corpo)
-                        }
-                    );
-
-                    if (res.status === 401 || res.status === 403) {
-                        fecharConclusao();
-                        tratarSessaoExpirada();
-                        return;
-                    }
-
-                    const dados = await res.json();
-
-                    if (!res.ok) {
-                        exibirAviso(
-                            dados.erro ||
-                            `Erro ao concluir ${selecionado.produto.nome}.`
-                        );
-                        return;
-                    }
-                }
-
-                const quantidadeConcluida = produtosParaConcluir.length;
-
-                fecharConclusao();
-
-                await carregarContasFiado();
-
-                if (
-                    clienteSelecionadoJuros
-                ) {
-                    await carregarContasClienteJuros();
-                }
-
-                exibirAviso(
-                    quantidadeConcluida === 1
-                        ? "Pagamento registrado com sucesso!"
-                        : "Produtos selecionados foram pagos com sucesso!"
-                );
-
-            } catch (erro) {
-
-                console.error(
-                    "Erro ao finalizar contas:",
-                    erro
-                );
-
-                exibirAviso(
-                    "Erro de conexão ao finalizar o pagamento."
-                );
-            }
-        }
-    );
+    btnComprasParceladas?.addEventListener("click", async () => {
+        modalComprasParceladas.showModal();
+        await carregarComprasParceladas(true);
+    });
+
+    btnFecharComprasParceladas?.addEventListener("click", () => modalComprasParceladas.close());
+    modalComprasParceladas?.addEventListener("cancel", event => {
+        event.preventDefault();
+        modalComprasParceladas.close();
+    });
 
     /* ======================================================
        INICIALIZAÇÃO
@@ -4789,6 +4614,11 @@ async function executarAplicacaoDeJuros() {
         obterDataHojeInput();
 
     if (!obterToken()) {
+        modalProdutos?.close?.();
+        modalFiado?.close?.();
+        modalComprasParceladas?.close?.();
+        modalSimularJuros?.close?.();
+        if (modalConclusao?.open) modalConclusao.close();
         window.location.replace(
             "login.html"
         );
@@ -4796,6 +4626,12 @@ async function executarAplicacaoDeJuros() {
     }
 
     carregarContasFiado();
+    carregarComprasParceladas(true);
+
+    // Mantém o acompanhamento automático enquanto a tela estiver aberta.
+    setInterval(() => {
+        carregarComprasParceladas(true);
+    }, 60000);
 
     // O fundo da página não rola enquanto o modal está aberto.
     modalSimularJuros?.addEventListener("wheel", event => {
@@ -4806,8 +4642,463 @@ async function executarAplicacaoDeJuros() {
 
     modalSimularJuros?.addEventListener("close", () => {
         document.body.classList.remove("modal-conta-juros-aberto");
+        modalSimularJuros.classList.remove("modal-cliente-direto");
     });
 
+    // Pontes usadas pelos scripts externos desta página.
+    window.exibirAviso = exibirAviso;
+    window.tratarSessaoExpirada = tratarSessaoExpirada;
+    window.carregarContasFiado = carregarContasFiado;
+    window.carregarComprasParceladas = carregarComprasParceladas;
+
+    // Abre o modal de juros diretamente ao clicar no nome da conta.
+    window.abrirClienteDiretoNoModal = async function (idCliente) {
+        const cliente =
+            clientesJuros.find(c => Number(c.id_cliente) === Number(idCliente)) ||
+            clientesCache.find(c => Number(c.id_cliente) === Number(idCliente)) ||
+            contasAtuais.find(c => Number(c.id_cliente) === Number(idCliente));
+
+        if (!cliente) {
+            exibirAviso("Não foi possível localizar o cliente.");
+            return;
+        }
+
+        clienteSelecionadoJuros = cliente;
+        buscaClienteJuros.value = cliente.nome_completo || "";
+        clienteJurosSelecionado.innerText = cliente.nome_completo || "---";
+        listaClientesJuros.innerHTML = "";
+        listaClientesJuros.style.display = "none";
+        listaClientesJuros.classList.remove("visivel");
+        modalSimularJuros.classList.add("modal-cliente-direto");
+        atualizarBotaoBloqueioClienteJuros();
+
+        if (!modalSimularJuros.open) {
+            modalSimularJuros.showModal();
+        }
+
+        await carregarContasClienteJuros();
+    };
+
+});
+</script>
+
+
+<script>
+(function(){
+ const modal=document.getElementById('modalDetalhesContaFiado');
+ const conteudo=document.getElementById('detalhesContaConteudo');
+ const titulo=document.getElementById('detalhesContaTitulo');
+ const fechar=document.getElementById('fecharDetalhesContaFiado');
+ const btnConcluir=document.getElementById('btnConcluirDetalhesConta');
+ const btnEditar=document.getElementById('btnEditarJurosDetalhesConta');
+ if(!modal)return;
+ let contaSelecionada=null;
+ function moeda(v){return `R$ ${Number(v||0).toFixed(2).replace('.',',')}`;}
+ function data(v){if(!v)return '-'; const texto=String(v).slice(0,10); const partes=texto.split('-'); return partes.length===3?`${partes[2]}/${partes[1]}/${partes[0]}`:texto;}
+ function dias(v){if(!v)return 0; const d=new Date(String(v).slice(0,10)+'T00:00:00'); const h=new Date(); h.setHours(0,0,0,0); return Math.max(0,Math.floor((h-d)/86400000));}
+ function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+ function obterConta(id){return (window.contasAtuais||[]).find(c=>Number(c.id_conta)===Number(id))||null;}
+ function abrir(id){
+   contaSelecionada=obterConta(id);
+   if(!contaSelecionada){console.warn('Conta fiado não localizada para o modal:',id);return;}
+   const original=Number(contaSelecionada.valor_original??contaSelecionada.valor??0);
+   const final=Number(contaSelecionada.valor_final??contaSelecionada.valor_atual??original);
+   const juros=Math.max(0,final-original);
+   const atraso=Number(contaSelecionada.dias_atraso??dias(contaSelecionada.data_vencimento));
+   const produtos=Array.isArray(contaSelecionada.itens)?contaSelecionada.itens:(Array.isArray(contaSelecionada.produtos)?contaSelecionada.produtos:[]);
+   titulo.textContent=`Detalhes da conta — ${contaSelecionada.nome_completo||contaSelecionada.cliente||'cliente'}`;
+   conteudo.innerHTML=`<div class="detalhes-conta-grid"><div class="detalhe-conta-item"><strong>Valor inicial</strong>${moeda(original)}</div><div class="detalhe-conta-item"><strong>Juros</strong>${moeda(juros)}</div><div class="detalhe-conta-item"><strong>Valor final</strong>${moeda(final)}</div><div class="detalhe-conta-item"><strong>Vencimento</strong>${data(contaSelecionada.data_vencimento)}</div><div class="detalhe-conta-item"><strong>Tempo em atraso</strong>${atraso} ${atraso===1?'dia':'dias'}</div><div class="detalhe-conta-item"><strong>Origem</strong>${esc(contaSelecionada.origem||'-')}</div></div><h3>Produtos</h3><div class="detalhes-conta-produtos">${produtos.length?produtos.map(p=>`<div class="detalhe-produto-conta"><span>${esc(p.nome||p.produto||'Produto')}${Number(p.qtd??p.quantidade??0)>0?` ×${Number(p.qtd??p.quantidade)}`:''}</span><strong>${moeda(p.valor_atual??p.valorAtual??p.valor_base??p.valorBase??0)}</strong></div>`).join(''):'<div class="detalhe-produto-conta"><span>Nenhum produto informado.</span></div>'}</div>`;
+   if(!modal.open)modal.showModal();
+ }
+ window.abrirModalContaPeloNome=abrir;
+ document.addEventListener('click',e=>{
+   const nome=e.target.closest?.('.btn-nome-cliente-fiado');
+   if(nome){e.preventDefault();e.stopPropagation();abrir(Number(nome.dataset.idConta));return;}
+   const tr=e.target.closest?.('tr.linha-conta-clicavel');
+   if(!tr)return;
+   const id=Number(tr.dataset.idConta);
+   const tbody=tr.closest('tbody');
+   if(tbody?.id==='tbodyComJuros')abrir(id);
+   else if(tbody?.id==='tbodySemJuros'){const conta=obterConta(id);if(conta&&typeof window.abrirClienteDiretoNoModal==='function')window.abrirClienteDiretoNoModal(Number(conta.id_cliente));}
+ });
+ document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&document.activeElement?.classList.contains('linha-conta-clicavel')){e.preventDefault();document.activeElement.click();}});
+ fechar?.addEventListener('click',()=>modal.close());
+ modal.addEventListener('click',e=>{if(e.target===modal)modal.close();});
+ btnConcluir?.addEventListener('click',()=>{if(!contaSelecionada)return;modal.close();window.abrirConclusaoContaFiado?.(contaSelecionada);});
+ btnEditar?.addEventListener('click',async()=>{if(!contaSelecionada)return;modal.close();await window.editarJurosContaFiado?.(contaSelecionada);});
+})();
+</script>
+<script>
+/* ======================================================
+   PAGAMENTO DA CONTA FIADO — MESMA EXPERIÊNCIA DO PDV
+   Dinheiro / Crédito / Dividido + parcelamento 1x–12x
+====================================================== */
+document.addEventListener("DOMContentLoaded", () => {
+    const conclusao = document.getElementById("modalConclusaoFiado");
+    const forma = document.getElementById("formaPagamentoFiado");
+    const data = document.getElementById("dataConclusaoFiado");
+    const confirmar = document.getElementById("btnConfirmarConclusao");
+    const cancelar = document.getElementById("btnCancelarConclusao");
+
+    const dinheiro = document.getElementById("dialogDinheiro");
+    const dinheiroTotal = document.getElementById("lbl_dinheiro_total");
+    const dinheiroPago = document.getElementById("inp_valor_pago");
+    const dinheiroTroco = document.getElementById("lbl_troco");
+
+    const credito = document.getElementById("dialogCredito");
+    const creditoTotal = document.getElementById("lbl_credito_total");
+    const creditoParcelas = document.getElementById("sel_parcelas_credito");
+    const creditoValorParcela = document.getElementById("lbl_valor_parcela");
+
+    const dividir = document.getElementById("dialogDividirPagamento");
+    const dividirTotal = document.getElementById("lbl_dividir_total");
+    const dividirPago = document.getElementById("lbl_dividir_pago");
+    const dividirRestante = document.getElementById("lbl_dividir_restante");
+    const dividirMetodo = document.getElementById("sel_metodo_divisao");
+    const dividirValor = document.getElementById("inp_valor_divisao");
+    const listaDivisoes = document.getElementById("lista_divisoes");
+
+    let pagamento = {
+        forma: "",
+        pagamentos: [],
+        valorCredito: 0,
+        parcelasCredito: null,
+        valorParcelaCredito: null,
+        confirmado: false
+    };
+
+    let totalPagamentoAtual = 0;
+    let reabrirDivisaoDepoisDoCredito = false;
+
+    function moeda(v) {
+        return Number(v || 0).toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function produtosConclusao() {
+        if (Array.isArray(window.itensParaConcluirFiado) && window.itensParaConcluirFiado.length) {
+            return window.itensParaConcluirFiado;
+        }
+        if (typeof itensParaConcluirFiado !== "undefined" && Array.isArray(itensParaConcluirFiado) && itensParaConcluirFiado.length) {
+            return itensParaConcluirFiado;
+        }
+        if (typeof contaParaConcluirFiado !== "undefined" && contaParaConcluirFiado) {
+            const entrada = contaParaConcluirFiado.itens || contaParaConcluirFiado.produtos || [];
+            if (Array.isArray(entrada)) return entrada;
+        }
+        return [];
+    }
+
+    function totalConclusao() {
+        const itens = produtosConclusao();
+        if (itens.length) {
+            return Math.round(itens.reduce((s, item) => {
+                const p = item.produto || item;
+                return s + Number(
+                    p.valorAtual ?? p.valor_atual ?? p.valorFinal ?? p.valor_final ??
+                    p.valorBase ?? p.valor_base ??
+                    (Number(p.quantidade ?? p.qtd ?? 0) * Number(p.valorUnitario ?? p.valor_unit ?? p.preco ?? 0))
+                );
+            }, 0) * 100) / 100;
+        }
+        const texto = document.getElementById("infoConclusaoFiado")?.textContent || "";
+        const m = texto.match(/R\$\s*([\d.,]+)/);
+        if (!m) return 0;
+        return Number(m[1].replace(/\./g, "").replace(",", ".")) || 0;
+    }
+
+    function resetarPagamento() {
+        pagamento = {
+            forma: "",
+            pagamentos: [],
+            valorCredito: 0,
+            parcelasCredito: null,
+            valorParcelaCredito: null,
+            confirmado: false
+        };
+        if (forma) forma.value = "";
+    }
+
+    function atualizarResumoDivisao() {
+        const pago = pagamento.pagamentos.reduce((s, p) => s + Number(p.valor || 0), 0);
+        const restante = Math.max(0, totalPagamentoAtual - pago);
+        dividirTotal.textContent = `R$ ${moeda(totalPagamentoAtual)}`;
+        dividirPago.textContent = `R$ ${moeda(pago)}`;
+        dividirRestante.textContent = `R$ ${moeda(restante)}`;
+        listaDivisoes.innerHTML = pagamento.pagamentos.map((p, i) => `
+            <div class="divisao-item">
+                <span>${p.metodo}${p.metodo === "Cartão de Crédito" ? ` — ${Number(p.parcelas || 1)}x` : ""}</span>
+                <strong>R$ ${moeda(p.valor)}</strong>
+                <button type="button" data-remover-divisao="${i}">×</button>
+            </div>
+        `).join("");
+    }
+
+    function abrirDinheiro(total) {
+        totalPagamentoAtual = total;
+        dinheiroTotal.textContent = `R$ ${moeda(total)}`;
+        dinheiroPago.value = "";
+        dinheiroTroco.textContent = "R$ 0,00";
+        dinheiro.showModal();
+        setTimeout(() => dinheiroPago.focus(), 80);
+    }
+
+    function abrirCredito(total, parcial = false, voltarParaDivisao = false) {
+        totalPagamentoAtual = total;
+        reabrirDivisaoDepoisDoCredito = voltarParaDivisao;
+        creditoTotal.textContent = `R$ ${moeda(total)}`;
+        creditoParcelas.value = "";
+        creditoValorParcela.textContent = "Selecione as parcelas";
+        credito.dataset.parcial = parcial ? "1" : "0";
+        credito.showModal();
+    }
+
+    function abrirDivisao(total) {
+        totalPagamentoAtual = total;
+        pagamento.pagamentos = [];
+        atualizarResumoDivisao();
+        dividirValor.value = "";
+        dividir.showModal();
+    }
+
+    function abrirFormaPagamento(formaSelecionada) {
+        const total = totalConclusao();
+        if (!(total > 0)) {
+            exibirAviso("Não foi possível calcular o total do pagamento.");
+            return;
+        }
+        totalPagamentoAtual = total;
+
+        if (formaSelecionada === "Dinheiro") {
+            abrirDinheiro(total);
+            return;
+        }
+        if (formaSelecionada === "Cartão de Crédito") {
+            abrirCredito(total);
+            return;
+        }
+        if (formaSelecionada === "Dividir Pagamento") {
+            abrirDivisao(total);
+            return;
+        }
+        pagamento.forma = formaSelecionada;
+        pagamento.pagamentos = [{ metodo: formaSelecionada, valor: total }];
+        pagamento.confirmado = true;
+    }
+
+    forma?.addEventListener("change", () => {
+        resetarPagamento();
+        const selecionada = forma.value;
+        if (selecionada) abrirFormaPagamento(selecionada);
+    });
+
+    document.getElementById("b_fechar_dinheiro")?.addEventListener("click", () => dinheiro.close());
+    dinheiro?.addEventListener("cancel", e => { e.preventDefault(); dinheiro.close(); });
+    dinheiroPago?.addEventListener("input", () => {
+        const recebido = Number(String(dinheiroPago.value).replace(",", ".")) || 0;
+        dinheiroTroco.textContent = `R$ ${moeda(Math.max(0, recebido - totalPagamentoAtual))}`;
+    });
+    document.getElementById("b_confirmar_dinheiro")?.addEventListener("click", () => {
+        const recebido = Number(String(dinheiroPago.value).replace(",", ".")) || 0;
+        if (recebido < totalPagamentoAtual) {
+            exibirAviso("O valor recebido é menor que o total da compra.");
+            return;
+        }
+        pagamento.forma = "Dinheiro";
+        pagamento.pagamentos = [{ metodo: "Dinheiro", valor: totalPagamentoAtual, recebido }];
+        pagamento.valorCredito = 0;
+        pagamento.parcelasCredito = null;
+        pagamento.valorParcelaCredito = null;
+        pagamento.confirmado = true;
+        dinheiro.close();
+    });
+
+    document.getElementById("b_fechar_credito")?.addEventListener("click", () => credito.close());
+    credito?.addEventListener("cancel", e => { e.preventDefault(); credito.close(); });
+    creditoParcelas?.addEventListener("change", () => {
+        const n = Number(creditoParcelas.value);
+        if (!n) {
+            creditoValorParcela.textContent = "Selecione as parcelas";
+            return;
+        }
+        creditoValorParcela.textContent = `R$ ${moeda(totalPagamentoAtual / n)} por parcela`;
+    });
+    document.getElementById("b_confirmar_credito")?.addEventListener("click", () => {
+        const n = Number(creditoParcelas.value);
+        if (!Number.isInteger(n) || n < 1 || n > 12) {
+            exibirAviso("Selecione entre 1 e 12 parcelas.");
+            return;
+        }
+        const valorParcela = totalPagamentoAtual / n;
+        const parcial = credito.dataset.parcial === "1";
+        const pagamentoCredito = {
+            metodo: "Cartão de Crédito",
+            valor: totalPagamentoAtual,
+            parcelas: n,
+            valorParcela
+        };
+
+        pagamento.forma = "Cartão de Crédito";
+        pagamento.valorCredito = totalPagamentoAtual;
+        pagamento.parcelasCredito = n;
+        pagamento.valorParcelaCredito = valorParcela;
+
+        if (parcial && reabrirDivisaoDepoisDoCredito) {
+            pagamento.pagamentos.push(pagamentoCredito);
+            pagamento.confirmado = false;
+            credito.close();
+            atualizarResumoDivisao();
+            dividir.showModal();
+            return;
+        }
+
+        pagamento.pagamentos = [pagamentoCredito];
+        pagamento.confirmado = true;
+        credito.close();
+    });
+
+    document.getElementById("b_fechar_dividir")?.addEventListener("click", () => dividir.close());
+    document.getElementById("b_cancelar_dividir")?.addEventListener("click", () => dividir.close());
+    dividir?.addEventListener("cancel", e => { e.preventDefault(); dividir.close(); });
+
+    document.getElementById("b_adicionar_divisao")?.addEventListener("click", () => {
+        const metodo = dividirMetodo.value;
+        const restante = Math.max(0, totalPagamentoAtual - pagamento.pagamentos.reduce((s, p) => s + Number(p.valor || 0), 0));
+        const valor = Number(String(dividirValor.value).replace(",", ".")) || 0;
+        if (!(valor > 0) || valor > restante + 0.009) {
+            exibirAviso(`Informe um valor entre R$ 0,01 e R$ ${moeda(restante)}.`);
+            return;
+        }
+        if (metodo === "Cartão de Crédito") {
+            dividir.close();
+            abrirCredito(valor, true, true);
+            return;
+        }
+        pagamento.pagamentos.push({ metodo, valor });
+        dividirValor.value = "";
+        atualizarResumoDivisao();
+    });
+
+    listaDivisoes?.addEventListener("click", e => {
+        const btn = e.target.closest("[data-remover-divisao]");
+        if (!btn) return;
+        pagamento.pagamentos.splice(Number(btn.dataset.removerDivisao), 1);
+        atualizarResumoDivisao();
+    });
+
+    document.getElementById("b_confirmar_dividir")?.addEventListener("click", () => {
+        const totalPago = pagamento.pagamentos.reduce((s, p) => s + Number(p.valor || 0), 0);
+        if (Math.abs(totalPago - totalPagamentoAtual) > 0.01) {
+            exibirAviso(`Ainda falta R$ ${moeda(totalPagamentoAtual - totalPago)} para completar o pagamento.`);
+            return;
+        }
+        const creditoParte = pagamento.pagamentos.find(p => p.metodo === "Cartão de Crédito");
+        pagamento.forma = pagamento.pagamentos.map(p => `${p.metodo}${p.metodo === "Cartão de Crédito" ? ` — ${Number(p.parcelas || 1)}x` : ""}: R$ ${moeda(p.valor)}`).join(" + ");
+        pagamento.valorCredito = creditoParte ? Number(creditoParte.valor) : 0;
+        pagamento.parcelasCredito = creditoParte ? Number(creditoParte.parcelas || 1) : null;
+        pagamento.valorParcelaCredito = creditoParte ? Number(creditoParte.valorParcela || 0) : null;
+        pagamento.confirmado = true;
+        dividir.close();
+    });
+
+    /*
+       Captura antes do listener antigo do HTML.
+       Assim o botão só finaliza depois que o modal correto foi concluído.
+    */
+    confirmar?.addEventListener("click", async event => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        if (!data?.value) {
+            exibirAviso("Informe a data do pagamento.");
+            return;
+        }
+        if (!forma?.value) {
+            exibirAviso("Selecione a forma de pagamento.");
+            return;
+        }
+        if (!pagamento.confirmado) {
+            abrirFormaPagamento(forma.value);
+            exibirAviso("Conclua o pagamento no modal antes de confirmar.");
+            return;
+        }
+
+        const itens = produtosConclusao();
+        const listaItens = itens.map(item => ({
+            id_conta: Number(item.id_conta ?? item.conta?.id_conta),
+            id_produto: Number(item.id_produto ?? item.produto?.idProduto ?? item.produto?.id_produto)
+        })).filter(item => item.id_conta > 0 && item.id_produto > 0);
+
+        const idConta = Number(
+            (typeof contaParaConcluirFiado !== "undefined" && contaParaConcluirFiado?.id_conta) ||
+            (itensParaConcluirFiado?.[0]?.id_conta) ||
+            (itensParaConcluirFiado?.[0]?.conta?.id_conta)
+        );
+
+        const dataHora = `${data.value} ${String(new Date().getHours()).padStart(2, "0")}:${String(new Date().getMinutes()).padStart(2, "0")}:${String(new Date().getSeconds()).padStart(2, "0")}`;
+        const pagamentoHistorico = pagamento.pagamentos.map(p =>
+            `${p.metodo}${p.metodo === "Cartão de Crédito" ? ` — ${Number(p.parcelas || 1)}x` : ""}: R$ ${moeda(p.valor)}`
+        ).join(" + ");
+
+        const bodyBase = {
+            data_pagamento: dataHora,
+            data_conclusao: dataHora,
+            forma_pagamento: pagamentoHistorico || pagamento.forma,
+            pagamentos: pagamento.pagamentos,
+            valor_credito: pagamento.valorCredito,
+            parcelas: pagamento.valorCredito > 0 ? pagamento.parcelasCredito : null,
+            valor_parcela: pagamento.valorCredito > 0 ? pagamento.valorParcelaCredito : null
+        };
+
+        try {
+            confirmar.disabled = true;
+            let resposta;
+            let res;
+
+            if (Array.isArray(itensParaConcluirFiado) && itensParaConcluirFiado.length) {
+                res = await apiFetch("/contas-fiado/itens/finalizar", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        ...bodyBase,
+                        itens: listaItens
+                    })
+                });
+            } else {
+                res = await apiFetch(`/contas-fiado/${idConta}/finalizar`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(bodyBase)
+                });
+            }
+
+            resposta = await res.json();
+            if (res.status === 401 || res.status === 403) {
+                tratarSessaoExpirada();
+                return;
+            }
+            if (!res.ok) throw new Error(resposta.erro || resposta.mensagem || "Erro ao registrar o pagamento.");
+
+            conclusao?.close();
+            pagamento.confirmado = false;
+            pagamento.pagamentos = [];
+            if (typeof carregarContasFiado === "function") await carregarContasFiado();
+            if (typeof carregarComprasParceladas === "function") await carregarComprasParceladas(true);
+            exibirAviso(resposta.mensagem || "Pagamento registrado com sucesso!");
+        } catch (erro) {
+            console.error("Erro no pagamento da conta fiado:", erro);
+            exibirAviso(erro.message || "Erro ao registrar o pagamento.");
+        } finally {
+            confirmar.disabled = false;
+        }
+    }, true);
+
+    cancelar?.addEventListener("click", () => resetarPagamento());
+
+    /* Torna o estado acessível ao restante do HTML, sem substituir as funções existentes. */
+    window.pagamentoContaFiado = pagamento;
 });
 </script>
 

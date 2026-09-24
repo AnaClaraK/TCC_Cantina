@@ -298,7 +298,7 @@ router.delete("/historico-pedidos/limpar", verificarToken, async (req, res) => {
 });
 
 // ==================== ROTA DE COMANDAS (APP) ====================
-router.post("/comandas", async (req, res) => {
+router.post("/comandas",verificarToken, async (req, res) => {
     const { id_user, carrinho, valor_total, qtd_total, status, forma_pagamento, form_pag } = req.body;
     const pagamentoSelecionado = forma_pagamento || form_pag;
 
@@ -407,7 +407,7 @@ for (const item of carrinho) {
 });
 
 // ==================== BUSCAR COMANDA PELO CÓDIGO ====================
-router.get("/comandas/:codigo", async (req, res) => {
+router.get("/comandas/:codigo", verificarToken, async (req, res) => {
     const { codigo } = req.params;
     let conn;
 

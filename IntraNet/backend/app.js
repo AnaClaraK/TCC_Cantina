@@ -124,8 +124,6 @@ const estoqueRoutes = require('./routes/estoqueRoutes');
 const reposicaoRoutes = require('./routes/reposicaoRoutes');
 const agendamentoRoutes = require('./routes/agendamentoRoutes');
 const fiadoRoutes = require('./routes/fiadoRoutes.js');
-const dashboardRoutes = require('./routes/dashboardRoutes');
-const pdfRoutes = require('./routes/pdfRoutes');
 const authAppRoutes = require('./routes/authAppRoutes');
 const fechamentoRoutes = require('./routes/fechamentoRoutes');
 
@@ -150,10 +148,6 @@ app.use(agendamentoRoutes);
 
 app.use(fiadoRoutes);
 
-app.use(dashboardRoutes);
-
-app.use(pdfRoutes);
-
 app.use(authAppRoutes);
 
 app.use(fechamentoRoutes);
@@ -163,8 +157,8 @@ app.use(fechamentoRoutes);
 // START SERVER
 // =====================================================
 
-const HOST = '0.0.0.0'; // Libera o acesso para qualquer IP da rede
 
-app.listen(porta, HOST, () => {
-    console.log(`Servidor rodando em http://${HOST}:${porta}`);
+
+app.listen(porta, () => {
+    console.log(`Servidor rodando em http://localhost:${porta}`);
 });

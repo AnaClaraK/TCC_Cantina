@@ -1949,3 +1949,33 @@ BOTÕES
     font-size: 14px;
     opacity: 0.6;
 }
+  /* Estilos visuais para indicação de ordenação nas colunas */
+        table thead th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 34px !important;
+        }
+
+        table thead th.sortable::after {
+            content: "↑↓";
+            display: inline-block;
+            white-space: nowrap;
+            margin-left: 7px;
+            font-size: 0.78em;
+            letter-spacing: -2px;
+            opacity: 0.38;
+            font-weight: normal;
+        }
+
+        table thead th.sort-asc::after {
+            content: "▲";
+            opacity: 1;
+            letter-spacing: 0;
+        }
+
+        table thead th.sort-desc::after {
+            content: "▼";
+            opacity: 1;
+            letter-spacing: 0;
+        }

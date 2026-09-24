@@ -302,7 +302,21 @@ td {
 #sc_tabela::-webkit-scrollbar-thumb:hover {
     background: #ffcf8b;
 }
+.sc_tabela tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.05); /* Tom levemente mais claro */
+    color: #ffffff; /* Garante que o texto continue visível */
+}
 
+.sc_tabela tbody tr:nth-child(odd) {
+    background-color: transparent; /* Ou a cor base escura da tabela */
+    color: #ffffff;
+}
+
+/* Garante a visibilidade ao passar o mouse */
+.sc_tabela tbody tr:hover {
+    background-color: var(--cor-laranja);
+    color: var(--cor-escuro);
+}
 /* ============================================================
    ÁREA DOS BOTÕES PRINCIPAIS
 ============================================================ */

@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="pt-br">
 
 <head>
@@ -69,17 +68,15 @@
 
     </div>
 
+    <!-- Script de controle global da Sidebar e Autenticação -->
+    <script src="sidebar_header.js"></script>
 
     <script>
 
         document.addEventListener("DOMContentLoaded", () => {
 
-            const btnEntrar =
-                document.getElementById("btn_entrar");
-
-            const inputs =
-                document.querySelectorAll(".input-field");
-
+            const btnEntrar = document.getElementById("btn_entrar");
+            const inputs = document.querySelectorAll(".input-field");
 
             // =====================================================
             // NORMALIZAR FOTO
@@ -87,36 +84,24 @@
 
             function normalizarFoto(foto) {
 
-                if (
-                    !foto ||
-                    foto === "null" ||
-                    foto === "undefined"
-                ) {
+                if (!foto || foto === "null" || foto === "undefined") {
                     return "";
                 }
 
                 foto = String(foto).trim();
 
-                // Se já for uma URL completa
-                if (
-                    foto.startsWith("http://") ||
-                    foto.startsWith("https://")
-                ) {
+                if (foto.startsWith("http://") || foto.startsWith("https://")) {
                     return foto;
                 }
 
-                // Se o backend já mandar /imagens/foto.jpg
                 if (foto.startsWith("/imagens/")) {
                     return foto;
                 }
 
-                // Se mandar imagens/foto.jpg
                 if (foto.startsWith("imagens/")) {
                     return "/" + foto;
                 }
 
-                // Se mandar somente o nome:
-                // 1788287557651.jpg
                 return "/imagens/" + foto;
             }
 
@@ -131,77 +116,40 @@
                     e.preventDefault();
                 }
 
-                const email =
-                    document.getElementById("email").value.trim();
-
-                const senha =
-                    document.getElementById("senha").value;
-
-                const pMessageEl =
-                    document.getElementById("respostas");
-
+                const email = document.getElementById("email").value.trim();
+                const senha = document.getElementById("senha").value;
+                const pMessageEl = document.getElementById("respostas");
 
                 // =================================================
                 // VALIDAÇÃO
                 // =================================================
 
                 if (!email || !senha) {
-
-                    pMessageEl.innerText =
-                        "Preencha todos os campos.";
-
+                    pMessageEl.innerText = "Preencha todos os campos.";
                     pMessageEl.style.color = "red";
-
                     return;
                 }
 
-
-                pMessageEl.innerText =
-                    "Validando...";
-
+                pMessageEl.innerText = "Validando...";
                 pMessageEl.style.color = "#333";
-
 
                 try {
 
-                    console.log(
-                        "1. Enviando dados para o servidor..."
-                    );
+                    console.log("1. Enviando dados para o servidor...");
 
+                    const resposta = await fetch("http://localhost:3000/login", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ email, senha })
+                    });
 
-                    const resposta = await fetch(
-                        "http://localhost:3000/login",
-                        {
-                            method: "POST",
+                    console.log("2. Resposta recebida do servidor:", resposta.status);
 
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
+                    const dados = await resposta.json();
 
-                            body: JSON.stringify({
-                                email,
-                                senha
-                            })
-                        }
-                    );
-
-
-                    console.log(
-                        "2. Resposta recebida do servidor:",
-                        resposta.status
-                    );
-
-
-                    const dados =
-                        await resposta.json();
-
-
-                    console.log(
-                        "3. Dados retornados:",
-                        dados
-                    );
-
+                    console.log("3. Dados retornados:", dados);
 
                     // =================================================
                     // LOGIN OK
@@ -209,101 +157,46 @@
 
                     if (resposta.ok) {
 
-                        pMessageEl.innerText =
-                            "Login realizado! Redirecionando...";
-
+                        pMessageEl.innerText = "Login realizado! Redirecionando...";
                         pMessageEl.style.color = "green";
 
-
                         // =================================================
-                        // TOKEN
+                        // SALVAMENTO NO LOCALSTORAGE
                         // =================================================
 
                         if (dados.token) {
-
-                            localStorage.setItem(
-                                "token",
-                                dados.token
-                            );
-
+                            localStorage.setItem("token", dados.token);
                         }
-
-
-                        // =================================================
-                        // DADOS DO USUÁRIO
-                        // =================================================
 
                         if (dados.usuario) {
+                            localStorage.setItem("usuarioNome", dados.usuario.nome || "");
+                            localStorage.setItem("usuarioEmail", dados.usuario.email || "");
 
-                            localStorage.setItem(
-                                "usuarioNome",
-                                dados.usuario.nome || ""
-                            );
+                            const fotoNormalizada = normalizarFoto(dados.usuario.foto);
+                            localStorage.setItem("usuarioFoto", fotoNormalizada);
 
-
-                            localStorage.setItem(
-                                "usuarioEmail",
-                                dados.usuario.email || ""
-                            );
-
-
-                            // =============================================
-                            // FOTO
-                            // =============================================
-
-                            const fotoNormalizada =
-                                normalizarFoto(
-                                    dados.usuario.foto
-                                );
-
-
-                            localStorage.setItem(
-                                "usuarioFoto",
-                                fotoNormalizada
-                            );
-
-
-                            console.log(
-                                "Foto salva no LocalStorage:",
-                                fotoNormalizada
-                            );
-
+                            console.log("Foto salva no LocalStorage:", fotoNormalizada);
                         }
 
+                        console.log("4. Token e dados salvos no LocalStorage. Redirecionando...");
 
-                        console.log(
-                            "4. Token salvo no LocalStorage. Iniciando redirecionamento..."
-                        );
-
-
-                        window.location.href =
-                            "index.html";
-
+                        // Aguarda 100ms para garantir a gravação síncrona do Storage antes do carregamento da index.html
+                        setTimeout(() => {
+                            window.location.replace("index.html");
+                        }, 100);
 
                     } else {
 
-                        pMessageEl.innerText =
-                            dados.resposta ||
-                            "Erro no login.";
-
-                        pMessageEl.style.color =
-                            "red";
+                        pMessageEl.innerText = dados.resposta || "Erro no login.";
+                        pMessageEl.style.color = "red";
 
                     }
 
-
                 } catch (error) {
 
-                    console.error(
-                        "ERRO NO FETCH:",
-                        error
-                    );
-
-                    pMessageEl.innerText =
-                        "Erro ao conectar com o servidor.";
-
-                    pMessageEl.style.color =
-                        "red";
+                    console.error("ERRO NO FETCH:", error);
+                    pMessageEl.innerText = "Erro ao conectar com o servidor.";
+                    pMessageEl.style.color = "red";
 
                 }
 
@@ -316,34 +209,19 @@
 
             inputs.forEach((input, index) => {
 
-                input.addEventListener(
-                    "keydown",
-                    (e) => {
+                input.addEventListener("keydown", (e) => {
 
-                        if (e.key === "Enter") {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
 
-                            e.preventDefault();
-
-
-                            if (
-                                index <
-                                inputs.length - 1
-                            ) {
-
-                                inputs[
-                                    index + 1
-                                ].focus();
-
-                            } else {
-
-                                realizarLogin(e);
-
-                            }
-
+                        if (index < inputs.length - 1) {
+                            inputs[index + 1].focus();
+                        } else {
+                            realizarLogin(e);
                         }
-
                     }
-                );
+
+                });
 
             });
 
@@ -352,10 +230,7 @@
             // BOTÃO ENTRAR
             // =====================================================
 
-            btnEntrar.addEventListener(
-                "click",
-                realizarLogin
-            );
+            btnEntrar.addEventListener("click", realizarLogin);
 
         });
 

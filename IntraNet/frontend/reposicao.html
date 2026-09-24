@@ -11,31 +11,6 @@
     
     <style>
         /* Estilos visuais para indicação de ordenação nas colunas */
-        table thead th.sortable {
-            cursor: pointer;
-            user-select: none;
-            position: relative;
-            padding-right: 20px !important;
-        }
-
-        table thead th.sortable::after {
-            content: " ↕";
-            font-size: 0.8em;
-            opacity: 0.4;
-            margin-left: 5px;
-        }
-
-        table thead th.sort-asc::after {
-            content: " ▲";
-            opacity: 1;
-            color: #007bff;
-        }
-
-        table thead th.sort-desc::after {
-            content: " ▼";
-            opacity: 1;
-            color: #007bff;
-        }
     </style>
 
     <script>
@@ -202,56 +177,135 @@
     let produtosCache = [];
 
     // Função universal para aplicar ordenação com setas visuais nas tabelas
-    function aplicarOrdenacaoTabela(idTbody, colunasIgnoradas = []) {
-        const tbody = document.getElementById(idTbody);
-        if (!tbody) return;
+    let contadorOrdenacao = 0;
 
-        const tabela = tbody.closest("table");
-        if (!tabela) return;
+function aplicarOrdenacaoTabela(idTbody, colunasIgnoradas = []) {
+    const tbody = typeof idTbody === "string"
+        ? document.getElementById(idTbody)
+        : idTbody?.querySelector?.("tbody") || idTbody;
 
-        const cabecalhos = tabela.querySelectorAll("thead th");
+    if (!tbody) return;
 
-        cabecalhos.forEach((th, indice) => {
-            if (colunasIgnoradas.includes(indice)) return;
+    const tabela = tbody.closest("table");
+    if (!tabela) return;
 
-            th.classList.add("sortable");
+    const linhasOriginais = Array.from(tbody.querySelectorAll("tr"));
+    linhasOriginais.forEach((tr, index) => {
+        if (tr.dataset.indexOriginal === undefined) {
+            tr.dataset.indexOriginal = index;
+        }
+    });
 
-            // Remove ouvintes antigos clonando o elemento
-            const novoTh = th.cloneNode(true);
-            th.parentNode.replaceChild(novoTh, th);
+    const cabecalhos = Array.from(tabela.querySelectorAll("thead th"));
 
-            novoTh.addEventListener("click", () => {
-                const direcaoAtual = novoTh.classList.contains("sort-asc") ? "desc" : "asc";
+    cabecalhos.forEach((th, indice) => {
+        if (colunasIgnoradas.includes(indice)) return;
 
-                // Atualiza classes visuais
-                cabecalhos.forEach(c => c.classList.remove("sort-asc", "sort-desc"));
-                novoTh.classList.add(direcaoAtual === "asc" ? "sort-asc" : "sort-desc");
+        th.classList.add("sortable");
+        if (!th.dataset.ordem) th.dataset.ordem = "none";
 
-                const linhas = Array.from(tbody.querySelectorAll("tr"));
+        const novoTh = th.cloneNode(true);
+        novoTh.dataset.ordem = th.dataset.ordem || "none";
+        novoTh.dataset.prioridadeOrdenacao = th.dataset.prioridadeOrdenacao || "";
+        th.parentNode.replaceChild(novoTh, th);
+
+        novoTh.addEventListener("click", () => {
+            const estadoAtual = novoTh.dataset.ordem || "none";
+            const novoEstado = estadoAtual === "none"
+                ? "asc"
+                : estadoAtual === "asc"
+                    ? "desc"
+                    : "none";
+
+            novoTh.dataset.ordem = novoEstado;
+            novoTh.classList.remove("sort-asc", "sort-desc");
+
+            if (novoEstado === "asc") {
+                novoTh.classList.add("sort-asc");
+                novoTh.dataset.prioridadeOrdenacao = ++contadorOrdenacao;
+            } else if (novoEstado === "desc") {
+                novoTh.classList.add("sort-desc");
+                novoTh.dataset.prioridadeOrdenacao = ++contadorOrdenacao;
+            } else {
+                novoTh.dataset.prioridadeOrdenacao = "";
+            }
+
+            const ordenacoesAtivas = Array.from(tabela.querySelectorAll("thead th"))
+                .map((cab, idx) => ({
+                    indice: idx,
+                    estado: cab.dataset.ordem || "none",
+                    prioridade: Number(cab.dataset.prioridadeOrdenacao || 0)
+                }))
+                .filter(item => item.estado !== "none")
+                .sort((a, b) => b.prioridade - a.prioridade);
+
+            const linhas = Array.from(tbody.querySelectorAll("tr"));
+
+            if (ordenacoesAtivas.length === 0) {
+                linhas.sort((a, b) =>
+                    Number(a.dataset.indexOriginal || 0) - Number(b.dataset.indexOriginal || 0)
+                );
+            } else {
+                const obterValor = (linha, indice) => {
+                    const celula = linha.children[indice];
+                    if (!celula) return "";
+                    const controle = celula.querySelector("input, select");
+                    return controle ? controle.value.trim() : celula.textContent.trim();
+                };
+
+                const eAgendamento = tabela.querySelectorAll("thead th").length === 7 && tbody.id === "tb_tbl_produtos";
 
                 linhas.sort((a, b) => {
-                    const inputA = a.children[indice]?.querySelector("input");
-                    const inputB = b.children[indice]?.querySelector("input");
+                    for (const ordem of ordenacoesAtivas) {
+                        let resultado;
 
-                    const valA = inputA ? inputA.value.trim() : a.children[indice]?.textContent.trim() || "";
-                    const valB = inputB ? inputB.value.trim() : b.children[indice]?.textContent.trim() || "";
+                        // No Agendamento, a coluna Data usa o valor original guardado no <tr>.
+                        if (eAgendamento && ordem.indice === 5) {
+                            const dataA = new Date(a.dataset.data || 0).getTime();
+                            const dataB = new Date(b.dataset.data || 0).getTime();
+                            resultado = dataA - dataB;
+                        } else {
+                            const valA = obterValor(a, ordem.indice);
+                            const valB = obterValor(b, ordem.indice);
+                            const textoA = String(valA || "").trim();
+                            const textoB = String(valB || "").trim();
 
-                    const numA = parseFloat(valA.replace("R$", "").replace("#", "").replace(".", "").replace(",", ".").trim());
-                    const numB = parseFloat(valB.replace("R$", "").replace("#", "").replace(".", "").replace(",", ".").trim());
+                            const numA = parseFloat(textoA
+                                .replace(/R\$/g, "")
+                                .replace(/#/g, "")
+                                .replace(/\./g, "")
+                                .replace(",", ".")
+                                .trim());
+                            const numB = parseFloat(textoB
+                                .replace(/R\$/g, "")
+                                .replace(/#/g, "")
+                                .replace(/\./g, "")
+                                .replace(",", ".")
+                                .trim());
 
-                    if (!isNaN(numA) && !isNaN(numB)) {
-                        return direcaoAtual === "asc" ? numA - numB : numB - numA;
+                            if (!Number.isNaN(numA) && !Number.isNaN(numB) && textoA !== "" && textoB !== "") {
+                                resultado = numA - numB;
+                            } else {
+                                resultado = textoA.localeCompare(textoB, "pt-BR", {
+                                    numeric: true,
+                                    sensitivity: "base"
+                                });
+                            }
+                        }
+
+                        if (resultado !== 0) {
+                            return ordem.estado === "asc" ? resultado : -resultado;
+                        }
                     }
 
-                    return direcaoAtual === "asc" 
-                        ? valA.localeCompare(valB, "pt-BR", { numeric: true }) 
-                        : valB.localeCompare(valA, "pt-BR", { numeric: true });
+                    return Number(a.dataset.indexOriginal || 0) - Number(b.dataset.indexOriginal || 0);
                 });
+            }
 
-                linhas.forEach(linha => tbody.appendChild(linha));
-            });
+            linhas.forEach(linha => tbody.appendChild(linha));
         });
-    }
+    });
+}
 
     function adicionarLinhaTabela(
         nome,
