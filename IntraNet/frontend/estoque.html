@@ -13,6 +13,9 @@
             window.location.replace("login.html"); 
         }
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="./gerarpdf.js"></script>
 </head>
 
 <body class="fundo-escuro">
@@ -20,12 +23,14 @@
 <div class="d_util">
     <h2 class="h_ag">Estoque</h2>
     <button id="b_addq">
-      <span id="s_addq">Adicionar quantidade</span>
-    </button>
+      <span id="s_addq">Adicionar quantidade</span></button>
+      <button id="btnExportarPDF" class="btn-baixar-pdf" onclick="gerarPDFReposicaoEstoque()"> Baixar PDF</button>
     <div id="d_inp">
         <div class="busca-box">
             <img src="../backend/imagens/lupa.png" class="icone-busca">
             <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
+
+        
         </div>
     </div>
 </div>
