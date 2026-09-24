@@ -1304,6 +1304,7 @@ if (visorPedido) {
     totalCompra = 0;
 
     formaPagamento = "";
+    inputComanda.value = "";
     splitPagamentos = [];
     splitMetodoSelecionado = "";
     splitCreditoValorPendente = null;
@@ -1332,7 +1333,31 @@ if (visorPedido) {
         nova_venda.disabled = true;
         estaProcessando = false;
         pedidoFinalizado = false;
-        parcelasCredito = 1;
+        parcelasCredito = null;
+
+        // Reseta também o seletor visual de parcelas.
+        if (typeof selParcelasCredito !== "undefined" && selParcelasCredito) {
+            selParcelasCredito.value = "";
+            selParcelasCredito.classList.add("parcela-nao-selecionada");
+        }
+
+        if (typeof selectParcelasVisual !== "undefined" && selectParcelasVisual) {
+            const textoParcelas = selectParcelasVisual.querySelector("span");
+            if (textoParcelas) {
+                textoParcelas.textContent = "Selecione a quantidade de parcelas";
+            }
+        }
+
+        if (typeof opcoesParcelas !== "undefined" && opcoesParcelas) {
+            opcoesParcelas.querySelectorAll("div").forEach(item => {
+                item.classList.remove("selecionada");
+            });
+        }
+
+        if (typeof selectPersonalizado !== "undefined" && selectPersonalizado) {
+            selectPersonalizado.classList.remove("aberto");
+        }
+
         atualizarBloqueioPagamento();
         atualizarSelecaoPagamento("");
         atualizarFormaPagamentoFinal("");
@@ -2331,22 +2356,22 @@ b_comanda.addEventListener("click", () => {
         return;
     }
 
+    // Sempre inicia uma nova busca com o campo vazio.
+    inputComanda.value = "";
+
     dialogComanda.showModal();
 
     setTimeout(() => {
 
+        inputComanda.value = "";
         inputComanda.focus();
-
-        inputComanda.setSelectionRange(
-            inputComanda.value.length,
-            inputComanda.value.length
-        );
 
     }, 50);
 
 });
 
 b_close_comanda.addEventListener("click", () => {
+    inputComanda.value = "";
     dialogComanda.close();
     voltarFoco();
 });
@@ -2419,6 +2444,7 @@ window.addEventListener("keydown", (event) => {
 
             // Modal buscar comanda
             if (dialogComanda?.open) {
+                inputComanda.value = "";
                 dialogComanda.close();
                 voltarFoco();
                 break;
@@ -3003,9 +3029,27 @@ function abrirModalCredito(valorParcial = null) {
     lblValorParcela.innerText =
         "Selecione as parcelas";
 
-    selParcelasCredito.classList.remove(
+    selParcelasCredito.classList.add(
         "parcela-nao-selecionada"
     );
+
+    // Reseta também o seletor visual personalizado.
+    if (typeof selectParcelasVisual !== "undefined" && selectParcelasVisual) {
+        const textoParcelas = selectParcelasVisual.querySelector("span");
+        if (textoParcelas) {
+            textoParcelas.textContent = "Selecione a quantidade de parcelas";
+        }
+    }
+
+    if (typeof opcoesParcelas !== "undefined" && opcoesParcelas) {
+        opcoesParcelas.querySelectorAll("div").forEach(item => {
+            item.classList.remove("selecionada");
+        });
+    }
+
+    if (typeof selectPersonalizado !== "undefined" && selectPersonalizado) {
+        selectPersonalizado.classList.remove("aberto");
+    }
 
 
     /*
@@ -3038,6 +3082,28 @@ if (bFecharCredito && dialogCredito) {
 
     bFecharCredito.addEventListener("click", () => {
 
+        selParcelasCredito.value = "";
+        parcelasCredito = null;
+        lblValorParcela.innerText = "Selecione as parcelas";
+        selParcelasCredito.classList.add("parcela-nao-selecionada");
+
+        if (typeof selectParcelasVisual !== "undefined" && selectParcelasVisual) {
+            const textoParcelas = selectParcelasVisual.querySelector("span");
+            if (textoParcelas) {
+                textoParcelas.textContent = "Selecione a quantidade de parcelas";
+            }
+        }
+
+        if (typeof opcoesParcelas !== "undefined" && opcoesParcelas) {
+            opcoesParcelas.querySelectorAll("div").forEach(item => {
+                item.classList.remove("selecionada");
+            });
+        }
+
+        if (typeof selectPersonalizado !== "undefined" && selectPersonalizado) {
+            selectPersonalizado.classList.remove("aberto");
+        }
+
         dialogCredito.close();
         creditoEmDivisao = false;
         splitCreditoValorPendente = null;
@@ -3056,6 +3122,28 @@ if (dialogCredito) {
     dialogCredito.addEventListener("cancel", (event) => {
 
         event.preventDefault();
+
+        selParcelasCredito.value = "";
+        parcelasCredito = null;
+        lblValorParcela.innerText = "Selecione as parcelas";
+        selParcelasCredito.classList.add("parcela-nao-selecionada");
+
+        if (typeof selectParcelasVisual !== "undefined" && selectParcelasVisual) {
+            const textoParcelas = selectParcelasVisual.querySelector("span");
+            if (textoParcelas) {
+                textoParcelas.textContent = "Selecione a quantidade de parcelas";
+            }
+        }
+
+        if (typeof opcoesParcelas !== "undefined" && opcoesParcelas) {
+            opcoesParcelas.querySelectorAll("div").forEach(item => {
+                item.classList.remove("selecionada");
+            });
+        }
+
+        if (typeof selectPersonalizado !== "undefined" && selectPersonalizado) {
+            selectPersonalizado.classList.remove("aberto");
+        }
 
         dialogCredito.close();
         creditoEmDivisao = false;

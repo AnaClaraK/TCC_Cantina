@@ -10,11 +10,10 @@
     <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
 
     <title>Histórico de Pedidos</title>
-
-
 </head>
 
 <body class="fundo-escuro">
+
 <div class="d_util topo-cabecalho">
     <div class="grupo-esquerda">
         <div class="titulo-historico">
@@ -30,12 +29,14 @@
 
     <div id="painel_metricas">
         <div class="grupo-direita">
+
             <div class="total-faturado-box">
                 <span>Faturamento:</span>
                 <strong id="lbl_total_mes">R$ 0,00</strong>
             </div>
 
             <div class="busca-box">
+
                 <img src="../backend/imagens/lupa.png"
                      class="icone-busca"
                      alt="Buscar">
@@ -53,27 +54,55 @@
                 </button>
 
                 <div id="menuFiltro">
-                    <div class="itemFiltro ativo" data-origem="todos">Todos</div>
-                    <div class="itemFiltro" data-origem="PDV">PDV</div>
-                    <div class="itemFiltro" data-origem="Agendamento">Agendamento</div>
-                    <div class="itemFiltro" data-origem="Fiado">Fiado</div>
-            <div class="itemFiltro" data-origem="CreditoParcelado">Crédito parcelado</div>
+
+                    <div class="itemFiltro ativo" data-origem="todos">
+                        Todos
+                    </div>
+
+                    <div class="itemFiltro" data-origem="PDV">
+                        PDV
+                    </div>
+
+                    <div class="itemFiltro" data-origem="Agendamento">
+                        Agendamento
+                    </div>
+
+                    <div class="itemFiltro" data-origem="Fiado">
+                        Fiado
+                    </div>
+
+                    <div class="itemFiltro" data-origem="CreditoParcelado">
+                        Crédito parcelado
+                    </div>
+
                 </div>
             </div>
 
-            <button id="btnExportarPDF" class="btn-baixar-pdf" onclick="gerarPDFMensalPedidos()">
+            <button
+                id="btnExportarPDF"
+                class="btn-baixar-pdf"
+                onclick="gerarPDFMensalPedidos()">
                 Baixar PDF
             </button>
-            <button id="btnLimparBackup" class="btn-limpar-historico" onclick="confirmarBackupEApagar()">
+
+            <button
+                id="btnLimparBackup"
+                class="btn-limpar-historico"
+                onclick="confirmarBackupEApagar()">
                 Limpar
             </button>
+
         </div>
     </div>
 </div>
 
+
 <section id="sc_tabela" class="container mt-5">
+
     <table class="tabela table-striped table-hover border">
+
         <thead class="table-dark">
+
             <tr>
                 <th scope="col">Nome do cliente</th>
                 <th scope="col">Pedido n°</th>
@@ -82,251 +111,708 @@
                 <th scope="col">Total da compra</th>
                 <th scope="col">Forma de pagamento</th>
             </tr>
+
         </thead>
+
         <tbody id="tb_tbl_produtos"></tbody>
+
     </table>
+
 </section>
 
+
 <dialog id="d_aviso">
+
     <div class="aviso_box">
+
         <p id="msg_aviso"></p>
+
         <div class="aviso_botoes">
-            <button id="b_confirmar_aviso">OK</button>
-            <button id="b_cancelar_aviso" style="display:none;">Cancelar</button>
+
+            <button id="b_confirmar_aviso">
+                OK
+            </button>
+
+            <button
+                id="b_cancelar_aviso"
+                style="display:none;">
+                Cancelar
+            </button>
+
         </div>
+
     </div>
+
 </dialog>
+
 
 <dialog id="modalRankingProdutos">
+
     <div class="modal_box">
-        <button id="b_close_ranking" onclick="modalRankingProdutos.close()">✕</button>
-        <h2 class="modal_titulo">Produtos mais vendidos</h2>
+
+        <button
+            id="b_close_ranking"
+            onclick="modalRankingProdutos.close()">
+            ✕
+        </button>
+
+        <h2 class="modal_titulo">
+            Produtos mais vendidos
+        </h2>
+
         <div id="listaRankingProdutos"></div>
+
     </div>
+
 </dialog>
 
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
 <script src="./gerarpdf.js"></script>
 
+
 <script>
-const corpoTabela = document.getElementById("tb_tbl_produtos");
-const inputBusca = document.getElementById("inputBusca");
-const btnFiltro = document.getElementById("btnFiltro");
-const menuFiltro = document.getElementById("menuFiltro");
-const itensFiltro = document.querySelectorAll(".itemFiltro");
+
+const corpoTabela =
+    document.getElementById("tb_tbl_produtos");
+
+const inputBusca =
+    document.getElementById("inputBusca");
+
+const btnFiltro =
+    document.getElementById("btnFiltro");
+
+const menuFiltro =
+    document.getElementById("menuFiltro");
+
+const itensFiltro =
+    document.querySelectorAll(".itemFiltro");
+
 
 let pedidosCarregados = [];
+
 let filtroOrigemAtual = "todos";
+
 let rankingProdutos = [];
 
 let contadorOrdenacao = 0;
 
-function aplicarOrdenacaoTabela(idTbody, colunasIgnoradas = []) {
-    const tbody = typeof idTbody === "string"
-        ? document.getElementById(idTbody)
-        : idTbody?.querySelector?.("tbody") || idTbody;
+
+/* ============================================================
+   ORDENAÇÃO DA TABELA
+============================================================ */
+
+function aplicarOrdenacaoTabela(
+    idTbody,
+    colunasIgnoradas = []
+) {
+
+    const tbody =
+        typeof idTbody === "string"
+            ? document.getElementById(idTbody)
+            : idTbody?.querySelector?.("tbody") || idTbody;
 
     if (!tbody) return;
 
-    const tabela = tbody.closest("table");
+    const tabela =
+        tbody.closest("table");
+
     if (!tabela) return;
 
-    const linhasOriginais = Array.from(tbody.querySelectorAll("tr"));
+
+    const linhasOriginais =
+        Array.from(
+            tbody.querySelectorAll("tr")
+        );
+
+
     linhasOriginais.forEach((tr, index) => {
+
         if (tr.dataset.indexOriginal === undefined) {
             tr.dataset.indexOriginal = index;
         }
+
     });
 
-    const cabecalhos = Array.from(tabela.querySelectorAll("thead th"));
 
-    cabecalhos.forEach((th, indice) => {
-        if (colunasIgnoradas.includes(indice)) return;
-
-        th.classList.add("sortable");
-        if (!th.dataset.ordem) th.dataset.ordem = "none";
-
-        const novoTh = th.cloneNode(true);
-        novoTh.dataset.ordem = th.dataset.ordem || "none";
-        novoTh.dataset.prioridadeOrdenacao = th.dataset.prioridadeOrdenacao || "";
-        th.parentNode.replaceChild(novoTh, th);
-
-        novoTh.addEventListener("click", () => {
-            const estadoAtual = novoTh.dataset.ordem || "none";
-            const novoEstado = estadoAtual === "none"
-                ? "asc"
-                : estadoAtual === "asc"
-                    ? "desc"
-                    : "none";
-
-            novoTh.dataset.ordem = novoEstado;
-            novoTh.classList.remove("sort-asc", "sort-desc");
-
-            if (novoEstado === "asc") {
-                novoTh.classList.add("sort-asc");
-                novoTh.dataset.prioridadeOrdenacao = ++contadorOrdenacao;
-            } else if (novoEstado === "desc") {
-                novoTh.classList.add("sort-desc");
-                novoTh.dataset.prioridadeOrdenacao = ++contadorOrdenacao;
-            } else {
-                novoTh.dataset.prioridadeOrdenacao = "";
-            }
-
-            const ordenacoesAtivas = Array.from(tabela.querySelectorAll("thead th"))
-                .map((cab, idx) => ({
-                    indice: idx,
-                    estado: cab.dataset.ordem || "none",
-                    prioridade: Number(cab.dataset.prioridadeOrdenacao || 0)
-                }))
-                .filter(item => item.estado !== "none")
-                .sort((a, b) => b.prioridade - a.prioridade);
-
-            const linhas = Array.from(tbody.querySelectorAll("tr"));
-
-            if (ordenacoesAtivas.length === 0) {
-                linhas.sort((a, b) =>
-                    Number(a.dataset.indexOriginal || 0) - Number(b.dataset.indexOriginal || 0)
-                );
-            } else {
-                const obterValor = (linha, indice) => {
-                    const celula = linha.children[indice];
-                    if (!celula) return "";
-                    const controle = celula.querySelector("input, select");
-                    return controle ? controle.value.trim() : celula.textContent.trim();
-                };
-
-                const eAgendamento = tabela.querySelectorAll("thead th").length === 7 && tbody.id === "tb_tbl_produtos";
-
-                linhas.sort((a, b) => {
-                    for (const ordem of ordenacoesAtivas) {
-                        let resultado;
-
-                        // No Agendamento, a coluna Data usa o valor original guardado no <tr>.
-                        if (eAgendamento && ordem.indice === 5) {
-                            const dataA = new Date(a.dataset.data || 0).getTime();
-                            const dataB = new Date(b.dataset.data || 0).getTime();
-                            resultado = dataA - dataB;
-                        } else {
-                            const valA = obterValor(a, ordem.indice);
-                            const valB = obterValor(b, ordem.indice);
-                            const textoA = String(valA || "").trim();
-                            const textoB = String(valB || "").trim();
-
-                            const numA = parseFloat(textoA
-                                .replace(/R\$/g, "")
-                                .replace(/#/g, "")
-                                .replace(/\./g, "")
-                                .replace(",", ".")
-                                .trim());
-                            const numB = parseFloat(textoB
-                                .replace(/R\$/g, "")
-                                .replace(/#/g, "")
-                                .replace(/\./g, "")
-                                .replace(",", ".")
-                                .trim());
-
-                            if (!Number.isNaN(numA) && !Number.isNaN(numB) && textoA !== "" && textoB !== "") {
-                                resultado = numA - numB;
-                            } else {
-                                resultado = textoA.localeCompare(textoB, "pt-BR", {
-                                    numeric: true,
-                                    sensitivity: "base"
-                                });
-                            }
-                        }
-
-                        if (resultado !== 0) {
-                            return ordem.estado === "asc" ? resultado : -resultado;
-                        }
-                    }
-
-                    return Number(a.dataset.indexOriginal || 0) - Number(b.dataset.indexOriginal || 0);
-                });
-            }
-
-            linhas.forEach(linha => tbody.appendChild(linha));
-        });
-    });
-}
-
-function formatarFormaPagamento(texto) {
-    if (!texto) return "-";
-
-    let limpo = String(texto).trim();
-
-    if (limpo.includes("=")) {
-        const partes = limpo.split(",").map(p => p.trim()).filter(Boolean);
-        const divididos = partes.map(parte => {
-            const idx = parte.lastIndexOf("=");
-            if (idx <= 0) return parte;
-            const forma = parte.slice(0, idx).trim();
-            const valor = Number(parte.slice(idx + 1).trim().replace(",", "."));
-            return Number.isFinite(valor) ? `${forma}: R$ ${valor.toFixed(2).replace(".", ",")}` : forma;
-        });
-        return divididos.map(item => `<div style="line-height:1.5;">${item}</div>`).join("");
-    }
-
-    // Crédito parcelado: mostra também o valor de cada parcela.
-    const creditoParceladoComValor = limpo.match(
-        /^(.*?)\s*[—-]\s*(\d+)x\s*:\s*R\$\s*([\d.,]+)$/i
-    );
-    if (creditoParceladoComValor) {
-        const forma = creditoParceladoComValor[1].trim();
-        const parcelas = Number(creditoParceladoComValor[2]);
-        const valorInformado = Number(
-            creditoParceladoComValor[3]
-                .replace(/\./g, "")
-                .replace(",", ".")
+    const cabecalhos =
+        Array.from(
+            tabela.querySelectorAll("thead th")
         );
 
-        if (
-            Number.isFinite(parcelas) &&
-            parcelas > 1 &&
-            Number.isFinite(valorInformado)
-        ) {
-            const valorParcela = valorInformado / parcelas;
-            return `${forma} — ${parcelas}x — R$ ${valorParcela.toFixed(2).replace(".", ",")} / parcela`;
+
+    cabecalhos.forEach((th, indice) => {
+
+        if (colunasIgnoradas.includes(indice)) {
+            return;
         }
-    }
 
-    // Como a origem já informa que é Fiado, não repetimos "Fiado".
-    const creditoParcelado = limpo.match(/^fiado\s*\(\s*(cartão\s+de\s+crédito)\s*\)\s*[—-]\s*(\d+)x$/i);
-    if (creditoParcelado) {
-        return `${creditoParcelado[1]} — ${creditoParcelado[2]}x`;
-    }
 
-    limpo = limpo.replace(/^fiado\s*\((.*?)\)$/i, "$1");
-    limpo = limpo.replace(/^fiado\s*$/i, "Fiado");
-    limpo = limpo.replace(/f(?:1[0-2]|[1-9])/gi, "");
-    limpo = limpo.replace(/[()\[\]]/g, "");
-    limpo = limpo.replace(/^[-:\s]+|[-:\s]+$/g, "").trim();
+        th.classList.add("sortable");
 
-    if (!limpo) return "-";
-    return limpo.toLowerCase().replace(/(?:^|\s|-)(\S)/g, (_, letra) => letra.toUpperCase());
+
+        if (!th.dataset.ordem) {
+            th.dataset.ordem = "none";
+        }
+
+
+        const novoTh =
+            th.cloneNode(true);
+
+
+        novoTh.dataset.ordem =
+            th.dataset.ordem || "none";
+
+        novoTh.dataset.prioridadeOrdenacao =
+            th.dataset.prioridadeOrdenacao || "";
+
+
+        th.parentNode.replaceChild(
+            novoTh,
+            th
+        );
+
+
+        novoTh.addEventListener(
+            "click",
+            () => {
+
+                const estadoAtual =
+                    novoTh.dataset.ordem || "none";
+
+
+                const novoEstado =
+                    estadoAtual === "none"
+                        ? "asc"
+                        : estadoAtual === "asc"
+                            ? "desc"
+                            : "none";
+
+
+                novoTh.dataset.ordem =
+                    novoEstado;
+
+
+                novoTh.classList.remove(
+                    "sort-asc",
+                    "sort-desc"
+                );
+
+
+                if (novoEstado === "asc") {
+
+                    novoTh.classList.add(
+                        "sort-asc"
+                    );
+
+                    novoTh.dataset.prioridadeOrdenacao =
+                        ++contadorOrdenacao;
+
+                }
+
+                else if (novoEstado === "desc") {
+
+                    novoTh.classList.add(
+                        "sort-desc"
+                    );
+
+                    novoTh.dataset.prioridadeOrdenacao =
+                        ++contadorOrdenacao;
+
+                }
+
+                else {
+
+                    novoTh.dataset.prioridadeOrdenacao =
+                        "";
+
+                }
+
+
+                const ordenacoesAtivas =
+                    Array.from(
+                        tabela.querySelectorAll(
+                            "thead th"
+                        )
+                    )
+                    .map((cab, idx) => ({
+                        indice: idx,
+                        estado:
+                            cab.dataset.ordem ||
+                            "none",
+                        prioridade:
+                            Number(
+                                cab.dataset.prioridadeOrdenacao ||
+                                0
+                            )
+                    }))
+                    .filter(
+                        item =>
+                            item.estado !== "none"
+                    )
+                    .sort(
+                        (a, b) =>
+                            b.prioridade -
+                            a.prioridade
+                    );
+
+
+                const linhas =
+                    Array.from(
+                        tbody.querySelectorAll("tr")
+                    );
+
+
+                if (
+                    ordenacoesAtivas.length === 0
+                ) {
+
+                    linhas.sort(
+                        (a, b) =>
+                            Number(
+                                a.dataset.indexOriginal ||
+                                0
+                            ) -
+                            Number(
+                                b.dataset.indexOriginal ||
+                                0
+                            )
+                    );
+
+                }
+
+                else {
+
+                    const obterValor =
+                        (linha, indice) => {
+
+                            const celula =
+                                linha.children[indice];
+
+                            if (!celula) {
+                                return "";
+                            }
+
+                            const controle =
+                                celula.querySelector(
+                                    "input, select"
+                                );
+
+                            return controle
+                                ? controle.value.trim()
+                                : celula.textContent.trim();
+                        };
+
+
+                    const eAgendamento =
+                        tabela.querySelectorAll(
+                            "thead th"
+                        ).length === 7 &&
+                        tbody.id ===
+                            "tb_tbl_produtos";
+
+
+                    linhas.sort((a, b) => {
+
+                        for (
+                            const ordem
+                            of ordenacoesAtivas
+                        ) {
+
+                            let resultado;
+
+
+                            if (
+                                eAgendamento &&
+                                ordem.indice === 5
+                            ) {
+
+                                const dataA =
+                                    new Date(
+                                        a.dataset.data ||
+                                        0
+                                    ).getTime();
+
+                                const dataB =
+                                    new Date(
+                                        b.dataset.data ||
+                                        0
+                                    ).getTime();
+
+                                resultado =
+                                    dataA - dataB;
+
+                            }
+
+                            else {
+
+                                const valA =
+                                    obterValor(
+                                        a,
+                                        ordem.indice
+                                    );
+
+                                const valB =
+                                    obterValor(
+                                        b,
+                                        ordem.indice
+                                    );
+
+
+                                const textoA =
+                                    String(
+                                        valA || ""
+                                    ).trim();
+
+                                const textoB =
+                                    String(
+                                        valB || ""
+                                    ).trim();
+
+
+                                const numA =
+                                    parseFloat(
+                                        textoA
+                                            .replace(
+                                                /R\$/g,
+                                                ""
+                                            )
+                                            .replace(
+                                                /#/g,
+                                                ""
+                                            )
+                                            .replace(
+                                                /\./g,
+                                                ""
+                                            )
+                                            .replace(
+                                                ",",
+                                                "."
+                                            )
+                                            .trim()
+                                    );
+
+
+                                const numB =
+                                    parseFloat(
+                                        textoB
+                                            .replace(
+                                                /R\$/g,
+                                                ""
+                                            )
+                                            .replace(
+                                                /#/g,
+                                                ""
+                                            )
+                                            .replace(
+                                                /\./g,
+                                                ""
+                                            )
+                                            .replace(
+                                                ",",
+                                                "."
+                                            )
+                                            .trim()
+                                    );
+
+
+                                if (
+                                    !Number.isNaN(numA) &&
+                                    !Number.isNaN(numB) &&
+                                    textoA !== "" &&
+                                    textoB !== ""
+                                ) {
+
+                                    resultado =
+                                        numA - numB;
+
+                                }
+
+                                else {
+
+                                    resultado =
+                                        textoA.localeCompare(
+                                            textoB,
+                                            "pt-BR",
+                                            {
+                                                numeric: true,
+                                                sensitivity: "base"
+                                            }
+                                        );
+
+                                }
+
+                            }
+
+
+                            if (resultado !== 0) {
+
+                                return ordem.estado === "asc"
+                                    ? resultado
+                                    : -resultado;
+
+                            }
+
+                        }
+
+
+                        return (
+                            Number(
+                                a.dataset.indexOriginal ||
+                                0
+                            ) -
+                            Number(
+                                b.dataset.indexOriginal ||
+                                0
+                            )
+                        );
+
+                    });
+
+                }
+
+
+                linhas.forEach(
+                    linha =>
+                        tbody.appendChild(linha)
+                );
+
+            }
+        );
+
+    });
+
 }
 
 
-document.addEventListener("DOMContentLoaded", () => {
-    buscarProdutosEstoque();
-    configurarEventosFiltro();
-});
+/* ============================================================
+   FORMA DE PAGAMENTO
+   CORREÇÃO:
+   O valor vindo do banco NÃO é mais convertido para o
+   formato antigo.
+============================================================ */
+
+function formatarFormaPagamento(texto) {
+
+    if (
+        texto === null ||
+        texto === undefined ||
+        String(texto).trim() === ""
+    ) {
+        return "-";
+    }
+
+
+    const valorOriginal =
+        String(texto).trim();
+
+
+    /*
+     * PAGAMENTO DIVIDIDO
+     *
+     * Exemplo salvo no banco:
+     *
+     * Dinheiro=2.00, Cartão de Crédito=5.00
+     *
+     * O histórico apresenta:
+     *
+     * Dinheiro: R$ 2,00
+     * Cartão de Crédito: R$ 5,00
+     *
+     * Sem modificar a forma de pagamento.
+     */
+
+    if (valorOriginal.includes("=")) {
+
+        const partes =
+            valorOriginal
+                .split(",")
+                .map(parte => parte.trim())
+                .filter(Boolean);
+
+
+        const pagamentos =
+            partes.map(parte => {
+
+                const indiceIgual =
+                    parte.lastIndexOf("=");
+
+
+                if (indiceIgual <= 0) {
+
+                    return escapeHtml(parte);
+
+                }
+
+
+                const forma =
+                    parte
+                        .slice(
+                            0,
+                            indiceIgual
+                        )
+                        .trim();
+
+
+                const valorTexto =
+                    parte
+                        .slice(
+                            indiceIgual + 1
+                        )
+                        .trim();
+
+
+                const valorNumerico =
+                    Number(
+                        valorTexto.replace(
+                            ",",
+                            "."
+                        )
+                    );
+
+
+                if (
+                    !Number.isFinite(
+                        valorNumerico
+                    )
+                ) {
+
+                    return escapeHtml(
+                        forma
+                    );
+
+                }
+
+
+                return `
+                    <div style="line-height:1.5;">
+                        ${escapeHtml(forma)}:
+                        R$ ${valorNumerico
+                            .toFixed(2)
+                            .replace(".", ",")}
+                    </div>
+                `;
+
+            });
+
+
+        return pagamentos.join("");
+
+    }
+
+
+    /*
+     * IMPORTANTE:
+     *
+     * Para pagamentos que NÃO são divididos,
+     * o valor é mostrado exatamente como veio
+     * do banco.
+     *
+     * Não remove:
+     * - FIADO
+     * - F1/F2...
+     * - parênteses
+     * - parcelas
+     * - nomes novos
+     * - qualquer outra informação
+     */
+
+    return escapeHtml(
+        valorOriginal
+    );
+}
+
+
+/* ============================================================
+   PROTEÇÃO CONTRA HTML
+============================================================ */
+
+function escapeHtml(valor) {
+
+    return String(valor)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* ============================================================
+   INICIALIZAÇÃO
+============================================================ */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        buscarProdutosEstoque();
+
+        configurarEventosFiltro();
+
+    }
+);
+
+
+/* ============================================================
+   BUSCAR HISTÓRICO
+============================================================ */
 
 async function buscarProdutosEstoque() {
-    if (!corpoTabela) return;
+
+    if (!corpoTabela) {
+        return;
+    }
+
+
     corpoTabela.innerHTML = "";
 
-    try {
-        const response = await fetch("http://localhost:3000/historico-pedidos", {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`
-            }
-        });
 
-        if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+    try {
+
+        const response =
+            await fetch(
+                "http://localhost:3000/historico-pedidos",
+                {
+                    headers: {
+                        Authorization:
+                            `Bearer ${localStorage.getItem("token")}`
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Erro HTTP: ${response.status}`
+            );
+
+        }
+
 
         const dadosHistorico =
             await response.json();
+
 
         pedidosCarregados =
             Array.isArray(dadosHistorico)
@@ -334,261 +820,857 @@ async function buscarProdutosEstoque() {
                     pedido =>
                         String(
                             pedido?.status || ""
-                        ).trim().toLowerCase() === "finalizado"
+                        )
+                        .trim()
+                        .toLowerCase() ===
+                        "finalizado"
                 )
                 : [];
 
+
         calcularRankingProdutos();
 
-        if (pedidosCarregados.length === 0) {
+
+        if (
+            pedidosCarregados.length === 0
+        ) {
+
             corpoTabela.innerHTML = `
                 <tr>
-                    <td colspan="6" style="text-align: center;">Nenhum pedido finalizado encontrado.</td>
+                    <td
+                        colspan="6"
+                        style="text-align: center;">
+                        Nenhum pedido finalizado encontrado.
+                    </td>
                 </tr>
             `;
+
+
             atualizarMetricas();
+
             return;
         }
 
+
         aplicarFiltrosEBusca();
 
-    } catch (erro) {
-        console.error("Erro ao carregar histórico:", erro);
+
+    }
+
+    catch (erro) {
+
+        console.error(
+            "Erro ao carregar histórico:",
+            erro
+        );
+
+
         corpoTabela.innerHTML = `
             <tr>
-                <td colspan="6" style="text-align: center;">Erro ao carregar histórico de pedidos.</td>
+                <td
+                    colspan="6"
+                    style="text-align: center;">
+                    Erro ao carregar histórico de pedidos.
+                </td>
             </tr>
         `;
+
     }
+
 }
+
+
+/* ============================================================
+   FILTROS
+============================================================ */
 
 function configurarEventosFiltro() {
+
     if (btnFiltro) {
-        btnFiltro.addEventListener("click", (e) => {
-            e.stopPropagation();
-            menuFiltro.classList.toggle("aberto");
-        });
+
+        btnFiltro.addEventListener(
+            "click",
+            (e) => {
+
+                e.stopPropagation();
+
+                menuFiltro.classList.toggle(
+                    "aberto"
+                );
+
+            }
+        );
+
     }
 
-    document.addEventListener("click", () => {
-        if (menuFiltro) menuFiltro.classList.remove("aberto");
-    });
+
+    document.addEventListener(
+        "click",
+        () => {
+
+            if (menuFiltro) {
+                menuFiltro.classList.remove(
+                    "aberto"
+                );
+            }
+
+        }
+    );
+
 
     itensFiltro.forEach(item => {
-        item.addEventListener("click", () => {
-            itensFiltro.forEach(i => i.classList.remove("ativo"));
-            item.classList.add("ativo");
-            filtroOrigemAtual = item.getAttribute("data-origem");
-            aplicarFiltrosEBusca();
-        });
+
+        item.addEventListener(
+            "click",
+            () => {
+
+                itensFiltro.forEach(
+                    i =>
+                        i.classList.remove(
+                            "ativo"
+                        )
+                );
+
+
+                item.classList.add(
+                    "ativo"
+                );
+
+
+                filtroOrigemAtual =
+                    item.getAttribute(
+                        "data-origem"
+                    );
+
+
+                aplicarFiltrosEBusca();
+
+            }
+        );
+
     });
+
 
     if (inputBusca) {
-        inputBusca.addEventListener("input", () => {
-            aplicarFiltrosEBusca();
-        });
+
+        inputBusca.addEventListener(
+            "input",
+            () => {
+
+                aplicarFiltrosEBusca();
+
+            }
+        );
+
     }
+
 }
+
+
+/* ============================================================
+   FILTROS + BUSCA
+============================================================ */
 
 function aplicarFiltrosEBusca() {
-    const termoBusca = inputBusca ? inputBusca.value.toLowerCase().trim() : "";
 
-    const pedidosFiltrados = pedidosCarregados.filter(pedido => {
-        const origemPedido = (pedido.origem || "").toLowerCase();
-        const formaPedido = String(pedido.form_pag || "").toLowerCase();
-        const ehCreditoParcelado = formaPedido.includes("cartão de crédito") && /\d+x/.test(formaPedido);
-        const atendeOrigem =
-            (filtroOrigemAtual === "todos") ||
-            (filtroOrigemAtual === "CreditoParcelado" && ehCreditoParcelado) ||
-            (filtroOrigemAtual !== "CreditoParcelado" && origemPedido === filtroOrigemAtual.toLowerCase());
+    const termoBusca =
+        inputBusca
+            ? inputBusca.value
+                .toLowerCase()
+                .trim()
+            : "";
 
-        const nomeCliente = (pedido.nome || "consumidor final").toLowerCase();
-        const numPedido = (pedido.num_pedido !== undefined && pedido.num_pedido !== null) 
-                            ? pedido.num_pedido.toString().toLowerCase() 
-                            : "";
 
-        const atendeBusca = nomeCliente.includes(termoBusca) || numPedido.includes(termoBusca) || formaPedido.includes(termoBusca);
+    const pedidosFiltrados =
+        pedidosCarregados.filter(
+            pedido => {
 
-        return atendeOrigem && atendeBusca;
-    });
+                const origemPedido =
+                    (
+                        pedido.origem ||
+                        ""
+                    ).toLowerCase();
 
-    renderizarTabela(pedidosFiltrados);
+
+                const formaPedido =
+                    String(
+                        pedido.form_pag ||
+                        ""
+                    ).toLowerCase();
+
+
+                const ehCreditoParcelado =
+                    formaPedido.includes(
+                        "cartão de crédito"
+                    ) &&
+                    /\d+x/.test(
+                        formaPedido
+                    );
+
+
+                const atendeOrigem =
+
+                    (
+                        filtroOrigemAtual ===
+                        "todos"
+                    )
+
+                    ||
+
+                    (
+                        filtroOrigemAtual ===
+                        "CreditoParcelado" &&
+                        ehCreditoParcelado
+                    )
+
+                    ||
+
+                    (
+                        filtroOrigemAtual !==
+                        "CreditoParcelado" &&
+                        origemPedido ===
+                        filtroOrigemAtual.toLowerCase()
+                    );
+
+
+                const nomeCliente =
+                    (
+                        pedido.nome ||
+                        "consumidor final"
+                    ).toLowerCase();
+
+
+                const numPedido =
+                    (
+                        pedido.num_pedido !==
+                            undefined &&
+                        pedido.num_pedido !==
+                            null
+                    )
+                        ? pedido.num_pedido
+                            .toString()
+                            .toLowerCase()
+                        : "";
+
+
+                const atendeBusca =
+                    nomeCliente.includes(
+                        termoBusca
+                    )
+
+                    ||
+
+                    numPedido.includes(
+                        termoBusca
+                    )
+
+                    ||
+
+                    formaPedido.includes(
+                        termoBusca
+                    );
+
+
+                return (
+                    atendeOrigem &&
+                    atendeBusca
+                );
+
+            }
+        );
+
+
+    renderizarTabela(
+        pedidosFiltrados
+    );
+
+
     atualizarMetricas();
+
 }
+
+
+/* ============================================================
+   RENDERIZAR TABELA
+============================================================ */
 
 function renderizarTabela(pedidos) {
-    if (!corpoTabela) return;
+
+    if (!corpoTabela) {
+        return;
+    }
+
+
     corpoTabela.innerHTML = "";
+
     delete corpoTabela.dataset.ordemOriginal;
 
-    if (!pedidos || pedidos.length === 0) {
+
+    if (
+        !pedidos ||
+        pedidos.length === 0
+    ) {
+
         corpoTabela.innerHTML = `
             <tr>
-                <td colspan="6" style="text-align: center;">Nenhum pedido finalizado encontrado.</td>
+                <td
+                    colspan="6"
+                    style="text-align: center;">
+                    Nenhum pedido finalizado encontrado.
+                </td>
             </tr>
         `;
+
         return;
+
     }
 
-    pedidos.forEach(pedido => {
-        const dataFormatada = pedido.data ? new Date(pedido.data).toLocaleString("pt-BR") : "-";
-        const valorTotalNum = Number(pedido.valor_total) || 0;
-        const valorFormatado = valorTotalNum.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-        const pagamentoFormatado = formatarFormaPagamento(pedido.form_pag);
 
-        const tr = document.createElement("tr");
+    pedidos.forEach(
+        pedido => {
 
-        tr.innerHTML = `
-            <td>${pedido.nome || "Consumidor Final"}</td>
-            <td>#${pedido.num_pedido || pedido.id_pedido || "-"}</td>
-            <td>${pedido.origem || "PDV"}</td>
-            <td>${dataFormatada}</td>
-            <td>${valorFormatado}</td>
-            <td>${pagamentoFormatado}</td>
-        `;
-        corpoTabela.appendChild(tr);
-    });
+            const dataFormatada =
+                pedido.data
+                    ? new Date(
+                        pedido.data
+                    ).toLocaleString(
+                        "pt-BR"
+                    )
+                    : "-";
 
-    aplicarOrdenacaoTabela("tb_tbl_produtos", []);
+
+            const valorTotalNum =
+                Number(
+                    pedido.valor_total
+                ) || 0;
+
+
+            const valorFormatado =
+                valorTotalNum.toLocaleString(
+                    "pt-BR",
+                    {
+                        style: "currency",
+                        currency: "BRL"
+                    }
+                );
+
+
+            /*
+             * AQUI está a parte importante:
+             *
+             * Sempre usa o form_pag que veio
+             * diretamente do banco.
+             */
+
+            const pagamentoFormatado =
+                formatarFormaPagamento(
+                    pedido.form_pag
+                );
+
+
+            const tr =
+                document.createElement("tr");
+
+
+            tr.innerHTML = `
+
+                <td>
+                    ${
+                        escapeHtml(
+                            pedido.nome ||
+                            "Consumidor Final"
+                        )
+                    }
+                </td>
+
+                <td>
+                    #${
+                        pedido.num_pedido ||
+                        pedido.id_pedido ||
+                        "-"
+                    }
+                </td>
+
+                <td>
+                    ${
+                        escapeHtml(
+                            pedido.origem ||
+                            "PDV"
+                        )
+                    }
+                </td>
+
+                <td>
+                    ${dataFormatada}
+                </td>
+
+                <td>
+                    ${valorFormatado}
+                </td>
+
+                <td>
+                    ${pagamentoFormatado}
+                </td>
+
+            `;
+
+
+            corpoTabela.appendChild(
+                tr
+            );
+
+        }
+    );
+
+
+    aplicarOrdenacaoTabela(
+        "tb_tbl_produtos",
+        []
+    );
+
 }
+
+
+/* ============================================================
+   PEDIDOS DO MÊS
+============================================================ */
 
 function obterPedidosDoMesAtual() {
-    const agora = new Date();
-    const mesAtual = agora.getMonth();
-    const anoAtual = agora.getFullYear();
 
-    return pedidosCarregados.filter(pedido => {
-        if (!pedido.data) return false;
-        const dataPedido = new Date(pedido.data);
+    const agora =
+        new Date();
 
-        return (
-            dataPedido.getMonth() === mesAtual &&
-            dataPedido.getFullYear() === anoAtual
-        );
-    });
+
+    const mesAtual =
+        agora.getMonth();
+
+
+    const anoAtual =
+        agora.getFullYear();
+
+
+    return pedidosCarregados.filter(
+        pedido => {
+
+            if (!pedido.data) {
+                return false;
+            }
+
+
+            const dataPedido =
+                new Date(
+                    pedido.data
+                );
+
+
+            return (
+                dataPedido.getMonth() ===
+                    mesAtual
+                &&
+                dataPedido.getFullYear() ===
+                    anoAtual
+            );
+
+        }
+    );
+
 }
+
+
+/* ============================================================
+   MÉTRICAS
+============================================================ */
 
 function atualizarMetricas() {
-    const pedidosDoMes = obterPedidosDoMesAtual();
+
+    const pedidosDoMes =
+        obterPedidosDoMesAtual();
+
+
     let totalFaturado = 0;
 
-    pedidosDoMes.forEach(pedido => {
-        totalFaturado += Number(pedido.valor_total || 0);
-    });
 
-    const elementoTotal = document.getElementById("lbl_total_mes");
+    pedidosDoMes.forEach(
+        pedido => {
+
+            totalFaturado +=
+                Number(
+                    pedido.valor_total ||
+                    0
+                );
+
+        }
+    );
+
+
+    const elementoTotal =
+        document.getElementById(
+            "lbl_total_mes"
+        );
+
+
     if (elementoTotal) {
-        elementoTotal.innerText = `R$ ${totalFaturado.toFixed(2).replace(".", ",")}`;
+
+        elementoTotal.innerText =
+            `R$ ${
+                totalFaturado
+                    .toFixed(2)
+                    .replace(
+                        ".",
+                        ","
+                    )
+            }`;
+
     }
+
 }
+
+
+/* ============================================================
+   RANKING DE PRODUTOS
+============================================================ */
 
 function calcularRankingProdutos() {
+
     const contador = {};
 
-    pedidosCarregados.forEach(pedido => {
-        let listaProds = pedido.itens || pedido.produtos || [];
 
-        if (typeof listaProds === "string") {
-            try {
-                listaProds = JSON.parse(listaProds);
-            } catch (e) {
-                listaProds = [];
-            }
-        }
+    pedidosCarregados.forEach(
+        pedido => {
 
-        if (Array.isArray(listaProds)) {
-            listaProds.forEach(prod => {
-                const nome = prod.nome || prod.nome_produto || "Produto Sem Nome";
-                const qtd = Number(prod.qtd || prod.quantidade || 1);
+            let listaProds =
+                pedido.itens ||
+                pedido.produtos ||
+                [];
 
-                if (nome) {
-                    contador[nome] = (contador[nome] || 0) + qtd;
+
+            if (
+                typeof listaProds ===
+                "string"
+            ) {
+
+                try {
+
+                    listaProds =
+                        JSON.parse(
+                            listaProds
+                        );
+
                 }
-            });
-        }
-    });
 
-    rankingProdutos = Object.entries(contador)
-        .map(([nome, quantidade]) => ({ nome, quantidade }))
-        .sort((a, b) => b.quantidade - a.quantidade);
+                catch (e) {
+
+                    listaProds = [];
+
+                }
+
+            }
+
+
+            if (
+                Array.isArray(
+                    listaProds
+                )
+            ) {
+
+                listaProds.forEach(
+                    prod => {
+
+                        const nome =
+                            prod.nome ||
+                            prod.nome_produto ||
+                            "Produto Sem Nome";
+
+
+                        const qtd =
+                            Number(
+                                prod.qtd ||
+                                prod.quantidade ||
+                                1
+                            );
+
+
+                        if (nome) {
+
+                            contador[nome] =
+                                (
+                                    contador[nome] ||
+                                    0
+                                ) + qtd;
+
+                        }
+
+                    }
+                );
+
+            }
+
+        }
+    );
+
+
+    rankingProdutos =
+        Object.entries(
+            contador
+        )
+        .map(
+            ([nome, quantidade]) => ({
+                nome,
+                quantidade
+            })
+        )
+        .sort(
+            (a, b) =>
+                b.quantidade -
+                a.quantidade
+        );
+
 }
+
+
+/* ============================================================
+   ABRIR RANKING
+============================================================ */
 
 function abrirRankingProdutos() {
-    const lista = document.getElementById("listaRankingProdutos");
+
+    const lista =
+        document.getElementById(
+            "listaRankingProdutos"
+        );
+
+
     lista.innerHTML = "";
 
-    if (rankingProdutos.length === 0) {
-        lista.innerHTML = "<p style='padding: 10px; text-align: center;'>Nenhum dado de produto vendido encontrado.</p>";
-    } else {
-        rankingProdutos.forEach((produto, index) => {
-            lista.innerHTML += `
-                <div class="item-ranking" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333;">
-                    <span><strong>${index + 1}°</strong> ${produto.nome}</span>
-                    <strong>${produto.quantidade} un.</strong>
-                </div>
-            `;
-        });
+
+    if (
+        rankingProdutos.length === 0
+    ) {
+
+        lista.innerHTML =
+            "<p style='padding: 10px; text-align: center;'>Nenhum dado de produto vendido encontrado.</p>";
+
     }
 
-    document.getElementById("modalRankingProdutos").showModal();
+    else {
+
+        rankingProdutos.forEach(
+            (produto, index) => {
+
+                lista.innerHTML += `
+
+                    <div
+                        class="item-ranking"
+                        style="
+                            display: flex;
+                            justify-content: space-between;
+                            padding: 8px 0;
+                            border-bottom: 1px solid #333;
+                        "
+                    >
+
+                        <span>
+
+                            <strong>
+                                ${index + 1}°
+                            </strong>
+
+                            ${
+                                escapeHtml(
+                                    produto.nome
+                                )
+                            }
+
+                        </span>
+
+                        <strong>
+                            ${produto.quantidade} un.
+                        </strong>
+
+                    </div>
+
+                `;
+
+            }
+        );
+
+    }
+
+
+    document
+        .getElementById(
+            "modalRankingProdutos"
+        )
+        .showModal();
+
 }
+
+
+/* ============================================================
+   BACKUP + LIMPAR HISTÓRICO
+============================================================ */
 
 function confirmarBackupEApagar() {
+
     exibirAviso(
+
         "Atenção: Ao confirmar, o PDF do mês será baixado automaticamente como segurança e todos os pedidos serão apagados. Deseja continuar?",
+
         async () => {
+
             gerarPDFMensalPedidos();
 
-            try {
-                const res = await fetch("http://localhost:3000/historico-pedidos/limpar", {
-                    method: "DELETE",
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`
-                    }
-                });
 
-                const data = await res.json();
+            try {
+
+                const res =
+                    await fetch(
+                        "http://localhost:3000/historico-pedidos/limpar",
+                        {
+                            method: "DELETE",
+
+                            headers: {
+                                Authorization:
+                                    `Bearer ${localStorage.getItem("token")}`
+                            }
+                        }
+                    );
+
+
+                const data =
+                    await res.json();
+
+
                 if (res.ok) {
-                    exibirAviso("Histórico limpo com sucesso!");
+
+                    exibirAviso(
+                        "Histórico limpo com sucesso!"
+                    );
+
+
                     buscarProdutosEstoque();
-                } else {
-                    exibirAviso(data.erro || "Erro ao apagar histórico.");
+
                 }
-            } catch (err) {
-                console.error("Erro ao apagar o histórico:", err);
-                exibirAviso("Erro de conexão ao tentar limpar histórico.");
+
+                else {
+
+                    exibirAviso(
+                        data.erro ||
+                        "Erro ao apagar histórico."
+                    );
+
+                }
+
             }
+
+            catch (err) {
+
+                console.error(
+                    "Erro ao apagar o histórico:",
+                    err
+                );
+
+
+                exibirAviso(
+                    "Erro de conexão ao tentar limpar histórico."
+                );
+
+            }
+
         },
+
         true
+
     );
+
 }
 
-function exibirAviso(mensagem, acaoConfirmar = null, mostrarCancelar = false) {
-    const dialog = document.getElementById("d_aviso");
-    const msg = document.getElementById("msg_aviso");
-    const btnConfirmar = document.getElementById("b_confirmar_aviso");
-    const btnCancelar = document.getElementById("b_cancelar_aviso");
+
+/* ============================================================
+   AVISOS
+============================================================ */
+
+function exibirAviso(
+    mensagem,
+    acaoConfirmar = null,
+    mostrarCancelar = false
+) {
+
+    const dialog =
+        document.getElementById(
+            "d_aviso"
+        );
+
+
+    const msg =
+        document.getElementById(
+            "msg_aviso"
+        );
+
+
+    const btnConfirmar =
+        document.getElementById(
+            "b_confirmar_aviso"
+        );
+
+
+    const btnCancelar =
+        document.getElementById(
+            "b_cancelar_aviso"
+        );
+
 
     if (!dialog) {
+
         alert(mensagem);
-        if (acaoConfirmar) acaoConfirmar();
+
+
+        if (acaoConfirmar) {
+            acaoConfirmar();
+        }
+
+
         return;
+
     }
 
-    msg.innerText = mensagem;
-    btnCancelar.style.display = mostrarCancelar ? "inline-block" : "none";
 
-    btnConfirmar.onclick = () => {
-        dialog.close();
-        if (acaoConfirmar) acaoConfirmar();
-    };
+    msg.innerText =
+        mensagem;
 
-    btnCancelar.onclick = () => {
-        dialog.close();
-    };
+
+    btnCancelar.style.display =
+        mostrarCancelar
+            ? "inline-block"
+            : "none";
+
+
+    btnConfirmar.onclick =
+        () => {
+
+            dialog.close();
+
+
+            if (acaoConfirmar) {
+                acaoConfirmar();
+            }
+
+        };
+
+
+    btnCancelar.onclick =
+        () => {
+
+            dialog.close();
+
+        };
+
 
     dialog.showModal();
+
 }
+
 </script>
+
 </body>
 </html>

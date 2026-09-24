@@ -454,12 +454,19 @@ const headerHTML = `
 
 
 
-const ehPDV =
+const paginaAtualSidebar =
     window.location.pathname
         .split("/")
         .pop()
-        .toLowerCase() ===
+        .toLowerCase();
+
+const ehPDV =
+    paginaAtualSidebar ===
     "pdv.html";
+
+const ehCadastroProduto =
+    paginaAtualSidebar ===
+    "cadastrop.html";
 
 
 
@@ -539,35 +546,6 @@ const sidebarHTML = `
             </span>
 
         </a>
-
-
-
-        ${
-            ehPDV
-                ?
-                `
-                <a
-                    href="#"
-                    id="nav-fechamento-pdv"
-                    class="nav-link nav-link-fechamento"
-                    title="Fechamento do Caixa"
-                >
-
-                    <img
-                        class="i_img"
-                        data-name="fechamento"
-                        alt="Fechamento"
-                    />
-
-                    <span class="nav-text">
-                        Fechamento
-                    </span>
-
-                </a>
-                `
-                :
-                ""
-        }
 
 
 
@@ -733,6 +711,901 @@ const sidebarHTML = `
 </aside>
 
 `;
+
+
+
+// =====================================================
+// AÇÕES ESPECIAIS NO HEADER
+// =====================================================
+function instalarEstiloAcoesEspeciaisHeader() {
+
+    if (
+        document.getElementById(
+            "acoes-especiais-header-style"
+        )
+    ) {
+        return;
+    }
+
+    const style =
+        document.createElement("style");
+
+    style.id =
+        "acoes-especiais-header-style";
+
+    style.textContent = `
+        .acoes-especiais-header {
+            position: fixed !important;
+
+            top: 7px !important;
+            right: 14px !important;
+
+            z-index: 2000 !important;
+
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+
+            gap: 4px !important;
+
+            width: 42px !important;
+            height: 42px !important;
+
+            padding: 0 !important;
+            margin: 0 !important;
+
+            pointer-events: none !important;
+        }
+
+        .header-acao-especial {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+
+            width: 40px !important;
+            height: 40px !important;
+
+            min-width: 40px !important;
+            min-height: 40px !important;
+
+            padding: 0 !important;
+            margin: 0 !important;
+
+            border: 0 !important;
+            outline: 0 !important;
+
+            background: transparent !important;
+            box-shadow: none !important;
+
+            cursor: pointer !important;
+
+            pointer-events: auto !important;
+
+            flex: 0 0 40px !important;
+
+            line-height: 0 !important;
+        }
+
+        .header-acao-especial img {
+            display: block !important;
+
+            width: 38px !important;
+            height: 38px !important;
+
+            max-width: 38px !important;
+            max-height: 38px !important;
+
+            margin: 0 auto !important;
+
+            object-fit: contain !important;
+
+            transform-origin: center center;
+        }
+
+        .header-acao-especial:hover img {
+            transform: scale(1.04);
+        }
+
+        .header-acao-especial:active img {
+            transform: scale(.98);
+        }
+
+        #dialogCriarCategoriaSidebar {
+            border: 0;
+            padding: 0;
+            border-radius: 14px;
+            background: transparent;
+            overflow: visible;
+        }
+
+        #dialogCriarCategoriaSidebar::backdrop {
+            background: rgba(0, 0, 0, .55);
+        }
+
+        .criar-categoria-sidebar-box {
+            width: 380px;
+            max-width: calc(100vw - 32px);
+            box-sizing: border-box;
+            padding: 24px;
+            border-radius: 14px;
+            background: #fff;
+            color: #2b1f14;
+            box-shadow: 0 12px 35px rgba(0,0,0,.28);
+            font-family: Arial, sans-serif;
+        }
+
+        .criar-categoria-sidebar-topo {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .criar-categoria-sidebar-topo h2 {
+            margin: 0;
+            font-size: 23px;
+        }
+
+        .criar-categoria-sidebar-fechar {
+            width: 34px;
+            height: 34px;
+            border: 0;
+            border-radius: 50%;
+            background: #eee;
+            color: #2b1f14;
+            font-size: 23px;
+            cursor: pointer;
+        }
+
+        .criar-categoria-sidebar-box label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 700;
+        }
+
+        #novaCategoriaSidebarNome {
+            width: 100%;
+            height: 44px;
+            box-sizing: border-box;
+            padding: 0 12px;
+            border: 1px solid #bbb;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        #novaCategoriaSidebarNome:focus {
+            border-color: #c88932;
+            box-shadow: 0 0 0 2px rgba(200,137,50,.18);
+        }
+
+        .criar-categoria-sidebar-acoes {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .criar-categoria-sidebar-acoes button {
+            min-width: 110px;
+            height: 42px;
+            padding: 0 15px;
+            border: 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        #btnCancelarNovaCategoriaSidebar {
+            background: #e5e5e5;
+            color: #2b1f14;
+        }
+
+        #btnSalvarNovaCategoriaSidebar {
+            background: #2b1f14;
+            color: #f1b869;
+        }
+
+        #criarCategoriaSidebarMensagem {
+            display: none;
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+    `;
+
+    document.head.appendChild(
+        style
+    );
+
+}
+
+
+function criarModalCategoriaSidebar() {
+
+    let dialog =
+        document.getElementById(
+            "dialogCriarCategoriaSidebar"
+        );
+
+    if (dialog) {
+        return dialog;
+    }
+
+    dialog =
+        document.createElement("dialog");
+
+    dialog.id =
+        "dialogCriarCategoriaSidebar";
+
+    dialog.innerHTML = `
+        <div class="criar-categoria-sidebar-box">
+
+            <div class="criar-categoria-sidebar-topo">
+
+                <h2>
+                    Criar categoria
+                </h2>
+
+                <button
+                    type="button"
+                    class="criar-categoria-sidebar-fechar"
+                    id="btnFecharNovaCategoriaSidebar"
+                    aria-label="Fechar"
+                >
+                    ×
+                </button>
+
+            </div>
+
+            <label
+                for="novaCategoriaSidebarNome"
+            >
+                Nome da categoria
+            </label>
+
+            <input
+                type="text"
+                id="novaCategoriaSidebarNome"
+                maxlength="100"
+                autocomplete="off"
+                placeholder="Digite o nome da categoria"
+            >
+
+            <div
+                id="criarCategoriaSidebarMensagem"
+            ></div>
+
+            <div class="criar-categoria-sidebar-acoes">
+
+                <button
+                    type="button"
+                    id="btnCancelarNovaCategoriaSidebar"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    type="button"
+                    id="btnSalvarNovaCategoriaSidebar"
+                >
+                    Criar categoria
+                </button>
+
+            </div>
+
+        </div>
+    `;
+
+    document.body.appendChild(
+        dialog
+    );
+
+    const fechar =
+        () => {
+
+            if (dialog.open) {
+                dialog.close();
+            }
+
+        };
+
+    document
+        .getElementById(
+            "btnFecharNovaCategoriaSidebar"
+        )
+        ?.addEventListener(
+            "click",
+            fechar
+        );
+
+    document
+        .getElementById(
+            "btnCancelarNovaCategoriaSidebar"
+        )
+        ?.addEventListener(
+            "click",
+            fechar
+        );
+
+    dialog.addEventListener(
+        "cancel",
+        event => {
+
+            event.preventDefault();
+            fechar();
+
+        }
+    );
+
+    document
+        .getElementById(
+            "novaCategoriaSidebarNome"
+        )
+        ?.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    event.key === "Enter"
+                ) {
+
+                    event.preventDefault();
+
+                    document
+                        .getElementById(
+                            "btnSalvarNovaCategoriaSidebar"
+                        )
+                        ?.click();
+
+                }
+
+            }
+        );
+
+    return dialog;
+
+}
+
+
+async function abrirCriarCategoriaSidebar() {
+
+    const dialog =
+        criarModalCategoriaSidebar();
+
+    const input =
+        document.getElementById(
+            "novaCategoriaSidebarNome"
+        );
+
+    const mensagem =
+        document.getElementById(
+            "criarCategoriaSidebarMensagem"
+        );
+
+    const botaoSalvar =
+        document.getElementById(
+            "btnSalvarNovaCategoriaSidebar"
+        );
+
+    const nome =
+        input;
+
+    if (
+        mensagem
+    ) {
+
+        mensagem.style.display =
+            "none";
+
+        mensagem.textContent =
+            "";
+
+    }
+
+    if (nome) {
+        nome.value = "";
+    }
+
+    if (
+        botaoSalvar
+    ) {
+
+        botaoSalvar.disabled =
+            false;
+
+        botaoSalvar.textContent =
+            "Criar categoria";
+
+    }
+
+    try {
+
+        if (!dialog.open) {
+            dialog.showModal();
+        }
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao abrir o cadastro de categoria:",
+            erro
+        );
+
+        return;
+
+    }
+
+    setTimeout(
+        () => {
+
+            input?.focus();
+
+        },
+        80
+    );
+
+
+
+    const salvar =
+        async () => {
+
+            const nomeCategoria =
+                String(
+                    input?.value || ""
+                ).trim();
+
+            if (!nomeCategoria) {
+
+                if (mensagem) {
+                    mensagem.textContent =
+                        "Digite o nome da categoria.";
+                    mensagem.style.display =
+                        "block";
+                    mensagem.style.color =
+                        "#b42318";
+                }
+
+                input?.focus();
+
+                return;
+
+            }
+
+            if (
+                nomeCategoria.length > 100
+            ) {
+
+                if (mensagem) {
+                    mensagem.textContent =
+                        "O nome da categoria deve ter no máximo 100 caracteres.";
+                    mensagem.style.display =
+                        "block";
+                    mensagem.style.color =
+                        "#b42318";
+                }
+
+                input?.focus();
+
+                return;
+
+            }
+
+            if (botaoSalvar) {
+                botaoSalvar.disabled =
+                    true;
+                botaoSalvar.textContent =
+                    "Salvando...";
+            }
+
+            try {
+
+                const resposta =
+                    await apiFetch(
+                        "http://localhost:3000/categorias",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                nome:
+                                    nomeCategoria
+                            })
+                        }
+                    );
+
+                const dados =
+                    await resposta
+                        .json()
+                        .catch(
+                            () => ({})
+                        );
+
+                if (!resposta.ok) {
+
+                    throw new Error(
+                        dados.erro ||
+                        "Não foi possível criar a categoria."
+                    );
+
+                }
+
+                if (
+                    mensagem
+                ) {
+
+                    mensagem.textContent =
+                        "Categoria criada com sucesso.";
+
+                    mensagem.style.display =
+                        "block";
+
+                    mensagem.style.color =
+                        "#18794e";
+
+                }
+
+                /*
+                 * O cadastrop.html atual declara
+                 * carregarCategorias() no script da página.
+                 * Atualizamos a lista existente sem
+                 * alterar o seletor original.
+                 */
+                if (
+                    typeof window
+                        .carregarCategorias ===
+                    "function"
+                ) {
+
+                    await window
+                        .carregarCategorias();
+
+                }
+
+                if (
+                    botaoSalvar
+                ) {
+
+                    botaoSalvar.textContent =
+                        "Criado";
+
+                }
+
+                setTimeout(
+                    () => {
+
+                        if (dialog.open) {
+                            dialog.close();
+                        }
+
+                    },
+                    500
+                );
+
+            } catch (erro) {
+
+                console.error(
+                    "Erro ao criar categoria:",
+                    erro
+                );
+
+                if (mensagem) {
+
+                    mensagem.textContent =
+                        erro.message ||
+                        "Erro ao criar categoria.";
+
+                    mensagem.style.display =
+                        "block";
+
+                    mensagem.style.color =
+                        "#b42318";
+
+                }
+
+                if (botaoSalvar) {
+
+                    botaoSalvar.disabled =
+                        false;
+
+                    botaoSalvar.textContent =
+                        "Criar categoria";
+
+                }
+
+            }
+
+        };
+
+
+
+    const botaoSalvarElemento =
+        document.getElementById(
+            "btnSalvarNovaCategoriaSidebar"
+        );
+
+
+
+    if (
+        botaoSalvarElemento
+    ) {
+
+        botaoSalvarElemento.onclick =
+            salvar;
+
+    }
+
+}
+
+
+function instalarAcoesEspeciaisHeader() {
+
+    instalarEstiloAcoesEspeciaisHeader();
+
+    const header =
+        document.querySelector(
+            ".custom-header"
+        );
+
+    if (!header) {
+        return;
+    }
+
+
+
+    let container =
+        document.getElementById(
+            "acoes-especiais-header"
+        );
+
+
+
+    if (!container) {
+
+        container =
+            document.createElement(
+                "div"
+            );
+
+        container.id =
+            "acoes-especiais-header";
+
+        container.className =
+            "acoes-especiais-header";
+
+        /*
+         * Fica dentro do header no DOM,
+         * mas é position:fixed.
+         *
+         * Portanto não aumenta nem empurra
+         * a altura do header.
+         */
+
+        header.appendChild(
+            container
+        );
+
+    }
+
+
+
+    container.innerHTML =
+        "";
+
+
+
+    // -------------------------------------------------
+    // PDV: FECHAMENTO
+    // -------------------------------------------------
+
+    if (ehPDV) {
+
+        const botao =
+            document.createElement(
+                "button"
+            );
+
+        botao.type =
+            "button";
+
+        botao.id =
+            "btn-fechamento-pdv-header";
+
+        botao.className =
+            "header-acao-especial";
+
+        botao.title =
+            "Fechamento do Caixa";
+
+        botao.setAttribute(
+            "aria-label",
+            "Fechamento do Caixa"
+        );
+
+
+
+        const imagem =
+            document.createElement(
+                "img"
+            );
+
+        imagem.src =
+            "../backend/imagens/fechamento_p.png";
+
+        imagem.alt =
+            "Fechamento do Caixa";
+
+
+
+        imagem.onerror =
+            () => {
+
+                console.error(
+                    "Não foi possível carregar fechamento_p.png:",
+                    imagem.src
+                );
+
+            };
+
+
+
+        botao.appendChild(
+            imagem
+        );
+
+        container.appendChild(
+            botao
+        );
+
+
+
+        botao.addEventListener(
+            "click",
+            event => {
+
+                event.preventDefault();
+                event.stopPropagation();
+
+
+
+                function tentarAbrirFechamento(
+                    tentativa = 0
+                ) {
+
+                    if (
+                        typeof window
+                            .abrirFechamentoDiario ===
+                        "function"
+                    ) {
+
+                        window
+                            .abrirFechamentoDiario();
+
+                        return;
+
+                    }
+
+
+
+                    if (
+                        tentativa < 60
+                    ) {
+
+                        setTimeout(
+                            () =>
+                                tentarAbrirFechamento(
+                                    tentativa + 1
+                                ),
+                            50
+                        );
+
+                        return;
+
+                    }
+
+
+
+                    console.error(
+                        "A função abrirFechamentoDiario não ficou disponível no PDV."
+                    );
+
+                }
+
+
+
+                tentarAbrirFechamento();
+
+            }
+        );
+
+    }
+
+
+
+    // -------------------------------------------------
+    // CADASTRO DE PRODUTO: CRIAR CATEGORIA
+    // -------------------------------------------------
+
+    if (ehCadastroProduto) {
+
+        const botao =
+            document.createElement(
+                "button"
+            );
+
+        botao.type =
+            "button";
+
+        botao.id =
+            "btn-categoria-produto-header";
+
+        botao.className =
+            "header-acao-especial";
+
+        botao.title =
+            "Criar categoria";
+
+        botao.setAttribute(
+            "aria-label",
+            "Criar categoria"
+        );
+
+
+
+        const imagem =
+            document.createElement(
+                "img"
+            );
+
+        imagem.src =
+            "../backend/imagens/categoria_p.png";
+
+        imagem.alt =
+            "Criar categoria";
+
+
+
+        imagem.onerror =
+            () => {
+
+                console.error(
+                    "Não foi possível carregar categoria_p.png:",
+                    imagem.src
+                );
+
+            };
+
+
+
+        botao.appendChild(
+            imagem
+        );
+
+        container.appendChild(
+            botao
+        );
+
+
+
+        botao.addEventListener(
+            "click",
+            event => {
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                abrirCriarCategoriaSidebar();
+
+            }
+        );
+
+    }
+
+}
 
 
 
@@ -1091,8 +1964,26 @@ function carregarMenu() {
 
 
     // -------------------------------------------------
+    // AÇÕES ESPECIAIS — SOMENTE NO HEADER
+    // -------------------------------------------------
+
+    instalarAcoesEspeciaisHeader();
+
+
+
+    // -------------------------------------------------
     // SIDEBAR
     // -------------------------------------------------
+
+    /*
+     * IMPORTANTE:
+     *
+     * O PDV usa:
+     *
+     * <body class="sem-sidebar fundo-marrom">
+     *
+     * Portanto ele continua SEM sidebar.
+     */
 
     if (
         !body.classList.contains(
@@ -1146,6 +2037,13 @@ function carregarMenu() {
 
 
 
+        /*
+         * FOTO DE PERFIL
+         *
+         * Continua sendo tratada
+         * separadamente dos botões.
+         */
+
         atualizarFotoSidebar(
             fotoBanco
         );
@@ -1178,81 +2076,6 @@ function carregarMenu() {
                     body.classList.toggle(
                         "sidebar-closed"
                     );
-
-                }
-            );
-
-        }
-
-
-
-        // -------------------------------------------------
-        // FECHAMENTO — SOMENTE NO PDV
-        // -------------------------------------------------
-
-        const btnFechamento =
-            document.getElementById(
-                "nav-fechamento-pdv"
-            );
-
-
-
-        if (btnFechamento) {
-
-            btnFechamento.addEventListener(
-                "click",
-                event => {
-
-                    event.preventDefault();
-
-
-
-                    function tentarAbrirFechamento(
-                        tentativa = 0
-                    ) {
-
-                        if (
-                            typeof window
-                                .abrirFechamentoDiario ===
-                            "function"
-                        ) {
-
-                            window
-                                .abrirFechamentoDiario();
-
-                            return;
-
-                        }
-
-
-
-                        if (
-                            tentativa < 40
-                        ) {
-
-                            setTimeout(
-                                () =>
-                                    tentarAbrirFechamento(
-                                        tentativa + 1
-                                    ),
-                                50
-                            );
-
-                            return;
-
-                        }
-
-
-
-                        console.error(
-                            "A função abrirFechamentoDiario não ficou disponível no PDV."
-                        );
-
-                    }
-
-
-
-                    tentarAbrirFechamento();
 
                 }
             );
@@ -1339,7 +2162,8 @@ function carregarMenu() {
 
 
             if (
-                href === paginaAtual
+                href ===
+                paginaAtual
             ) {
 
                 link.classList.add(
