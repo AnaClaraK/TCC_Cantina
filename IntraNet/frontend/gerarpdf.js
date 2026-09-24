@@ -346,3 +346,260 @@ function gerarPdfReposicao() {
     // Salva o arquivo baixando direto no navegador
     doc.save(`Lista_Reposicao_${dia}_${mes}_${ano}.pdf`);
 }
+
+
+// ===============================================
+// GERAR E BAIXAR PDF - REPOSIÇÃO DE ESTOQUE
+// ===============================================
+
+function gerarPDFReposicaoEstoque() {
+
+    // Verifica se os produtos do Estoque foram carregados
+    if (!Array.isArray(produtosCache)) {
+        if (typeof exibirAviso === "function") {
+            exibirAviso("Os produtos do estoque ainda não foram carregados.");
+        } else {
+            alert("Os produtos do estoque ainda não foram carregados.");
+        }
+        return;
+    }
+
+    // =============================================================
+    // FILTRA SOMENTE PRODUTOS ABAIXO DO ESTOQUE MÍNIMO
+    // Regra: estoque atual < estoque mínimo
+    // =============================================================
+
+    const produtosParaReposicao = produtosCache
+        .filter(produto => {
+            const estoqueAtual = Number(produto.qtd || 0);
+            const estoqueMinimo = Number(produto.qtd_min || 0);
+
+            return estoqueAtual < estoqueMinimo;
+        })
+        .sort((a, b) => {
+            const nomeA = String(a.nome || "").toLowerCase();
+            const nomeB = String(b.nome || "").toLowerCase();
+
+            return nomeA.localeCompare(nomeB, "pt-BR");
+        });
+
+    // =============================================================
+    // VERIFICA SE EXISTEM PRODUTOS PARA REPOSIÇÃO
+    // =============================================================
+
+    if (produtosParaReposicao.length === 0) {
+        if (typeof exibirAviso === "function") {
+            exibirAviso("Não há produtos abaixo do estoque mínimo para reposição.");
+        } else {
+            alert("Não há produtos abaixo do estoque mínimo para reposição.");
+        }
+        return;
+    }
+
+    // =============================================================
+    // INSTANCIA O jsPDF
+    // =============================================================
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Cores utilizadas nos outros relatórios
+    const corFundoEscuro = [28, 28, 28];
+    const corLaranja = [239, 172, 74];
+    const corTextoEscuro = [31, 35, 41];
+
+    // =============================================================
+    // DATA E HORA DE EMISSÃO
+    // =============================================================
+
+    const agora = new Date();
+
+    const dia = String(agora.getDate()).padStart(2, "0");
+    const mes = String(agora.getMonth() + 1).padStart(2, "0");
+    const ano = agora.getFullYear();
+
+    const horas = String(agora.getHours()).padStart(2, "0");
+    const minutos = String(agora.getMinutes()).padStart(2, "0");
+    const segundos = String(agora.getSeconds()).padStart(2, "0");
+
+    const dataHoraEmissao =
+        `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
+
+    // =============================================================
+    // USUÁRIO LOGADO
+    // =============================================================
+
+    let usuarioLogado = localStorage.getItem("usuarioNome");
+
+    if (
+        !usuarioLogado ||
+        usuarioLogado === "null" ||
+        usuarioLogado.trim() === ""
+    ) {
+        const token = localStorage.getItem("token");
+
+        if (token) {
+            try {
+                const payload = typeof parseJwt === "function"
+                    ? parseJwt(token)
+                    : JSON.parse(atob(token.split(".")[1]));
+
+                usuarioLogado =
+                    payload.nome ||
+                    payload.nomeUsuario ||
+                    payload.usuario ||
+                    payload.email;
+            } catch (e) {
+                console.warn("Erro ao extrair usuário do token.");
+            }
+        }
+    }
+
+    if (!usuarioLogado || usuarioLogado === "null") {
+        usuarioLogado = "Usuário do Sistema";
+    }
+
+    // =============================================================
+    // CABEÇALHO DO PDF
+    // =============================================================
+
+    doc.setFillColor(...corLaranja);
+    doc.rect(0, 0, 210, 30, "F");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(13);
+    doc.setTextColor(...corFundoEscuro);
+
+    doc.text(
+        "RELATÓRIO DE REPOSIÇÃO DE ESTOQUE ",
+        14,
+        15
+    );
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8.5);
+    doc.setTextColor(50, 50, 50);
+
+    doc.text(
+        "Produtos abaixo do estoque mínimo",
+        14,
+        22
+    );
+
+    // =============================================================
+    // METADADOS DO DOCUMENTO
+    // =============================================================
+
+    doc.setFontSize(8);
+
+    doc.text(
+        `Gerado em: ${dataHoraEmissao}`,
+        196,
+        14,
+        { align: "right" }
+    );
+
+    doc.text(
+        `Emitido por: ${usuarioLogado}`,
+        196,
+        21,
+        { align: "right" }
+    );
+
+    // =============================================================
+    // PREPARAÇÃO DOS DADOS DA TABELA
+    // =============================================================
+
+    const colunas = [
+        "Nome do Produto",
+        "Código",
+        "Estoque Atual",
+        "Estoque Mínimo",
+        "Quantidade Sugerida para Compra"
+    ];
+
+    const dadosTabela = produtosParaReposicao.map(produto => {
+
+        const estoqueAtual = Number(produto.qtd || 0);
+        const estoqueMinimo = Number(produto.qtd_min || 0);
+
+        const quantidadeSugerida =
+            estoqueMinimo - estoqueAtual;
+
+        return [
+            produto.nome || "-",
+            produto.codigo_barras || "-",
+            estoqueAtual,
+            estoqueMinimo,
+            quantidadeSugerida
+        ];
+    });
+
+    // =============================================================
+    // TABELA
+    // =============================================================
+
+    doc.autoTable({
+        head: [colunas],
+        body: dadosTabela,
+        startY: 36,
+
+        theme: "grid",
+
+        headStyles: {
+            fillColor: corFundoEscuro,
+            textColor: corLaranja,
+            fontStyle: "bold",
+            halign: "left"
+        },
+
+        alternateRowStyles: {
+            fillColor: [250, 247, 242]
+        },
+
+        bodyStyles: {
+            textColor: corTextoEscuro,
+            fontSize: 8.5
+        },
+
+        columnStyles: {
+            1: {
+                halign: "center"
+            },
+            2: {
+                halign: "center"
+            },
+            3: {
+                halign: "center"
+            },
+            4: {
+                halign: "center",
+                fontStyle: "bold"
+            }
+        },
+
+        didDrawPage: function () {
+            const pagina =
+                `Página ${doc.internal.getNumberOfPages()}`;
+
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(120, 120, 120);
+
+            doc.text(
+                pagina,
+                196,
+                285,
+                { align: "right" }
+            );
+        }
+    });
+
+    // =============================================================
+    // DOWNLOAD
+    // =============================================================
+
+    doc.save(
+        `Relatorio_Reposicao_Estoque_${dia}_${mes}_${ano}.pdf`
+    );
+}
