@@ -1,109 +1,6 @@
 // 🔒 PROTEÇÃO DE PÁGINA
+
 (function () {
-    const paginasPublicas = ["login.html", "cadastrof.html"];
-    const pagina = window.location.pathname.split("/").pop();
-    const token = localStorage.getItem("token");
-
-    if (!token && !paginasPublicas.includes(pagina)) {
-
-        document.addEventListener("DOMContentLoaded", () => {
-            document.body.innerHTML = `
-                <div style="
-                    display:flex;
-                    justify-content:center;
-                    align-items:center;
-                    height:100vh;
-                    background:#242628;
-                    color:#efac4a;
-                    flex-direction:column;
-                    font-family:Arial;
-                ">
-                    <h2>Acesso restrito</h2>
-                    <p>Você não tem permissão para acessar esta página.</p>
-                    <p>Redirecionando...</p>
-                </div>
-            `;
-        });
-
-        setTimeout(() => {
-            window.location.href = "login.html";
-        }, 2000);
-
-        return;
-    }
-
-    // já logado → não volta pro login
-    if (token && pagina === "login.html") {
-        window.location.href = "index.html";
-    }
-})();
-
-
-function parseJwt(token) {
-    try {
-        return JSON.parse(atob(token.split(".")[1]));
-    } catch {
-        return null;
-    }
-}
-
-
-function tokenExpirado() {
-
-    const token = localStorage.getItem("token");
-
-    if (!token) return true;
-
-    const payload = parseJwt(token);
-
-    if (!payload || !payload.exp) return true;
-
-    const agora = Date.now() / 1000;
-
-    return payload.exp < agora;
-}
-
-
-function logoutForcado() {
-
-    localStorage.removeItem("token");
-
-    window.location.replace("login.html");
-}
-
-
-function checarSessao() {
-
-    if (tokenExpirado()) {
-        logoutForcado();
-    }
-}
-
-
-setInterval(checarSessao, 5000);
-
-
-function interceptarEventos() {
-
-    if (tokenExpirado()) {
-        logoutForcado();
-    }
-}
-
-
-["click", "keydown", "input"].forEach(evt => {
-
-    document.addEventListener(
-        evt,
-        interceptarEventos,
-        true
-    );
-
-});
-
-
-// 👁️ MOSTRAR TELA
-document.addEventListener("DOMContentLoaded", () => {
 
     const paginasPublicas = [
         "login.html",
@@ -119,32 +16,234 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.getItem("token");
 
     if (
-        token ||
-        paginasPublicas.includes(pagina)
+        !token &&
+        !paginasPublicas.includes(pagina)
     ) {
 
-        document.body.style.visibility =
-            "visible";
+        document.addEventListener(
+            "DOMContentLoaded",
+            () => {
+
+                document.body.innerHTML = `
+                    <div style="
+                        display:flex;
+                        justify-content:center;
+                        align-items:center;
+                        height:100vh;
+                        background:#242628;
+                        color:#efac4a;
+                        flex-direction:column;
+                        font-family:Arial;
+                    ">
+                        <h2>Acesso restrito</h2>
+                        <p>Você não tem permissão para acessar esta página.</p>
+                        <p>Redirecionando...</p>
+                    </div>
+                `;
+
+            }
+        );
+
+        setTimeout(() => {
+
+            window.location.href =
+                "login.html";
+
+        }, 2000);
+
+        return;
+    }
+
+    // já logado → não volta pro login
+
+    if (
+        token &&
+        pagina === "login.html"
+    ) {
+
+        window.location.href =
+            "index.html";
 
     }
 
-});
+})();
 
 
-// 🚪 LOGOUT
-function logout() {
 
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuarioNome");
-    localStorage.removeItem("usuarioFoto");
-    localStorage.removeItem("usuarioEmail");
+function parseJwt(token) {
 
-    window.location.href =
-        "login.html";
+    try {
+
+        return JSON.parse(
+            atob(
+                token.split(".")[1]
+            )
+        );
+
+    } catch {
+
+        return null;
+
+    }
+
 }
 
 
+
+function tokenExpirado() {
+
+    const token =
+        localStorage.getItem("token");
+
+    if (!token) {
+        return true;
+    }
+
+    const payload =
+        parseJwt(token);
+
+    if (
+        !payload ||
+        !payload.exp
+    ) {
+        return true;
+    }
+
+    const agora =
+        Date.now() / 1000;
+
+    return payload.exp < agora;
+
+}
+
+
+
+function logoutForcado() {
+
+    localStorage.removeItem(
+        "token"
+    );
+
+    window.location.replace(
+        "login.html"
+    );
+
+}
+
+
+
+function checarSessao() {
+
+    if (tokenExpirado()) {
+
+        logoutForcado();
+
+    }
+
+}
+
+
+
+setInterval(
+    checarSessao,
+    5000
+);
+
+
+
+function interceptarEventos() {
+
+    if (tokenExpirado()) {
+
+        logoutForcado();
+
+    }
+
+}
+
+
+
+[
+    "click",
+    "keydown",
+    "input"
+].forEach(
+    evt => {
+
+        document.addEventListener(
+            evt,
+            interceptarEventos,
+            true
+        );
+
+    }
+);
+
+
+
+// 👁️ MOSTRAR TELA
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        const paginasPublicas = [
+            "login.html",
+            "cadastrof.html"
+        ];
+
+        const pagina =
+            window.location.pathname
+                .split("/")
+                .pop();
+
+        const token =
+            localStorage.getItem("token");
+
+        if (
+            token ||
+            paginasPublicas.includes(pagina)
+        ) {
+
+            document.body.style.visibility =
+                "visible";
+
+        }
+
+    }
+);
+
+
+
+// 🚪 LOGOUT
+
+function logout() {
+
+    localStorage.removeItem(
+        "token"
+    );
+
+    localStorage.removeItem(
+        "usuarioNome"
+    );
+
+    localStorage.removeItem(
+        "usuarioFoto"
+    );
+
+    localStorage.removeItem(
+        "usuarioEmail"
+    );
+
+    window.location.href =
+        "login.html";
+
+}
+
+
+
 // 🌐 FETCH GLOBAL
+
 async function apiFetch(
     url,
     options = {}
@@ -153,22 +252,23 @@ async function apiFetch(
     const token =
         localStorage.getItem("token");
 
-    const res = await fetch(
-        url,
-        {
-            ...options,
+    const res =
+        await fetch(
+            url,
+            {
+                ...options,
 
-            headers: {
+                headers: {
 
-                ...(options.headers || {}),
+                    ...(options.headers || {}),
 
-                "Authorization":
-                    `Bearer ${token}`
+                    "Authorization":
+                        `Bearer ${token}`
+
+                }
 
             }
-
-        }
-    );
+        );
 
     if (
         res.status === 401 ||
@@ -180,7 +280,9 @@ async function apiFetch(
     }
 
     return res;
+
 }
+
 
 
 function validarSessao() {
@@ -201,12 +303,14 @@ function validarSessao() {
 }
 
 
+
 validarSessao();
 
 setInterval(
     validarSessao,
     3000
 );
+
 
 
 // =====================================================
@@ -216,6 +320,7 @@ setInterval(
 function irParaGranoVita(event) {
 
     // Só interfere quando estiver no PDV
+
     if (
         window.location.pathname
             .endsWith("/pdv.html")
@@ -223,8 +328,7 @@ function irParaGranoVita(event) {
 
         if (
             typeof window.pdvPossuiVendaEmAndamento ===
-            "function" &&
-
+                "function" &&
             window.pdvPossuiVendaEmAndamento()
         ) {
 
@@ -232,16 +336,20 @@ function irParaGranoVita(event) {
 
             window.pdvConfirmarSaida(
                 () => {
+
                     window.location.href =
                         "index.html";
+
                 }
             );
 
             return;
         }
+
     }
 
 }
+
 
 
 // =====================================================
@@ -249,12 +357,14 @@ function irParaGranoVita(event) {
 // =====================================================
 
 const headerHTML = `
+
 <header class="custom-header">
 
     <div
         style="
             display:flex;
             align-items:center;
+            width:100%;
         "
     >
 
@@ -265,6 +375,7 @@ const headerHTML = `
         >
             ☰
         </button>
+
 
 
         <span>
@@ -288,7 +399,9 @@ const headerHTML = `
     </div>
 
 </header>
+
 `;
+
 
 
 // =====================================================
@@ -299,7 +412,9 @@ const ehPDV =
     window.location.pathname
         .split("/")
         .pop()
-        .toLowerCase() === "pdv.html";
+        .toLowerCase() ===
+    "pdv.html";
+
 
 
 const sidebarHTML = `
@@ -340,6 +455,7 @@ const sidebarHTML = `
     </a>
 
 
+
     <nav>
 
         <a
@@ -361,6 +477,7 @@ const sidebarHTML = `
         </a>
 
 
+
         <a
             href="pdv.html"
             class="nav-link"
@@ -380,33 +497,35 @@ const sidebarHTML = `
         </a>
 
 
+
         ${
             ehPDV
-            ?
-            `
-            <a
-                href="#"
-                id="nav-fechamento-pdv"
-                class="nav-link nav-link-fechamento"
-                title="Fechamento do Caixa"
-            >
+                ?
+                `
+                <a
+                    href="#"
+                    id="nav-fechamento-pdv"
+                    class="nav-link nav-link-fechamento"
+                    title="Fechamento do Caixa"
+                >
 
-                <img
-                    class="i_img"
-                    data-name="fechamento"
-                    src="imagens/fechamento_p.png"
-                    alt="Fechamento"
-                />
+                    <img
+                        class="i_img"
+                        data-name="fechamento"
+                        src="imagens/fechamento_p.png"
+                        alt="Fechamento"
+                    />
 
-                <span class="nav-text">
-                    Fechamento
-                </span>
+                    <span class="nav-text">
+                        Fechamento
+                    </span>
 
-            </a>
-            `
-            :
-            ""
+                </a>
+                `
+                :
+                ""
         }
+
 
 
         <a
@@ -428,6 +547,7 @@ const sidebarHTML = `
         </a>
 
 
+
         <a
             href="agendamento.html"
             class="nav-link"
@@ -445,6 +565,7 @@ const sidebarHTML = `
             </span>
 
         </a>
+
 
 
         <a
@@ -466,6 +587,7 @@ const sidebarHTML = `
         </a>
 
 
+
         <a
             href="conta_fiado.html"
             class="nav-link"
@@ -483,6 +605,7 @@ const sidebarHTML = `
             </span>
 
         </a>
+
 
 
         <a
@@ -505,6 +628,7 @@ const sidebarHTML = `
         </a>
 
 
+
         <a
             href="reposicao.html"
             class="nav-link"
@@ -525,6 +649,7 @@ const sidebarHTML = `
         </a>
 
 
+
         <a
             href="cadastrop.html"
             class="nav-link"
@@ -538,11 +663,13 @@ const sidebarHTML = `
             />
 
             <span class="nav-text">
-                Cadastro de <br>
+                Cadastro de
+                <br>
                 Produtos
             </span>
 
         </a>
+
 
 
         <a
@@ -559,7 +686,8 @@ const sidebarHTML = `
             />
 
             <span class="nav-text">
-                Cadastro de <br>
+                Cadastro de
+                <br>
                 Funcionários
             </span>
 
@@ -570,6 +698,318 @@ const sidebarHTML = `
 </aside>
 
 `;
+
+
+
+// =====================================================
+// FOTO DO USUÁRIO
+// =====================================================
+
+function obterCandidatosFotoUsuario(
+    foto
+) {
+
+    const candidatos = [];
+
+    const padrao =
+        "../backend/imagens/def_avt.jpg";
+
+    if (
+        foto === null ||
+        foto === undefined
+    ) {
+
+        return [padrao];
+
+    }
+
+    let valor =
+        String(foto)
+            .trim()
+            .replace(/\\/g, "/");
+
+    if (
+        !valor ||
+        valor === "null" ||
+        valor === "undefined"
+    ) {
+
+        return [padrao];
+
+    }
+
+
+
+    // Data URL
+
+    if (
+        valor.startsWith("data:image/")
+    ) {
+
+        return [
+            valor,
+            padrao
+        ];
+
+    }
+
+
+
+    // URL completa
+
+    if (
+        valor.startsWith("http://") ||
+        valor.startsWith("https://")
+    ) {
+
+        candidatos.push(valor);
+
+        candidatos.push(padrao);
+
+        return candidatos;
+
+    }
+
+
+
+    // Já está no formato usado pelo frontend
+
+    if (
+        valor.startsWith(
+            "../backend/"
+        )
+    ) {
+
+        candidatos.push(
+            valor
+        );
+
+    }
+
+
+
+    // Caminho absoluto do backend
+
+    if (
+        valor.startsWith("/backend/")
+    ) {
+
+        candidatos.push(
+            "http://localhost:3000" +
+            valor
+        );
+
+    }
+
+
+
+    // Caminho absoluto
+
+    if (
+        valor.startsWith("/")
+    ) {
+
+        candidatos.push(
+            "http://localhost:3000" +
+            valor
+        );
+
+    }
+
+
+
+    // Caminho relativo começando por backend
+
+    if (
+        valor.startsWith("backend/")
+    ) {
+
+        candidatos.push(
+            "../" +
+            valor
+        );
+
+        candidatos.push(
+            "http://localhost:3000/" +
+            valor
+        );
+
+    }
+
+
+
+    // Caminho relativo começando por imagens
+
+    if (
+        valor.startsWith("imagens/")
+    ) {
+
+        candidatos.push(
+            "../backend/" +
+            valor
+        );
+
+        candidatos.push(
+            "http://localhost:3000/" +
+            valor
+        );
+
+    }
+
+
+
+    // Caminho relativo comum
+
+    if (
+        !valor.startsWith("../") &&
+        !valor.startsWith("./") &&
+        !valor.startsWith("/")
+    ) {
+
+        candidatos.push(
+            "../backend/" +
+            valor
+        );
+
+        candidatos.push(
+            "http://localhost:3000/" +
+            valor
+        );
+
+        candidatos.push(
+            "http://localhost:3000/imagens/" +
+            valor
+        );
+
+    }
+
+
+
+    // Mantém o próprio valor como tentativa,
+    // caso o backend já entregue um caminho relativo válido.
+
+    candidatos.push(
+        valor
+    );
+
+
+
+    // Tenta pelo nome do arquivo nas pastas
+    // mais comuns do backend.
+
+    const nomeArquivo =
+        valor.split("/").pop();
+
+    if (nomeArquivo) {
+
+        candidatos.push(
+            "http://localhost:3000/imagens/" +
+            nomeArquivo
+        );
+
+        candidatos.push(
+            "http://localhost:3000/uploads/" +
+            nomeArquivo
+        );
+
+        candidatos.push(
+            "../backend/imagens/" +
+            nomeArquivo
+        );
+
+    }
+
+
+
+    candidatos.push(
+        padrao
+    );
+
+
+
+    return [
+        ...new Set(
+            candidatos.filter(Boolean)
+        )
+    ];
+
+}
+
+
+
+function atualizarFotoSidebar(
+    foto
+) {
+
+    const elFoto =
+        document.getElementById(
+            "sidebar-foto"
+        );
+
+    if (!elFoto) {
+        return;
+    }
+
+
+
+    const candidatos =
+        obterCandidatosFotoUsuario(
+            foto
+        );
+
+
+
+    let indice =
+        0;
+
+
+
+    function tentarFoto() {
+
+        if (
+            indice >=
+            candidatos.length
+        ) {
+
+            elFoto.onerror =
+                null;
+
+            elFoto.src =
+                "../backend/imagens/def_avt.jpg";
+
+            return;
+
+        }
+
+
+
+        const url =
+            candidatos[indice];
+
+        indice++;
+
+
+
+        elFoto.onerror =
+            () => {
+
+                tentarFoto();
+
+            };
+
+
+
+        elFoto.src =
+            url;
+
+    }
+
+
+
+    tentarFoto();
+
+}
+
 
 
 // =====================================================
@@ -587,6 +1027,8 @@ function configurarAcoesEspecificasHeader() {
         return;
     }
 
+
+
     const areaHeader =
         header.firstElementChild;
 
@@ -594,9 +1036,12 @@ function configurarAcoesEspecificasHeader() {
         return;
     }
 
-    // Garante que os itens específicos consigam ocupar
-    // o lado direito do header, sem ficar junto da logo.
-    areaHeader.style.width = "100%";
+
+
+    areaHeader.style.width =
+        "100%";
+
+
 
     const paginaAtual =
         window.location.pathname
@@ -604,9 +1049,12 @@ function configurarAcoesEspecificasHeader() {
             .pop()
             .toLowerCase();
 
+
+
     // -------------------------------------------------
     // FECHAMENTO DIÁRIO — SOMENTE NO PDV
     // -------------------------------------------------
+
     if (
         paginaAtual === "pdv.html" &&
         !document.getElementById(
@@ -619,76 +1067,171 @@ function configurarAcoesEspecificasHeader() {
                 "button"
             );
 
-        btnFechamento.type = "button";
+        btnFechamento.type =
+            "button";
+
         btnFechamento.id =
             "btn-fechamento-pdv";
+
         btnFechamento.className =
             "header-fechamento-pdv";
+
         btnFechamento.title =
             "Fechamento do Caixa";
-        btnFechamento.style.marginLeft = "auto";
-        btnFechamento.style.marginRight = "18px";
-        btnFechamento.style.width = "42px";
-        btnFechamento.style.height = "42px";
-        btnFechamento.style.padding = "4px";
-        btnFechamento.style.border = "0";
-        btnFechamento.style.background = "transparent";
-        btnFechamento.style.display = "flex";
-        btnFechamento.style.alignItems = "center";
-        btnFechamento.style.justifyContent = "center";
-        btnFechamento.style.cursor = "pointer";
+
+        btnFechamento.style.marginLeft =
+            "auto";
+
+        btnFechamento.style.marginRight =
+            "18px";
+
+        btnFechamento.style.width =
+            "42px";
+
+        btnFechamento.style.height =
+            "42px";
+
+        btnFechamento.style.padding =
+            "4px";
+
+        btnFechamento.style.border =
+            "0";
+
+        btnFechamento.style.background =
+            "transparent";
+
+        btnFechamento.style.display =
+            "flex";
+
+        btnFechamento.style.alignItems =
+            "center";
+
+        btnFechamento.style.justifyContent =
+            "center";
+
+        btnFechamento.style.cursor =
+            "pointer";
+
         btnFechamento.setAttribute(
             "aria-label",
             "Fechamento do Caixa"
         );
 
-        const imagem =
-            document.createElement("img");
 
-        imagem.className = "l_img";
+
+        const imagem =
+            document.createElement(
+                "img"
+            );
+
+        imagem.className =
+            "l_img";
+
         imagem.setAttribute(
             "data-name",
             "fechamento"
         );
+
         imagem.src =
             "../backend/imagens/fechamento_p.png";
-        imagem.alt = "Fechamento";
-        imagem.style.width = "32px";
-        imagem.style.height = "32px";
-        imagem.style.objectFit = "contain";
-        imagem.style.display = "block";
+
+        imagem.alt =
+            "Fechamento";
+
+        imagem.style.width =
+            "32px";
+
+        imagem.style.height =
+            "32px";
+
+        imagem.style.objectFit =
+            "contain";
+
+        imagem.style.display =
+            "block";
+
+
 
         btnFechamento.appendChild(
             imagem
         );
 
+
+
         areaHeader.appendChild(
             btnFechamento
         );
+
+
 
         btnFechamento.addEventListener(
             "click",
             event => {
 
                 event.preventDefault();
+
                 event.stopPropagation();
 
-                if (
-                    typeof window
-                        .abrirFechamentoDiario ===
-                    "function"
+
+
+                function tentarAbrirFechamento(
+                    tentativa = 0
                 ) {
-                    window.abrirFechamentoDiario();
+
+                    if (
+                        typeof window
+                            .abrirFechamentoDiario ===
+                        "function"
+                    ) {
+
+                        window
+                            .abrirFechamentoDiario();
+
+                        return;
+
+                    }
+
+
+
+                    if (
+                        tentativa < 40
+                    ) {
+
+                        setTimeout(
+                            () =>
+                                tentarAbrirFechamento(
+                                    tentativa + 1
+                                ),
+                            50
+                        );
+
+                        return;
+
+                    }
+
+
+
+                    console.error(
+                        "A função abrirFechamentoDiario não ficou disponível no PDV."
+                    );
+
                 }
 
-            },
-            { once: true }
+
+
+                tentarAbrirFechamento();
+
+            }
         );
+
     }
+
+
 
     // -------------------------------------------------
     // NOVA CATEGORIA — SOMENTE NO CADASTRO DE PRODUTO
     // -------------------------------------------------
+
     if (
         paginaAtual === "cadastrop.html" &&
         !document.getElementById(
@@ -701,13 +1244,18 @@ function configurarAcoesEspecificasHeader() {
                 "button"
             );
 
-        btnCategoria.type = "button";
+        btnCategoria.type =
+            "button";
+
         btnCategoria.id =
             "btn-nova-categoria-header";
+
         btnCategoria.className =
             "header-categoria-produto";
+
         btnCategoria.title =
             "Cadastrar nova categoria";
+
         btnCategoria.setAttribute(
             "aria-label",
             "Cadastrar nova categoria"
@@ -715,26 +1263,38 @@ function configurarAcoesEspecificasHeader() {
 
         btnCategoria.style.marginLeft =
             "auto";
+
         btnCategoria.style.marginRight =
             "18px";
+
         btnCategoria.style.width =
             "42px";
+
         btnCategoria.style.height =
             "42px";
+
         btnCategoria.style.padding =
             "4px";
+
         btnCategoria.style.border =
             "0";
+
         btnCategoria.style.background =
             "transparent";
+
         btnCategoria.style.display =
             "flex";
+
         btnCategoria.style.alignItems =
             "center";
+
         btnCategoria.style.justifyContent =
             "center";
+
         btnCategoria.style.cursor =
             "pointer";
+
+
 
         const imagemCategoria =
             document.createElement(
@@ -743,46 +1303,67 @@ function configurarAcoesEspecificasHeader() {
 
         imagemCategoria.src =
             "../backend/imagens/categoria_p.png";
+
         imagemCategoria.alt =
             "Nova categoria";
+
         imagemCategoria.style.width =
             "32px";
+
         imagemCategoria.style.height =
             "32px";
+
         imagemCategoria.style.objectFit =
             "contain";
+
         imagemCategoria.style.display =
             "block";
+
+
 
         btnCategoria.appendChild(
             imagemCategoria
         );
 
+
+
         areaHeader.appendChild(
             btnCategoria
         );
 
+
+
         btnCategoria.addEventListener(
             "mouseenter",
             () => {
+
                 imagemCategoria.style.filter =
                     "brightness(0.96)";
+
             }
         );
+
+
 
         btnCategoria.addEventListener(
             "mouseleave",
             () => {
+
                 imagemCategoria.style.filter =
                     "none";
+
             }
         );
+
+
 
         btnCategoria.addEventListener(
             "click",
             event => {
 
                 event.preventDefault();
+
+
 
                 const modal =
                     document.getElementById(
@@ -794,27 +1375,58 @@ function configurarAcoesEspecificasHeader() {
                         "nomeNovaCategoria"
                     );
 
+
+
                 if (!modal) {
                     return;
                 }
 
+
+
                 if (input) {
-                    input.value = "";
+
+                    input.value =
+                        "";
+
                 }
 
-                modal.showModal();
+
+
+                if (
+                    typeof modal.showModal ===
+                    "function"
+                ) {
+
+                    modal.showModal();
+
+                } else {
+
+                    modal.setAttribute(
+                        "open",
+                        ""
+                    );
+
+                }
+
+
 
                 if (input) {
+
                     setTimeout(
-                        () => input.focus(),
+                        () =>
+                            input.focus(),
                         80
                     );
+
                 }
 
             }
         );
+
     }
+
 }
+
 
 
 // =====================================================
@@ -825,6 +1437,7 @@ function carregarMenu() {
 
     const body =
         document.body;
+
 
 
     // -------------------------------------------------
@@ -844,7 +1457,10 @@ function carregarMenu() {
 
     }
 
+
+
     configurarAcoesEspecificasHeader();
+
 
 
     // -------------------------------------------------
@@ -871,10 +1487,12 @@ function carregarMenu() {
         }
 
 
+
         const nomeBanco =
             localStorage.getItem(
                 "usuarioNome"
             );
+
 
 
         const fotoBanco =
@@ -883,16 +1501,12 @@ function carregarMenu() {
             );
 
 
+
         const elNome =
             document.getElementById(
                 "sidebar-nome"
             );
 
-
-        const elFoto =
-            document.getElementById(
-                "sidebar-foto"
-            );
 
 
         if (elNome) {
@@ -904,37 +1518,26 @@ function carregarMenu() {
         }
 
 
-        if (elFoto) {
 
-            if (
-                fotoBanco &&
-                fotoBanco !== "null"
-            ) {
+        atualizarFotoSidebar(
+            fotoBanco
+        );
 
-                elFoto.src =
-                    "http://localhost:3000" +
-                    fotoBanco;
-
-            } else {
-
-                elFoto.src =
-                    "../backend/imagens/def_avt.jpg";
-
-            }
-
-        }
 
 
         // Garante que o sidebar exista
+
         body.classList.add(
             "sidebar-closed"
         );
+
 
 
         const btn =
             document.getElementById(
                 "btn-menu"
             );
+
 
 
         if (btn) {
@@ -957,6 +1560,7 @@ function carregarMenu() {
         }
 
 
+
         // -------------------------------------------------
         // FECHAMENTO — SOMENTE NO PDV
         // -------------------------------------------------
@@ -967,6 +1571,7 @@ function carregarMenu() {
             );
 
 
+
         if (btnFechamento) {
 
             btnFechamento.addEventListener(
@@ -975,15 +1580,54 @@ function carregarMenu() {
 
                     event.preventDefault();
 
-                    if (
-                        typeof window
-                            .abrirFechamentoDiario ===
-                        "function"
+
+
+                    function tentarAbrirFechamento(
+                        tentativa = 0
                     ) {
 
-                        window.abrirFechamentoDiario();
+                        if (
+                            typeof window
+                                .abrirFechamentoDiario ===
+                            "function"
+                        ) {
+
+                            window
+                                .abrirFechamentoDiario();
+
+                            return;
+
+                        }
+
+
+
+                        if (
+                            tentativa < 40
+                        ) {
+
+                            setTimeout(
+                                () =>
+                                    tentarAbrirFechamento(
+                                        tentativa + 1
+                                    ),
+                                50
+                            );
+
+                            return;
+
+                        }
+
+
+
+                        console.error(
+                            "A função abrirFechamentoDiario não ficou disponível no PDV."
+                        );
 
                     }
+
+
+
+                    tentarAbrirFechamento();
 
                 }
             );
@@ -993,11 +1637,14 @@ function carregarMenu() {
     }
 
 
+
     // =================================================
     // CORES DOS ÍCONES
     // =================================================
 
-    let sufixo = "_l";
+    let sufixo =
+        "_l";
+
 
 
     if (
@@ -1009,9 +1656,11 @@ function carregarMenu() {
         )
     ) {
 
-        sufixo = "_p";
+        sufixo =
+            "_p";
 
     }
+
 
 
     const imagens =
@@ -1020,22 +1669,27 @@ function carregarMenu() {
         );
 
 
-    imagens.forEach(img => {
 
-        const nomeBase =
-            img.getAttribute(
-                "data-name"
-            );
+    imagens.forEach(
+        img => {
+
+            const nomeBase =
+                img.getAttribute(
+                    "data-name"
+                );
 
 
-        if (nomeBase) {
 
-            img.src =
-                `../backend/imagens/${nomeBase}${sufixo}.png`;
+            if (nomeBase) {
+
+                img.src =
+                    `../backend/imagens/${nomeBase}${sufixo}.png`;
+
+            }
 
         }
+    );
 
-    });
 
 
     // =================================================
@@ -1048,36 +1702,48 @@ function carregarMenu() {
         );
 
 
+
     const paginaAtual =
         window.location.pathname
             .split("/")
             .pop();
 
 
-    links.forEach(link => {
 
-        const href =
-            link.getAttribute("href");
+    links.forEach(
+        link => {
+
+            const href =
+                link.getAttribute(
+                    "href"
+                );
 
 
-        if (
-            href === paginaAtual
-        ) {
 
-            link.classList.add(
-                "ativo"
-            );
+            if (
+                href === paginaAtual
+            ) {
+
+                link.classList.add(
+                    "ativo"
+                );
+
+            }
 
         }
-
-    });
+    );
 
 }
 
 
-function normalizarTexto(texto) {
 
-    return String(texto || "")
+function normalizarTexto(
+    texto
+) {
+
+    return String(
+        texto || ""
+    )
         .normalize("NFD")
         .replace(
             /[\u0300-\u036f]/g,
@@ -1089,25 +1755,30 @@ function normalizarTexto(texto) {
 }
 
 
-document.addEventListener(
-    "DOMContentLoaded",
-    carregarMenu
-);
-
 
 // =====================================================
-// 🔄 SINCRONIZAR DADOS DO USUÁRIO COM O BANCO
+// SINCRONIZAR DADOS DO USUÁRIO COM O BANCO
 // =====================================================
 
 async function sincronizarPerfilUsuario() {
 
     const token =
-        localStorage.getItem("token");
+        localStorage.getItem(
+            "token"
+        );
 
 
-    if (!token) {
+
+    if (
+        !token ||
+        token === "undefined" ||
+        token === "null"
+    ) {
+
         return;
+
     }
+
 
 
     try {
@@ -1120,39 +1791,64 @@ async function sincronizarPerfilUsuario() {
 
                     headers: {
                         "Authorization":
-                            `Bearer ${token}`
+                            `Bearer ${token}`,
+
+                        "Content-Type":
+                            "application/json"
                     }
+
                 }
             );
 
 
-        if (!response.ok) {
+
+        if (
+            response.status === 401 ||
+            response.status === 403
+        ) {
+
+            console.error(
+                "Falha ao autenticar na rota /perfil/meus-dados."
+            );
+
             return;
+
         }
+
+
+
+        if (!response.ok) {
+
+            console.error(
+                "Erro ao buscar os dados do perfil:",
+                response.status
+            );
+
+            return;
+
+        }
+
 
 
         const dados =
             await response.json();
 
 
-        if (dados.nome) {
 
-            localStorage.setItem(
-                "usuarioNome",
-                dados.nome
-            );
+        const nome =
+            dados.nome ||
+            localStorage.getItem(
+                "usuarioNome"
+            ) ||
+            "Convidado";
 
-        }
 
 
-        if (dados.foto) {
+        localStorage.setItem(
+            "usuarioNome",
+            nome
+        );
 
-            localStorage.setItem(
-                "usuarioFoto",
-                dados.foto
-            );
-
-        }
 
 
         const elNome =
@@ -1161,31 +1857,56 @@ async function sincronizarPerfilUsuario() {
             );
 
 
-        const elFoto =
-            document.getElementById(
-                "sidebar-foto"
-            );
-
 
         if (elNome) {
 
             elNome.innerText =
-                dados.nome ||
-                "Convidado";
+                nome;
 
         }
 
+
+
+        // -------------------------------------------------
+        // FOTO
+        // -------------------------------------------------
 
         if (
-            elFoto &&
-            dados.foto
+            dados.foto !==
+            undefined &&
+            dados.foto !==
+            null &&
+            String(
+                dados.foto
+            ).trim() !== ""
         ) {
 
-            elFoto.src =
-                "http://localhost:3000" +
-                dados.foto;
+            localStorage.setItem(
+                "usuarioFoto",
+                dados.foto
+            );
+
+
+
+            atualizarFotoSidebar(
+                dados.foto
+            );
+
+        } else {
+
+            localStorage.removeItem(
+                "usuarioFoto"
+            );
+
+
+
+            atualizarFotoSidebar(
+                null
+            );
 
         }
+
+
 
     } catch (erro) {
 
@@ -1194,12 +1915,67 @@ async function sincronizarPerfilUsuario() {
             erro
         );
 
+
+
+        const fotoLocal =
+            localStorage.getItem(
+                "usuarioFoto"
+            );
+
+
+
+        atualizarFotoSidebar(
+            fotoLocal
+        );
+
+
+
+        const nomeLocal =
+            localStorage.getItem(
+                "usuarioNome"
+            );
+
+
+
+        const elNome =
+            document.getElementById(
+                "sidebar-nome"
+            );
+
+
+
+        if (elNome) {
+
+            elNome.innerText =
+                nomeLocal ||
+                "Convidado";
+
+        }
+
     }
 
 }
 
 
+
+// =====================================================
+// DOM READY
+// =====================================================
+
 document.addEventListener(
     "DOMContentLoaded",
-    sincronizarPerfilUsuario
+    () => {
+
+        carregarMenu();
+
+        setTimeout(
+            () => {
+
+                sincronizarPerfilUsuario();
+
+            },
+            50
+        );
+
+    }
 );
