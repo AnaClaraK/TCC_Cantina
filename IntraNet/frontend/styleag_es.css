@@ -115,64 +115,126 @@
     text-align: center;
 }
 /* ============================================================
-   TABELA
+   ÁREA DA TABELA
    ============================================================ */
+
 #sc_tabela{
     width: 90%;
-    margin: 0 auto;
-    margin-top: 0 !important;
-    padding-top: 0 !important;
+    height: calc(100vh - 115px);
+
+    margin: 0 auto !important;
+    padding: 0 !important;
+
+    overflow-x: auto;
+    overflow-y: auto;
+
+    box-sizing: border-box;
 }
 
+/* ============================================================
+   TABELA
+   ============================================================ */
 
-.tabela{
-    width: 100%;
+#sc_tabela .tabela{
+    width: max-content;
+    min-width: 100%;
+
     border-collapse: collapse;
     background-color: #f8c471;
-    margin-top: 0 !important;
+
+    margin: 0 !important;
 }
 
-/* CABEÇALHO */
-.tabela thead th{
+/* ============================================================
+   CABEÇALHO FIXO
+   ============================================================ */
+
+#sc_tabela .tabela thead th{
+    position: sticky;
+    top: 0;
+
+    z-index: 20;
+
     background-color: #000;
     color: #f8c471;
+
     padding: 12px;
     text-align: left;
     font-size: 20px;
-    
+
+    white-space: nowrap;
 }
 
-/* LINHAS */
-.tabela tbody td{
+/* ============================================================
+   LINHAS
+   ============================================================ */
+
+#sc_tabela .tabela tbody td{
     padding: 10px;
     font-family: Arial, sans-serif;
+    white-space: nowrap;
 }
 
-/* ZEBRA */
-.tabela tbody tr:nth-child(even){
+/* ============================================================
+   ZEBRA
+   ============================================================ */
+
+#sc_tabela .tabela tbody tr:nth-child(even){
     background-color: #ddad6a;
 }
 
-.tabela tbody tr:nth-child(odd){
+#sc_tabela .tabela tbody tr:nth-child(odd){
     background-color: #f2c57c;
 }
 
-/* LINHAS VERTICAIS */
-.tabela th,
-.tabela td{
+/* ============================================================
+   BORDAS
+   ============================================================ */
+
+#sc_tabela .tabela th,
+#sc_tabela .tabela td{
     border-right: 3px solid #1c1c1c;
     text-align: left;
 }
 
-.tabela th:last-child,
-.tabela td:last-child{
+#sc_tabela .tabela th:last-child,
+#sc_tabela .tabela td:last-child{
     border-right: none;
     text-align: left;
 }
 
-/* HOVER */
-.tabela tbody tr:hover{
+/* ============================================================
+   HOVER
+   ============================================================ */
+
+#sc_tabela .tabela tbody tr:hover{
     filter: brightness(90%);
+}
+
+/* ============================================================
+   SCROLL DA TABELA
+   ============================================================ */
+
+#sc_tabela::-webkit-scrollbar{
+    width: 10px;
+    height: 10px;
+}
+
+#sc_tabela::-webkit-scrollbar-track{
+    background: #1c1c1c;
+}
+
+#sc_tabela::-webkit-scrollbar-thumb{
+    background: #dbb57c;
+    border-radius: 10px;
+}
+
+#sc_tabela::-webkit-scrollbar-thumb:hover{
+    background: #c2904b;
+}
+
+#sc_tabela::-webkit-scrollbar-corner{
+    background: #1c1c1c;
 }
 
 /* ============================================================
