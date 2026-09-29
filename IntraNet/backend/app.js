@@ -157,7 +157,27 @@ app.use(fechamentoRoutes);
 // START SERVER
 // =====================================================
 
+// =====================================================
+// MONITOR DO CARDÁPIO / PDV
+// =====================================================
 
+let vendaEmAndamentoMonitor = false;
+
+app.get("/monitor/status", (req, res) => {
+    res.json({
+        vendaEmAndamento: vendaEmAndamentoMonitor
+    });
+});
+
+app.post("/monitor/status", (req, res) => {
+    vendaEmAndamentoMonitor =
+        req.body?.vendaEmAndamento === true;
+
+    res.json({
+        sucesso: true,
+        vendaEmAndamento: vendaEmAndamentoMonitor
+    });
+});
 
 app.listen(porta, () => {
     console.log(`Servidor rodando em http://localhost:${porta}`);

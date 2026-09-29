@@ -115,13 +115,13 @@
                     <div class="area_pagamento">
                         <!-- Só aparece quando a venda veio do APP -->
         <button type="button" id="b_desbloquear_pagamento" title="Desbloquear forma de pagamento" style="display: none;">🔒</button>
-                        <button type="button" id="b_dividir_pagamento" title="Dividir pagamento">💰 DIVIDIR</button>
+                        <button type="button" id="b_dividir_pagamento" class="botao-dividir-pagamento" title="Dividir pagamento">💰 DIVIDIR</button>
+                        <button type="button" class="pagamento" id="pg_fiado">FIADO (F9)</button>
                         <button class="pagamento" id="pg_dinheiro">Dinheiro (F2)</button>
                         <button class="pagamento" id="pg_credito">Cartão de Crédito (F3)</button>
                         <button class="pagamento" id="pg_debito">Cartão de Débito (F4)</button>
                         <button class="pagamento" id="pg_pix">PIX (F6)</button>
                         <button class="pagamento" id="pg_voucher">Voucher/Ticket</button>
-                        <button class="pagamento" id="pg_fiado">FIADO (F9)</button>
                     </div>
                 </div>
             </div>
@@ -164,7 +164,7 @@
 <dialog id="dialogDividirPagamento">
   <div class="split-box">
     <button type="button" id="b_fechar_dividir_pagamento" class="fechar-modal-pagamento">×</button>
-    <h2>DIVIDIR PAGAMENTO</h2>
+    <h2>Dividir Pagamento</h2>
     <div class="split-resumo">
       <div><small>Total</small><strong id="split_total">R$ 0,00</strong></div>
       <div><small>Pago</small><strong id="split_pago">R$ 0,00</strong></div>
@@ -173,10 +173,11 @@
     <div class="split-metodos">
       <button type="button" class="split-metodo" data-pag="Dinheiro">Dinheiro</button>
       <button type="button" class="split-metodo" data-pag="Cartão de Crédito">Cartão de Crédito</button>
+      <button type="button" class="split-metodo" data-pag="Fiado">FIADO</button>
       <button type="button" class="split-metodo" data-pag="Cartão de Débito">Cartão de Débito</button>
       <button type="button" class="split-metodo" data-pag="PIX">PIX</button>
       <button type="button" class="split-metodo" data-pag="Voucher/Ticket">Voucher/Ticket</button>
-      <button type="button" class="split-metodo" data-pag="Fiado">FIADO</button>
+      
     </div>
     <div class="split-entrada">
       <input type="number" min="0.01" step="0.01" id="split_valor" placeholder="Valor desta forma">
@@ -184,7 +185,6 @@
     </div>
     <div id="split_lista" class="split-lista"></div>
     <div class="split-acoes">
-      <button type="button" id="b_cancelar_split">Cancelar</button>
       <button type="button" id="b_confirmar_split" disabled>Confirmar pagamento</button>
     </div>
   </div>
@@ -391,8 +391,6 @@
     </div>
 </dialog>
 
-<body>
-
     <!-- MODAL ADICIONAR COMPRA -->
     <dialog id="d_modal_fiado">
         <div class="modal_box">
@@ -422,8 +420,6 @@
             <button id="b_salvar_fiado">Salvar Compra</button>
         </div>
     </dialog>
-
-</body>
 
 <script>
     // Seletores do novo aviso customizado
@@ -1655,7 +1651,10 @@ if (!pagamentoFinalLimpo) {
 
         origem: comandaAtual
             ? "APP"
-            : "PDV"
+            : "PDV",
+
+        // Dia de caixa atualmente aberto.
+        data_referencia: dataReferenciaPDV()
     };
 
     // Se veio de uma comanda,
@@ -1708,7 +1707,7 @@ if (!pagamentoFinalLimpo) {
                 valor: totalReal,
                 parcelas: Number(parcelasCredito || 1)
             }],
-            data_compra: dataLocalPDV()
+            data_compra: dataReferenciaPDV()
         }
         : dadosPedido;
 
@@ -2753,6 +2752,7 @@ function abrirModalDividirPagamento() {
     document.querySelectorAll(".split-metodo").forEach(b=>b.classList.remove("selecionado"));
     splitValor.value = "";
     atualizarResumoSplit();
+    if (modal?.open) modal.close();
     dialogDividirPagamento.showModal();
     setTimeout(()=>splitValor.focus(),100);
 }
@@ -2828,6 +2828,7 @@ function abrirModalDinheiro() {
      * Só altera quando o pagamento for confirmado.
      */
 
+    if (modal?.open) modal.close();
     dialogDinheiro.showModal();
 
     setTimeout(() => {
@@ -3059,6 +3060,7 @@ function abrirModalCredito(valorParcial = null) {
      * continua com a forma de pagamento anterior.
      */
 
+    if (modal?.open) modal.close();
     dialogCredito.showModal();
 
 }
@@ -3378,6 +3380,38 @@ let fechamentoForcado = false;
 let fechamentoInicializado = false;
 let caixaHojeFechado = false;
 
+/*
+   DATA ATIVA DO CAIXA
+   Não usa a data real do computador depois que outro dia foi aberto.
+   A data só muda quando um caixa é aberto/fechado.
+*/
+let dataReferenciaPDVAtiva =
+    normalizarDataFechamento(
+        localStorage.getItem("pdv_data_referencia_ativa"),
+        false
+    );
+
+function dataReferenciaPDV() {
+    return dataReferenciaPDVAtiva || dataLocalPDV();
+}
+
+function definirDataReferenciaPDV(data) {
+    const normalizada = normalizarDataFechamento(data, false);
+
+    if (!normalizada) return;
+
+    dataReferenciaPDVAtiva = normalizada;
+    localStorage.setItem(
+        "pdv_data_referencia_ativa",
+        normalizada
+    );
+}
+
+function limparDataReferenciaPDV() {
+    dataReferenciaPDVAtiva = null;
+    localStorage.removeItem("pdv_data_referencia_ativa");
+}
+
 function dataLocalPDV() {
     const agora = new Date();
     const ano = agora.getFullYear();
@@ -3431,9 +3465,39 @@ function normalizarDataFechamento(data, usarHojeComoFallback = true) {
 
 function formatarDataFechamento(data) {
     if (!data) return "---";
-    const partes = String(data).slice(0, 10).split("-");
-    if (partes.length !== 3) return data;
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+
+    const texto = String(data).trim();
+
+    const sql = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (sql) {
+        return `${sql[3]}/${sql[2]}/${sql[1]}`;
+    }
+
+    const br = texto.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+    if (br) {
+        return `${br[1]}/${br[2]}/${br[3]}`;
+    }
+
+    const textual = texto.match(
+        /(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)?\s*([A-Za-z]{3})\s+(\d{1,2})(?:\s+(\d{4}))?/i
+    );
+
+    if (textual) {
+        const meses = {
+            jan: "01", feb: "02", mar: "03", apr: "04",
+            may: "05", jun: "06", jul: "07", aug: "08",
+            sep: "09", oct: "10", nov: "11", dec: "12"
+        };
+
+        const mes = meses[textual[1].toLowerCase()];
+
+        if (mes) {
+            const ano = textual[3] || new Date().getFullYear();
+            return `${String(textual[2]).padStart(2, "0")}/${mes}/${ano}`;
+        }
+    }
+
+    return texto;
 }
 
 function dinheiroFechamento(valor) {
@@ -3522,12 +3586,24 @@ function atualizarCamposFechamento(dados) {
     if (ehHoje) {
         caixaHojeFechado = fechamento?.status === "FECHADO";
     }
-    const primeiroDiaSemFechamento = !fechamento && ehHoje && dados.primeiro_dia;
+    const podeAbrirData =
+        !fechamento ||
+        fechamento.status !== "FECHADO";
 
     if (fechamentoTrocoInicialInput && btnRegistrarAbertura) {
-        if (primeiroDiaSemFechamento) {
+        if (podeAbrirData) {
             fechamentoTrocoInicialInput.style.display = "block";
-            fechamentoTrocoInicialInput.value = "";
+
+            if (
+                !fechamentoTrocoInicialInput.value ||
+                fechamentoTrocoInicialInput.value === "0"
+            ) {
+                fechamentoTrocoInicialInput.value =
+                    dados.troco_inicial > 0
+                        ? Number(dados.troco_inicial).toFixed(2).replace(".", ",")
+                        : "";
+            }
+
             btnRegistrarAbertura.style.display = "inline-block";
             btnRegistrarAbertura.disabled = false;
         } else {
@@ -3579,6 +3655,15 @@ async function carregarDadosFechamento(data, abrir = true) {
 
         atualizarCamposFechamento(dados);
 
+        /*
+           Se o dia consultado está ABERTO, ele passa a ser
+           o dia ativo do PDV. Assim, adicionar/finalizar venda
+           não volta para a data real do computador.
+        */
+        if (dados.fechamento?.status === "ABERTO") {
+            definirDataReferenciaPDV(dados.data_referencia);
+        }
+
         const titulo = document.getElementById("fechamentoTitulo");
         if (titulo) {
             titulo.innerText = dados.data_referencia === dataLocalPDV()
@@ -3599,36 +3684,105 @@ async function carregarDadosFechamento(data, abrir = true) {
 }
 
 async function registrarAberturaCaixa() {
-    const data = dataLocalPDV();
-    const valor = valorNumericoFechamento(fechamentoTrocoInicialInput?.value);
+    const data = normalizarDataFechamento(
+        fechamentoDadosAtual?.data_referencia ||
+        fechamentoData?.value ||
+        fechamentoDataConsulta?.value ||
+        dataLocalPDV()
+    );
 
-    if (!Number.isFinite(valor) || valor < 0) {
-        mostrarAlertaFechamento("Informe o valor que havia de troco no início do primeiro dia.");
+    const valor = valorNumericoFechamento(
+        fechamentoTrocoInicialInput?.value
+    );
+
+    if (!data) {
+        mostrarAlertaFechamento(
+            "Selecione uma data válida para abrir o caixa."
+        );
         return;
     }
 
-    try {
-        const resposta = await apiFetch(`${URL_BACKEND_CAD}/fechamentos-diarios/abertura`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
-            },
-            body: JSON.stringify({
-                data_referencia: data,
-                troco_inicial: valor
-            })
-        });
+    if (!Number.isFinite(valor) || valor < 0) {
+        mostrarAlertaFechamento(
+            "Informe o valor do troco inicial antes de registrar a abertura."
+        );
+        fechamentoTrocoInicialInput?.focus();
+        return;
+    }
 
-        const dados = await resposta.json();
-        if (!resposta.ok) throw new Error(dados.resposta || "Não foi possível registrar a abertura.");
+    if (fechamentoDadosAtual?.fechamento?.status === "FECHADO") {
+        mostrarAlertaFechamento(
+            `O dia ${formatarDataFechamento(data)} já está fechado e não pode ser aberto novamente.`
+        );
+        return;
+    }
+
+    btnRegistrarAbertura.disabled = true;
+
+    try {
+        const resposta = await apiFetch(
+            `${URL_BACKEND_CAD}/fechamentos-diarios/abertura`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization":
+                        `Bearer ${localStorage.getItem("token")}`
+                },
+                body: JSON.stringify({
+                    data_referencia: data,
+                    troco_inicial: valor
+                })
+            }
+        );
+
+        const tipoResposta =
+            resposta.headers.get("content-type") || "";
+
+        const dados = tipoResposta.includes("application/json")
+            ? await resposta.json()
+            : {
+                resposta:
+                    `Servidor respondeu ${resposta.status} sem JSON.`
+            };
+
+        if (!resposta.ok) {
+            throw new Error(
+                dados.resposta ||
+                "Não foi possível registrar a abertura."
+            );
+        }
+
+        definirDataReferenciaPDV(data);
 
         await carregarDadosFechamento(data, false);
+
+        // A data aberta passa a ser o caixa ativo, mesmo que seja
+        // um dia diferente de hoje. Portanto, o PDV deve ser liberado
+        // sempre que essa data estiver ABERTA.
+        fechamentoForcado = false;
+        if (data === dataLocalPDV()) {
+            caixaHojeFechado = false;
+        }
         liberarPDVDepoisDoFechamento();
-        mostrarAlertaFechamento("Abertura do caixa registrada. O valor ficará gravado para o fechamento de hoje.");
+
+        mostrarAlertaFechamento(
+            `Abertura de ${formatarDataFechamento(data)} registrada. Troco inicial: ${dinheiroFechamento(valor)}.`
+        );
+
     } catch (erro) {
         console.error("Erro ao registrar abertura:", erro);
-        mostrarAlertaFechamento(erro.message || "Erro ao registrar a abertura do caixa.");
+
+        mostrarAlertaFechamento(
+            erro.message ||
+            "Erro ao registrar a abertura do caixa."
+        );
+    } finally {
+        if (
+            fechamentoDadosAtual?.fechamento?.status !== "FECHADO"
+        ) {
+            btnRegistrarAbertura.disabled = false;
+        }
     }
 }
 
@@ -3642,6 +3796,36 @@ async function verificarFechamentoInicial() {
         if (!resposta.ok) throw new Error(dados.resposta || "Não foi possível verificar o fechamento diário.");
 
         const hoje = normalizarDataFechamento(dados.hoje || dataLocalPDV());
+
+        /*
+           Se o usuário abriu outro dia anteriormente, esse dia é o
+           caixa ativo. Primeiro recuperamos essa data e verificamos
+           seu estado; só voltamos para hoje se ela não estiver aberta.
+        */
+        if (dataReferenciaPDVAtiva) {
+            try {
+                await carregarDadosFechamento(
+                    dataReferenciaPDVAtiva,
+                    false
+                );
+
+                if (
+                    fechamentoDadosAtual?.fechamento?.status === "ABERTO"
+                ) {
+                    fechamentoInicializado = true;
+                    liberarPDVDepoisDoFechamento();
+                    return;
+                }
+
+                limparDataReferenciaPDV();
+            } catch (erroReferencia) {
+                console.warn(
+                    "Não foi possível recuperar a data ativa do caixa:",
+                    erroReferencia
+                );
+                limparDataReferenciaPDV();
+            }
+        }
 
         // Só considera pendente uma data REAL, válida e anterior a hoje.
         // Nunca deixa uma resposta inválida/null virar a data de hoje.
@@ -3708,6 +3892,10 @@ async function verificarFechamentoInicial() {
                     mostrarAlertaFechamento(erroAbertura.message || "Não foi possível abrir o caixa de hoje.");
                 }
             } else {
+                if (fechamentoDadosAtual?.fechamento?.status === "ABERTO") {
+                    definirDataReferenciaPDV(hoje);
+                }
+
                 liberarPDVDepoisDoFechamento();
                 mostrarAlertaFechamento(
                     `Caixa do dia ${formatarDataFechamento(hoje)}. Troco inicial: ${dinheiroFechamento(fechamentoDadosAtual?.troco_inicial || 0)}.`
@@ -3732,14 +3920,24 @@ function fecharTravaPDV(travar) {
 }
 
 function liberarPDVDepoisDoFechamento() {
-    if (fechamentoForcado || caixaHojeFechado) return;
+    const caixaAtivoAberto =
+        fechamentoDadosAtual?.fechamento?.status === "ABERTO";
+
+    // O bloqueio deve considerar o CAIXA ATIVO, e não somente o dia
+    // atual do computador. Assim, um dia anterior aberto manualmente
+    // também libera o scanner e o botão Finalizar.
+    if (fechamentoForcado) return;
+
+    if (!caixaAtivoAberto && caixaHojeFechado) return;
+
     fecharTravaPDV(false);
+
     if (typeof inp_codb !== "undefined" && inp_codb) {
         setTimeout(() => inp_codb.focus(), 100);
     }
 }
 
-window.abrirFechamentoDiario = async function(data = dataLocalPDV()) {
+window.abrirFechamentoDiario = async function(data = dataReferenciaPDV()) {
     if (!dialogFechamentoDiario) return;
     await carregarDadosFechamento(data, true);
 };
@@ -3791,6 +3989,7 @@ async function executarSalvamentoFechamento() {
 
         if (data === dataLocalPDV()) {
             caixaHojeFechado = true;
+            limparDataReferenciaPDV();
             fecharTravaPDV(true);
         } else {
             // Fechou um dia anterior que estava pendente: abre automaticamente
@@ -3813,6 +4012,7 @@ async function executarSalvamentoFechamento() {
             }
 
             fechamentoForcado = false;
+            definirDataReferenciaPDV(hoje);
             await carregarDadosFechamento(hoje, false);
             liberarPDVDepoisDoFechamento();
         }
@@ -3868,12 +4068,260 @@ dialogFechamentoDiario?.addEventListener("cancel", event => {
 
 // O fechamento abre automaticamente ao entrar no PDV.
 window.addEventListener("load", () => {
+    if (window.modoMonitorExibicao) return;
+
     setTimeout(() => {
         verificarFechamentoInicial();
     }, 250);
 });
 </script>
 
+
+<script>
+// =====================================================
+// MONITOR DO PDV — SEGUNDO MONITOR
+// =====================================================
+(function () {
+    const MONITOR_CHAVE = "grano_vita_monitor_venda";
+    const modoMonitor =
+        new URLSearchParams(window.location.search).get("monitor") === "1";
+
+    window.modoMonitorExibicao = modoMonitor;
+
+    const IDS_MODAIS_MONITOR = [
+        "d_modal",
+        "dialogDinheiro",
+        "dialogCredito",
+        "dialogDividirPagamento",
+        "d_fiado",
+        "d_aviso"
+    ];
+
+    function obterModalAberto() {
+        for (const id of IDS_MODAIS_MONITOR) {
+            const elemento = document.getElementById(id);
+            if (elemento?.open) {
+                return {
+                    id,
+                    html: elemento.innerHTML
+                };
+            }
+        }
+        return null;
+    }
+
+    function fecharModaisMonitor() {
+        IDS_MODAIS_MONITOR.forEach(id => {
+            const elemento = document.getElementById(id);
+            if (elemento?.open) {
+                try { elemento.close(); } catch (_) {}
+            }
+        });
+    }
+
+    function publicarVendaNoMonitor() {
+        if (modoMonitor) return;
+
+        try {
+            const estadoAnterior = JSON.parse(
+                localStorage.getItem(MONITOR_CHAVE) || "null"
+            );
+
+            const estado = {
+                vendaEmAndamento:
+                    Array.isArray(carrinho) && carrinho.length > 0,
+                carrinho: Array.isArray(carrinho) ? carrinho : [],
+                total: Array.isArray(carrinho)
+                    ? carrinho.reduce(
+                        (soma, item) =>
+                            soma + (Number(item.preco) * Number(item.qtd)),
+                        0
+                    )
+                    : 0,
+                modal: obterModalAberto(),
+                atualizadoEm: Date.now()
+            };
+
+            const novo = JSON.stringify(estado);
+            const antigo = JSON.stringify(estadoAnterior);
+
+            if (novo !== antigo) {
+                localStorage.setItem(MONITOR_CHAVE, novo);
+            }
+        } catch (erro) {
+            console.error("Erro ao atualizar o segundo monitor:", erro);
+        }
+    }
+
+    function lerVendaDoMonitor() {
+        try {
+            const bruto = localStorage.getItem(MONITOR_CHAVE);
+            if (!bruto) return null;
+            return JSON.parse(bruto);
+        } catch (erro) {
+            console.error("Erro ao ler o estado do segundo monitor:", erro);
+            return null;
+        }
+    }
+
+    let modalMonitorAtual = "";
+
+    function atualizarModalMonitor(modalEstado) {
+        if (!modoMonitor) return;
+
+        const assinatura = modalEstado?.id
+            ? `${modalEstado.id}|${modalEstado.html || ""}`
+            : "";
+
+        // Evita fechar e reabrir o mesmo modal a cada atualização.
+        if (assinatura === modalMonitorAtual) return;
+
+        modalMonitorAtual = assinatura;
+        fecharModaisMonitor();
+
+        if (!modalEstado?.id) return;
+
+        const modal = document.getElementById(modalEstado.id);
+        if (!modal) return;
+
+        // Copia o conteúdo atual do modal principal para o segundo monitor.
+        // Assim o cliente vê os mesmos valores, textos e opções que aparecem
+        // no caixa, inclusive nos modais de pagamento.
+        if (typeof modalEstado.html === "string") {
+            modal.innerHTML = modalEstado.html;
+        }
+
+        try {
+            modal.showModal();
+        } catch (erro) {
+            console.error("Erro ao mostrar modal no segundo monitor:", erro);
+        }
+    }
+
+    function atualizarTelaMonitor() {
+        if (!modoMonitor) return;
+
+        const estado = lerVendaDoMonitor();
+
+        if (
+            !estado ||
+            estado.vendaEmAndamento !== true ||
+            !Array.isArray(estado.carrinho) ||
+            estado.carrinho.length === 0
+        ) {
+            fecharModaisMonitor();
+            window.location.href = "index.html";
+            return;
+        }
+
+        carrinho = estado.carrinho;
+
+        atualizarTabelaNoTopo();
+        atualizarTotalCompra();
+        verificarBotao();
+
+        if (carrinho.length > 0) {
+            atualizarVisores(carrinho[0]);
+
+            const imagem = carrinho[0].img;
+            if (imagem) {
+                const nomeArquivo = String(imagem)
+                    .replace("/images/", "")
+                    .replace(/^\//, "");
+
+                img_prod.src = /^https?:\/\//i.test(String(imagem))
+                    ? String(imagem)
+                    : `${URL_BACKEND_CAD}/images/${nomeArquivo}`;
+            } else {
+                img_prod.src = IMG_PADRAO;
+            }
+        }
+
+        atualizarModalMonitor(estado.modal);
+    }
+
+    if (!modoMonitor) {
+        let ultimoEstado = "";
+
+        setInterval(() => {
+            try {
+                const atual = JSON.stringify({
+                    carrinho: Array.isArray(carrinho) ? carrinho : [],
+                    modal: obterModalAberto()
+                });
+
+                if (atual !== ultimoEstado) {
+                    ultimoEstado = atual;
+                    publicarVendaNoMonitor();
+                }
+            } catch (erro) {
+                console.error(
+                    "Erro ao acompanhar venda para o monitor:",
+                    erro
+                );
+            }
+        }, 100);
+
+        publicarVendaNoMonitor();
+    } else {
+        document.body.classList.add("modo-monitor");
+
+        const bloquearInteracao = document.createElement("style");
+        bloquearInteracao.textContent = `
+            /* O segundo monitor mostra o fluxo, mas não controla a venda. */
+            body.modo-monitor #inp_codb,
+            body.modo-monitor #b_pesq,
+            body.modo-monitor #b_comanda,
+            body.modo-monitor #b_canc,
+            body.modo-monitor #b_nv_venda,
+            body.modo-monitor #btn-fechamento-pdv-header,
+            body.modo-monitor #dialogFechamentoDiario,
+            body.modo-monitor #sc_modalp,
+            body.modo-monitor #erro_overlay {
+                display: none !important;
+            }
+
+            /* Finalizar Compra continua visível para o cliente. */
+            body.modo-monitor #d_botoes {
+                display: flex !important;
+                pointer-events: none !important;
+            }
+
+            body.modo-monitor #b_final {
+                pointer-events: none !important;
+            }
+
+            body.modo-monitor #sc_modal,
+            body.modo-monitor #d_modal,
+            body.modo-monitor #dialogDinheiro,
+            body.modo-monitor #dialogCredito,
+            body.modo-monitor #dialogDividirPagamento,
+            body.modo-monitor #d_fiado,
+            body.modo-monitor #d_aviso {
+                pointer-events: none !important;
+            }
+
+            body.modo-monitor dialog button,
+            body.modo-monitor dialog input,
+            body.modo-monitor dialog select,
+            body.modo-monitor dialog textarea {
+                pointer-events: none !important;
+            }
+        `;
+
+        document.head.appendChild(bloquearInteracao);
+
+        atualizarTelaMonitor();
+        setInterval(atualizarTelaMonitor, 200);
+
+        window.addEventListener("storage", (event) => {
+            if (event.key === MONITOR_CHAVE) {
+                atualizarTelaMonitor();
+            }
+        });
+    }
+})();
+</script>
 
 </body>
 </html>
