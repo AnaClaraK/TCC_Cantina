@@ -16,6 +16,15 @@ const conexao = require('./db.js');
 
 const app = express();
 
+
+// 1. servindo o frontend pela rota padrão 
+app.use(express.static(path.join(__dirname, '../frontend')));
+
+// 2. Rota padrão que envia o index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+});
+
 const porta = 3000;
 // =====================================================
 // JSON + CORS (Devem vir PRIMEIRO)
@@ -110,6 +119,9 @@ app.set(
     'views',
     path.join(__dirname, 'views')
 );
+
+
+
 
 
 // =====================================================
