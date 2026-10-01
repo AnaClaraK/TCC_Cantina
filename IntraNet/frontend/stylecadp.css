@@ -807,3 +807,1358 @@ h2 { margin: 5px 0; font-size: 22px; }
 #d_aviso::backdrop {
     background: rgba(0, 0, 0, 0.7);
 }
+
+
+/* =========================================
+   GRANO VITA — ESTILO DO CADASTRO DE PRODUTOS
+   Utiliza as classes existentes no HTML
+========================================= */
+
+/* Fundo da tela */
+html,
+body {
+    background: #1c1c1c !important;
+}
+
+.form-container {
+    box-sizing: border-box;
+    width: calc(100% - 40px);
+    max-width: 850px;
+    margin: 12px auto 25px;
+    padding: 32px 25px 25px;
+    background: #efac4a;
+    border-radius: 8px;
+    color: #000000;
+    font-family: Arial, Helvetica, sans-serif;
+    box-shadow: none;
+}
+
+.form-container *,
+.form-container *::before,
+.form-container *::after {
+    box-sizing: border-box;
+}
+
+.form-container h2 {
+    margin: 10px 0 20px;
+    color: #000000;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.form-container #form_cadastrar_produto {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+.form-container #form_cadastrar_produto .form-row {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 15px;
+    width: 100%;
+    margin: 0;
+}
+
+.form-container #form_cadastrar_produto .form-group {
+    display: flex;
+    flex-direction: column;
+    grid-column: span 2;
+    gap: 6px;
+    min-width: 0;
+    margin: 0;
+}
+
+/* Nome e categoria */
+.form-container #form_cadastrar_produto .form-row:nth-of-type(1)
+.form-group:first-child {
+    grid-column: span 4;
+}
+
+.form-container #form_cadastrar_produto .form-row:nth-of-type(1)
+.form-group:last-child {
+    grid-column: span 2;
+}
+
+/* Rótulos */
+.form-container #form_cadastrar_produto label {
+    display: block;
+    margin: 0;
+    color: #1c1c1c;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+/* Campos de texto, números e seleção */
+.form-container #form_cadastrar_produto
+input:not([type="file"]),
+.form-container #form_cadastrar_produto select,
+.form-container #form_cadastrar_produto textarea {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 38px;
+    margin: 0;
+    padding: 9px 10px;
+
+    border: 1px solid #d5a858;
+    border-radius: 6px;
+
+    background-color: #ffffff;
+    color: #000000;
+
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.4;
+
+    box-shadow: none;
+    outline: none;
+
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-container #form_cadastrar_produto textarea {
+    min-height: 36px !important;
+    resize: vertical;
+    min-width: 720px !important
+}
+
+/* Placeholder */
+.form-container #form_cadastrar_produto input::placeholder,
+.form-container #form_cadastrar_produto textarea::placeholder {
+    color: #000000;
+    opacity: 0.7;
+}
+
+/* Destaque ao selecionar um campo */
+.form-container #form_cadastrar_produto input:focus,
+.form-container #form_cadastrar_produto select:focus,
+.form-container #form_cadastrar_produto textarea:focus {
+    border-color: #1c1c1c;
+    box-shadow: 0 0 0 2px rgba(28, 28, 28, 0.18);
+}
+
+/* Campos bloqueados */
+.form-container #form_cadastrar_produto .input-disabled,
+.form-container #form_cadastrar_produto input:disabled,
+.form-container #form_cadastrar_produto select:disabled {
+    background-color: #ffffff;
+    color: #000000;
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+/* Seletor de imagem */
+.form-container #form_cadastrar_produto input[type="file"] {
+    display: block;
+    width: 130%;
+    min-width: 0;
+    max-width: 130%;
+    min-height: 40px;
+    padding: 7px;
+
+    border: 1px solid #d5a858;
+    border-radius: 6px;
+
+    background: #ffffff;
+    color: #000000;
+
+    font-family: inherit;
+    font-size: 14px;
+}
+
+/* Botão interno do seletor de arquivo */
+.form-container #form_cadastrar_produto
+input[type="file"]::file-selector-button {
+    padding: 4px 8px;
+
+    border: 1px solid #1c1c1c;
+    border-radius: 4px;
+
+    background: #ffffff;
+    color: #000000;
+
+    cursor: pointer;
+}
+
+/* Botão de cadastrar */
+.form-container #form_cadastrar_produto .btn-submit {
+    display: block;
+    width: 100%;
+    min-height: 42px;
+    margin: 8px 0 0;
+    padding: 11px 16px;
+
+    border: none;
+    border-radius: 6px;
+
+    background-color: #efac4a;
+    color: #000000;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+
+    cursor: pointer;
+
+    /* Sem animação */
+    transition: none;
+}
+
+/* Mantém exatamente a mesma cor ao passar o mouse */
+.form-container #form_cadastrar_produto .btn-submit:hover {
+    background-color: #efac4a;
+    color: #000000;
+}
+
+/* Foco do botão */
+.form-container #form_cadastrar_produto .btn-submit:focus-visible {
+    outline: 2px solid #1c1c1c;
+    outline-offset: 3px;
+}
+
+/* Telas menores e zoom elevado */
+@media (max-width: 700px) {
+    .form-container {
+        width: calc(100% - 24px);
+        padding: 24px 18px 20px;
+    }
+
+    .form-container #form_cadastrar_produto .form-row {
+        gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-container {
+        width: calc(100% - 20px);
+        padding: 20px 14px;
+    }
+
+    .form-container h2 {
+        font-size: 21px;
+    }
+
+    .form-container #form_cadastrar_produto .form-row {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+    }
+
+    .form-container #form_cadastrar_produto .form-group,
+    .form-container #form_cadastrar_produto
+    .form-row:nth-of-type(1) .form-group:first-child,
+    .form-container #form_cadastrar_produto
+    .form-row:nth-of-type(1) .form-group:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+/* =========================================================
+   AJUSTE DE ÁREA — CADASTRO DE PRODUTO
+   Não altera cores, campos ou aparência do cadastro.
+   Corrige somente a área disponível da página para que
+   o formulário caiba também em zoom elevado.
+   ========================================================= */
+
+body:has(#form_cadastrar_produto) {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100vh;
+    min-height: 0;
+    overflow: hidden !important;
+}
+
+body:has(#form_cadastrar_produto) .main-cadastro {
+    box-sizing: border-box;
+    width: 100%;
+    height: calc(100vh - var(--header-height));
+    min-height: 0 !important;
+    max-height: calc(100vh - var(--header-height));
+    padding: 10px 20px !important;
+    overflow: visible !important;
+}
+
+body:has(#form_cadastrar_produto) .form-container {
+    width: min(850px, calc(100vw - var(--sidebar-collapsed-width) - 24px)) !important;
+    max-width: 850px !important;
+    margin: 8px auto 10px !important;
+}
+
+/* Em F11 + zoom elevado, elimina as duas larguras fixas
+   que podem provocar rolagem horizontal. */
+@media (max-height: 700px) {
+    body:has(#form_cadastrar_produto) .form-container {
+        margin-top: 4px !important;
+        margin-bottom: 6px !important;
+    }
+
+    body:has(#form_cadastrar_produto) #form_cadastrar_produto textarea {
+        min-width: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    body:has(#form_cadastrar_produto) #form_cadastrar_produto input[type="file"] {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+
+/* =========================================================
+   EDITAR PRODUTO — AJUSTE FINAL
+   Escopo exclusivo de páginas que possuem #formProduto.
+   O CSS existente do Cadastro acima permanece intacto.
+   ========================================================= */
+
+/* BODY DO EDITAR — sem rolagem da página */
+body:has(#formProduto) {
+    box-sizing: border-box;
+    min-height: 0;
+    height: 100vh;
+    overflow: hidden !important;
+}
+
+/* QUADRADO EXTERNO — maior e laranja */
+body:has(#formProduto) .form-container {
+    box-sizing: border-box;
+    width: min(980px, calc(100vw - var(--sidebar-collapsed-width) - 24px)) !important;
+    max-width: 980px !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100vh - var(--header-height) - 8px) !important;
+
+    margin: 4px auto 4px !important;
+    padding: 12px 22px 10px !important;
+
+    background: #efac4a !important;
+    color: #000000 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+
+    overflow: hidden !important;
+}
+
+/* REMOVE o quadrado branco interno criado pelas regras genéricas de form */
+body:has(#formProduto) #formProduto {
+    box-sizing: border-box;
+
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: transparent !important;
+    color: #000000 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+}
+
+/* Tudo respeita o tamanho do quadrado externo */
+body:has(#formProduto) #formProduto *,
+body:has(#formProduto) #formProduto *::before,
+body:has(#formProduto) #formProduto *::after {
+    box-sizing: border-box;
+}
+
+/* TÍTULO */
+body:has(#formProduto) #formProduto h2 {
+    margin: 0 0 4px !important;
+    color: #000000 !important;
+    font-size: 21px !important;
+    line-height: 1.1 !important;
+}
+
+/* LINHAS */
+body:has(#formProduto) #formProduto .form-row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    width: 100%;
+    gap: 9px;
+    margin: 0 0 4px;
+    min-width: 0;
+}
+
+/* COLUNAS */
+body:has(#formProduto) #formProduto .form-group {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+}
+
+/* LABELS */
+body:has(#formProduto) #formProduto label,
+body:has(#formProduto) #formProduto .label-amarela {
+    display: block;
+    margin: 0;
+    color: #1c1c1c !important;
+    font-size: 11.5px !important;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+/* CAMPOS */
+body:has(#formProduto) #formProduto input:not([type="file"]),
+body:has(#formProduto) #formProduto select,
+body:has(#formProduto) #formProduto textarea,
+body:has(#formProduto) #inp_busca_editar {
+    display: block;
+
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+
+    min-height: 33px !important;
+    height: 33px;
+
+    margin: 0;
+    padding: 5px 8px;
+
+    background: #ffffff !important;
+    color: #000000 !important;
+
+    border: 1px solid #d5a858 !important;
+    border-radius: 6px !important;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12.5px !important;
+    line-height: 1.15;
+
+    outline: none;
+    box-shadow: none !important;
+}
+
+/* BUSCA */
+body:has(#formProduto) #inp_busca_editar {
+    height: 33px !important;
+    margin-bottom: 0 !important;
+}
+
+/* DESCRIÇÃO */
+body:has(#formProduto) #formProduto textarea,
+body:has(#formProduto) #formProduto #descricao {
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+    resize: none !important;
+}
+
+/* PRODUTO SELECIONADO */
+body:has(#formProduto) #formProduto .selecionado-produto,
+body:has(#formProduto) #formProduto .selecionado {
+    width: 100% !important;
+    margin: 2px 0 3px !important;
+    padding: 5px 8px !important;
+
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+
+    border: 2px solid #1c1c1c !important;
+    border-radius: 6px !important;
+
+    font-size: 12px !important;
+    line-height: 1.1;
+    font-weight: 700;
+    text-align: center;
+
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+/* CONTAINER DA IMAGEM */
+body:has(#formProduto) #formProduto .produto-img-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 9px;
+
+    width: 100%;
+    min-width: 0;
+
+    margin: 2px 0 3px;
+}
+
+body:has(#formProduto) #formProduto .produto-img {
+    flex: 0 0 86px;
+
+    width: 86px !important;
+    height: 86px !important;
+    max-width: 86px !important;
+
+    margin: 0 !important;
+
+    background: #ffffff !important;
+    border: 2px solid #1c1c1c !important;
+    border-radius: 7px !important;
+
+    overflow: hidden;
+}
+
+body:has(#formProduto) #formProduto .produto-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+body:has(#formProduto) #formProduto .imagem-info {
+    flex: 1 1 auto;
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+body:has(#formProduto) #formProduto .imagem-info input[type="file"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+
+    min-height: 33px !important;
+    height: 33px !important;
+    padding: 4px !important;
+
+    background: #ffffff !important;
+    color: #000000 !important;
+
+    border: 1px solid #d5a858 !important;
+    border-radius: 6px !important;
+}
+
+/* TROCAR IMAGEM */
+body:has(#formProduto) #formProduto .file-label-editar {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 2px !important;
+    padding: 6px !important;
+    box-sizing: border-box !important;
+}
+
+/* BOTÕES */
+body:has(#formProduto) #formProduto .botoes,
+body:has(#formProduto) #formProduto .botoes-fileira {
+    display: flex;
+
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    gap: 8px;
+    width: 100%;
+
+    margin: 2px 0 0;
+}
+
+body:has(#formProduto) #formProduto .botoes .btn-submit,
+body:has(#formProduto) #formProduto .botoes .btn-cancelar,
+body:has(#formProduto) #formProduto .botoes-fileira .btn-p {
+    flex: 1 1 0;
+
+    width: 100% !important;
+    max-width: 260px;
+
+    min-height: 35px !important;
+    height: 35px;
+
+    margin: 0 !important;
+    padding: 6px 10px !important;
+
+    background: #efac4a !important;
+    color: #000000 !important;
+
+    border: none !important;
+    border-radius: 6px !important;
+
+    font-size: 12.5px !important;
+    font-weight: 700;
+
+    transition: none !important;
+}
+
+body:has(#formProduto) #formProduto .botoes .btn-submit:hover,
+body:has(#formProduto) #formProduto .botoes .btn-cancelar:hover,
+body:has(#formProduto) #formProduto .botoes-fileira .btn-p:hover {
+    background: #efac4a !important;
+    color: #000000 !important;
+    transform: none !important;
+    opacity: 1 !important;
+}
+
+/* =========================================================
+   EDITAR — TELAS/ZOOM QUE REDUZEM MUITO A ÁREA
+   ========================================================= */
+
+@media (max-height: 700px) {
+    body:has(#formProduto) .form-container {
+        padding: 9px 18px 8px !important;
+    }
+
+    body:has(#formProduto) #formProduto {
+        gap: 3px !important;
+    }
+
+    body:has(#formProduto) #formProduto h2 {
+        font-size: 19px !important;
+        margin-bottom: 2px !important;
+    }
+
+    body:has(#formProduto) #formProduto .form-row {
+        gap: 7px;
+        margin-bottom: 3px;
+    }
+
+    body:has(#formProduto) #formProduto .form-group {
+        gap: 1px;
+    }
+
+    body:has(#formProduto) #formProduto label,
+    body:has(#formProduto) #formProduto .label-amarela {
+        font-size: 10.5px !important;
+    }
+
+    body:has(#formProduto) #formProduto input:not([type="file"]),
+    body:has(#formProduto) #formProduto select,
+    body:has(#formProduto) #formProduto textarea,
+    body:has(#formProduto) #inp_busca_editar {
+        min-height: 30px !important;
+        height: 30px;
+        padding: 4px 7px;
+        font-size: 11.5px !important;
+    }
+
+    body:has(#formProduto) #formProduto textarea,
+    body:has(#formProduto) #formProduto #descricao {
+        height: 44px !important;
+        min-height: 44px !important;
+        max-height: 44px !important;
+    }
+
+    body:has(#formProduto) #formProduto .produto-img {
+        flex-basis: 72px;
+        width: 72px !important;
+        height: 72px !important;
+        max-width: 72px !important;
+    }
+
+    body:has(#formProduto) #formProduto .imagem-info input[type="file"] {
+        min-height: 30px !important;
+        height: 30px !important;
+    }
+
+    body:has(#formProduto) #formProduto .file-label-editar {
+        padding: 5px !important;
+    }
+
+    body:has(#formProduto) #formProduto .botoes .btn-submit,
+    body:has(#formProduto) #formProduto .botoes .btn-cancelar,
+    body:has(#formProduto) #formProduto .botoes-fileira .btn-p {
+        min-height: 32px !important;
+        height: 32px;
+        padding: 5px 8px !important;
+        font-size: 11.5px !important;
+    }
+}
+
+/* =========================================================
+   EDITAR — CELULAR
+   ========================================================= */
+
+@media (max-width: 650px) {
+    body:has(#formProduto) .form-container {
+        width: calc(100vw - var(--sidebar-collapsed-width) - 10px) !important;
+        max-width: none !important;
+        padding: 9px 10px 8px !important;
+    }
+
+    body:has(#formProduto) #formProduto .form-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+    }
+
+    body:has(#formProduto) #formProduto .form-group {
+        width: 100%;
+        flex: none;
+    }
+
+    body:has(#formProduto) #formProduto .produto-img-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    body:has(#formProduto) #formProduto .produto-img {
+        flex-basis: 75px;
+        width: 75px !important;
+        height: 75px !important;
+        max-width: 75px !important;
+        margin: 0 auto !important;
+    }
+
+    body:has(#formProduto) #formProduto .botoes,
+    body:has(#formProduto) #formProduto .botoes-fileira {
+        flex-direction: column;
+    }
+
+    body:has(#formProduto) #formProduto .botoes .btn-submit,
+    body:has(#formProduto) #formProduto .botoes .btn-cancelar,
+    body:has(#formProduto) #formProduto .botoes-fileira .btn-p {
+        max-width: none;
+    }
+}
+
+/* =========================================================
+   AJUSTE FINAL — EDITAR PRODUTO
+   Fundo escuro por fora + quadro laranja claro por dentro
+   Sem rolagem do formulário e com lista abaixo da busca
+   ========================================================= */
+
+/* O fundo da página continua escuro */
+body:has(#formProduto) {
+    background: #1c1c1c !important;
+    overflow: hidden !important;
+}
+
+/* QUADRADO EXTERNO — ESCURO */
+body:has(#formProduto) .form-container {
+    box-sizing: border-box !important;
+    width: min(1040px, calc(100vw - var(--sidebar-collapsed-width) - 28px)) !important;
+    max-width: 1040px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100vh - var(--header-height) - 10px) !important;
+    margin: 4px auto 6px !important;
+    padding: 10px 14px !important;
+    background: #1c1c1c !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+}
+
+/* QUADRADO INTERNO — LARANJA MAIS CLARO */
+body:has(#formProduto) #formProduto {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 13px 18px 12px !important;
+    background: #efac4a !important;
+    color: #000000 !important;
+    border: none !important;
+    border-radius: 7px !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+}
+
+/* O conteúdo nunca passa da largura do quadro interno */
+body:has(#formProduto) #formProduto *,
+body:has(#formProduto) #formProduto *::before,
+body:has(#formProduto) #formProduto *::after {
+    box-sizing: border-box !important;
+    min-width: 0;
+}
+
+/* Busca: serve de referência para a lista */
+body:has(#formProduto) #formProduto .busca-container {
+    position: relative !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    z-index: 1000 !important;
+}
+
+/* LISTA — SEMPRE LOGO ABAIXO DO CAMPO DE PESQUISA */
+body:has(#formProduto) #formProduto .busca-container #lista_sugestoes,
+body:has(#formProduto) #lista_sugestoes {
+    position: absolute !important;
+    top: calc(100% + 4px) !important;
+    left: 0 !important;
+    right: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-height: 210px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    background: #1c1c1c !important;
+    border: 2px solid #efac4a !important;
+    border-radius: 8px !important;
+    z-index: 999999 !important;
+    box-shadow: 0 8px 18px rgba(0,0,0,.45) !important;
+}
+
+/* Desativa o posicionamento antigo baseado na coluna */
+body:has(#formProduto) .container-flex > .coluna:first-child {
+    position: static !important;
+}
+
+/* Aumenta a imagem para facilitar a visualização */
+body:has(#formProduto) #formProduto .produto-img-container {
+    min-height: 112px !important;
+    margin: 4px 0 5px !important;
+    gap: 12px !important;
+}
+
+body:has(#formProduto) #formProduto .produto-img {
+    flex: 0 0 112px !important;
+    width: 112px !important;
+    height: 112px !important;
+    max-width: 112px !important;
+    max-height: 112px !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    border: 2px solid #1c1c1c !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+}
+
+body:has(#formProduto) #formProduto .produto-img img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+/* Mantém a área externa sem barra de rolagem */
+body:has(#formProduto) .form-container,
+body:has(#formProduto) #formProduto {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+body:has(#formProduto) .form-container::-webkit-scrollbar,
+body:has(#formProduto) #formProduto::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* =========================================================
+   F11 + ZOOM 125% E ACIMA
+   Comprime somente o EDITAR para manter tudo dentro da tela
+   ========================================================= */
+
+@media (min-resolution: 120dpi), (min-resolution: 1.25dppx) {
+    body:has(#formProduto) .form-container {
+        width: min(1060px, calc(100vw - var(--sidebar-collapsed-width) - 24px)) !important;
+        max-height: calc(100vh - var(--header-height) - 8px) !important;
+        margin-top: 2px !important;
+        margin-bottom: 4px !important;
+        padding: 7px 10px !important;
+    }
+
+    body:has(#formProduto) #formProduto {
+        padding: 8px 12px 8px !important;
+        gap: 3px !important;
+    }
+
+    body:has(#formProduto) #formProduto h2 {
+        font-size: 18px !important;
+        margin: 0 0 2px !important;
+        line-height: 1 !important;
+    }
+
+    body:has(#formProduto) #formProduto .form-row {
+        gap: 7px !important;
+        margin-bottom: 2px !important;
+    }
+
+    body:has(#formProduto) #formProduto .form-group {
+        gap: 1px !important;
+    }
+
+    body:has(#formProduto) #formProduto label,
+    body:has(#formProduto) #formProduto .label-amarela {
+        font-size: 10px !important;
+        line-height: 1 !important;
+    }
+
+    body:has(#formProduto) #formProduto input:not([type="file"]),
+    body:has(#formProduto) #formProduto select,
+    body:has(#formProduto) #formProduto textarea,
+    body:has(#formProduto) #inp_busca_editar {
+        min-height: 29px !important;
+        height: 29px !important;
+        padding: 3px 7px !important;
+        font-size: 11px !important;
+    }
+
+    body:has(#formProduto) #formProduto textarea,
+    body:has(#formProduto) #formProduto #descricao {
+        min-height: 40px !important;
+        height: 40px !important;
+        max-height: 40px !important;
+    }
+
+    body:has(#formProduto) #formProduto .selecionado-produto,
+    body:has(#formProduto) #formProduto .selecionado {
+        margin: 1px 0 2px !important;
+        padding: 4px 7px !important;
+        font-size: 11px !important;
+    }
+
+    body:has(#formProduto) #formProduto .produto-img-container {
+        min-height: 96px !important;
+        gap: 9px !important;
+        margin: 2px 0 3px !important;
+    }
+
+    body:has(#formProduto) #formProduto .produto-img {
+        flex-basis: 96px !important;
+        width: 96px !important;
+        height: 96px !important;
+        max-width: 96px !important;
+        max-height: 96px !important;
+    }
+
+    body:has(#formProduto) #formProduto .imagem-info {
+        gap: 2px !important;
+    }
+
+    body:has(#formProduto) #formProduto .imagem-info input[type="file"] {
+        min-height: 28px !important;
+        height: 28px !important;
+        padding: 3px !important;
+    }
+
+    body:has(#formProduto) #formProduto .file-label-editar {
+        margin-top: 1px !important;
+        padding: 5px !important;
+        font-size: 11px !important;
+    }
+
+    body:has(#formProduto) #formProduto .botoes,
+    body:has(#formProduto) #formProduto .botoes-fileira {
+        gap: 6px !important;
+        margin-top: 1px !important;
+    }
+
+    body:has(#formProduto) #formProduto .botoes .btn-submit,
+    body:has(#formProduto) #formProduto .botoes .btn-cancelar,
+    body:has(#formProduto) #formProduto .botoes-fileira .btn-p {
+        min-height: 30px !important;
+        height: 30px !important;
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+    }
+}
+
+/* Alturas ainda menores em F11 */
+@media (max-height: 650px) {
+    body:has(#formProduto) .form-container {
+        padding: 5px 8px !important;
+        margin-top: 1px !important;
+        margin-bottom: 2px !important;
+    }
+
+    body:has(#formProduto) #formProduto {
+        padding: 6px 9px !important;
+        gap: 2px !important;
+    }
+
+    body:has(#formProduto) #formProduto .produto-img-container {
+        min-height: 88px !important;
+    }
+
+    body:has(#formProduto) #formProduto .produto-img {
+        flex-basis: 88px !important;
+        width: 88px !important;
+        height: 88px !important;
+        max-width: 88px !important;
+        max-height: 88px !important;
+    }
+}
+
+/* =========================================================
+   AJUSTE FINAL — EDITAR PRODUTO
+   Fora = escuro / Dentro = claro
+   ========================================================= */
+
+/* O bloco externo do Editar fica no laranja mais escuro */
+body:has(#formProduto) .form-container {
+    background: #efac4a !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+}
+
+/* O formulário interno fica no tom claro */
+body:has(#formProduto) #formProduto {
+    background: #fed89d !important;
+    color: #1c1c1c !important;
+    border-radius: 10px !important;
+    border: 1px solid rgba(28, 28, 28, 0.18) !important;
+    overflow: visible !important;
+}
+
+/* Aumenta um pouco as letras no Editar */
+body:has(#formProduto) #formProduto h2 {
+    font-size: 23px !important;
+    line-height: 1.15 !important;
+}
+
+body:has(#formProduto) #formProduto label,
+body:has(#formProduto) #formProduto .label-amarela {
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+}
+
+body:has(#formProduto) #formProduto input:not([type="file"]),
+body:has(#formProduto) #formProduto select,
+body:has(#formProduto) #formProduto textarea,
+body:has(#formProduto) #inp_busca_editar {
+    font-size: 14px !important;
+}
+
+/* Área da imagem maior */
+body:has(#formProduto) #formProduto .produto-img-container {
+    min-height: 155px !important;
+    gap: 16px !important;
+    margin: 8px 0 10px !important;
+}
+
+body:has(#formProduto) #formProduto .produto-img {
+    flex: 0 0 150px !important;
+    width: 150px !important;
+    height: 150px !important;
+    max-width: 150px !important;
+    max-height: 150px !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    border: 3px solid #efac4a !important;
+    border-radius: 10px !important;
+}
+
+body:has(#formProduto) #formProduto .produto-img img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+}
+
+/* Texto da área da imagem */
+body:has(#formProduto) #formProduto .imagem-info,
+body:has(#formProduto) #formProduto .imagem-info * {
+    font-size: 13px !important;
+}
+
+/* =========================================================
+   BOTÕES — VERDE PARA SALVAR / VERMELHO PARA CANCELAR
+   ========================================================= */
+
+body:has(#formProduto) #formProduto .botoes .btn-submit,
+body:has(#formProduto) #formProduto .botoes-fileira .btn-submit,
+body:has(#formProduto) #formProduto #b_salvar_produto {
+    background: #6dbf6d !important;
+    color: #1c1c1c !important;
+    border: 1px solid #579f57 !important;
+    transition: none !important;
+}
+
+body:has(#formProduto) #formProduto .botoes .btn-submit:hover,
+body:has(#formProduto) #formProduto .botoes-fileira .btn-submit:hover,
+body:has(#formProduto) #formProduto #b_salvar_produto:hover {
+    background: #6dbf6d !important;
+    color: #1c1c1c !important;
+    transform: none !important;
+    opacity: 1 !important;
+}
+
+body:has(#formProduto) #formProduto .botoes .btn-cancelar,
+body:has(#formProduto) #formProduto .botoes-fileira .btn-cancelar,
+body:has(#formProduto) #formProduto #b_cancelar_edicao {
+    background: #e06060 !important;
+    color: #1c1c1c !important;
+    border: 1px solid #c84f4f !important;
+    transition: none !important;
+}
+
+body:has(#formProduto) #formProduto .botoes .btn-cancelar:hover,
+body:has(#formProduto) #formProduto .botoes-fileira .btn-cancelar:hover,
+body:has(#formProduto) #formProduto #b_cancelar_edicao:hover {
+    background: #e06060 !important;
+    color: #1c1c1c !important;
+    transform: none !important;
+    opacity: 1 !important;
+}
+
+/* =========================================================
+   MODAL DO EDITAR — UM POUCO MAIOR
+   ========================================================= */
+
+body:has(#formProduto) #d_aviso {
+    width: min(440px, calc(100vw - 40px)) !important;
+    max-width: 440px !important;
+    border: 3px solid #efac4a !important;
+    border-radius: 14px !important;
+    background: #fed89d !important;
+    color: #1c1c1c !important;
+    box-sizing: border-box !important;
+}
+
+body:has(#formProduto) #d_aviso .aviso_box {
+    padding: 30px !important;
+    gap: 22px !important;
+}
+
+body:has(#formProduto) #d_aviso #msg_aviso {
+    font-size: 21px !important;
+    line-height: 1.25 !important;
+    color: #1c1c1c !important;
+}
+
+body:has(#formProduto) #d_aviso .aviso_botoes {
+    gap: 14px !important;
+}
+
+body:has(#formProduto) #d_aviso #b_confirmar_aviso {
+    background: #6dbf6d !important;
+    color: #1c1c1c !important;
+    border: 1px solid #579f57 !important;
+    transition: none !important;
+}
+
+body:has(#formProduto) #d_aviso #b_cancelar_aviso {
+    background: #e06060 !important;
+    color: #1c1c1c !important;
+    border: 1px solid #c84f4f !important;
+    transition: none !important;
+}
+
+body:has(#formProduto) #d_aviso #b_confirmar_aviso:hover,
+body:has(#formProduto) #d_aviso #b_cancelar_aviso:hover {
+    transform: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+}
+
+/* =========================================================
+   ZOOM 125%+ / F11 — mantém a aparência, mas compacta apenas
+   quando a altura realmente não comportar o formulário.
+   ========================================================= */
+@media (min-resolution: 120dpi), (min-resolution: 1.25dppx) {
+    body:has(#formProduto) #formProduto h2 {
+        font-size: 20px !important;
+    }
+
+    body:has(#formProduto) #formProduto label,
+    body:has(#formProduto) #formProduto .label-amarela {
+        font-size: 11px !important;
+    }
+
+    body:has(#formProduto) #formProduto input:not([type="file"]),
+    body:has(#formProduto) #formProduto select,
+    body:has(#formProduto) #formProduto textarea,
+    body:has(#formProduto) #inp_busca_editar {
+        font-size: 12px !important;
+    }
+
+    body:has(#formProduto) #formProduto .produto-img-container {
+        min-height: 118px !important;
+    }
+
+    body:has(#formProduto) #formProduto .produto-img {
+        flex-basis: 116px !important;
+        width: 116px !important;
+        height: 116px !important;
+        max-width: 116px !important;
+        max-height: 116px !important;
+    }
+}
+
+/* =========================================================
+   V4 — AJUSTES FINAIS DO EDITAR PRODUTO
+   Somente regras do #formProduto / sem alterar o Cadastro
+   ========================================================= */
+
+/* Remove totalmente o aviso "Produto selecionado".
+   O espaço também desaparece. */
+body:has(#formProduto) #formProduto .selecionado-produto,
+body:has(#formProduto) .selecionado-produto {
+    display: none !important;
+}
+
+/* Dá uma pequena distância entre a busca e o primeiro campo */
+body:has(#formProduto) #formProduto .busca-container + .form-row,
+body:has(#formProduto) #formProduto .busca-container + .container-flex,
+body:has(#formProduto) #formProduto .form-row:first-of-type {
+    margin-top: 10px !important;
+}
+
+/* Sugestões menores e proporcionais ao campo de pesquisa */
+body:has(#formProduto) #lista_sugestoes {
+    top: calc(100% + 3px) !important;
+    max-height: 145px !important;
+    border-width: 1px !important;
+    border-radius: 6px !important;
+}
+
+body:has(#formProduto) #lista_sugestoes li {
+    min-height: 32px !important;
+    height: auto !important;
+    padding: 7px 10px !important;
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+}
+
+/* Bloco da imagem maior */
+body:has(#formProduto) #formProduto .produto-img-container {
+    min-height: 190px !important;
+    margin: 10px 0 12px !important;
+    gap: 18px !important;
+    align-items: center !important;
+}
+
+body:has(#formProduto) #formProduto .produto-img {
+    flex: 0 0 175px !important;
+    width: 175px !important;
+    height: 175px !important;
+    max-width: 175px !important;
+    max-height: 175px !important;
+    margin: 0 !important;
+    border-width: 3px !important;
+    border-radius: 10px !important;
+}
+
+body:has(#formProduto) #formProduto .produto-img img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+}
+
+body:has(#formProduto) #formProduto .imagem-info {
+    gap: 7px !important;
+}
+
+/* Modal de produto atualizado: mais alto e um pouco maior */
+body:has(#formProduto) #d_aviso {
+    width: min(500px, calc(100vw - 32px)) !important;
+    max-width: 500px !important;
+    min-height: 250px !important;
+    padding: 0 !important;
+    border-radius: 14px !important;
+    box-sizing: border-box !important;
+}
+
+body:has(#formProduto) #d_aviso .modal-box,
+body:has(#formProduto) #d_aviso .aviso_box {
+    min-height: 250px !important;
+    padding: 36px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: stretch !important;
+    gap: 26px !important;
+    box-sizing: border-box !important;
+}
+
+body:has(#formProduto) #d_aviso #msg_aviso {
+    font-size: 23px !important;
+    line-height: 1.35 !important;
+    text-align: center !important;
+    margin: 0 !important;
+}
+
+body:has(#formProduto) #d_aviso .modal-botoes,
+body:has(#formProduto) #d_aviso .aviso_botoes {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 16px !important;
+    flex-wrap: wrap !important;
+}
+
+body:has(#formProduto) #d_aviso #b_confirmar_aviso,
+body:has(#formProduto) #d_aviso #b_cancelar_aviso {
+    min-width: 145px !important;
+    min-height: 44px !important;
+    padding: 10px 20px !important;
+    font-size: 15px !important;
+    border-radius: 7px !important;
+}
+
+/* =========================================================
+   ZOOM 125%+ / F11
+   Mantém a imagem maior sem voltar a deformar a tela.
+   ========================================================= */
+@media (min-resolution: 120dpi), (min-resolution: 1.25dppx) {
+    body:has(#formProduto) #formProduto .busca-container + .form-row,
+    body:has(#formProduto) #formProduto .busca-container + .container-flex,
+    body:has(#formProduto) #formProduto .form-row:first-of-type {
+        margin-top: 7px !important;
+    }
+
+    body:has(#formProduto) #lista_sugestoes {
+        max-height: 120px !important;
+    }
+
+    body:has(#formProduto) #lista_sugestoes li {
+        min-height: 29px !important;
+        padding: 6px 9px !important;
+        font-size: 12px !important;
+    }
+
+    body:has(#formProduto) #formProduto .produto-img-container {
+        min-height: 145px !important;
+        margin: 5px 0 7px !important;
+        gap: 12px !important;
+    }
+
+    body:has(#formProduto) #formProduto .produto-img {
+        flex-basis: 140px !important;
+        width: 140px !important;
+        height: 140px !important;
+        max-width: 140px !important;
+        max-height: 140px !important;
+    }
+
+    body:has(#formProduto) #d_aviso {
+        width: min(460px, calc(100vw - 36px)) !important;
+        max-width: 460px !important;
+        min-height: 220px !important;
+    }
+
+    body:has(#formProduto) #d_aviso .modal-box,
+    body:has(#formProduto) #d_aviso .aviso_box {
+        min-height: 220px !important;
+        padding: 28px !important;
+        gap: 20px !important;
+    }
+
+    body:has(#formProduto) #d_aviso #msg_aviso {
+        font-size: 19px !important;
+    }
+
+    body:has(#formProduto) #d_aviso #b_confirmar_aviso,
+    body:has(#formProduto) #d_aviso #b_cancelar_aviso {
+        min-width: 125px !important;
+        min-height: 40px !important;
+        font-size: 13px !important;
+        padding: 8px 14px !important;
+    }
+}

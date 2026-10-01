@@ -2041,3 +2041,238 @@ BOTÕES
             opacity: 1;
             letter-spacing: 0;
         }
+
+/* ============================================================
+   ESTOQUE — RESPONSIVIDADE / LAYOUT ESPECÍFICO DA TELA
+   Estas regras estão escopadas em .pagina-estoque para não alterar
+   outras páginas que também utilizam styleag_es.css.
+============================================================ */
+
+
+/* ============================================================
+   ESTOQUE — RESPONSIVIDADE / LAYOUT ESPECÍFICO DA TELA
+   Estas regras estão escopadas em .pagina-estoque para não alterar
+   outras páginas que também utilizam styleag_es.css.
+============================================================ */
+
+body.pagina-estoque {
+    height: 100dvh;
+    overflow: hidden !important;
+    box-sizing: border-box;
+}
+
+/* Mantém o topo na mesma proporção e impede que os elementos sejam
+   empurrados para uma segunda linha em F11/zoom maior. */
+body.pagina-estoque .d_util {
+    width: 95%;
+    margin: clamp(18px, 2.777778vh, 30px) auto clamp(8px, 0.925926vh, 10px);
+    gap: clamp(18px, 5.555556vh, 60px);
+    align-items: center;
+    flex-wrap: nowrap;
+    box-sizing: border-box;
+}
+
+body.pagina-estoque .h_ag {
+    flex: 0 0 auto;
+    padding: clamp(7px, 0.925926vh, 10px) clamp(14px, 1.851852vh, 20px);
+    font-size: clamp(24px, 2.962963vh, 32px);
+    white-space: nowrap;
+}
+
+body.pagina-estoque #b_addq,
+body.pagina-estoque #btnExportarPDF {
+    flex: 0 0 auto;
+    width: clamp(190px, 27.777778vh, 300px);
+    height: clamp(36px, 4.166667vh, 45px);
+    padding: clamp(7px, 0.925926vh, 10px) clamp(12px, 1.851852vh, 20px);
+    font-size: clamp(17px, 2.222222vh, 24px);
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+body.pagina-estoque #s_addq {
+    font-size: inherit;
+    white-space: nowrap;
+}
+
+body.pagina-estoque #d_inp {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-left: auto;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+body.pagina-estoque .busca-box {
+    width: clamp(220px, 29.166667vh, 315px);
+    height: clamp(36px, 4.166667vh, 45px);
+    flex: 0 1 315px;
+}
+
+body.pagina-estoque #inputBusca {
+    font-size: clamp(12px, 1.296296vh, 14px);
+    padding: clamp(7px, 0.925926vh, 10px) 8px clamp(7px, 0.925926vh, 10px) 36px;
+}
+
+body.pagina-estoque #inputBusca::placeholder {
+    font-size: clamp(11px, 1.25vh, 13.5px);
+}
+
+/* A ordem visual fica: busca -> Baixar PDF. */
+body.pagina-estoque #btnExportarPDF {
+    order: 4;
+}
+
+/* A tabela é a única área principal da página com rolagem.
+   A altura considera o header fixo do layout e deixa uma margem visível
+   depois da tabela, inclusive em F11/125%. */
+body.pagina-estoque #sc_tabela {
+    width: 90%;
+    height: calc(100dvh - var(--header-height) - 125px);
+    min-height: 0;
+    max-height: calc(100dvh - var(--header-height) - 125px);
+    margin: 0 auto 20px !important;
+    padding: 0 !important;
+    overflow-x: auto;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+/* Mantém o cabeçalho sticky dentro do próprio scroll da tabela. */
+body.pagina-estoque #sc_tabela .tabela {
+    min-width: 100%;
+    width: max-content;
+    margin: 0 !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela thead th {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+
+/* Scrollbar da tabela no mesmo padrão do scroll global da tela.
+   O track é branco e o thumb é o marrom/laranja claro do sistema. */
+body.pagina-estoque #sc_tabela::-webkit-scrollbar {
+    width: 18px;
+    height: 18px;
+}
+
+body.pagina-estoque #sc_tabela::-webkit-scrollbar-track {
+    background: #ffff;
+}
+
+body.pagina-estoque #sc_tabela::-webkit-scrollbar-thumb {
+    background: #dbb57c;
+    border-radius: 10px;
+    border: 4px solid transparent;
+    background-clip: content-box;
+}
+
+body.pagina-estoque #sc_tabela::-webkit-scrollbar-thumb:hover {
+    background: #c2904b;
+    border-radius: 10px;
+    border: 4px solid transparent;
+    background-clip: content-box;
+}
+
+body.pagina-estoque #sc_tabela::-webkit-scrollbar-corner {
+    background: #ffff;
+}
+
+/* Modal de quantidade: tamanho natural, sem scroll próprio.
+   A lista de sugestões é limitada a 5 itens pelo JS, então o modal
+   consegue permanecer inteiro na tela. */
+body.pagina-estoque #d_modal {
+    width: min(600px, calc(100vw - 32px));
+    height: auto;
+    max-height: calc(100dvh - 32px);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+body.pagina-estoque #d_modal .modal_box {
+    height: auto;
+    max-height: calc(100dvh - 32px);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+body.pagina-estoque #d_modal .modal_titulo,
+body.pagina-estoque #d_modal h2 {
+    margin-top: 8px;
+}
+
+body.pagina-estoque #lista_sugestoes {
+    max-height: 160px;
+    overflow: hidden;
+}
+
+/* Modal de aviso também deve caber na viewport sem criar rolagem. */
+body.pagina-estoque #d_aviso {
+    width: min(350px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Em alturas menores, reduz somente o espaçamento do topo antes de
+   permitir que qualquer conteúdo seja cortado. */
+@media (min-width: 701px) and (max-height: 950px) {
+    body.pagina-estoque .d_util {
+        gap: clamp(14px, 4.62963vh, 50px);
+    }
+
+    body.pagina-estoque #sc_tabela {
+        height: calc(100dvh - var(--header-height) - 115px);
+        max-height: calc(100dvh - var(--header-height) - 115px);
+        margin-bottom: 15px !important;
+    }
+}
+
+/* Abaixo de 760px de largura, os controles do topo precisam se comprimir
+   para continuar numa única linha em F11. */
+@media (min-width: 701px) and (max-width: 1050px) {
+    body.pagina-estoque .d_util {
+        gap: 12px;
+    }
+
+    body.pagina-estoque #b_addq,
+    body.pagina-estoque #btnExportarPDF {
+        width: clamp(150px, 22vw, 220px);
+    }
+
+    body.pagina-estoque .busca-box {
+        width: clamp(180px, 24vw, 250px);
+    }
+}
+
+@media (max-width: 700px) {
+    body.pagina-estoque {
+        overflow: auto !important;
+    }
+
+    body.pagina-estoque .d_util {
+        width: 94%;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    body.pagina-estoque #d_inp {
+        order: 3;
+        flex: 1 1 100%;
+    }
+
+    body.pagina-estoque #btnExportarPDF {
+        order: 4;
+    }
+
+    body.pagina-estoque #sc_tabela {
+        height: calc(100dvh - var(--header-height) - 175px);
+        max-height: calc(100dvh - var(--header-height) - 175px);
+        margin-bottom: 15px !important;
+    }
+}
