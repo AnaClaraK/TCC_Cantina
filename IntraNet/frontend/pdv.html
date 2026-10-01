@@ -339,10 +339,18 @@
                 <label for="fechamentoDataConsulta">Outro dia para consultar/fechar</label>
                 <input type="date" id="fechamentoDataConsulta">
             </div>
-            <div class="fechamento-campo">
+            <div class="fechamento-campo fechamento-status-campo">
                 <label>Status do dia selecionado</label>
-                <div class="fechamento-valor" id="fechamentoStatus">Não fechado</div>
-                <small id="fechamentoQtdVendas">0 vendas</small>
+                <div class="fechamento-status-linha">
+                    <div>
+                        <div class="fechamento-valor" id="fechamentoStatus">Não fechado</div>
+                        <small id="fechamentoQtdVendas">0 vendas</small>
+                    </div>
+                    <div class="fechamento-abertura-acao">
+                        <input type="text" inputmode="decimal" id="fechamentoTrocoInicialInput" placeholder="Troco inicial">
+                        <button type="button" id="btnRegistrarAbertura">Registrar abertura</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -350,8 +358,6 @@
             <div class="fechamento-campo">
                 <label>Troco inicial do dia</label>
                 <div class="fechamento-valor" id="fechamentoTrocoInicial">R$ 0,00</div>
-                <input type="text" inputmode="decimal" id="fechamentoTrocoInicialInput" placeholder="Digite o troco inicial" style="display:none;margin-top:8px;">
-                <button type="button" id="btnRegistrarAbertura" style="display:none;margin-top:8px;background:#2b1f14;color:#f1b869;">Registrar abertura</button>
                 <small id="fechamentoOrigemTroco">Primeiro dia / sem fechamento anterior</small>
             </div>
         </div>
@@ -1244,8 +1250,6 @@ document.querySelectorAll(".pagamento").forEach(botao => {
                 formaPagamento
             );
 
-            modal.close();
-
             const dFiado =
                 document.getElementById("d_fiado");
 
@@ -1972,11 +1976,11 @@ function confirmarCancelamento() {
         const clientes = await res.json();
         sl_cliente.innerHTML = "";
         clientes.forEach(c => {
-            sl_cliente.innerHTML += `
-                <option value="${c.id_cliente}">
-                    ${c.nome_completo}
-                </option>
-            `;
+            const option = document.createElement("option");
+            option.value = c.id_cliente;
+            option.textContent = c.nome_completo;
+            option.dataset.bloqueado = Number(c.bloqueado) === 1 ? "1" : "0";
+            sl_cliente.appendChild(option);
         });
     }
     carregarClientesFiado();
@@ -1989,6 +1993,15 @@ function confirmarCancelamento() {
             exibirAviso("Por favor, selecione o cliente e a data de vencimento.");
             return;
         }
+
+        const clienteSelecionado = sl_cliente.options[sl_cliente.selectedIndex];
+        const clienteBloqueado = clienteSelecionado?.dataset.bloqueado === "1";
+
+        if (clienteBloqueado) {
+            exibirAviso("Este cliente está bloqueado para compras no fiado.");
+            return;
+        }
+
         try {
                     const respostaFiado = await fetch("http://localhost:3000/contas-fiado", {
             method: "POST",
@@ -2752,7 +2765,6 @@ function abrirModalDividirPagamento() {
     document.querySelectorAll(".split-metodo").forEach(b=>b.classList.remove("selecionado"));
     splitValor.value = "";
     atualizarResumoSplit();
-    if (modal?.open) modal.close();
     dialogDividirPagamento.showModal();
     setTimeout(()=>splitValor.focus(),100);
 }
@@ -2828,7 +2840,6 @@ function abrirModalDinheiro() {
      * Só altera quando o pagamento for confirmado.
      */
 
-    if (modal?.open) modal.close();
     dialogDinheiro.showModal();
 
     setTimeout(() => {
@@ -3060,7 +3071,6 @@ function abrirModalCredito(valorParcial = null) {
      * continua com a forma de pagamento anterior.
      */
 
-    if (modal?.open) modal.close();
     dialogCredito.showModal();
 
 }
@@ -3591,7 +3601,9 @@ function atualizarCamposFechamento(dados) {
         fechamento.status !== "FECHADO";
 
     if (fechamentoTrocoInicialInput && btnRegistrarAbertura) {
-        if (podeAbrirData) {
+        const podeRegistrarAbertura = podeAbrirData && !ehHoje;
+
+        if (podeRegistrarAbertura) {
             fechamentoTrocoInicialInput.style.display = "block";
 
             if (
@@ -3604,7 +3616,7 @@ function atualizarCamposFechamento(dados) {
                         : "";
             }
 
-            btnRegistrarAbertura.style.display = "inline-block";
+            btnRegistrarAbertura.style.display = "inline-flex";
             btnRegistrarAbertura.disabled = false;
         } else {
             fechamentoTrocoInicialInput.style.display = "none";

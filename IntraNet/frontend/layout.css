@@ -405,3 +405,148 @@ body.fundo-laranja .nav-link.ativo {
 .header-acao-especial:active img {
     transform: scale(0.97);
 }
+
+
+/* ============================================================
+   RESPONSIVIDADE — HEADER E SIDEBAR
+   Mantém os tamanhos originais em 1080px de altura.
+============================================================ */
+
+@media (min-width: 701px) and (max-height: 950px) {
+    :root {
+        --header-height: clamp(60px, 7.407407vh, 80px);
+        --sidebar-collapsed-width: clamp(58px, 6.851852vh, 74px);
+        --sidebar-width: clamp(220px, 23.148148vh, 250px);
+    }
+
+    .custom-header {
+        height: var(--header-height);
+        padding-left: clamp(15px, 1.851852vh, 20px);
+        padding-right: clamp(15px, 1.851852vh, 20px);
+    }
+
+    .custom-sidebar {
+        width: var(--sidebar-collapsed-width);
+        height: 100dvh;
+        padding-top: var(--header-height);
+        box-sizing: border-box;
+    }
+
+    body.sidebar-open {
+        padding-left: var(--sidebar-collapsed-width);
+    }
+
+    body.sidebar-open .custom-sidebar {
+        width: var(--sidebar-width);
+    }
+
+    .nav-link {
+        height: clamp(47px, 5.555556vh, 60px);
+        padding-top: clamp(7px, .925926vh, 10px);
+        padding-bottom: clamp(7px, .925926vh, 10px);
+        padding-left: clamp(8px, 1.388889vh, 15px);
+        padding-right: clamp(8px, 1.388889vh, 15px);
+        box-sizing: border-box;
+        overflow: visible;
+    }
+
+    .i_img {
+        width: clamp(32px, 3.703704vh, 40px);
+        height: clamp(32px, 3.703704vh, 40px);
+        flex: 0 0 auto;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        object-fit: contain;
+        object-position: center center;
+        box-sizing: border-box;
+    }
+
+    #icon_edp,
+    #icon_cadp,
+    #icon_comp {
+        width: clamp(32px, 3.703704vh, 40px) !important;
+        height: clamp(32px, 3.703704vh, 40px) !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    .nav-text {
+        padding-left: clamp(8px, 1.388889vh, 15px);
+        font-size: clamp(17px, 2.037037vh, 22px);
+        line-height: .9;
+        white-space: nowrap;
+        overflow: visible;
+    }
+
+    .user-info {
+        padding: clamp(13px, 1.851852vh, 20px) clamp(6px, .925926vh, 10px);
+        box-sizing: border-box;
+    }
+
+    .user-photo {
+        width: clamp(48px, 5.555556vh, 60px);
+        height: clamp(48px, 5.555556vh, 60px);
+        flex: 0 0 auto;
+    }
+
+    .user-name {
+        margin-top: clamp(7px, .925926vh, 10px);
+        font-size: clamp(15px, 1.666667vh, 18px);
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #btn-menu {
+        font-size: clamp(38px, 4.444444vh, 48px);
+        margin-right: clamp(16px, 1.851852vh, 20px);
+        margin-left: clamp(-12px, -1.111111vh, -9px);
+    }
+
+    .l_img {
+        width: clamp(180px, 21.296296vh, 230px);
+        height: auto;
+        object-fit: contain;
+    }
+}
+
+/* Quando a sidebar está recolhida, o ícone fica matematicamente centralizado.
+   Isso também anula as margens especiais de alguns ícones antigos. */
+@media (min-width: 701px) {
+    body:not(.sidebar-open) .nav-link {
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    body:not(.sidebar-open) .i_img,
+    body:not(.sidebar-open) #icon_edp,
+    body:not(.sidebar-open) #icon_cadp,
+    body:not(.sidebar-open) #icon_comp {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
+
+/* Em telas muito baixas, o menu passa a poder rolar antes de cortar o último item. */
+@media (min-width: 701px) and (max-height: 700px) {
+    .custom-sidebar {
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: #efac4a transparent;
+    }
+
+    .custom-sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .custom-sidebar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .custom-sidebar::-webkit-scrollbar-thumb {
+        background: #efac4a;
+        border-radius: 20px;
+    }
+}
