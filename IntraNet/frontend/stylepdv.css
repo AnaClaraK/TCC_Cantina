@@ -2675,3 +2675,1315 @@ MODAL FIADO / PRODUTOS
 #sel_parcelas_credito {
     color-scheme: dark;
 }
+
+
+/* ============================================================
+   PADRONIZAÇÃO FINAL — PDV / PAGAMENTOS / FECHAMENTO
+   Apenas ajustes visuais e de posicionamento.
+============================================================ */
+
+/* Botões de pagamento: mesma altura, tipografia e acabamento */
+.area_pagamento {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: minmax(52px, auto);
+    gap: 10px;
+    width: 100%;
+    padding: 10px;
+    overflow: visible !important;
+}
+
+/* Dividir + Fiado compartilham o espaço de UM botão */
+#b_dividir_pagamento,
+#pg_fiado {
+    width: calc(50% - 5px);
+    min-width: 0;
+    height: 52px;
+    min-height: 52px;
+    margin: 0 !important;
+    padding: 10px 8px;
+    align-self: stretch;
+    box-sizing: border-box;
+}
+
+#b_dividir_pagamento {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+}
+
+#pg_fiado {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: end;
+    display: block !important;
+    visibility: visible !important;
+}
+
+#pg_dinheiro {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+#pg_credito {
+    grid-column: 3;
+    grid-row: 1;
+}
+
+#pg_debito {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+#pg_pix {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+#pg_voucher {
+    grid-column: 3;
+    grid-row: 2;
+}
+
+.area_pagamento .pagamento,
+.area_pagamento .botao-dividir-pagamento {
+    min-height: 52px;
+    padding: 10px 8px;
+    border: 2px solid #efac4a;
+    border-radius: 9px;
+    font-family: "Roca One", sans-serif !important;
+    font-size: clamp(0.88rem, 1vw, 1.05rem);
+    font-weight: bold;
+    line-height: 1.15;
+    text-align: center;
+    text-transform: uppercase;
+    transition: background-color .2s ease, color .2s ease, transform .1s ease;
+}
+
+.area_pagamento .pagamento:hover,
+.area_pagamento .botao-dividir-pagamento:hover {
+    color: #1c1c1c;
+    background: #efac4a;
+}
+
+.area_pagamento .pagamento.selecionado {
+    color: #1c1c1c !important;
+    background: #efac4a !important;
+    border-color: #efac4a !important;
+}
+
+.area_pagamento .pagamento:disabled,
+.area_pagamento .botao-dividir-pagamento:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+/* Modal Fiado no mesmo padrão dos outros modais */
+#d_fiado {
+    width: min(450px, calc(100vw - 32px));
+    max-width: 95%;
+    padding: 0;
+    color: #f8c471;
+    background: #1c1c1c;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.65);
+    overflow: hidden;
+}
+
+#d_fiado::backdrop {
+    background: rgba(0,0,0,.78);
+    backdrop-filter: blur(3px);
+}
+
+#d_fiado .modal_titulo {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    width: 100%;
+    padding: 28px;
+    color: #f8c471;
+    background: #1c1c1c;
+    text-align: left;
+}
+
+#d_fiado .modal_titulo h2 {
+    margin: 0 30px 8px 0;
+    color: #efac4a;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+#d_fiado .inp_m {
+    width: 100%;
+    height: 48px;
+    margin: 0;
+    padding: 0 12px;
+    color: #1c1c1c;
+    background: #f8c471;
+    border: 2px solid #efac4a;
+    border-radius: 9px;
+    font-family: "Roca One", sans-serif !important;
+    font-size: 1rem;
+}
+
+#d_fiado #b_confirmar_fiado {
+    width: 100%;
+    min-height: 50px;
+    margin-top: 4px;
+    padding: 12px 16px;
+    color: #fff;
+    background: #62c370;
+    border: none;
+    border-radius: 9px;
+    font-family: "Roca One", sans-serif !important;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#d_fiado #b_confirmar_fiado:hover {
+    background: #53b060;
+}
+
+#d_fiado .fechar-modal-pagamento,
+#dialogCredito .fechar-modal-pagamento,
+#dialogDinheiro #b_fechar_dinheiro,
+#b_fechar_dividir_pagamento {
+    color: #efac4a;
+}
+
+#d_fiado .fechar-modal-pagamento:hover,
+#dialogCredito .fechar-modal-pagamento:hover,
+#dialogDinheiro #b_fechar_dinheiro:hover,
+#b_fechar_dividir_pagamento:hover {
+    color: #fff;
+    background: rgba(239,172,74,.12);
+}
+
+/* Crédito e dinheiro seguem o mesmo acabamento */
+#dialogDinheiro .conteudo-dinheiro,
+#dialogCredito .conteudo-credito {
+    font-family: "Roca One", sans-serif;
+}
+
+#dialogDinheiro .conteudo-dinheiro,
+#dialogCredito .conteudo-credito {
+    background: #1c1c1c;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+}
+
+#dialogCredito .conteudo-credito {
+    color: #f8c471;
+}
+
+#dialogCredito .credito-total,
+#dialogCredito .credito-parcela {
+    background: #fed89d;
+    color: #1c1c1c;
+    border: 2px solid #efac4a;
+    border-radius: 9px;
+}
+
+#dialogCredito .credito-campo label {
+    color: #efac4a;
+}
+
+#dialogCredito #sel_parcelas_credito,
+#dialogCredito .select-selecionado {
+    height: 48px;
+    color: #1c1c1c;
+    background: #f1b869;
+    border: 2px solid #efac4a;
+    border-radius: 9px;
+}
+
+#dialogCredito #b_confirmar_credito,
+#dialogDinheiro #b_confirmar_dinheiro {
+    min-height: 50px;
+    border-radius: 9px;
+    background: #62c370;
+    color: #fff;
+    font-family: "Roca One", sans-serif !important;
+}
+
+#dialogCredito #b_confirmar_credito:hover,
+#dialogDinheiro #b_confirmar_dinheiro:hover {
+    background: #53b060;
+}
+
+/* Modal Dividir no mesmo padrão */
+#dialogDividirPagamento {
+    width: min(520px, calc(100vw - 32px));
+    max-width: 95%;
+    color: #f8c471;
+    background: #1c1c1c;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+}
+
+.split-box {
+    font-family: "Roca One", sans-serif;
+}
+
+.split-metodo {
+    min-height: 48px;
+    border-radius: 9px;
+}
+
+#b_confirmar_split {
+    min-height: 50px;
+    border-radius: 9px;
+    background: #62c370;
+}
+
+/* Fechamento: padrão visual dos demais modais */
+#dialogFechamentoDiario {
+    width: min(900px, calc(100vw - 32px));
+    max-width: 95%;
+    max-height: calc(100dvh - 24px);
+    background: #1c1c1c;
+    color: #fff;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.fechamento-box {
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    padding: 24px;
+    font-family: "Roca One", sans-serif;
+}
+
+.fechamento-topo h2,
+.fechamento-campo label,
+.fechamento-valor,
+.fechamento-card strong,
+.fechamento-diferenca,
+.fechamento-box button {
+    font-family: "Roca One", sans-serif !important;
+}
+
+.fechamento-status-linha {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.fechamento-abertura-acao {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.fechamento-abertura-acao input {
+    display: none;
+    width: 135px;
+    height: 42px;
+    padding: 0 10px;
+    color: #1c1c1c;
+    background: #f8c471;
+    border: 2px solid #efac4a;
+    border-radius: 8px;
+    outline: none;
+}
+
+#btnRegistrarAbertura {
+    display: none;
+    min-height: 42px;
+    padding: 0 14px;
+    color: #1c1c1c;
+    background: #f1b869;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#btnRegistrarAbertura:hover {
+    background: #f8c471;
+}
+
+.fechamento-status-fechado {
+    color: #e06060 !important;
+}
+
+.fechamento-acoes button {
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 8px;
+    font-family: "Roca One", sans-serif !important;
+}
+
+#btnConsultarFechamento {
+    background: #f1b869;
+    color: #1c1c1c;
+}
+
+#btnFecharFechamentoSemSalvar {
+    background: #e06060;
+}
+
+#btnSalvarFechamento {
+    background: #62c370;
+}
+
+#btnConsultarFechamento:hover {
+    background: #f8c471;
+}
+
+#btnFecharFechamentoSemSalvar:hover {
+    background: #c84e4e;
+}
+
+#btnSalvarFechamento:hover {
+    background: #53b060;
+}
+
+/* Só libera o bloco de abertura quando o JS realmente o exibe. */
+.fechamento-status-campo:has(#fechamentoTrocoInicialInput[style*="display: block"]) .fechamento-abertura-acao {
+    display: flex;
+}
+
+@media (max-width: 1100px) {
+    .area_pagamento {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 520px) {
+    .area_pagamento {
+        grid-template-columns: 1fr;
+    }
+
+    #b_dividir_pagamento,
+    #pg_fiado,
+    #pg_dinheiro,
+    #pg_credito,
+    #pg_debito,
+    #pg_pix,
+    #pg_voucher {
+        grid-column: auto;
+        grid-row: auto;
+        width: 100%;
+        justify-self: stretch;
+    }
+
+    .fechamento-status-linha {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .fechamento-abertura-acao {
+        flex-wrap: wrap;
+    }
+
+    .fechamento-abertura-acao input {
+        flex: 1 1 130px;
+    }
+
+    #btnRegistrarAbertura {
+        flex: 1 1 150px;
+    }
+
+    .fechamento-acoes {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .fechamento-acoes-dir {
+        width: 100%;
+    }
+
+    .fechamento-acoes-dir button {
+        flex: 1;
+    }
+}
+
+/* ============================================================
+   RESPONSIVIDADE — RESOLUÇÃO, ZOOM E ALTURA DO MONITOR
+   O layout usa a área útil do navegador (CSS viewport), então
+   continua proporcional mesmo com zoom de 125%, 150% etc.
+============================================================ */
+
+/* Evita que conteúdos internos estourem a altura disponível. */
+#sc_inputs {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+/* Dialogs nunca devem ultrapassar a área visível do navegador. */
+#d_aviso,
+#dialogComanda,
+#dialogDinheiro,
+#dialogCredito,
+#dialogDividirPagamento,
+#d_fiado,
+#dialogFechamentoDiario {
+    max-height: calc(100dvh - clamp(20px, 4vh, 48px));
+}
+
+/* Conteúdo interno dos modais acompanha a altura disponível. */
+#d_aviso .aviso_box,
+#dialogComanda .modal_box,
+#dialogDinheiro .conteudo-dinheiro,
+#dialogCredito .conteudo-credito,
+#d_fiado .modal_titulo {
+    max-height: calc(100dvh - clamp(40px, 8vh, 80px));
+    overflow-y: auto;
+}
+
+#dialogDividirPagamento .split-box {
+    max-height: calc(100dvh - clamp(24px, 6vh, 60px));
+    overflow-y: auto;
+}
+
+#dialogFechamentoDiario .fechamento-box {
+    max-height: calc(100dvh - clamp(24px, 6vh, 60px));
+}
+
+/* Em telas menores, a coluna da tabela não fica presa a 420px. */
+@media (max-width: 1400px) {
+    body {
+        grid-template-columns: minmax(0, 1.55fr) minmax(350px, 1fr);
+        padding: 68px 12px 12px;
+        gap: 12px;
+    }
+
+    #sc_inputs {
+        padding: 14px;
+        gap: 10px;
+    }
+
+    .area_pagamento {
+        gap: 8px;
+        padding: 8px;
+    }
+}
+
+/* Aproximadamente o espaço disponível de um monitor 1920x1080
+   usando zoom de 125% (~1536x864 CSS px). */
+@media (max-width: 1600px) and (max-height: 950px) {
+    body {
+        padding-top: clamp(58px, 7vh, 68px);
+        padding-bottom: 10px;
+    }
+
+    #sc_inputs {
+        gap: 8px;
+        padding: 12px;
+    }
+
+    .area_pagamento .pagamento,
+    .area_pagamento .botao-dividir-pagamento {
+        min-height: clamp(44px, 6vh, 52px);
+        height: auto;
+    }
+
+    .fechamento-box {
+        padding: clamp(16px, 1.5vw, 24px);
+    }
+}
+
+/* Tablets/notebooks menores: mantém duas colunas enquanto houver
+   espaço útil, mas reduz a largura mínima da tabela. */
+@media (max-width: 1150px) {
+    body {
+        grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr);
+        padding: 62px 10px 10px;
+        gap: 10px;
+    }
+
+    #sc_inputs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .area_pagamento {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    #dialogFechamentoDiario {
+        width: min(900px, calc(100vw - 24px));
+    }
+
+    .fechamento-datas {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .fechamento-status-campo {
+        grid-column: 1 / -1;
+    }
+}
+
+/* Alturas muito baixas: reduz espaçamentos antes de empilhar o layout. */
+@media (max-height: 760px) {
+    body {
+        padding-top: 58px;
+        padding-bottom: 8px;
+    }
+
+    #sc_inputs {
+        padding: 10px;
+        gap: 7px;
+    }
+
+    .area_pagamento {
+        gap: 7px;
+        padding: 7px;
+    }
+
+    .area_pagamento .pagamento,
+    .area_pagamento .botao-dividir-pagamento {
+        min-height: 42px;
+        padding: 7px 6px;
+    }
+
+    #dialogFechamentoDiario .fechamento-box {
+        padding: 16px;
+    }
+
+    .fechamento-topo {
+        margin-bottom: 10px;
+    }
+}
+
+/* Quando a largura já não comporta duas colunas com conforto,
+   o PDV passa para uma coluna sem cortar conteúdo. */
+@media (max-width: 900px) {
+    body {
+        height: auto;
+        min-height: 100dvh;
+        overflow-y: auto;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto auto;
+        grid-template-areas:
+            "inputs"
+            "modal";
+        padding: 58px 10px 10px;
+    }
+
+    #sc_inputs {
+        max-height: none;
+        overflow: visible;
+    }
+
+    .area_pagamento {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #b_dividir_pagamento,
+    #pg_fiado {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    #pg_dinheiro {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    #pg_credito {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    #pg_debito {
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    #pg_pix {
+        grid-column: 1;
+        grid-row: 3;
+    }
+
+    #pg_voucher {
+        grid-column: 2;
+        grid-row: 3;
+    }
+}
+
+/* Celular/tela muito estreita: os controles deixam de competir por espaço. */
+@media (max-width: 560px) {
+    body {
+        padding: 52px 7px 7px;
+    }
+
+    #sc_inputs {
+        grid-template-columns: 1fr;
+    }
+
+    .area_pagamento {
+        grid-template-columns: 1fr;
+    }
+
+    #b_dividir_pagamento,
+    #pg_fiado,
+    #pg_dinheiro,
+    #pg_credito,
+    #pg_debito,
+    #pg_pix,
+    #pg_voucher {
+        grid-column: 1;
+        grid-row: auto;
+        width: 100%;
+    }
+
+    .split-resumo {
+        grid-template-columns: 1fr;
+    }
+
+    .split-metodos {
+        grid-template-columns: 1fr;
+    }
+
+    .split-entrada {
+        flex-direction: column;
+    }
+
+    #b_add_split {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+
+    .fechamento-datas {
+        grid-template-columns: 1fr;
+    }
+
+    .fechamento-status-campo {
+        grid-column: auto;
+    }
+
+    .fechamento-status-linha {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .fechamento-abertura-acao {
+        width: 100%;
+    }
+
+    .fechamento-abertura-acao input,
+    #btnRegistrarAbertura {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+}
+
+
+/* ============================================================
+   AJUSTE FINAL DE MODAIS
+   Nenhum <dialog> cria barra de rolagem própria.
+   A caixa nunca passa da altura da viewport.
+============================================================ */
+
+dialog {
+    box-sizing: border-box;
+    max-height: calc(100dvh - 24px) !important;
+    overflow: hidden !important;
+}
+
+dialog > * {
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+/* O modal de finalização não fica mais preso a 820px de altura. */
+#d_modal {
+    width: min(680px, calc(100vw - 24px));
+    height: auto !important;
+    min-height: 0;
+    max-height: calc(100dvh - 24px) !important;
+    overflow: hidden !important;
+}
+
+#d_modal article {
+    height: auto;
+    max-height: calc(100dvh - 24px);
+    overflow: hidden !important;
+}
+
+#d_modal article section {
+    height: auto;
+    max-height: none;
+    overflow: hidden !important;
+    padding: clamp(14px, 2vw, 24px);
+    gap: clamp(8px, 1.3vw, 14px);
+}
+
+#d_modal .bloco-info-venda {
+    gap: clamp(8px, 1.5vw, 16px);
+    margin: clamp(8px, 1.3vw, 14px) 0;
+}
+
+#d_modal .info-label {
+    font-size: clamp(16px, 1.5vw, 20px) !important;
+}
+
+#d_modal .info-valor {
+    font-size: clamp(17px, 1.7vw, 25px);
+}
+
+#d_modal .info-valor-total {
+    font-size: clamp(26px, 3vw, 40px);
+}
+
+#d_modal .label-pagamento {
+    margin-top: 8px;
+    margin-bottom: 6px;
+    font-size: clamp(20px, 2.1vw, 28px) !important;
+}
+
+#d_modal .area_pagamento {
+    gap: 8px;
+    padding: 6px;
+}
+
+#d_modal .pagamento,
+#d_modal #b_dividir_pagamento {
+    min-height: 46px;
+    padding: 8px 10px;
+}
+
+#d_modal footer {
+    padding: 10px 16px 14px;
+}
+
+#b_nv_venda {
+    padding: 10px;
+}
+
+/* Busca: o dialog não rola; somente a lista, quando houver muitos resultados. */
+#dialogBusca {
+    width: min(620px, calc(100vw - 24px));
+    height: auto !important;
+    max-height: calc(100dvh - 24px) !important;
+    overflow: hidden !important;
+}
+
+#dialogBusca .modal_box {
+    height: auto;
+    max-height: calc(100dvh - 24px);
+    overflow: hidden;
+    padding: clamp(16px, 2vw, 24px);
+}
+
+/* Modal de agendamento: caso esteja presente/gerado por outra parte da tela. */
+#dialogAgendamento,
+#modalAgendamento,
+#d_agendamento,
+.dialog-agendamento,
+.modal-agendamento {
+    width: min(760px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px) !important;
+    height: auto !important;
+    overflow: hidden !important;
+    box-sizing: border-box;
+}
+
+#dialogAgendamento .modal_box,
+#modalAgendamento .modal_box,
+#d_agendamento .modal_box,
+.dialog-agendamento .modal_box,
+.modal-agendamento .modal_box {
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100dvh - 24px);
+    overflow: hidden !important;
+    box-sizing: border-box;
+}
+
+/* Pagamentos simples: altura pelo conteúdo, nunca 100% da tela. */
+#dialogDinheiro,
+#dialogCredito,
+#d_fiado,
+#dialogDividirPagamento,
+#dialogComanda,
+#d_aviso {
+    height: auto !important;
+    max-height: calc(100dvh - 24px) !important;
+    overflow: hidden !important;
+}
+
+#dialogDinheiro .conteudo-dinheiro,
+#dialogCredito .conteudo-credito,
+#d_fiado .modal_titulo,
+#dialogComanda .modal_box,
+.split-box {
+    max-height: calc(100dvh - 24px);
+    overflow: hidden !important;
+}
+
+/* Fechamento: mais largura e conteúdo compacto em telas baixas, sem scrollbar no modal. */
+#dialogFechamentoDiario {
+    width: min(900px, calc(100vw - 24px));
+    height: auto !important;
+    max-height: calc(100dvh - 24px) !important;
+    overflow: hidden !important;
+}
+
+#dialogFechamentoDiario .fechamento-box {
+    max-height: calc(100dvh - 24px);
+    overflow: hidden !important;
+}
+
+@media (max-height: 850px) {
+    #d_modal article section {
+        padding: 12px 16px;
+        gap: 7px;
+    }
+
+    #d_modal .bloco-info-venda {
+        gap: 7px;
+        margin: 7px 0;
+    }
+
+    #d_modal .total-box {
+        padding: 9px;
+    }
+
+    #d_modal footer {
+        padding: 8px 14px 10px;
+    }
+
+    #dialogFechamentoDiario .fechamento-box {
+        padding: 16px;
+        gap: 10px;
+    }
+
+    #dialogFechamentoDiario .fechamento-linha {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    #dialogFechamentoDiario .fechamento-grid {
+        gap: 8px;
+    }
+}
+
+@media (max-height: 700px) {
+    #d_modal article section {
+        padding: 10px 12px;
+        gap: 5px;
+    }
+
+    #d_modal .bloco-info-venda {
+        margin: 5px 0;
+        gap: 5px;
+    }
+
+    #d_modal .label-pagamento {
+        margin-top: 4px;
+        margin-bottom: 3px;
+    }
+
+    #d_modal .area_pagamento {
+        gap: 5px;
+        padding: 4px;
+    }
+
+    #d_modal .pagamento,
+    #d_modal #b_dividir_pagamento {
+        min-height: 40px;
+        padding: 6px 8px;
+    }
+
+    #d_modal footer {
+        padding: 6px 10px 8px;
+    }
+}
+
+/* ============================================================
+   AJUSTE ESPECÍFICO — PDV
+   1) Área de valores/foto sem scrollbar
+   2) Foto sempre quadrada e proporcional
+   3) Fechamento mais largo quando a abertura manual aparece
+   4) Nenhuma rolagem interna nos modais
+============================================================ */
+
+/* A área superior do PDV não deve criar uma barra lateral própria. */
+#sc_inputs {
+    overflow: hidden !important;
+}
+
+/*
+   A foto continua quadrada.
+   Em telas menores, largura e altura diminuem juntas pela altura útil
+   da viewport, evitando que a região de valores/foto ultrapasse a área.
+*/
+#img_prod {
+    width: min(500px, 58dvh, 100%);
+    height: min(500px, 58dvh);
+    min-width: 0;
+    min-height: 0;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+}
+
+/* Nenhum modal usa a própria caixa como área de rolagem. */
+dialog,
+dialog > *,
+dialog article,
+dialog article > section,
+#dialogBusca .modal_box,
+#dialogDinheiro .conteudo-dinheiro,
+#dialogCredito .conteudo-credito,
+#d_fiado .modal_titulo,
+#dialogDividirPagamento .split-box,
+#dialogComanda .modal_box,
+#dialogFechamentoDiario .fechamento-box {
+    overflow: hidden !important;
+}
+
+/*
+   O fechamento ganha espaço quando o botão de abertura manual aparece.
+   Isso evita que input + botão quebrem para outra linha.
+*/
+#dialogFechamentoDiario {
+    width: min(930px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+    max-height: calc(100dvh - 20px) !important;
+}
+
+#dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]),
+#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]),
+#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) {
+    width: min(1000px, calc(100vw - 24px));
+}
+
+#dialogFechamentoDiario .fechamento-box {
+    max-height: calc(100dvh - 20px) !important;
+    box-sizing: border-box;
+}
+
+/* Em telas com pouca altura, compacta o fechamento antes de qualquer corte. */
+@media (max-height: 900px) {
+    #dialogFechamentoDiario {
+        width: min(930px, calc(100vw - 20px));
+    }
+
+    #dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]),
+    #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]),
+    #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) {
+        width: min(1000px, calc(100vw - 20px));
+    }
+
+    #dialogFechamentoDiario .fechamento-box {
+        padding: 18px;
+        gap: 11px;
+    }
+
+    #dialogFechamentoDiario .fechamento-linha {
+        gap: 11px;
+        padding: 12px;
+    }
+
+    #dialogFechamentoDiario .fechamento-grid {
+        gap: 9px;
+    }
+
+    #dialogFechamentoDiario .fechamento-card {
+        padding: 9px;
+    }
+
+    #dialogFechamentoDiario .fechamento-dinheiro {
+        padding: 11px;
+        gap: 6px;
+    }
+
+    #dialogFechamentoDiario .fechamento-proximo {
+        padding: 11px;
+    }
+
+    #dialogFechamentoDiario .fechamento-acoes {
+        margin-top: 0;
+    }
+}
+
+/* Em telas ainda mais baixas, reduz apenas espaçamentos e textos do fechamento. */
+@media (max-height: 780px) {
+    #dialogFechamentoDiario .fechamento-box {
+        padding: 13px;
+        gap: 8px;
+    }
+
+    #dialogFechamentoDiario .fechamento-topo {
+        padding-bottom: 7px;
+    }
+
+    #dialogFechamentoDiario .fechamento-topo h2 {
+        font-size: 1.15rem;
+    }
+
+    #dialogFechamentoDiario .fechamento-linha {
+        padding: 9px;
+        gap: 8px;
+    }
+
+    #dialogFechamentoDiario .fechamento-campo {
+        gap: 4px;
+    }
+
+    #dialogFechamentoDiario .fechamento-grid {
+        gap: 7px;
+    }
+
+    #dialogFechamentoDiario .fechamento-card {
+        padding: 7px;
+    }
+
+    #dialogFechamentoDiario .fechamento-card span {
+        font-size: 0.68rem;
+    }
+
+    #dialogFechamentoDiario .fechamento-card strong {
+        font-size: 0.9rem;
+    }
+
+    #dialogFechamentoDiario .fechamento-dinheiro,
+    #dialogFechamentoDiario .fechamento-proximo {
+        padding: 8px;
+    }
+
+    #dialogFechamentoDiario .fechamento-acoes button {
+        min-height: 40px;
+    }
+}
+
+
+/* ============================================================
+   CORREÇÕES FINAIS — SOMENTE OS PONTOS SOLICITADOS
+============================================================ */
+
+/*
+   Modais comuns: tamanho natural pelo conteúdo.
+   O limite de viewport só entra como teto quando realmente necessário.
+*/
+dialog {
+    height: fit-content !important;
+    width: fit-content;
+    max-width: calc(100vw - 32px) !important;
+    max-height: calc(100dvh - 32px) !important;
+    overflow: hidden !important;
+}
+
+#dialogBusca,
+#dialogComanda,
+#dialogDinheiro,
+#dialogCredito,
+#dialogDividirPagamento,
+#d_fiado,
+#d_aviso {
+    height: auto !important;
+}
+
+#dialogBusca .modal_box,
+#dialogComanda .modal_box,
+#dialogDinheiro .conteudo-dinheiro,
+#dialogCredito .conteudo-credito,
+#dialogDividirPagamento .split-box,
+#d_fiado .modal_titulo,
+#d_aviso .aviso_box {
+    height: auto !important;
+    max-height: none !important;
+    overflow: hidden !important;
+}
+
+/* ============================================================
+   DIVIDIR + FIADO — MESMO ESPAÇO DE UM ÚNICO BOTÃO
+============================================================ */
+.area_pagamento {
+    position: relative;
+}
+
+.area_pagamento #b_dividir_pagamento,
+.area_pagamento #pg_fiado {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    width: calc(50% - 5px) !important;
+    max-width: calc(50% - 5px) !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    justify-self: stretch !important;
+}
+
+.area_pagamento #b_dividir_pagamento {
+    justify-self: start !important;
+}
+
+.area_pagamento #pg_fiado {
+    justify-self: end !important;
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Mesmo comportamento também nas larguras menores.
+   Os dois continuam lado a lado; os demais botões podem se reorganizar. */
+@media (max-width: 560px) {
+    .area_pagamento {
+        grid-template-columns: 1fr !important;
+        grid-auto-rows: minmax(48px, auto) !important;
+    }
+
+    .area_pagamento #b_dividir_pagamento,
+    .area_pagamento #pg_fiado {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+        width: calc(50% - 5px) !important;
+        max-width: calc(50% - 5px) !important;
+        justify-self: initial !important;
+    }
+
+    .area_pagamento #b_dividir_pagamento { justify-self: start !important; }
+    .area_pagamento #pg_fiado { justify-self: end !important; }
+
+    #pg_dinheiro { grid-column: 1 !important; grid-row: 2 !important; }
+    #pg_credito  { grid-column: 1 !important; grid-row: 3 !important; }
+    #pg_debito   { grid-column: 1 !important; grid-row: 4 !important; }
+    #pg_pix      { grid-column: 1 !important; grid-row: 5 !important; }
+    #pg_voucher  { grid-column: 1 !important; grid-row: 6 !important; }
+}
+
+/* ============================================================
+   X DO FIADO — DIREITA, NO CANTO, SEM FUNDO/BORDA
+============================================================ */
+#d_fiado .fechar-modal-pagamento,
+#d_fiado #b_fechar_fiado {
+    position: absolute !important;
+    top: 8px !important;
+    right: 10px !important;
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    outline: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #efac4a !important;
+    font-size: 28px !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+#d_fiado .fechar-modal-pagamento:hover,
+#d_fiado #b_fechar_fiado:hover,
+#d_fiado .fechar-modal-pagamento:focus,
+#d_fiado #b_fechar_fiado:focus {
+    border: 0 !important;
+    outline: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #f8c471 !important;
+}
+
+/* ============================================================
+   SELECT DE CLIENTE DO FIADO — PADRÃO LARANJA
+============================================================ */
+#d_fiado .select-fiado-cliente,
+#d_fiado #sl_cliente {
+    color: #1c1c1c !important;
+    background-color: #f8c471 !important;
+    border-color: #efac4a !important;
+    accent-color: #efac4a !important;
+}
+
+#d_fiado .select-fiado-cliente option,
+#d_fiado #sl_cliente option {
+    background-color: #efac4a !important;
+    color: #1c1c1c !important;
+}
+
+#d_fiado .select-fiado-cliente option:hover,
+#d_fiado #sl_cliente option:hover,
+#d_fiado .select-fiado-cliente option:checked,
+#d_fiado #sl_cliente option:checked {
+    background-color: #efac4a !important;
+    color: #1c1c1c !important;
+}
+
+/* ============================================================
+   FECHAMENTO — NATURAL, SEM ESPAÇO EXTRA ABAIXO
+============================================================ */
+#dialogFechamentoDiario {
+    width: min(980px, calc(100vw - 40px)) !important;
+    height: auto !important;
+    max-height: calc(100dvh - 32px) !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#dialogFechamentoDiario .fechamento-box {
+    height: auto !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* Quando a abertura manual aparece, ganha um pouco mais de largura. */
+#dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]),
+#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]),
+#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) {
+    width: min(1060px, calc(100vw - 40px)) !important;
+}
+
+#dialogFechamentoDiario .fechamento-status-linha {
+    min-width: 0;
+}
+
+#dialogFechamentoDiario .fechamento-abertura-acao {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+/* Em telas baixas, reduz somente o espaçamento para caber sem esticar o modal. */
+@media (max-height: 850px) {
+    #dialogFechamentoDiario .fechamento-box {
+        padding: 18px !important;
+        gap: 10px !important;
+    }
+
+    #dialogFechamentoDiario .fechamento-linha {
+        gap: 10px !important;
+        padding: 11px !important;
+    }
+
+    #dialogFechamentoDiario .fechamento-card {
+        padding: 9px !important;
+    }
+
+    #dialogFechamentoDiario .fechamento-dinheiro,
+    #dialogFechamentoDiario .fechamento-proximo {
+        padding: 10px !important;
+    }
+}
+
+@media (max-height: 700px) {
+    #dialogFechamentoDiario .fechamento-box {
+        padding: 13px !important;
+        gap: 7px !important;
+    }
+
+    #dialogFechamentoDiario .fechamento-linha {
+        padding: 8px !important;
+        gap: 7px !important;
+    }
+
+    #dialogFechamentoDiario .fechamento-grid {
+        gap: 6px !important;
+    }
+
+    #dialogFechamentoDiario .fechamento-card {
+        padding: 6px !important;
+    }
+}

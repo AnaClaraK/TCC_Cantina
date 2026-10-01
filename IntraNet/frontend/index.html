@@ -61,17 +61,17 @@
         <header class="agenda-header">
             <div class="dia-grande" id="dia-grande-js">26</div>
             <div class="info-mes">
-                <h2 id="nome-mes-js" style="margin: 0; font-size: 35px;">Março</h2>
-                <p id="hoje-texto-js" style="margin: 0; font-size: 18px; opacity: 0.8;">Hoje, Quinta-feira</p>
+                <h2 id="nome-mes-js">Março</h2>
+                <p id="hoje-texto-js">Hoje, Quinta-feira</p>
             </div>
-            <div class="nav-agenda" style="margin-left: auto; display: flex; gap: 5px;">
+            <div class="nav-agenda">
                 <button class="btn-seta" onclick="mudarMes(-1)">◀</button>
                 <button class="btn-seta" onclick="mudarMes(1)">▶</button>
             </div>
         </header>
     
         <div class="corpo-agenda">
-            <div class="dias-grid" style="font-weight: bold; opacity: 0.7; margin-bottom: 5px;">
+            <div class="dias-grid dias-cabecalho">
                 <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
             </div>
             <div class="dias-grid" id="calendario-numeros">
@@ -322,7 +322,7 @@ async function verificarEstoqueBaixo() {
 
         const mensagem = `
             <p><strong>Atenção:</strong> os produtos abaixo estão com estoque abaixo do mínimo:</p>
-            <ul style="text-align:left; margin-top:8px;">${listaHtml}</ul>
+            <ul class="lista-estoque-aviso">${listaHtml}</ul>
         `;
 
         exibirAviso(mensagem, confirmarLeituraEstoqueBaixo, false);
