@@ -18,13 +18,12 @@
     <script src="./gerarpdf.js"></script>
 </head>
 
-<body class="fundo-escuro">
+<body class="fundo-escuro pagina-estoque">
 
 <div class="d_util">
     <h2 class="h_ag">Estoque</h2>
     <button id="b_addq">
       <span id="s_addq">Adicionar quantidade</span></button>
-      <button id="btnExportarPDF" class="btn-baixar-pdf" onclick="gerarPDFReposicaoEstoque()"> Baixar PDF</button>
     <div id="d_inp">
         <div class="busca-box">
             <img src="../backend/imagens/lupa.png" class="icone-busca">
@@ -33,6 +32,7 @@
         
         </div>
     </div>
+    <button id="btnExportarPDF" class="btn-baixar-pdf" onclick="gerarPDFReposicaoEstoque()">Baixar PDF</button>
 </div>
 
 <section id="sc_tabela" class="container mt-5 area-tabela">
@@ -412,12 +412,12 @@ async function carregarProdutos() {
                     });
 
                     if (!resStatus.ok) {
-                        alert("Erro ao atualizar o status do produto.");
+                        exibirAviso("Erro ao atualizar o status do produto.");
                         carregarProdutos(); // Reverte a seleção visual em caso de falha
                     }
                 } catch (errStatus) {
                     console.error("Erro na requisição de atualização de status:", errStatus);
-                    alert("Erro de conexão ao alterar status.");
+                    exibirAviso("Erro de conexão ao alterar status.");
                     carregarProdutos();
                 }
             });
