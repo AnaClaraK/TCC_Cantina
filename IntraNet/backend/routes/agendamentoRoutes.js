@@ -190,66 +190,151 @@ router.put("/agendamento/:id/cancelar", verificarToken, async (req, res) => {
 
 //---
 //--- Listar agendamentos
-router.get("/agendamento", verificarToken, async (req, res) => {
-    try {
-        const [rows] = await conexao.query(`
-            SELECT 
-                p.id_pedido,
-                p.num_pedido,
-                p.data,
-                p.data_ag,
-                p.valor_total,
-                p.qtd_total,
-                p.form_pag,
-                p.status,
-                p.origem,
-                u.nome AS cliente_nome,
-                i.id_produto,
-                pr.nome AS produto_nome,
-                i.qtd,
-                i.preco_unitario
-            FROM pedidos p
-            LEFT JOIN users u ON p.id_user = u.id_user
-            LEFT JOIN pedidos_itens i ON p.id_pedido = i.id_pedido
-            LEFT JOIN produtos pr ON i.id_produto = pr.id_produto
-            WHERE p.status = 'Agendado'
-            ORDER BY p.data DESC
-        `);
+//--- Listar agendamentos + pedidos do APP pendentes
 
-        const pedidosMap = {};
+router.get(
+    "/agendamento",
+    verificarToken,
+    async (req, res) => {
 
-        rows.forEach(r => {
-            if (!pedidosMap[r.id_pedido]) {
-                pedidosMap[r.id_pedido] = {
-                    id_pedido: r.id_pedido,
-                    num_pedido: r.num_pedido,
-                    data: r.data,
-                    data_ag: r.data_ag,
-                    valor_total: r.valor_total,
-                    qtd_total: r.qtd_total,
-                    form_pag: r.form_pag,
-                    status: r.status,
-                    origem: r.origem,
-                    cliente_nome: r.cliente_nome,
-                    produtos: []
-                };
-            }
+        try {
 
-            if (r.id_produto) {
-                pedidosMap[r.id_pedido].produtos.push({
-                    id_produto: r.id_produto,
-                    nome: r.produto_nome,
-                    qtd: r.qtd,
-                    preco: r.preco_unitario
-                });
-            }
-        });
+            const [rows] = await conexao.query(`
+                SELECT 
+                    p.id_pedido,
+                    p.num_pedido,
+                    p.data,
+                    p.data_ag,
+                    p.valor_total,
+                    p.qtd_total,
+                    p.form_pag,
+                    p.status,
+                    p.origem,
 
-        res.json(Object.values(pedidosMap));
+                    u.nome AS cliente_nome,
 
-    } catch (erro) {
-        console.error(erro);
-        res.status(500).json({ erro: "Erro ao buscar agendamentos" });
+                    i.id_produto,
+                    pr.nome AS produto_nome,
+                    i.qtd,
+                    i.preco_unitario
+
+                FROM pedidos p
+
+                LEFT JOIN users u
+                    ON p.id_user = u.id_user
+
+                LEFT JOIN pedidos_itens i
+                    ON p.id_pedido = i.id_pedido
+
+                LEFT JOIN produtos pr
+                    ON i.id_produto = pr.id_produto
+
+                WHERE
+                    LOWER(TRIM(p.status)) = 'agendado'
+
+                    OR
+
+                    (
+                        LOWER(TRIM(p.status)) = 'pendente'
+                        AND LOWER(TRIM(p.origem)) = 'app'
+                    )
+
+                ORDER BY
+                    COALESCE(p.data_ag, p.data) ASC,
+                    p.num_pedido ASC
+            `);
+
+
+            const pedidosMap = {};
+
+
+            rows.forEach(r => {
+
+                if (!pedidosMap[r.id_pedido]) {
+
+                    pedidosMap[r.id_pedido] = {
+
+                        id_pedido:
+                            r.id_pedido,
+
+                        num_pedido:
+                            r.num_pedido,
+
+                        data:
+                            r.data,
+
+                        data_ag:
+                            r.data_ag,
+
+                        valor_total:
+                            r.valor_total,
+
+                        qtd_total:
+                            r.qtd_total,
+
+                        form_pag:
+                            r.form_pag,
+
+                        status:
+                            r.status,
+
+                        origem:
+                            r.origem,
+
+                        cliente_nome:
+                            r.cliente_nome,
+
+                        produtos: []
+
+                    };
+
+                }
+
+
+                if (r.id_produto) {
+
+                    pedidosMap[
+                        r.id_pedido
+                    ].produtos.push({
+
+                        id_produto:
+                            r.id_produto,
+
+                        nome:
+                            r.produto_nome,
+
+                        qtd:
+                            r.qtd,
+
+                        preco:
+                            r.preco_unitario
+
+                    });
+
+                }
+
+            });
+
+
+            return res.json(
+                Object.values(pedidosMap)
+            );
+
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao buscar agendamentos:",
+                erro
+            );
+
+            return res.status(500).json({
+                erro:
+                    "Erro ao buscar agendamentos"
+            });
+
+        }
+
     }
-});
+);
 module.exports = router;

@@ -184,9 +184,8 @@ function atualizarCalendario() {
     const dataDia = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
 
     const possuiAgendamento = agendamentosCalendario.some(a => {
-        if (!a.data_ag) return false;
-
-        const dataAg = new Date(a.data_ag);
+        const dataAg = converterDataAgenda(a.data_ag || a.data);
+        if (!dataAg) return false;
 
         const dataFormatada =
             `${dataAg.getFullYear()}-${String(dataAg.getMonth() + 1).padStart(2, "0")}-${String(dataAg.getDate()).padStart(2, "0")}`;
@@ -220,6 +219,56 @@ function mudarMes(direcao) {
     atualizarCalendario();
 }
 
+// Converte datas vindas da API de forma consistente, inclusive YYYY-MM-DD HH:mm:ss.
+function converterDataAgenda(valor) {
+    if (!valor) return null;
+
+    if (valor instanceof Date) {
+        return Number.isNaN(valor.getTime()) ? null : valor;
+    }
+
+    const texto = String(valor).trim();
+    if (!texto || texto === "0000-00-00 00:00:00" || texto === "0000-00-00") {
+        return null;
+    }
+
+    const normalizado = texto.includes(" ") && !texto.includes("T")
+        ? texto.replace(" ", "T")
+        : texto;
+
+    const data = new Date(normalizado);
+    if (!Number.isNaN(data.getTime())) return data;
+
+    const partes = texto.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?/);
+    if (partes) {
+        const [, ano, mes, dia, hora = "0", minuto = "0", segundo = "0"] = partes;
+        const fallback = new Date(
+            Number(ano),
+            Number(mes) - 1,
+            Number(dia),
+            Number(hora),
+            Number(minuto),
+            Number(segundo)
+        );
+        return Number.isNaN(fallback.getTime()) ? null : fallback;
+    }
+
+    return null;
+}
+
+function formatarDataAgenda(valor) {
+    const data = converterDataAgenda(valor);
+    if (!data) return "---";
+
+    return data.toLocaleString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
 // Iniciar ao carregar a página
 async function carregarAgendamentosHome() {
     const tbody = document.getElementById("tb_agendamentos_home");
@@ -241,9 +290,9 @@ atualizarCalendario();
 
         // ORDENAÇÃO: Data mais próxima primeiro
         dados.sort((a, b) => {
-            const dataA = new Date(a.data_ag || a.data);
-            const dataB = new Date(b.data_ag || b.data);
-            return dataA - dataB;
+            const dataA = converterDataAgenda(a.data_ag || a.data);
+            const dataB = converterDataAgenda(b.data_ag || b.data);
+            return (dataA?.getTime() ?? Infinity) - (dataB?.getTime() ?? Infinity);
         });
 
         tbody.innerHTML = "";
@@ -259,22 +308,8 @@ atualizarCalendario();
             return;
         }
 
-        dados.slice(0, 8).forEach(item => {
-            // LÓGICA DE FORMATAÇÃO DE DATA E HORA
-            const dataRaw = item.data_ag;
-            let dataFormatada = "---";
-
-            if (dataRaw) {
-                const dataObjeto = new Date(dataRaw);
-                if (!isNaN(dataObjeto)) {
-                    dataFormatada = dataObjeto.toLocaleString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-                }
-            }
+        dados.slice(0, 12).forEach(item => {
+            const dataFormatada = formatarDataAgenda(item.data_ag || item.data);
 
             tbody.innerHTML += `
                 <tr>
@@ -367,9 +402,8 @@ function mostrarAgendamentosDoDia(dataSelecionada) {
     const tbody = document.getElementById("tb_agendamentos_home");
 
     const filtrados = agendamentosCalendario.filter(a => {
-        if (!a.data_ag) return false;
-
-        const dataAg = new Date(a.data_ag);
+        const dataAg = converterDataAgenda(a.data_ag || a.data);
+        if (!dataAg) return false;
 
         const dataFormatada =
             `${dataAg.getFullYear()}-${String(dataAg.getMonth() + 1).padStart(2, "0")}-${String(dataAg.getDate()).padStart(2, "0")}`;
@@ -391,14 +425,7 @@ function mostrarAgendamentosDoDia(dataSelecionada) {
     }
 
     filtrados.forEach(item => {
-        const dataObj = new Date(item.data_ag);
-
-        const dataFormatada = dataObj.toLocaleString("pt-BR", {
-            day: "2-digit",
-            month: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit"
-        });
+        const dataFormatada = formatarDataAgenda(item.data_ag || item.data);
 
         tbody.innerHTML += `
             <tr>

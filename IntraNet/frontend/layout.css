@@ -3,16 +3,15 @@ body {
     visibility: hidden;
 }
 :root {
-    --sidebar-width: 250px;
-    --sidebar-collapsed-width: 74px;
-    --header-height: 80px;
+    --sidebar-width: 270px;
+    --sidebar-collapsed-width: 84px;
+    --header-height: 75px;
     --cor-principal: #efac4a;
     --cor-fundo: #242628;
 }
 
 @font-face {
     font-family: 'Roca One';
-    /* Removida a barra inicial para evitar erro 404 no servidor local */
     src: url('fonts/roca-one-regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
@@ -25,13 +24,13 @@ body {
     padding-left: var(--sidebar-collapsed-width);
     background-color: var(--cor-fundo);
     transition: padding-left 0.3s ease;
-    font-family: sans-serif; /* Fallback */
+    font-family: sans-serif;
 }
 
 /* Configuração Base dos Ícones */
 .icon-nav {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     display: inline-block;
     background-size: contain;
     background-repeat: no-repeat;
@@ -48,15 +47,13 @@ body.fundo-escuro .custom-sidebar { background-color: #242628; border-color: #44
 body.fundo-escuro .nav-text, body.fundo-escuro #btn-menu { color: #efac4a; }
 
 /* Imagens Laranja */
-body.fundo-escuro .logo-container { content: url('imagens/logo_l.png'); width: 200px; }
+body.fundo-escuro .logo-container { content: url('imagens/logo_l.png'); width: 190px; }
 body.fundo-escuro .icon-inicio { background-image: url('imagens/inicio_l.png'); }
 body.fundo-escuro .icon-pdv { background-image: url('imagens/pdv_l.png'); }
 body.fundo-escuro .icon-estoque { background-image: url('imagens/estoque_l.png'); }
 body.fundo-escuro .icon-agendamento { background-image: url('imagens/agendamento_l.png'); }
 body.fundo-escuro .icon-contas { background-image: url('imagens/contas_l.png'); }
 body.fundo-escuro .icon-editarprod { background-image: url('imagens/editarprod_l.png'); }
-
-
 
 /* --- TEMA 2: FUNDO LARANJA (Ícones Pretos) --- */
 body.fundo-laranja {
@@ -67,7 +64,7 @@ body.fundo-laranja .custom-sidebar { background-color: #efac4a; border-color: rg
 body.fundo-laranja .nav-text, body.fundo-laranja #btn-menu { color: #242628; }
 
 /* Imagens Pretas */
-body.fundo-laranja .logo-container { content: url('imagens/logo_p.png'); width: 200px; }
+body.fundo-laranja .logo-container { content: url('imagens/logo_p.png'); width: 190px; }
 body.fundo-laranja .icon-inicio { background-image: url('imagens/inicio_p.png'); }
 body.fundo-laranja .icon-pdv { background-image: url('imagens/pdv_p.png'); }
 body.fundo-laranja .icon-estoque { background-image: url('imagens/estoque_p.png'); }
@@ -80,23 +77,19 @@ body.fundo-marrom {
     background-color: #2b1f14;
 }
 
-/* Header + Sidebar */
 body.fundo-marrom .custom-header, 
 body.fundo-marrom .custom-sidebar { 
     background-color: #f1b869; 
     border-color: #f1b869; 
 }
 
-/* Texto */
 body.fundo-marrom .nav-text, 
 body.fundo-marrom #btn-menu { 
     color: #2b1f14; 
 }
 
-/* Logo (usa a mesma laranja) */
-body.fundo-marrom .logo-container { content: url('imagens/logo_p.png'); width: 200px; }
+body.fundo-marrom .logo-container { content: url('imagens/logo_p.png'); width: 190px; }
 
-/* Ícones (mantém padrão laranja) */
 body.fundo-marrom .icon-inicio { background-image: url('imagens/inicio_p.png'); }
 body.fundo-marrom .icon-pdv { background-image: url('imagens/pdv_p.png'); }
 body.fundo-marrom .icon-estoque { background-image: url('imagens/estoque_p.png'); }
@@ -104,7 +97,6 @@ body.fundo-marrom .icon-agendamento { background-image: url('imagens/agendamento
 body.fundo-escuro .icon-contas { background-image: url('imagens/contas_p.png'); }
 body.fundo-marrom .icon-editarprod { background-image: url('imagens/editarprod_p.png'); }
 
-/* Nome usuário */
 body.fundo-marrom .user-name{
     color: #2b1f14;
 }
@@ -130,16 +122,20 @@ body.fundo-marrom .user-name{
 .custom-sidebar {
     width: var(--sidebar-collapsed-width);
     height: 100vh;
+    height: 100dvh;
     position: fixed;
     left: 0;
     top: 0;
     background: var(--cor-fundo);
     transition: width 0.3s ease;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: hidden; /* Garante que não haverá barra de rolagem */
     z-index: 999;
     padding-top: var(--header-height);
     border-right: 2px solid #000;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 body.sidebar-open {
@@ -150,15 +146,26 @@ body.sidebar-open .custom-sidebar {
     width: var(--sidebar-width);
 }
 
+/* Container de Navegação - Ocupa 100% da altura restante */
+.custom-sidebar nav {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly; /* Distribui o espaço restante igualmente entre os itens */
+    flex: 1;
+    padding: 10px 0;
+    box-sizing: border-box;
+}
+
 /* Itens de Menu */
 .nav-link {
     display: flex;
     align-items: center;
-    padding: 10px 15px;
+    padding: 6px 14px;
     color: white;
     text-decoration: none;
-    height: 60px;
+    min-height: 48px;
     transition: background 0.2s;
+    box-sizing: border-box;
 }
 
 .nav-link:hover {
@@ -166,23 +173,22 @@ body.sidebar-open .custom-sidebar {
 }
 
 .i_img {
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0; /* Impede deformação */
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
     object-fit: contain;
 }
 
 .nav-text {
-    display: none; /* Escondido por padrão */
-    padding-left: 15px;
-    font-size: 22px;
+    display: none;
+    padding-left: 14px;
+    font-size: 20px;
     font-family: 'Roca One', serif;
     color: #242628;
-    line-height: 0.9; /* Diminui o espaço entre linhas se o texto quebrar */
-    white-space: nowrap; /* Permite quebra de linha se necessário */
+    line-height: 0.95;
+    white-space: nowrap;
 }
 
-/* Mostrar textos quando a sidebar estiver aberta */
 body.sidebar-open .nav-text,
 body.sidebar-open .user-name {
     display: block;
@@ -192,11 +198,11 @@ body.sidebar-open .user-name {
     background:none; 
     border:none; 
     color:#242628; 
-    font-size:48px; 
+    font-size:44px; 
     cursor:pointer; 
-    margin-right: 20px;
-    margin-left: -12px;
-    margin-top: -5px;
+    margin-right: 18px;
+    margin-left: -10px;
+    margin-top: -3px;
 }
 
 /* --- BOTÕES DO CONTEÚDO (ESTOQUE) --- */
@@ -247,271 +253,176 @@ body.sidebar-open .user-name {
     font-family: 'Roca One', serif;
     color: var(--cor-principal);
     text-align: center;
-    line-height: 0.8; /* Texto do botão bem compacto */
+    line-height: 0.8;
 }
 
 /* --- INFO DO USUÁRIO --- */
-/* Container que centraliza tudo na sidebar */
 .user-info {
-    padding: 20px 10px;
+    padding: 12px 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border-bottom: 1px solid #444;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
 }
 
-/* O Círculo (Moldura) */
 .user-photo {
-    width: 60px;           /* Tamanho do círculo */
-    height: 60px;
-    border-radius: 50%;    /* Faz ficar redondo */
-    overflow: hidden;      /* Corta o que sobrar da imagem para fora do círculo */
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #333; /* Cor de fundo caso a imagem falhe */
-    border: 2px solid #efac4a; /* Bordinha dourada para combinar com seu layout */
+    background-color: #333;
+    border: 2px solid #efac4a;
 }
 
-
 .p_img {
-    width: 100%;           /* Força a largura a preencher o círculo */
-    height: 100%;          /* Força a altura a preencher o círculo */
-    object-fit: cover;     /* Aumenta e centraliza a foto automaticamente sem amassar */
-    object-position: center; /* Garante que o centro da foto seja o foco */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
     display: block;
 }
 
-/* Nome do Usuário */
 .user-name {
-    margin-top: 10px;
+    margin-top: 6px;
     font-family: 'Roca One', serif;
-    font-size: 18px;
+    font-size: 16px;
     text-align: center;
-    line-height: 1;        /* Mantém o nome compacto */
+    line-height: 1;
 }
-body.fundo-escuro .user-name{
-    color: #efac4a;
-}
+body.fundo-escuro .user-name{ color: #efac4a; }
+body.fundo-laranja .user-name{ color: #242628; }
 
-body.fundo-laranja .user-name{
-    color: #242628;
-}
-.l_img{
-    width: 230px;
-}
+.l_img{ width: 200px; }
 
 /* ===== FUNDO ESCURO ===== */
-body.fundo-escuro .nav-link.ativo {
-    background: #f0d0a6;
-}
+body.fundo-escuro .nav-link.ativo { background: #f0d0a6; }
 
 /* ===== FUNDO LARANJA ===== */
-body.fundo-laranja .nav-link.ativo {
-    background: #f0d0a6;
-}
+body.fundo-laranja .nav-link.ativo { background: #f0d0a6; }
 
-#icon_edp{
-    margin-left: 4px;
-    width: 45px;
-}
-#icon_cadp{
-    margin-left: 1px;
-    width: 45px;
-}
-#icon_comp{
-    margin-left: 0px;
-    width: 46px;
-}
+#icon_edp, #icon_cadp, #icon_comp { width: 48px; }
+
 /* =====================================================
    BOTÃO ESPECIAL DO HEADER
-   PDV = fechamento_p.png
-   CADASTRO DE PRODUTO = categoria_p.png
    ===================================================== */
-
 .acoes-especiais-header {
     position: fixed !important;
-
     top: 0 !important;
     right: 20px !important;
-
     height: var(--header-height) !important;
-
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-
     padding: 0 !important;
     margin: 0 !important;
-
     z-index: 2000 !important;
-
     pointer-events: none !important;
 }
 
 .header-acao-especial {
-    width: 38px !important;
-    height: 38px !important;
-
-    min-width: 38px !important;
-    min-height: 38px !important;
-
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
     padding: 0 !important;
     margin: 0 !important;
-
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-
     border: none !important;
     outline: none !important;
-
     background: transparent !important;
     box-shadow: none !important;
-
-    flex: 0 0 38px !important;
-
+    flex: 0 0 36px !important;
     line-height: 0 !important;
-
     cursor: pointer !important;
-
     pointer-events: auto !important;
 }
 
 .header-acao-especial img {
-    width: 34px !important;
-    height: 34px !important;
-
-    min-width: 34px !important;
-    min-height: 34px !important;
-
-    max-width: 34px !important;
-    max-height: 34px !important;
-
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
     display: block !important;
-
     margin: 0 !important;
     padding: 0 !important;
-
     object-fit: contain !important;
     object-position: center center !important;
 }
 
-.header-acao-especial:hover img {
-    transform: scale(1.04);
-}
-
-.header-acao-especial:active img {
-    transform: scale(0.97);
-}
-
+.header-acao-especial:hover img { transform: scale(1.04); }
+.header-acao-especial:active img { transform: scale(0.97); }
 
 /* ============================================================
-   RESPONSIVIDADE — HEADER E SIDEBAR
-   Mantém os tamanhos originais em 1080px de altura.
+   RESPONSIVIDADE INTELIGENTE PARA ZOOM (125%) E F11
 ============================================================ */
-
-@media (min-width: 701px) and (max-height: 950px) {
+@media (min-width: 701px) and (max-height: 1000px) {
     :root {
-        --header-height: clamp(60px, 7.407407vh, 80px);
-        --sidebar-collapsed-width: clamp(58px, 6.851852vh, 74px);
-        --sidebar-width: clamp(220px, 23.148148vh, 250px);
-    }
-
-    .custom-header {
-        height: var(--header-height);
-        padding-left: clamp(15px, 1.851852vh, 20px);
-        padding-right: clamp(15px, 1.851852vh, 20px);
+        --header-height: clamp(62px, 7vh, 72px);
+        --sidebar-collapsed-width: clamp(74px, 8vh, 82px);
+        --sidebar-width: clamp(230px, 25vh, 260px);
     }
 
     .custom-sidebar {
-        width: var(--sidebar-collapsed-width);
         height: 100dvh;
         padding-top: var(--header-height);
-        box-sizing: border-box;
     }
 
-    body.sidebar-open {
-        padding-left: var(--sidebar-collapsed-width);
-    }
-
-    body.sidebar-open .custom-sidebar {
-        width: var(--sidebar-width);
-    }
-
-    .nav-link {
-        height: clamp(47px, 5.555556vh, 60px);
-        padding-top: clamp(7px, .925926vh, 10px);
-        padding-bottom: clamp(7px, .925926vh, 10px);
-        padding-left: clamp(8px, 1.388889vh, 15px);
-        padding-right: clamp(8px, 1.388889vh, 15px);
-        box-sizing: border-box;
-        overflow: visible;
-    }
-
-    .i_img {
-        width: clamp(32px, 3.703704vh, 40px);
-        height: clamp(32px, 3.703704vh, 40px);
-        flex: 0 0 auto;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        object-fit: contain;
-        object-position: center center;
-        box-sizing: border-box;
-    }
-
+    /* Redimensiona os ícones fluidamente conforme a altura da tela */
+    .i_img,
     #icon_edp,
     #icon_cadp,
     #icon_comp {
-        width: clamp(32px, 3.703704vh, 40px) !important;
-        height: clamp(32px, 3.703704vh, 40px) !important;
+        width: clamp(38px, 4.8vh, 48px) !important;
+        height: clamp(38px, 4.8vh, 48px) !important;
+        flex: 0 0 auto;
         margin-left: 0 !important;
         margin-right: 0 !important;
+        object-fit: contain;
+    }
+
+    .nav-link {
+        min-height: clamp(40px, 5.2vh, 50px);
+        padding: 4px 10px;
     }
 
     .nav-text {
-        padding-left: clamp(8px, 1.388889vh, 15px);
-        font-size: clamp(17px, 2.037037vh, 22px);
-        line-height: .9;
-        white-space: nowrap;
-        overflow: visible;
+        padding-left: clamp(10px, 1.2vh, 14px);
+        font-size: clamp(16px, 2vh, 20px);
     }
 
     .user-info {
-        padding: clamp(13px, 1.851852vh, 20px) clamp(6px, .925926vh, 10px);
-        box-sizing: border-box;
+        padding: clamp(6px, 1vh, 12px) clamp(4px, 0.8vh, 8px);
     }
 
     .user-photo {
-        width: clamp(48px, 5.555556vh, 60px);
-        height: clamp(48px, 5.555556vh, 60px);
-        flex: 0 0 auto;
+        width: clamp(42px, 5.5vh, 54px);
+        height: clamp(42px, 5.5vh, 54px);
     }
 
     .user-name {
-        margin-top: clamp(7px, .925926vh, 10px);
-        font-size: clamp(15px, 1.666667vh, 18px);
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        margin-top: 4px;
+        font-size: clamp(13px, 1.6vh, 16px);
     }
 
     #btn-menu {
-        font-size: clamp(38px, 4.444444vh, 48px);
-        margin-right: clamp(16px, 1.851852vh, 20px);
-        margin-left: clamp(-12px, -1.111111vh, -9px);
+        font-size: clamp(36px, 4.2vh, 44px);
     }
 
     .l_img {
-        width: clamp(180px, 21.296296vh, 230px);
+        width: clamp(160px, 20vh, 200px);
         height: auto;
-        object-fit: contain;
     }
 }
 
-/* Quando a sidebar está recolhida, o ícone fica matematicamente centralizado.
-   Isso também anula as margens especiais de alguns ícones antigos. */
+/* Centralização perfeita quando fechado */
 @media (min-width: 701px) {
     body:not(.sidebar-open) .nav-link {
         justify-content: center;
@@ -525,28 +436,5 @@ body.fundo-laranja .nav-link.ativo {
     body:not(.sidebar-open) #icon_comp {
         margin-left: 0 !important;
         margin-right: 0 !important;
-    }
-}
-
-/* Em telas muito baixas, o menu passa a poder rolar antes de cortar o último item. */
-@media (min-width: 701px) and (max-height: 700px) {
-    .custom-sidebar {
-        overflow-y: auto;
-        overflow-x: hidden;
-        scrollbar-width: thin;
-        scrollbar-color: #efac4a transparent;
-    }
-
-    .custom-sidebar::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .custom-sidebar::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .custom-sidebar::-webkit-scrollbar-thumb {
-        background: #efac4a;
-        border-radius: 20px;
     }
 }

@@ -460,7 +460,7 @@ dialog {
     padding: 30px;
 
     color: #efac4a;
-    background: var(--cor-escuro);
+    background: #1c1c1c;
     border: none;
     border-radius: 15px;
 
@@ -484,7 +484,7 @@ dialog::backdrop {
     overflow: hidden;
 
     color: #f1b869;
-    background: #22160d;
+    background: #1c1c1c;
     border: 2px solid #efac4a;
     border-radius: 16px;
 
@@ -563,7 +563,7 @@ dialog::backdrop {
     min-width: 0;
     padding: 12px 10px;
 
-    background: #2b1f14;
+    background: #1c1c1c;
     border: 1px solid #5a4332;
     border-radius: 10px;
 }
@@ -1229,26 +1229,6 @@ dialog::backdrop {
     margin: 20px auto 0;
 }
 
-/* ============================================================
-   MODAL DE AVISO
-============================================================ */
-
-#d_aviso {
-    width: min(420px, calc(100vw - 32px));
-    max-width: 90%;
-    padding: clamp(20px, 2vw, 30px);
-
-    background-color: #202020;
-    border: 3px solid #f1b256;
-    border-radius: 18px;
-
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-}
-
-#d_aviso::backdrop {
-    background-color: rgba(0, 0, 0, 0.6);
-}
-
 .aviso_box {
     display: flex;
     flex-direction: column;
@@ -1322,7 +1302,7 @@ dialog::backdrop {
     padding: 0;
 
     color: #f1b869;
-    background: #22160d;
+    background: #1c1c1c;
     border: 2px solid #efac4a;
     border-radius: 16px;
 
@@ -2409,12 +2389,18 @@ MODAL FIADO / PRODUTOS
     gap: 16px;
 }
 
-.fechamento-topo {
+#topo_fechamento {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid #efac4a;
-    padding-bottom: 12px;
+    margin-bottom: 15px;
+}
+
+#fechamentoTitulo {
+    margin: 0;
+}
+.fechamento-topo {
+    position: relative;
 }
 
 .fechamento-topo h2 {
@@ -3004,6 +2990,7 @@ MODAL FIADO / PRODUTOS
     border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
+    align-items: center;
 }
 
 #btnRegistrarAbertura:hover {
@@ -3986,4 +3973,754 @@ dialog {
     #dialogFechamentoDiario .fechamento-card {
         padding: 6px !important;
     }
+}
+
+
+/* ============================================================
+   AJUSTES FINAIS — MODAIS / PESQUISA / FECHAMENTO
+   Apenas os pontos solicitados nesta correção.
+============================================================ */
+
+/* Modais comuns ficam no tamanho natural do conteúdo. O limite da viewport
+   é somente um teto para evitar que qualquer modal passe da tela. */
+dialog {
+    width: fit-content;
+    height: auto !important;
+    max-width: calc(100vw - 24px) !important;
+    max-height: calc(100dvh - 24px) !important;
+    overflow: hidden !important;
+    box-sizing: border-box;
+}
+
+/* Modal de finalização: os filhos não devem transformar o modal em uma
+   caixa ocupando a tela inteira. */
+#d_modal {
+    width: min(600px, calc(100vw - 24px)) !important;
+    height: auto !important;
+    max-height: calc(100dvh - 24px) !important;
+}
+
+#d_modal article {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+}
+
+#d_modal article section {
+    flex: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+#d_modal footer {
+    flex: none !important;
+    height: auto !important;
+}
+
+/* Modal de pesquisa: sem altura fixa e sem rolagem própria. */
+#dialogBusca {
+    width: min(620px, calc(100vw - 24px)) !important;
+    height: auto !important;
+    max-height: calc(100dvh - 24px) !important;
+}
+
+#dialogBusca .modal_box {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+/* As sugestões ficam limitadas às 5 melhores pelo JavaScript, portanto
+   não precisam de scrollbar interna. */
+#listaSugestoes {
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+/* Fechamento: largura natural suficiente para o status + abertura, sem
+   esticar a altura artificialmente. */
+#dialogFechamentoDiario {
+    width: min(980px, calc(100vw - 24px)) !important;
+    height: auto !important;
+    max-height: calc(100dvh - 24px) !important;
+    overflow: hidden !important;
+}
+
+#dialogFechamentoDiario .fechamento-box {
+    height: auto !important;
+    max-height: none !important;
+    overflow: hidden !important;
+}
+
+/* Quando o botão Registrar abertura está visível, a terceira coluna precisa
+   de espaço para o texto de status + campo + botão sem quebrar. */
+#dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]),
+#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]),
+#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) {
+    width: min(1160px, calc(100vw - 24px)) !important;
+}
+
+#dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]) .fechamento-datas,
+#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]) .fechamento-datas,
+#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) .fechamento-datas {
+    grid-template-columns: minmax(210px, 0.9fr) minmax(210px, 0.9fr) minmax(460px, 1.5fr) !important;
+}
+
+#dialogFechamentoDiario .fechamento-abertura-acao {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+}
+
+/* Em uma viewport mais estreita, o status ganha uma linha própria para
+   preservar o botão inteiro. */
+@media (max-width: 1100px) {
+    #dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]) .fechamento-datas,
+    #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]) .fechamento-datas,
+    #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) .fechamento-datas {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    #dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]) .fechamento-status-campo,
+    #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]) .fechamento-status-campo,
+    #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) .fechamento-status-campo {
+        grid-column: 1 / -1 !important;
+    }
+}
+
+/* Mantém os demais modais no tamanho do conteúdo. */
+#dialogComanda .modal_box,
+#dialogDinheiro .conteudo-dinheiro,
+#dialogCredito .conteudo-credito,
+#dialogDividirPagamento .split-box,
+#d_fiado .modal_titulo,
+#d_aviso .aviso_box {
+    height: auto !important;
+    max-height: none !important;
+}
+
+#dialogComanda,
+#dialogDinheiro,
+#dialogCredito,
+#dialogDividirPagamento,
+#d_fiado,
+#d_aviso {
+    height: auto !important;
+    max-height: calc(100dvh - 24px) !important;
+    overflow: hidden !important;
+}
+
+/* ============================================================
+   CORREÇÃO DEFINITIVA — MODAIS COM TAMANHO NATURAL
+   Os modais não devem ocupar uma área maior que o próprio conteúdo.
+   O tamanho abaixo só é o limite de largura da caixa em telas pequenas.
+============================================================ */
+
+/* Base: remove qualquer alongamento herdado dos ajustes anteriores. */
+dialog {
+    box-sizing: border-box !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: calc(100vw - 32px) !important;
+    max-height: calc(100dvh - 32px) !important;
+    padding: 0;
+    overflow: hidden !important;
+}
+
+/* FINALIZAÇÃO DA VENDA */
+#d_modal {
+    width: min(600px, calc(100vw - 32px)) !important;
+    height: auto !important;
+}
+
+#d_modal article,
+#d_modal article section,
+#d_modal footer {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    flex: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+}
+
+/* BUSCA DE PRODUTO */
+#dialogBusca {
+    width: min(600px, calc(100vw - 32px)) !important;
+    height: auto !important;
+}
+
+#dialogBusca .modal_box {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+}
+
+#listaSugestoes {
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+/* PAGAMENTO EM DINHEIRO */
+#dialogDinheiro {
+    width: min(430px, calc(100vw - 32px)) !important;
+    height: auto !important;
+    padding: 0 !important;
+}
+
+#dialogDinheiro .conteudo-dinheiro {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+}
+
+/* PAGAMENTO NO CRÉDITO */
+#dialogCredito {
+    width: min(450px, calc(100vw - 32px)) !important;
+    height: auto !important;
+    padding: 0 !important;
+}
+
+#dialogCredito .conteudo-credito {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+}
+
+#dialogCredito .conteudo-credito h2 {
+    width: auto !important;
+    max-width: 100% !important;
+}
+
+/* DIVIDIR PAGAMENTO */
+#dialogDividirPagamento {
+    width: min(520px, calc(100vw - 32px)) !important;
+    height: auto !important;
+    padding: 0 !important;
+}
+
+#dialogDividirPagamento .split-box {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+}
+
+/* ESCOLHA DO CLIENTE FIADO */
+#d_fiado {
+    width: min(450px, calc(100vw - 32px)) !important;
+    height: auto !important;
+    padding: 0 !important;
+}
+
+#d_fiado .modal_titulo {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+}
+
+/* BUSCAR COMANDA */
+#dialogComanda {
+    width: min(500px, calc(100vw - 32px)) !important;
+    height: auto !important;
+    padding: 0 !important;
+}
+
+#dialogComanda .modal_box {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+}
+
+/* FECHAMENTO DIÁRIO */
+#dialogFechamentoDiario {
+    width: min(980px, calc(100vw - 32px)) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+}
+
+#dialogFechamentoDiario .fechamento-box {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+}
+
+/* Quando Registrar abertura aparece, mantém somente a largura extra necessária. */
+#dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]),
+#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]),
+#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) {
+    width: min(1060px, calc(100vw - 32px)) !important;
+}
+
+/* MODAL NOVA COMPRA FIADO */
+#d_modal_fiado {
+    width: min(650px, calc(100vw - 32px)) !important;
+    height: auto !important;
+    padding: 0 !important;
+}
+
+#d_modal_fiado .modal_box {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+}
+
+/* MODAL DE PRODUTOS, caso esteja aberto pelo PDV */
+#d_modal_produtos {
+    width: min(700px, calc(100vw - 32px)) !important;
+    height: auto !important;
+    padding: 0 !important;
+}
+
+#d_modal_produtos .modal_box {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+}
+
+/* Nenhuma caixa interna cria espaço vertical artificial. */
+dialog > div,
+dialog > article,
+dialog > section,
+dialog > footer {
+    box-sizing: border-box !important;
+}
+
+@media (max-width: 700px) {
+    dialog {
+        max-width: calc(100vw - 20px) !important;
+    }
+
+    #d_modal,
+    #dialogBusca,
+    #dialogDinheiro,
+    #dialogCredito,
+    #dialogDividirPagamento,
+    #d_fiado,
+    #dialogComanda,
+    #dialogFechamentoDiario,
+    #d_modal_fiado,
+    #d_modal_produtos {
+        width: calc(100vw - 20px) !important;
+    }
+}
+
+
+/* ============================================================
+   TAMANHOS DOS MODAIS — AJUSTE DEFINITIVO
+   Cada modal recebe uma altura própria, baseada no conteúdo real.
+   Não há uma altura global aplicada a todos.
+============================================================ */
+
+/* FINALIZAÇÃO DA VENDA */
+#d_modal {
+    height: 730px !important;
+    max-height: calc(100dvh - 32px) !important;
+}
+
+#d_modal article {
+    height: 100% !important;
+    min-height: 0 !important;
+}
+
+#d_modal article section {
+    flex: 1 1 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+}
+
+#d_modal footer {
+    flex: 0 0 auto !important;
+}
+
+/* BUSCA DE PRODUTO */
+#dialogBusca {
+    height: 500px !important;
+    max-height: calc(100dvh - 32px) !important;
+}
+
+#dialogBusca .modal_box {
+    height: 100% !important;
+    min-height: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* A pesquisa já limita o resultado a 5 itens; 240px comporta os cinco sem cortar. */
+#listaSugestoes {
+    max-height: 240px !important;
+    overflow: hidden !important;
+}
+
+
+/* BUSCAR COMANDA */
+#dialogComanda {
+    height: 280px !important;
+    max-height: calc(100dvh - 32px) !important;
+}
+
+#dialogComanda .modal_box {
+    height: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* PAGAMENTO EM DINHEIRO */
+#dialogDinheiro {
+    height: 360px !important;
+    max-height: calc(100dvh - 32px) !important;
+}
+
+#dialogDinheiro .conteudo-dinheiro {
+    height: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* PAGAMENTO NO CRÉDITO */
+#dialogCredito {
+    height: 500px !important;
+    max-height: calc(100dvh - 32px) !important;
+}
+
+#dialogCredito .conteudo-credito {
+    height: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Quando o crédito é usado como parte de um pagamento dividido,
+   aparece mais um campo de valor e o modal ganha somente esse espaço. */
+#dialogCredito:has(#campoValorCreditoDivisao[style*="display: block"]) {
+    height: 530px !important;
+}
+
+/* DIVIDIR PAGAMENTO */
+#dialogDividirPagamento {
+    height: 620px !important;
+    max-height: calc(100dvh - 32px) !important;
+}
+
+#dialogDividirPagamento .split-box {
+    height: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* ESCOLHA DO CLIENTE — FIADO */
+#d_fiado {
+    height: 300px !important;
+    max-height: calc(100dvh - 32px) !important;
+}
+
+#d_fiado .modal_titulo {
+    height: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* FECHAMENTO DIÁRIO */
+#dialogFechamentoDiario {
+    height: 850px !important;
+    max-height: calc(100dvh - 32px) !important;
+}
+
+#dialogFechamentoDiario .fechamento-box {
+    height: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Com Registrar abertura visível, acrescenta somente o espaço extra necessário. */
+#dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]),
+#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]),
+#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) {
+    height: 830px !important;
+}
+
+/* NOVA COMPRA FIADO */
+#d_modal_fiado {
+    height: 620px !important;
+    max-height: calc(100dvh - 32px) !important;
+}
+
+#d_modal_fiado .modal_box {
+    height: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* MODAL DE PRODUTOS, quando criado pelo fluxo do PDV */
+#d_modal_produtos {
+    height: 600px !important;
+    max-height: calc(100dvh - 32px) !important;
+}
+
+#d_modal_produtos .modal_box {
+    height: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Em telas muito estreitas, não reduzimos a altura arbitrariamente.
+   O limite de viewport continua impedindo que o modal ultrapasse a tela. */
+@media (max-width: 700px) {
+    #d_modal,
+    #dialogBusca,
+    #dialogDinheiro,
+    #dialogCredito,
+    #dialogDividirPagamento,
+    #d_fiado,
+    #dialogComanda,
+    #dialogFechamentoDiario,
+    #d_modal_fiado,
+    #d_modal_produtos {
+        max-height: calc(100dvh - 20px) !important;
+    }
+}
+#b_desbloquear_pagamento {
+    width: 100%;
+    min-height: 52px;
+    padding: 10px 16px;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    color: #f8c471;
+    background: transparent;
+    border: 2px solid #efac4a;
+    border-radius: 9px;
+
+    font-family: "Roca One", sans-serif !important;
+    font-size: 1rem;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    grid-column: 1 / -1;
+}
+
+#b_desbloquear_pagamento:hover {
+    color: #1c1c1c;
+    background: #efac4a;
+}
+
+
+#d_aviso .aviso_box {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+}
+
+#msg_aviso {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    white-space: pre-wrap !important;
+    box-sizing: border-box !important;
+}
+
+/* ============================================================
+   PDV — A TELA INTEIRA NÃO ROLA
+   O scroll fica somente na área do carrinho.
+   O cabeçalho e as colunas permanecem alinhados.
+============================================================ */
+html,
+body {
+    overflow: hidden !important;
+}
+
+body {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+}
+
+/*
+   O container é a única área que rola.
+   Assim o thead e o tbody continuam fazendo parte da mesma tabela
+   e nunca perdem o alinhamento das colunas.
+*/
+#sc_tabela {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #dbb57c #ffffff !important;
+}
+
+#sc_tabela table {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    display: table !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+}
+
+/* Mantém a estrutura de tabela normal para as colunas baterem. */
+#sc_tabela table thead {
+    display: table-header-group !important;
+    width: auto !important;
+}
+
+#sc_tabela table tbody {
+    display: table-row-group !important;
+    width: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+#sc_tabela table tbody tr,
+#sc_tabela table thead tr {
+    display: table-row !important;
+    width: auto !important;
+    table-layout: auto !important;
+}
+
+/* Scroll da área do carrinho. */
+#sc_tabela::-webkit-scrollbar {
+    width: 7px !important;
+    height: 0 !important;
+}
+
+#sc_tabela::-webkit-scrollbar-track {
+    background: #ffffff !important;
+}
+
+#sc_tabela::-webkit-scrollbar-thumb {
+    background: #dbb57c !important;
+    border: 0 !important;
+    border-radius: 6px !important;
+}
+
+#sc_tabela::-webkit-scrollbar-thumb:hover {
+    background: #c2904b !important;
+}
+
+/* Evita rolagem horizontal e mantém o texto contido nas células. */
+#sc_tabela table th,
+#sc_tabela table td {
+    min-width: 0 !important;
+    max-width: none !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+}
+
+@media (max-width: 850px) {
+    html,
+    body {
+        overflow: hidden !important;
+    }
+
+    body {
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+        max-height: 100dvh !important;
+    }
+
+    #sc_tabela {
+        min-height: 0 !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+    }
+}
+/* Trava o tamanho do d_aviso e impede que ele ocupe a tela toda */
+#d_aviso {
+    /* Largura e altura estritamente controladas */
+    width: 380px !important;
+    max-width: 90vw !important;
+    height: auto !important;
+    max-height: 25vh !important;
+    scrollbar-width: none;
+    /* Centralização exata na tela */
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    
+    /* Fundo escuro (padrão PDV) para não ficar aquele bloco branco gigante */
+    background-color: #1c1c1c !important;
+    color: #ffffff !important;
+    
+    /* Bordas e acabamento */
+    border: 1px solid #efac4a !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6) !important;
+    
+    /* Evita que elementos internos estourem a caixa */
+    box-sizing: border-box !important;
+    overflow-y: auto !important;
+}
+#d_aviso ::-webkit-scrollbar {
+  display: none;
+}
+
+/* Fundo escurecido atrás do aviso */
+#d_aviso::backdrop {
+    background: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(3px) !important;
+}
+
+/* Garante que botões e textos dentro do aviso fiquem contidos */
+#d_aviso * {
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+}
+#btnFecharFechamento {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    transform: none;
+    z-index: 10;
+
+    width: 34px;
+    height: 34px;
+    padding: 0;
+
+    background: transparent;
+    color: #efac4a;
+    border: none;
+    font-size: 2.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+
+#btnFecharFechamento:hover {
+    color: #ffffff;
+    background: rgba(239, 172, 74, 0.15);
+    border-radius: 50%;
 }

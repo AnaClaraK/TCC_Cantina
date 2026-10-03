@@ -6,11 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Clientes Fiado</title>
-
+    <script src="sidebar_header.js"></script>
     <link rel="stylesheet" href="layout.css">
     <link rel="stylesheet" href="styleag_es.css">
     <link rel="stylesheet" href="style_clientef.css">
-    <script src="sidebar_header.js"></script>
 <script>
     let contaParaConcluirFiado = null;
     let itensParaConcluirFiado = null;
@@ -46,7 +45,29 @@
  </div>
 </dialog>
 
+<dialog id="modalComprasCliente" class="modal-compras-cliente">
+    <div class="modal_box compras-cliente-box">
+        <button
+            type="button"
+            id="fecharModalComprasCliente"
+            class="fechar-modal"
+            aria-label="Fechar"
+        >×</button>
 
+        <div class="modal-cabecalho modal-cabecalho-cliente">
+            <span class="modal-cabecalho-kicker">CLIENTE</span>
+            <h2 class="modal_titulo" id="comprasClienteTitulo">Compras do cliente</h2>
+            <p class="modal-subtitulo" id="comprasClienteSubtitulo">Informações e compras em aberto.</p>
+        </div>
+
+        <div id="comprasClienteDados" class="compras-cliente-dados"></div>
+
+        <div class="compras-cliente-secao">
+            <div class="secao-form-titulo compras-cliente-secao-titulo">Compras em aberto</div>
+            <div id="comprasClienteLista" class="compras-cliente-lista"></div>
+        </div>
+    </div>
+</dialog>
 
 <!-- ======================================================
      CABEÇALHO
@@ -74,14 +95,6 @@
         type="button"
     >
         Nova Compra
-    </button>
-
-
-    <button
-        id="b_simular_juros"
-        type="button"
-    >
-        Simular Juros
     </button>
 
     <button
@@ -135,77 +148,198 @@
 ====================================================== -->
 
 <dialog id="modal_cliente">
-
-    <div class="modal_box">
-
+    <div class="modal_box cliente-cadastro-box">
 
         <button
             id="b_close_modal_cliente"
             type="button"
-        >
-            x
-        </button>
+            class="fechar-modal"
+            aria-label="Fechar"
+        >×</button>
 
+        <div class="modal-cabecalho">
+            <span class="modal-cabecalho-kicker">CADASTRO</span>
+            <h2 class="modal_titulo">Novo Cliente</h2>
+            <p class="modal-subtitulo">Cadastre os dados do cliente para facilitar as próximas compras fiado.</p>
+        </div>
 
-        <h2 class="modal_titulo">
-            Novo Cliente
-        </h2>
+        <div class="cliente-form-secao">
+            <div class="secao-form-titulo">Dados pessoais</div>
 
+            <div class="cliente-form-grid cliente-form-grid-2">
+                <div class="cliente-campo campo-coluna-2">
+                    <label for="nome">Nome completo <span>*</span></label>
+                    <input
+                        class="inp_m"
+                        id="nome"
+                        placeholder="Nome completo"
+                        autocomplete="name"
+                    >
+                </div>
 
-        <input
-            class="inp_m"
-            id="nome"
-            placeholder="Nome completo"
-        >
+                <div class="cliente-campo">
+                    <label for="cpf">CPF <span>*</span></label>
+                    <input
+                        class="inp_m"
+                        id="cpf"
+                        placeholder="Apenas números"
+                        maxlength="11"
+                        inputmode="numeric"
+                        autocomplete="off"
+                        oninput="this.value = this.value.replace(/\D/g, '')"
+                    >
+                </div>
 
+                <div class="cliente-campo">
+                    <label for="telefone">Telefone <span>*</span></label>
+                    <input
+                        class="inp_m"
+                        id="telefone"
+                        placeholder="DDD + número"
+                        maxlength="11"
+                        inputmode="numeric"
+                        autocomplete="tel"
+                        oninput="this.value = this.value.replace(/\D/g, '')"
+                    >
+                </div>
 
-        <input
-            class="inp_m"
-            id="cpf"
-            placeholder="CPF (Apenas números)"
-            maxlength="11"
-            oninput="this.value = this.value.replace(/\D/g, '')"
-        >
+                <div class="cliente-campo">
+                    <label for="email">E-mail <small>opcional</small></label>
+                    <input
+                        type="email"
+                        class="inp_m"
+                        id="email"
+                        placeholder="cliente@email.com"
+                        autocomplete="email"
+                    >
+                </div>
 
+                <div class="cliente-campo">
+                    <label for="data_nascimento">Data de nascimento <small>opcional</small></label>
+                    <input
+                        type="date"
+                        class="inp_m"
+                        id="data_nascimento"
+                        autocomplete="bday"
+                    >
+                </div>
 
-        <input
-            class="inp_m"
-            id="telefone"
-            placeholder="Telefone com DDD"
-            maxlength="11"
-            oninput="this.value = this.value.replace(/\D/g, '')"
-        >
+                <div class="cliente-campo">
+                    <label for="setor">Setor <small>opcional</small></label>
+                    <input
+                        type="text"
+                        class="inp_m"
+                        id="setor"
+                        placeholder="Ex.: Secretaria, Coordenação..."
+                        autocomplete="organization-title"
+                    >
+                </div>
+            </div>
+        </div>
 
+        <div class="cliente-form-secao">
+            <div class="secao-form-titulo">Endereço</div>
 
-        <input
-            class="inp_m"
-            id="endereco"
-            placeholder="Endereço"
-        >
+            <div class="cliente-form-grid cliente-form-grid-6">
+                <div class="cliente-campo">
+                    <label for="cep">CEP <small>opcional</small></label>
+                    <input
+                        class="inp_m"
+                        id="cep"
+                        placeholder="00000-000"
+                        maxlength="8"
+                        inputmode="numeric"
+                        autocomplete="postal-code"
+                        oninput="this.value = this.value.replace(/\D/g, '')"
+                    >
+                </div>
 
+                <div class="cliente-campo campo-numero">
+                    <label for="numero">Número <span>*</span></label>
+                    <input
+                        class="inp_m"
+                        id="numero"
+                        placeholder="Nº"
+                        maxlength="10"
+                        autocomplete="address-line2"
+                    >
+                </div>
 
-        <label for="diaVencimentoPadraoCliente">Dia de vencimento do cliente</label>
-        <input
-            type="number"
-            class="inp_m"
-            id="diaVencimentoPadraoCliente"
-            min="1"
-            max="31"
-            step="1"
-            inputmode="numeric"
-            placeholder="Dia (1 a 31)"
-        >
+                <div class="cliente-campo">
+                    <label for="complemento">Complemento <small>opcional</small></label>
+                    <input
+                        class="inp_m"
+                        id="complemento"
+                        placeholder="Apto, bloco..."
+                        autocomplete="address-line2"
+                    >
+                </div>
 
+                <div class="cliente-campo">
+                    <label for="bairro">Bairro <span>*</span></label>
+                    <input
+                        class="inp_m"
+                        id="bairro"
+                        placeholder="Bairro"
+                        autocomplete="address-level3"
+                    >
+                </div>
 
-        <button
-            id="b_addf"
-            type="button"
-        >
-            Cadastrar
-        </button>
+                <div class="cliente-campo">
+                    <label for="cidade">Cidade <span>*</span></label>
+                    <input
+                        class="inp_m"
+                        id="cidade"
+                        placeholder="Cidade"
+                        autocomplete="address-level2"
+                    >
+                </div>
+
+                <div class="cliente-campo">
+                    <label for="estado">Estado <span>*</span></label>
+                    <input
+                        class="inp_m"
+                        id="estado"
+                        placeholder="UF"
+                        maxlength="2"
+                        autocomplete="address-level1"
+                        oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '').toUpperCase()"
+                    >
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="cliente-form-secao cliente-form-secao-final">
+            <div class="cliente-vencimento">
+                <div class="secao-form-titulo">Vencimento padrão</div>
+                <div class="cliente-campo">
+                    <label for="diaVencimentoPadraoCliente">Dia do mês <span>*</span></label>
+                    <input
+                        type="number"
+                        class="inp_m"
+                        id="diaVencimentoPadraoCliente"
+                        min="1"
+                        max="31"
+                        step="1"
+                        inputmode="numeric"
+                        placeholder="Ex.: 10"
+                    >
+                    <small class="campo-ajuda">As compras desse cliente usarão este dia como referência.</small>
+                </div>
+            </div>
+
+            <button
+                id="b_addf"
+                type="button"
+                class="btn-principal-cliente"
+            >
+                Cadastrar cliente
+            </button>
+        </div>
 
     </div>
-
 </dialog>
 
 
@@ -1241,26 +1375,67 @@ document.addEventListener("DOMContentLoaded", () => {
                 ).value
                     .replace(/\D/g, "");
 
-            const endereco =
+            const email =
                 document.getElementById(
-                    "endereco"
+                    "email"
                 ).value.trim();
 
+            const dataNascimento =
+                document.getElementById(
+                    "data_nascimento"
+                ).value || null;
+
+            const setor =
+                document.getElementById(
+                    "setor"
+                ).value.trim();
+
+            const cep =
+                document.getElementById(
+                    "cep"
+                ).value
+                    .replace(/\D/g, "");
+
             const diaVencimento =
-                Number(diaVencimentoPadraoCliente?.value || 0);
+                Number(
+                    diaVencimentoPadraoCliente?.value || 0
+                );
 
             if (
                 !nome ||
                 cpf.length !== 11 ||
                 telefone.length < 10 ||
                 telefone.length > 11 ||
-                !endereco ||
+                !numero ||
+                !bairro ||
+                !cidade ||
+                estado.length !== 2 ||
                 !Number.isInteger(diaVencimento) ||
                 diaVencimento < 1 ||
                 diaVencimento > 31
             ) {
                 exibirAviso(
-                    "Preencha nome, CPF, telefone, endereço e um dia de vencimento entre 1 e 31."
+                    "Preencha nome, CPF, telefone, número, bairro, cidade, estado e um dia de vencimento entre 1 e 31."
+                );
+                return;
+            }
+
+            if (
+                email &&
+                !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+            ) {
+                exibirAviso(
+                    "Informe um e-mail válido ou deixe o campo em branco."
+                );
+                return;
+            }
+
+            if (
+                cep &&
+                cep.length !== 8
+            ) {
+                exibirAviso(
+                    "O CEP deve conter 8 números."
                 );
                 return;
             }
@@ -1282,8 +1457,22 @@ document.addEventListener("DOMContentLoaded", () => {
                                         nome,
                                     cpf,
                                     telefone,
-                                    endereco,
-                                    dia_vencimento: diaVencimento
+                                    cep:
+                                        cep || null,
+                                    numero,
+                                    complemento:
+                                        complemento || null,
+                                    bairro,
+                                    cidade,
+                                    estado,
+                                    data_nascimento:
+                                        dataNascimento,
+                                    email:
+                                        email || null,
+                                    setor:
+                                        setor || null,
+                                    dia_vencimento:
+                                        diaVencimento
                                 })
                         }
                     );
@@ -1307,21 +1496,30 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
-                document.getElementById(
-                    "nome"
-                ).value = "";
-
-                document.getElementById(
-                    "cpf"
-                ).value = "";
-
-                document.getElementById(
-                    "telefone"
-                ).value = "";
-
-                document.getElementById(
-                    "endereco"
-                ).value = "";
+                [
+                    "nome",
+                    "cpf",
+                    "telefone",
+                    "email",
+                    "data_nascimento",
+                    "setor",
+                    "cep",
+                    "numero",
+                    "complemento",
+                    "bairro",
+                    "cidade",
+                    "estado"
+                ].forEach(
+                    id => {
+                        const campo =
+                            document.getElementById(
+                                id
+                            );
+                        if (campo) {
+                            campo.value = "";
+                        }
+                    }
+                );
 
                 if (diaVencimentoPadraoCliente) {
                     diaVencimentoPadraoCliente.value = "";
@@ -1404,6 +1602,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             clientesCache =
                 dados;
+
+            window.clientesFiadoCache = clientesCache;
 
         } catch (erro) {
 
@@ -2361,6 +2561,413 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     /* ======================================================
+       MODAL DE COMPRAS DO CLIENTE
+    ====================================================== */
+
+    const modalComprasCliente =
+        document.getElementById("modalComprasCliente");
+
+    const fecharModalComprasCliente =
+        document.getElementById("fecharModalComprasCliente");
+
+    const comprasClienteTitulo =
+        document.getElementById("comprasClienteTitulo");
+
+    const comprasClienteSubtitulo =
+        document.getElementById("comprasClienteSubtitulo");
+
+    const comprasClienteDados =
+        document.getElementById("comprasClienteDados");
+
+    const comprasClienteLista =
+        document.getElementById("comprasClienteLista");
+
+    function formatarTelefoneCliente(valor) {
+        const numero = String(valor || "").replace(/\D/g, "");
+
+        if (numero.length === 11) {
+            return `(${numero.slice(0,2)}) ${numero.slice(2,7)}-${numero.slice(7)}`;
+        }
+
+        if (numero.length === 10) {
+            return `(${numero.slice(0,2)}) ${numero.slice(2,6)}-${numero.slice(6)}`;
+        }
+
+        return valor || "-";
+    }
+
+    function formatarDataNascimentoCliente(valor) {
+        if (!valor) {
+            return "-";
+        }
+
+        return formatarData(valor);
+    }
+
+    function montarEnderecoCliente(cliente) {
+        const partes = [
+            cliente?.numero ? `Nº ${cliente.numero}` : "",
+            cliente?.complemento,
+            cliente?.bairro,
+            cliente?.cidade && cliente?.estado
+                ? `${cliente.cidade} - ${cliente.estado}`
+                : cliente?.cidade || cliente?.estado,
+            cliente?.cep ? `CEP ${cliente.cep}` : ""
+        ].filter(Boolean);
+
+        return partes.length > 0 ? partes.join(", ") : "-";
+    }
+
+    function renderComprasDoCliente(cliente, contas) {
+
+        const nome =
+            cliente?.nome_completo ||
+            cliente?.cliente ||
+            "Cliente";
+
+        const cpf =
+            String(cliente?.cpf || "").replace(/\D/g, "");
+
+        const email =
+            cliente?.email || "-";
+
+        const setor =
+            cliente?.setor || "-";
+
+        const diaVencimento =
+            Number(cliente?.dia_vencimento || 0);
+
+        const bloqueado =
+            Number(cliente?.bloqueado || 0) === 1;
+
+        comprasClienteTitulo.textContent =
+            `Compras de ${nome}`;
+
+        comprasClienteSubtitulo.textContent =
+            bloqueado
+                ? "Cliente bloqueado para novas compras."
+                : "Informações do cliente e compras em aberto.";
+
+        comprasClienteDados.innerHTML = `
+            <div class="cliente-resumo-status ${bloqueado ? "bloqueado" : "liberado"}">
+                <span class="cliente-status-ponto"></span>
+                <strong>${bloqueado ? "Bloqueado para novas compras" : "Liberado para compras fiado"}</strong>
+            </div>
+
+            <div class="cliente-dados-grid">
+                <div class="cliente-dado-card">
+                    <span>CPF</span>
+                    <strong>${escaparHTML(cpf || "-")}</strong>
+                </div>
+
+                <div class="cliente-dado-card">
+                    <span>Telefone</span>
+                    <strong>${escaparHTML(formatarTelefoneCliente(cliente?.telefone))}</strong>
+                </div>
+
+                <div class="cliente-dado-card">
+                    <span>E-mail</span>
+                    <strong>${escaparHTML(email)}</strong>
+                </div>
+
+                <div class="cliente-dado-card">
+                    <span>Nascimento</span>
+                    <strong>${escaparHTML(formatarDataNascimentoCliente(cliente?.data_nascimento))}</strong>
+                </div>
+
+                <div class="cliente-dado-card">
+                    <span>Setor</span>
+                    <strong>${escaparHTML(setor)}</strong>
+                </div>
+
+                <div class="cliente-dado-card">
+                    <span>Vencimento padrão</span>
+                    <strong>${diaVencimento >= 1 && diaVencimento <= 31 ? `Dia ${diaVencimento}` : "-"}</strong>
+                </div>
+
+                <div class="cliente-dado-card">
+                    <span>CEP</span>
+                    <strong>${escaparHTML(cliente?.cep || "-")}</strong>
+                </div>
+
+                <div class="cliente-dado-card">
+                    <span>Número</span>
+                    <strong>${escaparHTML(cliente?.numero || "-")}</strong>
+                </div>
+
+                <div class="cliente-dado-card">
+                    <span>Complemento</span>
+                    <strong>${escaparHTML(cliente?.complemento || "-")}</strong>
+                </div>
+
+                <div class="cliente-dado-card">
+                    <span>Bairro</span>
+                    <strong>${escaparHTML(cliente?.bairro || "-")}</strong>
+                </div>
+
+                <div class="cliente-dado-card">
+                    <span>Cidade</span>
+                    <strong>${escaparHTML(cliente?.cidade || "-")}</strong>
+                </div>
+
+                <div class="cliente-dado-card">
+                    <span>Estado</span>
+                    <strong>${escaparHTML(cliente?.estado || "-")}</strong>
+                </div>
+            </div>
+        `;
+
+        const contasCliente = (Array.isArray(contas) ? contas : [])
+            .filter(conta =>
+                Number(conta?.id_cliente) ===
+                Number(cliente?.id_cliente)
+            );
+
+        if (!contasCliente.length) {
+            comprasClienteLista.innerHTML = `
+                <div class="cliente-sem-compras">
+                    <strong>Nenhuma compra em aberto</strong>
+                    <span>Este cliente não possui contas fiado pendentes no momento.</span>
+                </div>
+            `;
+            return;
+        }
+
+        comprasClienteLista.innerHTML =
+            contasCliente.map(
+                conta => {
+                    const produtos =
+                        normalizarProdutosConta(conta);
+
+                    const valorOriginal =
+                        Number(
+                            conta?.valor_original ??
+                            conta?.valor ??
+                            0
+                        );
+
+                    const valorFinal =
+                        Number(
+                            conta?.valor_final ??
+                            conta?.valor_atual ??
+                            valorOriginal
+                        );
+
+                    const status =
+                        conta?.status ||
+                        "Pendente";
+
+                    const diasAtraso =
+                        Number(
+                            conta?.dias_atraso ??
+                            calcularDiasAtraso(
+                                conta?.data_vencimento
+                            )
+                        );
+
+                    const produtosHtml =
+                        produtos.length
+                            ? produtos.map(
+                                produto =>
+                                    `<span class="cliente-produto-pill">${escaparHTML(produto.nome)}${Number(produto.quantidade || 0) > 0 ? ` ×${Number(produto.quantidade)}` : ""}</span>`
+                            ).join("")
+                            : '<span class="cliente-produto-pill">Produtos não informados</span>';
+
+                    return `
+                        <article class="cliente-compra-card ${diasAtraso > 0 ? "atrasada" : ""}">
+                            <div class="cliente-compra-topo">
+                                <div>
+                                    <span class="cliente-compra-kicker">CONTA #${Number(conta.id_conta || 0)}</span>
+                                    <h3>${escaparHTML(conta.origem || "Compra fiado")}</h3>
+                                </div>
+                                <span class="cliente-compra-status ${diasAtraso > 0 ? "atrasado" : ""}">
+                                    ${diasAtraso > 0 ? `Atrasada há ${diasAtraso} ${diasAtraso === 1 ? "dia" : "dias"}` : escaparHTML(status)}
+                                </span>
+                            </div>
+
+                            <div class="cliente-compra-resumo">
+                                <div>
+                                    <span>Compra</span>
+                                    <strong>${formatarData(conta.data_compra || conta.data_criacao)}</strong>
+                                </div>
+                                <div>
+                                    <span>Vencimento</span>
+                                    <strong>${formatarData(conta.data_vencimento)}</strong>
+                                </div>
+                                <div>
+                                    <span>Valor original</span>
+                                    <strong>R$ ${formatarMoeda(valorOriginal)}</strong>
+                                </div>
+                                <div>
+                                    <span>Valor atual</span>
+                                    <strong>R$ ${formatarMoeda(valorFinal)}</strong>
+                                </div>
+                            </div>
+
+                            <div class="cliente-compra-produtos">
+                                ${produtosHtml}
+                            </div>
+
+                            <div class="cliente-compra-acoes">
+                                <button
+                                    type="button"
+                                    class="cliente-btn-secundario"
+                                    data-abrir-conta="${Number(conta.id_conta)}"
+                                >
+                                    Ver detalhes
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="cliente-btn-principal"
+                                    data-concluir-conta="${Number(conta.id_conta)}"
+                                >
+                                    Concluir compra
+                                </button>
+                            </div>
+                        </article>
+                    `;
+                }
+            ).join("");
+
+        comprasClienteLista
+            .querySelectorAll("[data-abrir-conta]")
+            .forEach(
+                botao => {
+                    botao.addEventListener(
+                        "click",
+                        () => {
+                            const id =
+                                Number(
+                                    botao.dataset.abrirConta
+                                );
+
+                            const conta =
+                                contasAtuais.find(
+                                    item =>
+                                        Number(
+                                            item.id_conta
+                                        ) === id
+                                );
+
+                            if (
+                                conta &&
+                                typeof window.abrirDetalhesContaFiado === "function"
+                            ) {
+                                modalComprasCliente.close();
+                                window.abrirDetalhesContaFiado(id);
+                            }
+                        }
+                    );
+                }
+            );
+
+        comprasClienteLista
+            .querySelectorAll("[data-concluir-conta]")
+            .forEach(
+                botao => {
+                    botao.addEventListener(
+                        "click",
+                        () => {
+                            const id =
+                                Number(
+                                    botao.dataset.concluirConta
+                                );
+
+                            const conta =
+                                contasAtuais.find(
+                                    item =>
+                                        Number(
+                                            item.id_conta
+                                        ) === id
+                                );
+
+                            if (conta) {
+                                modalComprasCliente.close();
+                                window.abrirConclusaoContaFiado?.(conta);
+                            }
+                        }
+                    );
+                }
+            );
+    }
+
+    async function abrirModalComprasCliente(idCliente) {
+
+        const cliente =
+            clientesCache.find(
+                item =>
+                    Number(item.id_cliente) ===
+                    Number(idCliente)
+            ) ||
+            contasAtuais.find(
+                item =>
+                    Number(item.id_cliente) ===
+                    Number(idCliente)
+            );
+
+        if (!cliente) {
+            exibirAviso("Não foi possível localizar o cliente.");
+            return;
+        }
+
+        let contasCliente =
+            contasAtuais.filter(
+                item =>
+                    Number(item.id_cliente) ===
+                    Number(idCliente)
+            );
+
+        try {
+            if (!contasCliente.length) {
+                const res =
+                    await apiFetch(
+                        `/contas-fiado/cliente/${Number(idCliente)}`
+                    );
+
+                if (res.ok) {
+                    const dados =
+                        await res.json();
+
+                    if (Array.isArray(dados)) {
+                        contasCliente = dados;
+                    }
+                }
+            }
+        } catch (erro) {
+            console.warn(
+                "Não foi possível atualizar as compras do cliente:",
+                erro
+            );
+        }
+
+        renderComprasDoCliente(
+            cliente,
+            contasCliente
+        );
+
+        modalComprasCliente?.showModal();
+    }
+
+    window.abrirModalComprasCliente =
+        abrirModalComprasCliente;
+
+    fecharModalComprasCliente?.addEventListener(
+        "click",
+        () => {
+            modalComprasCliente.close();
+        }
+    );
+
+    modalComprasCliente?.addEventListener(
+        "cancel",
+        event => {
+            event.preventDefault();
+            modalComprasCliente.close();
+        }
+    );
+
+    /* ======================================================
        TABELAS PRINCIPAIS
     ====================================================== */
 
@@ -3205,7 +3812,7 @@ function renderContasParaJuros() {
         bloco.innerHTML = `
             <div class="conta_juros_titulo">
                 <div>
-                    <strong>Conta #${idConta}</strong>
+                    <strong>Compra #${idConta}</strong>
                     ${diasAtraso > 0 ? `<span class="badge-atrasado-modal">ATRASADO</span>` : ""}
                 </div>
                 <div class="conta-juros-acoes">
@@ -4524,10 +5131,11 @@ async function executarAplicacaoDeJuros() {
    conteudo.innerHTML=`<div class="detalhes-conta-grid"><div class="detalhe-conta-item"><strong>Valor inicial</strong>${moeda(original)}</div><div class="detalhe-conta-item"><strong>Juros</strong>${moeda(juros)}</div><div class="detalhe-conta-item"><strong>Valor final</strong>${moeda(final)}</div><div class="detalhe-conta-item"><strong>Vencimento</strong>${data(contaSelecionada.data_vencimento)}</div><div class="detalhe-conta-item"><strong>Tempo em atraso</strong>${atraso} ${atraso===1?'dia':'dias'}</div><div class="detalhe-conta-item"><strong>Origem</strong>${esc(contaSelecionada.origem||'-')}</div></div><h3>Produtos</h3><div class="detalhes-conta-produtos">${produtos.length?produtos.map(p=>`<div class="detalhe-produto-conta"><span>${esc(p.nome||p.produto||'Produto')}${Number(p.qtd??p.quantidade??0)>0?` ×${Number(p.qtd??p.quantidade)}`:''}</span><strong>${moeda(p.valor_atual??p.valorAtual??p.valor_base??p.valorBase??0)}</strong></div>`).join(''):'<div class="detalhe-produto-conta"><span>Nenhum produto informado.</span></div>'}</div>`;
    if(!modal.open)modal.showModal();
  }
+ window.abrirDetalhesContaFiado=abrir;
  window.abrirModalContaPeloNome=abrir;
  document.addEventListener('click',e=>{
    const nome=e.target.closest?.('.btn-nome-cliente-fiado');
-   if(nome){e.preventDefault();e.stopPropagation();abrir(Number(nome.dataset.idConta));return;}
+   if(nome){e.preventDefault();e.stopPropagation();const conta=obterConta(Number(nome.dataset.idConta));if(conta&&typeof window.abrirModalComprasCliente==='function'){window.abrirModalComprasCliente(Number(conta.id_cliente));}return;}
    const tr=e.target.closest?.('tr.linha-conta-clicavel');
    if(!tr)return;
    const id=Number(tr.dataset.idConta);

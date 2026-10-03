@@ -24,7 +24,7 @@ const CORES = {
   cinzaCard: '#4a2c0a',
 };
 
-const IP_SERVIDOR = "10.111.9.23"; 
+const IP_SERVIDOR = "192.168.5.6"; 
 const URL_API = `http://${IP_SERVIDOR}:3000`;
 
 // Função auxiliar para formatar a data/hora do agendamento

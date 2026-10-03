@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="stylecadp.css">
     <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
     <title>Cadastro de Produtos - Grano Vita</title>
-    
 </head>
 
 <body class="fundo-laranja">
@@ -61,12 +60,12 @@
 
                 <div class="form-group">
                     <label for="quantidade">Qtd Atual</label>
-                    <input type="number" id="quantidade" value="0" min="0">
+                    <input type="number" id="quantidade" placeholder="0" min="0">
                 </div>
 
                 <div class="form-group">
                     <label for="qtd_min">Qtd Mínima</label>
-                    <input type="number" id="qtd_min" value="5" min="0">
+                    <input type="number" id="qtd_min" placeholder="5" min="0">
                 </div>
             </div>
 
@@ -113,8 +112,50 @@
         </div>
     </dialog>
 
+    <!-- MODAL DE AVISO PADRÃO (IGUAL AO PDV) -->
+    <dialog id="d_aviso">
+        <div class="aviso_box">
+            <p id="msg_aviso"></p>
+            <div class="aviso_botoes">
+                <button id="b_confirmar_aviso">OK</button>
+                <button id="b_cancelar_aviso" style="display:none;">Cancelar</button>
+            </div>
+        </div>
+    </dialog>
+
     <script>
         const API_BASE_URL = "http://localhost:3000";
+
+        // Seletores do modal de aviso customizado
+        const aviso = document.getElementById("d_aviso");
+        const msgAviso = document.getElementById("msg_aviso");
+        const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
+        const bCancelarAviso = document.getElementById("b_cancelar_aviso");
+
+        // Função padronizada para exibir avisos em substituição ao alert/confirm
+        function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
+            msgAviso.innerText = mensagem;
+            bCancelarAviso.style.display = mostrarCancelar ? "block" : "none";
+
+            try {
+                aviso.showModal();
+            } catch (e) {
+                console.error("Erro ao abrir modal de aviso:", e);
+            }
+
+            bConfirmarAviso.onclick = () => {
+                aviso.close();
+                if (callback) callback();
+            };
+
+            bCancelarAviso.onclick = () => {
+                aviso.close();
+            };
+        }
+
+        aviso.addEventListener("cancel", (event) => {
+            event.preventDefault();
+        });
 
         // 1. Carregar Categorias no <select>
         async function carregarCategorias() {
@@ -179,8 +220,7 @@
             const botao = document.getElementById("btnSalvarCategoria");
 
             if (!nome) {
-                alert("Informe o nome da categoria.");
-                input.focus();
+                exibirAviso("Informe o nome da categoria.", () => input.focus());
                 return;
             }
 
@@ -217,11 +257,11 @@
 
                 document.getElementById("modalNovaCategoria")?.close();
 
-                alert("Categoria cadastrada com sucesso!");
+                exibirAviso("Categoria cadastrada com sucesso!");
 
             } catch (erro) {
                 console.error("Erro ao cadastrar categoria:", erro);
-                alert(erro.message || "Erro de conexão ao cadastrar categoria.");
+                exibirAviso(erro.message || "Erro de conexão ao cadastrar categoria.");
             } finally {
                 botao.disabled = false;
             }
@@ -319,15 +359,15 @@
                     precoCalculado
                 );
 
-                formData.append(
-                    "quantidade",
-                    document.getElementById("quantidade").value
-                );
+                // Tratamento: Se nada for digitado no campo de quantidade, define como 0
+                const qtdDigitada = document.getElementById("quantidade").value.trim();
+                const qtdFinal = qtdDigitada === "" ? 0 : parseInt(qtdDigitada, 10);
+                formData.append("quantidade", qtdFinal);
 
-                formData.append(
-                    "qtd_min",
-                    document.getElementById("qtd_min").value
-                );
+                // Tratamento: Se nada for digitado em qtd_min, define como 0
+                const qtdMinDigitada = document.getElementById("qtd_min").value.trim();
+                const qtdMinFinal = qtdMinDigitada === "" ? 0 : parseInt(qtdMinDigitada, 10);
+                formData.append("qtd_min", qtdMinFinal);
 
                 formData.append(
                     "descricao",
@@ -366,10 +406,11 @@
                         await resposta.json();
 
                     if (resposta.ok) {
-                        alert("Produto cadastrado com sucesso!");
-                        location.reload();
+                        exibirAviso("Produto cadastrado com sucesso!", () => {
+                            location.reload();
+                        });
                     } else {
-                        alert(
+                        exibirAviso(
                             dados.erro ||
                             "Erro ao cadastrar produto"
                         );
@@ -377,7 +418,7 @@
 
                 } catch (erro) {
                     console.error("Erro no cadastro:", erro);
-                    alert("Erro de conexão ao cadastrar produto.");
+                    exibirAviso("Erro de conexão ao cadastrar produto.");
                 }
             });
 

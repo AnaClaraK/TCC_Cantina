@@ -676,48 +676,115 @@ router.post(
     "/clientes-fiado",
     verificarToken,
     async (req, res) => {
+
         try {
+
             let {
                 nome_completo,
                 cpf,
                 telefone,
                 endereco,
+
+                cep,
+                logradouro,
+                numero,
+                complemento,
+                bairro,
+                cidade,
+                estado,
+                ponto_referencia,
+
+                data_nascimento,
+                email,
+                setor,
+
                 dia_vencimento
             } = req.body;
 
+
+            /* ==================================================
+               NORMALIZAÇÃO
+            ================================================== */
+
             nome_completo =
                 nome_completo
-                    ? String(
-                        nome_completo
-                    ).trim()
+                    ? String(nome_completo).trim()
                     : "";
 
             cpf =
                 cpf
-                    ? String(cpf)
-                        .replace(/\D/g, "")
+                    ? String(cpf).replace(/\D/g, "")
                     : "";
 
             telefone =
                 telefone
-                    ? String(telefone)
-                        .replace(/\D/g, "")
+                    ? String(telefone).replace(/\D/g, "")
                     : "";
 
-            endereco =
-                endereco
-                    ? String(
-                        endereco
-                    ).trim()
+            cep =
+                cep
+                    ? String(cep).replace(/\D/g, "")
                     : "";
 
-            dia_vencimento = Number(dia_vencimento);
+            logradouro =
+                logradouro
+                    ? String(logradouro).trim()
+                    : "";
 
-            if (!Number.isInteger(dia_vencimento) || dia_vencimento < 1 || dia_vencimento > 31) {
-                return res.status(400).json({
-                    erro: "O dia de vencimento deve estar entre 1 e 31."
-                });
-            }
+            numero =
+                numero
+                    ? String(numero).trim()
+                    : "";
+
+            complemento =
+                complemento
+                    ? String(complemento).trim()
+                    : null;
+
+            bairro =
+                bairro
+                    ? String(bairro).trim()
+                    : "";
+
+            cidade =
+                cidade
+                    ? String(cidade).trim()
+                    : "";
+
+            estado =
+                estado
+                    ? String(estado)
+                        .trim()
+                        .toUpperCase()
+                    : "";
+
+            ponto_referencia =
+                ponto_referencia
+                    ? String(ponto_referencia).trim()
+                    : null;
+
+            email =
+                email
+                    ? String(email).trim()
+                    : null;
+
+            setor =
+                setor
+                    ? String(setor).trim()
+                    : null;
+
+            data_nascimento =
+                data_nascimento
+                    ? String(data_nascimento).trim()
+                    : null;
+
+            dia_vencimento =
+                Number(dia_vencimento);
+
+
+            /* ==================================================
+               VALIDAÇÕES OBRIGATÓRIAS
+            ================================================== */
 
             if (
                 !nome_completo ||
@@ -729,6 +796,7 @@ router.post(
                 });
             }
 
+
             if (
                 cpf.length !== 11
             ) {
@@ -737,6 +805,7 @@ router.post(
                         "CPF inválido. Deve conter exatamente 11 dígitos."
                 });
             }
+
 
             if (
                 telefone.length < 10 ||
@@ -748,15 +817,104 @@ router.post(
                 });
             }
 
+
             if (
-                !endereco ||
-                endereco.length < 5
+                !logradouro ||
+                !numero ||
+                !bairro ||
+                !cidade ||
+                estado.length !== 2
             ) {
                 return res.status(400).json({
                     erro:
-                        "O endereço deve ter pelo menos 5 caracteres."
+                        "Preencha logradouro, número, bairro, cidade e estado."
                 });
             }
+
+
+            if (
+                !Number.isInteger(dia_vencimento) ||
+                dia_vencimento < 1 ||
+                dia_vencimento > 31
+            ) {
+                return res.status(400).json({
+                    erro:
+                        "O dia de vencimento deve estar entre 1 e 31."
+                });
+            }
+
+
+            /* ==================================================
+               CAMPOS OPCIONAIS
+            ================================================== */
+
+            if (
+                email &&
+                !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+            ) {
+                return res.status(400).json({
+                    erro:
+                        "E-mail inválido."
+                });
+            }
+
+
+            if (
+                cep &&
+                cep.length !== 8
+            ) {
+                return res.status(400).json({
+                    erro:
+                        "O CEP deve conter 8 números."
+                });
+            }
+
+
+            if (
+                data_nascimento &&
+                !/^\d{4}-\d{2}-\d{2}$/.test(
+                    data_nascimento
+                )
+            ) {
+                return res.status(400).json({
+                    erro:
+                        "Data de nascimento inválida."
+                });
+            }
+
+
+            /* ==================================================
+               ENDEREÇO LEGADO
+               
+               Continua sendo salvo em "endereco"
+               para manter compatibilidade com
+               partes antigas do sistema.
+            ================================================== */
+
+            const enderecoFormatado = [
+                logradouro,
+                numero
+                    ? `Nº ${numero}`
+                    : "",
+                complemento,
+                bairro,
+                cidade && estado
+                    ? `${cidade} - ${estado}`
+                    : cidade || estado,
+                cep
+                    ? `CEP ${cep}`
+                    : "",
+                ponto_referencia
+                    ? `Ref.: ${ponto_referencia}`
+                    : ""
+            ]
+                .filter(Boolean)
+                .join(", ");
+
+
+            /* ==================================================
+               CADASTRO
+            ================================================== */
 
             await conexao.query(
                 `
@@ -766,31 +924,69 @@ router.post(
                     cpf,
                     telefone,
                     endereco,
+
+                    cep,
+                    logradouro,
+                    numero,
+                    complemento,
+                    bairro,
+                    cidade,
+                    estado,
+                    ponto_referencia,
+
+                    data_nascimento,
+                    email,
+                    setor,
+
                     dia_vencimento
                 )
-                VALUES (?, ?, ?, ?, ?)
+                VALUES
+                (
+                    ?, ?, ?, ?,
+                    ?, ?, ?, ?, ?, ?, ?, ?,
+                    ?, ?, ?,
+                    ?
+                )
                 `,
                 [
                     nome_completo,
                     cpf,
                     telefone,
-                    endereco,
+                    enderecoFormatado,
+
+                    cep || null,
+                    logradouro,
+                    numero,
+                    complemento,
+                    bairro,
+                    cidade,
+                    estado,
+                    ponto_referencia,
+
+                    data_nascimento,
+                    email,
+                    setor,
+
                     dia_vencimento
                 ]
             );
 
-            res.json({
+
+            return res.json({
                 sucesso: true
             });
 
+
         } catch (err) {
+
             console.error(
                 "Erro ao cadastrar cliente:",
                 err
             );
 
-            res.status(500).json({
-                erro: err.message
+            return res.status(500).json({
+                erro:
+                    err.message
             });
         }
     }

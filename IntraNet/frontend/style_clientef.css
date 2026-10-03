@@ -654,12 +654,6 @@ body.fundo-escuro > .d_util > #d_inp {
     margin-left: auto !important;
 }
 
-/* Não há coluna separada de dias na tabela principal. */
-#sc_tabela table th:last-child,
-#sc_tabela table td:last-child {
-    /* Mantém o último campo como Vencimento/Ações conforme a tabela. */
-}
-
 /* Atraso no modal fica dentro de Vencimento, sem coluna própria. */
 #modalSimularJuros .juros-flat-vencimento .juros-flat-status.atrasado {
     display: block !important;
@@ -1756,12 +1750,6 @@ body.fundo-escuro > .d_util > #d_inp {
     margin-left: auto !important;
 }
 
-/* Não há coluna separada de dias na tabela principal. */
-#sc_tabela table th:last-child,
-#sc_tabela table td:last-child {
-    /* Mantém o último campo como Vencimento/Ações conforme a tabela. */
-}
-
 /* Atraso no modal fica dentro de Vencimento, sem coluna própria. */
 #modalSimularJuros .juros-flat-vencimento .juros-flat-status.atrasado {
     display: block !important;
@@ -2849,4 +2837,1924 @@ body.fundo-escuro > .d_util > #d_inp {
 #dialogFechamentoDiario::backdrop {
     background: rgba(0, 0, 0, 0.75);
     backdrop-filter: blur(3px);
+}
+/* ============================================================
+   AJUSTE FINAL — CONTA FIADO
+   Visual alinhado ao Histórico de Pedidos
+   ============================================================ */
+
+body.fundo-escuro {
+    --fiado-preto: #1c1c1c;
+    --fiado-laranja: #efac4a;
+    --fiado-texto: #f8c471;
+    --fiado-branco: #ffffff;
+}
+
+/* ============================================================
+   CABEÇALHO
+============================================================ */
+
+body.fundo-escuro > .d_util {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: nowrap;
+    min-width: 0;
+}
+
+body.fundo-escuro > .d_util > .h_ag {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+body.fundo-escuro > .d_util > #b_addq,
+body.fundo-escuro > .d_util > #b_nova_compra,
+body.fundo-escuro > .d_util > #b_simular_juros,
+body.fundo-escuro > .d_util > #b_compras_parceladas {
+    flex: 0 0 auto;
+    min-width: 0;
+    min-height: 42px;
+    padding: 9px 14px;
+    border: 2px solid #efac4a !important;
+    border-radius: 8px !important;
+    background: #1c1c1c !important;
+    color: #efac4a !important;
+    box-shadow: none !important;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.15;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color .18s ease, color .18s ease;
+}
+
+body.fundo-escuro > .d_util > #b_addq:hover,
+body.fundo-escuro > .d_util > #b_nova_compra:hover,
+body.fundo-escuro > .d_util > #b_simular_juros:hover,
+body.fundo-escuro > .d_util > #b_compras_parceladas:hover {
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+    transform: none !important;
+    filter: none !important;
+}
+
+body.fundo-escuro > .d_util > #d_inp {
+    flex: 1 1 300px;
+    min-width: 220px;
+    margin-left: auto;
+}
+
+body.fundo-escuro > .d_util > #d_inp .busca-box {
+    width: 100%;
+    min-width: 0;
+}
+
+/* ============================================================
+   BASE DOS MODAIS — IGUAL À LINGUAGEM DO HISTÓRICO
+============================================================ */
+
+body.fundo-escuro dialog {
+    margin: auto;
+    padding: 0;
+    border: 2px solid #efac4a !important;
+    border-radius: 10px !important;
+    background: #1c1c1c !important;
+    color: #f8c471 !important;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, .45) !important;
+    max-width: calc(100vw - 28px);
+}
+
+body.fundo-escuro dialog::backdrop {
+    background: rgba(0, 0, 0, .72) !important;
+    backdrop-filter: none !important;
+}
+
+body.fundo-escuro dialog .modal_box {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 28px 30px 24px;
+    border-radius: 8px;
+    background: #1c1c1c !important;
+    color: #f8c471 !important;
+    box-shadow: none !important;
+    overflow-x: hidden !important;
+}
+
+body.fundo-escuro dialog .modal_titulo {
+    margin: 0 42px 18px 0 !important;
+    padding: 0 !important;
+    color: #f8c471 !important;
+    background: transparent !important;
+    font-size: 24px !important;
+    font-weight: bold !important;
+    line-height: 1.2;
+    text-align: left !important;
+    text-transform: uppercase;
+    letter-spacing: 0;
+}
+
+/* Todos os X usam o mesmo botão da base do sistema. */
+body.fundo-escuro #b_close_modal,
+body.fundo-escuro #b_close_produtos,
+body.fundo-escuro #b_close_modal_cliente,
+body.fundo-escuro #btnFecharSimulacaoJuros,
+body.fundo-escuro #btnFecharComprasParceladas,
+body.fundo-escuro #b_fechar_dividir,
+body.fundo-escuro #b_fechar_dinheiro,
+body.fundo-escuro #b_fechar_credito,
+body.fundo-escuro #fecharDetalhesContaFiado {
+    position: absolute !important;
+    top: 12px !important;
+    right: 14px !important;
+    z-index: 20;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: none !important;
+    border-radius: 8px !important;
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+    font-family: Arial, sans-serif !important;
+    font-size: 22px !important;
+    font-weight: bold !important;
+    line-height: 1 !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+    transform: none !important;
+}
+
+body.fundo-escuro #b_close_modal:hover,
+body.fundo-escuro #b_close_produtos:hover,
+body.fundo-escuro #b_close_modal_cliente:hover,
+body.fundo-escuro #btnFecharSimulacaoJuros:hover,
+body.fundo-escuro #btnFecharComprasParceladas:hover,
+body.fundo-escuro #b_fechar_dividir:hover,
+body.fundo-escuro #b_fechar_dinheiro:hover,
+body.fundo-escuro #b_fechar_credito:hover,
+body.fundo-escuro #fecharDetalhesContaFiado:hover {
+    filter: brightness(1.08) !important;
+    transform: none !important;
+}
+
+/* ============================================================
+   INPUTS / SELECTS DOS MODAIS
+============================================================ */
+
+body.fundo-escuro dialog .inp_m,
+body.fundo-escuro dialog input,
+body.fundo-escuro dialog select,
+body.fundo-escuro dialog textarea {
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+    box-sizing: border-box;
+    padding: 0 12px;
+    border: 2px solid #efac4a !important;
+    border-radius: 8px !important;
+    outline: none;
+    background: #fed89d !important;
+    color: #1c1c1c !important;
+    font-size: 16px !important;
+}
+
+body.fundo-escuro dialog .inp_m::placeholder,
+body.fundo-escuro dialog input::placeholder {
+    color: #5d4930 !important;
+    opacity: 1;
+}
+
+body.fundo-escuro dialog .inp_m:focus,
+body.fundo-escuro dialog input:focus,
+body.fundo-escuro dialog select:focus,
+body.fundo-escuro dialog textarea:focus {
+    border-color: #efac4a !important;
+    box-shadow: 0 0 0 2px rgba(239, 172, 74, .18) !important;
+}
+
+/* ============================================================
+   NOVO CLIENTE
+   Dois campos por linha quando houver espaço.
+============================================================ */
+
+body.fundo-escuro #modal_cliente {
+    width: min(720px, calc(100vw - 28px)) !important;
+    max-height: calc(100dvh - 28px) !important;
+    overflow: hidden !important;
+}
+
+body.fundo-escuro #modal_cliente .modal_box {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 13px 16px !important;
+    min-height: 0;
+    max-height: calc(100dvh - 28px);
+    overflow-y: auto !important;
+}
+
+body.fundo-escuro #modal_cliente .modal_titulo {
+    grid-column: 1 / -1;
+    margin-bottom: 4px !important;
+}
+
+body.fundo-escuro #modal_cliente #nome,
+body.fundo-escuro #modal_cliente #cpf,
+body.fundo-escuro #modal_cliente #telefone,
+body.fundo-escuro #modal_cliente #endereco,
+body.fundo-escuro #modal_cliente #diaVencimentoPadraoCliente,
+body.fundo-escuro #modal_cliente label {
+    min-width: 0;
+}
+
+body.fundo-escuro #modal_cliente label {
+    align-self: center;
+    margin: 0 !important;
+    color: #f8c471 !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+}
+
+body.fundo-escuro #modal_cliente #b_addf {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 44px;
+    margin: 2px 0 0 !important;
+    padding: 10px 15px;
+    border: none !important;
+    border-radius: 8px !important;
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+    font-size: 16px !important;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: none !important;
+}
+
+body.fundo-escuro #modal_cliente #b_addf:hover {
+    background: #f3bd70 !important;
+    transform: none !important;
+}
+
+/* ============================================================
+   NOVA COMPRA / SELEÇÃO DE PRODUTOS
+============================================================ */
+
+body.fundo-escuro #d_modal_fiado {
+    width: min(700px, calc(100vw - 28px)) !important;
+    max-height: calc(100dvh - 28px) !important;
+    overflow: hidden !important;
+}
+
+body.fundo-escuro #d_modal_fiado .modal_box,
+body.fundo-escuro #d_modal_produtos .modal_box {
+    max-height: calc(100dvh - 28px);
+    overflow-y: auto !important;
+}
+
+body.fundo-escuro #d_modal_produtos {
+    width: min(760px, calc(100vw - 28px)) !important;
+    max-height: calc(100dvh - 28px) !important;
+    overflow: hidden !important;
+}
+
+body.fundo-escuro #d_modal_fiado .pm {
+    margin: 0;
+    padding: 0;
+    color: #f8c471;
+    font-size: 18px;
+    line-height: 1.35;
+}
+
+body.fundo-escuro #d_modal_fiado .pm span {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+body.fundo-escuro #lista_clientes,
+body.fundo-escuro #lista_produtos,
+body.fundo-escuro #listaClientesJuros {
+    max-height: 230px;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+}
+
+body.fundo-escuro #produtos_selecionados,
+body.fundo-escuro #area_produtos_modal {
+    min-height: 0;
+    max-height: 260px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+}
+
+/* ============================================================
+   AVISO
+============================================================ */
+
+body.fundo-escuro #d_aviso {
+    width: min(520px, calc(100vw - 28px)) !important;
+    max-height: calc(100dvh - 28px) !important;
+    overflow: hidden !important;
+}
+
+body.fundo-escuro #d_aviso .aviso_box {
+    box-sizing: border-box;
+    padding: 28px 30px 24px;
+    color: #f8c471;
+    background: #1c1c1c;
+}
+
+body.fundo-escuro #msg_aviso {
+    color: #ffffff;
+    font-size: 18px;
+    line-height: 1.45;
+}
+
+body.fundo-escuro .aviso_botoes {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+body.fundo-escuro .aviso_botoes button {
+    min-height: 40px;
+    padding: 9px 16px;
+    border: 2px solid #efac4a;
+    border-radius: 8px;
+    background: #1c1c1c;
+    color: #efac4a;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+body.fundo-escuro .aviso_botoes button:hover {
+    background: #efac4a;
+    color: #1c1c1c;
+}
+
+/* ============================================================
+   CONTA SEM JUROS — MODAL DE CLIENTE/JUROS
+============================================================ */
+
+body.fundo-escuro #modalSimularJuros {
+    width: min(1080px, calc(100vw - 28px)) !important;
+    max-height: calc(100dvh - 28px) !important;
+    overflow: hidden !important;
+}
+
+body.fundo-escuro #modalSimularJuros .modal_juros_box {
+    width: 100%;
+    min-width: 0;
+    max-height: calc(100dvh - 28px);
+    padding: 28px 30px 24px !important;
+    background: #1c1c1c !important;
+    overflow: hidden !important;
+    gap: 12px !important;
+}
+
+body.fundo-escuro #modalSimularJuros .modal_titulo {
+    margin-bottom: 4px !important;
+}
+
+body.fundo-escuro #modalSimularJuros .campo-busca-cliente-juros {
+    position: relative;
+    min-width: 0;
+}
+
+body.fundo-escuro #modalSimularJuros .juros_config {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 14px;
+    margin: 0 !important;
+}
+
+body.fundo-escuro #modalSimularJuros .juros_campo {
+    min-width: 0;
+}
+
+body.fundo-escuro #modalSimularJuros .juros_campo label {
+    display: block;
+    margin: 0 0 6px !important;
+    color: #f8c471 !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+}
+
+body.fundo-escuro #modalSimularJuros .juros_acoes_selecao {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 !important;
+}
+
+body.fundo-escuro #modalSimularJuros .juros_acoes_selecao button,
+body.fundo-escuro #modalSimularJuros .conta-juros-acoes button {
+    min-height: 40px;
+    padding: 9px 14px;
+    border: 2px solid #efac4a;
+    border-radius: 8px;
+    background: #1c1c1c;
+    color: #efac4a;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+body.fundo-escuro #modalSimularJuros .juros_acoes_selecao button:hover,
+body.fundo-escuro #modalSimularJuros .conta-juros-acoes button:hover {
+    background: #efac4a;
+    color: #1c1c1c;
+}
+
+body.fundo-escuro #modalSimularJuros #listaContasJuros {
+    min-height: 100px;
+    max-height: min(430px, 48vh) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    overscroll-behavior: contain;
+}
+
+body.fundo-escuro #modalSimularJuros .juros-flat-linha,
+body.fundo-escuro #modalSimularJuros .juros-produto-linha,
+body.fundo-escuro #modalSimularJuros .conta_juros_item {
+    box-sizing: border-box;
+}
+
+body.fundo-escuro #modalSimularJuros .resumo_juros {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0 !important;
+}
+
+body.fundo-escuro #modalSimularJuros .resumo_juros > div {
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid #efac4a !important;
+    border-radius: 8px !important;
+    background: #1c1c1c !important;
+}
+
+body.fundo-escuro #modalSimularJuros .juros_botoes {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 !important;
+}
+
+body.fundo-escuro #modalSimularJuros .juros_botoes button {
+    min-height: 40px;
+    padding: 9px 15px;
+    border: 2px solid #efac4a;
+    border-radius: 8px;
+    background: #1c1c1c;
+    color: #efac4a;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+body.fundo-escuro #modalSimularJuros .juros_botoes button:hover:not(:disabled) {
+    background: #efac4a;
+    color: #1c1c1c;
+}
+
+body.fundo-escuro #modalSimularJuros .juros_botoes #btnConcluirSelecionados {
+    background: #efac4a;
+    color: #1c1c1c;
+}
+
+body.fundo-escuro #modalSimularJuros .juros_botoes #btnConcluirSelecionados:hover {
+    background: #f3bd70;
+}
+
+/* ============================================================
+   CONTA COM JUROS — DETALHES
+============================================================ */
+
+body.fundo-escuro #modalDetalhesContaFiado {
+    width: min(680px, calc(100vw - 28px)) !important;
+    max-height: calc(100dvh - 28px) !important;
+    overflow: hidden !important;
+}
+
+body.fundo-escuro #modalDetalhesContaFiado .modal-content {
+    position: relative;
+    width: 100%;
+    max-height: calc(100dvh - 28px);
+    box-sizing: border-box;
+    padding: 28px 30px 24px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    background: #1c1c1c;
+}
+
+body.fundo-escuro #modalDetalhesContaFiado h2 {
+    margin: 0 42px 18px 0 !important;
+    color: #f8c471 !important;
+    font-size: 24px !important;
+    line-height: 1.2;
+    text-align: left;
+}
+
+body.fundo-escuro .detalhes-conta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+body.fundo-escuro .detalhe-conta-item {
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid #5c5c5c;
+    border-radius: 8px;
+    background: #1c1c1c;
+    color: #ffffff;
+    font-size: 14px;
+    line-height: 1.35;
+}
+
+body.fundo-escuro .detalhe-conta-item strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #efac4a;
+    font-size: 12px;
+}
+
+body.fundo-escuro #detalhesContaConteudo h3 {
+    margin: 18px 0 9px;
+    color: #efac4a !important;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+body.fundo-escuro .detalhes-conta-produtos {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+body.fundo-escuro .detalhe-produto-conta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid #5c5c5c;
+    border-radius: 8px;
+    background: #1c1c1c;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+body.fundo-escuro .detalhe-produto-conta span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+body.fundo-escuro .detalhe-produto-conta strong {
+    flex: 0 0 auto;
+    color: #f8c471;
+    white-space: nowrap;
+}
+
+body.fundo-escuro .detalhes-conta-acoes {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+body.fundo-escuro #btnConcluirDetalhesConta,
+body.fundo-escuro #btnEditarJurosDetalhesConta {
+    min-height: 40px;
+    padding: 9px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+body.fundo-escuro #btnConcluirDetalhesConta {
+    border: 2px solid #efac4a;
+    background: #efac4a;
+    color: #1c1c1c;
+}
+
+body.fundo-escuro #btnEditarJurosDetalhesConta {
+    border: 2px solid #efac4a;
+    background: #1c1c1c;
+    color: #efac4a;
+}
+
+body.fundo-escuro #btnConcluirDetalhesConta:hover,
+body.fundo-escuro #btnEditarJurosDetalhesConta:hover {
+    background: #f3bd70;
+    color: #1c1c1c;
+}
+
+/* ============================================================
+   COMPRAS PARCELADAS
+============================================================ */
+
+body.fundo-escuro #modalComprasParceladas {
+    width: min(900px, calc(100vw - 28px)) !important;
+    max-height: calc(100dvh - 28px) !important;
+    overflow: hidden !important;
+}
+
+body.fundo-escuro #modalComprasParceladas .modal-parceladas-box {
+    max-height: calc(100dvh - 28px);
+    padding: 28px 30px 24px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+}
+
+body.fundo-escuro .lista-compras-parceladas {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ============================================================
+   ROLAGENS CURTAS NÃO ESCAPAM PARA O ELEMENTO PAI
+============================================================ */
+
+body.fundo-escuro #lista_clientes,
+body.fundo-escuro #lista_produtos,
+body.fundo-escuro #area_produtos_modal,
+body.fundo-escuro #produtos_selecionados,
+body.fundo-escuro #listaClientesJuros,
+body.fundo-escuro #listaContasJuros,
+body.fundo-escuro #modalDetalhesContaFiado .modal-content,
+body.fundo-escuro #modalSimularJuros .modal_juros_box,
+body.fundo-escuro #modal_cliente .modal_box,
+body.fundo-escuro #d_modal_fiado .modal_box,
+body.fundo-escuro #d_modal_produtos .modal_box {
+    overscroll-behavior: contain !important;
+}
+
+/* ============================================================
+   RESPONSIVIDADE
+============================================================ */
+
+@media (max-width: 1250px) {
+    body.fundo-escuro > .d_util {
+        gap: 8px !important;
+    }
+
+    body.fundo-escuro > .d_util > #b_addq,
+    body.fundo-escuro > .d_util > #b_nova_compra,
+    body.fundo-escuro > .d_util > #b_simular_juros,
+    body.fundo-escuro > .d_util > #b_compras_parceladas {
+        padding: 8px 11px;
+        font-size: 13px;
+    }
+
+    body.fundo-escuro > .d_util > #d_inp {
+        flex-basis: 250px;
+        min-width: 200px;
+    }
+}
+
+@media (max-width: 1050px) {
+    body.fundo-escuro > .d_util {
+        flex-wrap: wrap;
+    }
+
+    body.fundo-escuro > .d_util > #d_inp {
+        flex: 1 1 260px;
+        margin-left: 0;
+    }
+
+    body.fundo-escuro #modalSimularJuros {
+        width: min(940px, calc(100vw - 24px)) !important;
+    }
+
+    body.fundo-escuro .detalhes-conta-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    body.fundo-escuro #modal_cliente .modal_box {
+        grid-template-columns: 1fr;
+    }
+
+    body.fundo-escuro #modal_cliente .modal_titulo,
+    body.fundo-escuro #modal_cliente #b_addf {
+        grid-column: 1;
+    }
+
+    body.fundo-escuro #modalSimularJuros .juros_config,
+    body.fundo-escuro #modalSimularJuros .resumo_juros {
+        grid-template-columns: 1fr;
+    }
+
+    body.fundo-escuro .detalhes-conta-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 560px) {
+    body.fundo-escuro > .d_util > .h_ag {
+        width: 100%;
+    }
+
+    body.fundo-escuro > .d_util > #b_addq,
+    body.fundo-escuro > .d_util > #b_nova_compra,
+    body.fundo-escuro > .d_util > #b_simular_juros,
+    body.fundo-escuro > .d_util > #b_compras_parceladas {
+        flex: 1 1 calc(50% - 8px);
+    }
+
+    body.fundo-escuro > .d_util > #d_inp {
+        flex: 1 1 100%;
+    }
+
+    body.fundo-escuro dialog .modal_box,
+    body.fundo-escuro #modalDetalhesContaFiado .modal-content,
+    body.fundo-escuro #modalComprasParceladas .modal-parceladas-box,
+    body.fundo-escuro #modalSimularJuros .modal_juros_box {
+        padding: 22px 18px 18px !important;
+    }
+
+    body.fundo-escuro dialog .modal_titulo,
+    body.fundo-escuro #modalDetalhesContaFiado h2 {
+        font-size: 20px !important;
+    }
+}
+
+/* ============================================================
+   MODAL DE CONCLUSÃO E MODAIS DE PAGAMENTO
+   Mesma aparência do restante do sistema, sem espaçamentos excessivos
+============================================================ */
+
+body.fundo-escuro #modalConclusaoFiado {
+    width: min(660px, calc(100vw - 28px)) !important;
+    max-height: calc(100dvh - 28px) !important;
+    overflow: hidden !important;
+}
+
+body.fundo-escuro #modalConclusaoFiado article {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    max-height: calc(100dvh - 28px);
+    background: #1c1c1c;
+}
+
+body.fundo-escuro #modalConclusaoFiado article > section {
+    min-height: 0;
+    padding: 26px 30px 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+}
+
+body.fundo-escuro #modalConclusaoFiado .titulo-central {
+    margin: 0 0 18px;
+    color: #f8c471;
+    font-size: 24px !important;
+    font-weight: bold;
+    text-align: left;
+}
+
+body.fundo-escuro #modalConclusaoFiado .bloco-info-venda {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0 0 16px;
+}
+
+body.fundo-escuro #modalConclusaoFiado .info-item {
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid #5c5c5c;
+    border-radius: 8px;
+    background: #1c1c1c;
+}
+
+body.fundo-escuro #modalConclusaoFiado .info-label {
+    margin: 0 0 5px !important;
+    color: #efac4a !important;
+    font-size: 12px !important;
+    font-weight: bold;
+}
+
+body.fundo-escuro #modalConclusaoFiado .info-valor,
+body.fundo-escuro #modalConclusaoFiado .info-valor-total {
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+body.fundo-escuro #modalConclusaoFiado .info-item.total-box {
+    background: #fed89d !important;
+    border-color: #efac4a !important;
+}
+
+body.fundo-escuro #modalConclusaoFiado .info-item.total-box .info-label,
+body.fundo-escuro #modalConclusaoFiado .info-item.total-box .info-valor-total {
+    color: #1c1c1c !important;
+}
+
+body.fundo-escuro #modalConclusaoFiado .data-pagamento-pdv {
+    width: 100%;
+    height: 38px;
+}
+
+body.fundo-escuro #modalConclusaoFiado .info-conclusao-pdv {
+    margin: 0 0 12px;
+    color: #ffffff;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+body.fundo-escuro #modalConclusaoFiado .label-pagamento {
+    margin: 14px 0 8px !important;
+    color: #f8c471 !important;
+    font-size: 18px !important;
+    text-align: left !important;
+}
+
+body.fundo-escuro #modalConclusaoFiado .area_pagamento {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 0;
+    overflow: visible !important;
+}
+
+body.fundo-escuro #modalConclusaoFiado .pagamento {
+    width: 100%;
+    min-height: 42px;
+    margin: 0 !important;
+    padding: 9px 12px;
+    border: 2px solid #efac4a;
+    border-radius: 8px;
+    background: #1c1c1c;
+    color: #efac4a;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+body.fundo-escuro #modalConclusaoFiado .pagamento:hover,
+body.fundo-escuro #modalConclusaoFiado .pagamento.selecionado {
+    background: #efac4a;
+    color: #1c1c1c;
+}
+
+body.fundo-escuro #modalConclusaoFiado .footer-conclusao-pdv {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 14px 30px 20px;
+    border-top: 1px solid #5c5c5c;
+    background: #1c1c1c;
+}
+
+body.fundo-escuro #modalConclusaoFiado #btnCancelarConclusao,
+body.fundo-escuro #modalConclusaoFiado #btnConfirmarConclusao {
+    min-height: 40px;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+body.fundo-escuro #modalConclusaoFiado #btnCancelarConclusao {
+    border: 2px solid #e06060;
+    background: #1c1c1c;
+    color: #e06060;
+}
+
+body.fundo-escuro #modalConclusaoFiado #btnConfirmarConclusao {
+    border: 2px solid #efac4a;
+    background: #efac4a;
+    color: #1c1c1c;
+}
+
+body.fundo-escuro #modalConclusaoFiado #btnConfirmarConclusao:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+/* Dinheiro / crédito / dividir: mesma caixa, mesmo X e mesmos campos. */
+body.fundo-escuro #dialogDinheiro,
+body.fundo-escuro #dialogCredito,
+body.fundo-escuro #dialogDividirPagamento {
+    width: min(500px, calc(100vw - 28px)) !important;
+    max-height: calc(100dvh - 28px) !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+body.fundo-escuro #dialogDinheiro .conteudo-dinheiro,
+body.fundo-escuro #dialogCredito .conteudo-credito,
+body.fundo-escuro #dialogDividirPagamento .conteudo-dividir {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    max-height: calc(100dvh - 28px);
+    padding: 28px 30px 24px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    background: #1c1c1c;
+    color: #ffffff;
+}
+
+body.fundo-escuro #dialogDinheiro .conteudo-dinheiro h2,
+body.fundo-escuro #dialogCredito .conteudo-credito h2,
+body.fundo-escuro #dialogDividirPagamento .conteudo-dividir h2 {
+    width: auto !important;
+    margin: 0 42px 18px 0 !important;
+    color: #f8c471 !important;
+    font-size: 22px !important;
+    font-weight: bold;
+    text-align: left;
+}
+
+body.fundo-escuro #dialogDinheiro .linha-modal,
+body.fundo-escuro #dialogCredito .credito-total,
+body.fundo-escuro #dialogDividirPagamento .credito-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+    margin: 0 0 12px;
+    padding: 11px 12px;
+    border: 1px solid #5c5c5c;
+    border-radius: 8px;
+    background: #1c1c1c !important;
+    color: #ffffff;
+}
+
+body.fundo-escuro #dialogDinheiro .linha-modal span,
+body.fundo-escuro #dialogDinheiro .linha-modal label,
+body.fundo-escuro #dialogCredito .credito-total span,
+body.fundo-escuro #dialogCredito .credito-campo label,
+body.fundo-escuro #dialogCredito .credito-parcela span,
+body.fundo-escuro #dialogDividirPagamento .credito-total span,
+body.fundo-escuro #dialogDividirPagamento .credito-campo label {
+    color: #efac4a !important;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+body.fundo-escuro #dialogDinheiro .linha-modal strong,
+body.fundo-escuro #dialogCredito .credito-total strong,
+body.fundo-escuro #dialogCredito .credito-parcela strong,
+body.fundo-escuro #dialogDividirPagamento .credito-total strong {
+    color: #ffffff !important;
+    font-size: 17px;
+}
+
+body.fundo-escuro #dialogDinheiro .box-troco,
+body.fundo-escuro #dialogCredito .credito-parcela {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 14px;
+    padding: 11px 12px;
+    border: 1px solid #efac4a;
+    border-radius: 8px;
+    background: #fed89d !important;
+    color: #1c1c1c !important;
+}
+
+body.fundo-escuro #dialogDinheiro .box-troco strong,
+body.fundo-escuro #dialogCredito .credito-parcela strong {
+    color: #1c1c1c !important;
+}
+
+body.fundo-escuro #dialogDinheiro .acoes-modal,
+body.fundo-escuro #dialogCredito .acoes-modal,
+body.fundo-escuro #dialogDividirPagamento .acoes-modal {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 14px 0 0;
+}
+
+body.fundo-escuro #dialogDinheiro .acoes-modal button,
+body.fundo-escuro #dialogCredito .acoes-modal button,
+body.fundo-escuro #dialogDividirPagamento .acoes-modal button,
+body.fundo-escuro #b_confirmar_dinheiro,
+body.fundo-escuro #b_confirmar_credito,
+body.fundo-escuro #b_confirmar_dividir {
+    min-height: 40px;
+    padding: 9px 15px;
+    border: 2px solid #efac4a;
+    border-radius: 8px;
+    background: #efac4a;
+    color: #1c1c1c;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+body.fundo-escuro #dialogCredito .credito-campo,
+body.fundo-escuro #dialogDividirPagamento .credito-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0 0 12px;
+}
+
+body.fundo-escuro #dialogDinheiro #inp_valor_pago,
+body.fundo-escuro #dialogCredito #sel_parcelas_credito,
+body.fundo-escuro #dialogDividirPagamento #sel_metodo_divisao,
+body.fundo-escuro #dialogDividirPagamento #inp_valor_divisao {
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+}
+
+body.fundo-escuro #dialogCredito #sel_parcelas_credito,
+body.fundo-escuro #dialogDividirPagamento #sel_metodo_divisao {
+    padding-right: 34px;
+}
+
+body.fundo-escuro #lista_divisoes {
+    max-height: 190px;
+    margin: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+}
+
+@media (max-width: 600px) {
+    body.fundo-escuro #modalConclusaoFiado .bloco-info-venda,
+    body.fundo-escuro #modalConclusaoFiado .area_pagamento {
+        grid-template-columns: 1fr;
+    }
+
+    body.fundo-escuro #modalConclusaoFiado article > section,
+    body.fundo-escuro #modalConclusaoFiado .footer-conclusao-pdv {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+}
+
+/* ============================================================
+   AJUSTES FINAIS — CONTA FIADO
+   Somente acabamento visual. Mantém o CSS antigo e não mexe nas tabelas.
+============================================================ */
+
+/* ------------------------------------------------------------
+   BOTÕES DO TOPO
+   Novo Cliente / Nova Compra / Compras parceladas com a mesma
+   tipografia e proporção.
+------------------------------------------------------------ */
+body.fundo-escuro > .d_util > #b_addq,
+body.fundo-escuro > .d_util > #b_nova_compra,
+body.fundo-escuro > .d_util > #b_compras_parceladas {
+    font-family: inherit !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+}
+
+/* ------------------------------------------------------------
+   TÍTULOS "CONTAS SEM JUROS" / "CONTAS COM JUROS"
+------------------------------------------------------------ */
+body.fundo-escuro > #sc_tabela > .titulo-contas {
+    margin: 16px 0 8px !important;
+    padding: 0 !important;
+    color: #f8c471 !important;
+    background: transparent !important;
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+}
+
+/* ------------------------------------------------------------
+   MODAL SIMULAR JUROS
+   Menos espaço no topo e mais espaço para as contas.
+------------------------------------------------------------ */
+body.fundo-escuro #modalSimularJuros {
+    width: min(1180px, calc(100vw - 24px)) !important;
+    max-width: min(1180px, calc(100vw - 24px)) !important;
+    max-height: calc(100dvh - 18px) !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+}
+
+body.fundo-escuro #modalSimularJuros .modal_juros_box {
+    width: 100% !important;
+    max-width: none !important;
+    max-height: calc(100dvh - 18px) !important;
+    box-sizing: border-box !important;
+    padding: 16px 18px 14px !important;
+    overflow: hidden !important;
+    border: 1px solid #efac4a !important;
+    border-radius: 12px !important;
+    background: #1c1c1c !important;
+    box-shadow: 0 12px 30px rgba(0,0,0,.34) !important;
+}
+
+body.fundo-escuro #modalSimularJuros .modal_titulo {
+    margin: 0 42px 8px 0 !important;
+    color: #f8c471 !important;
+    font-size: 20px !important;
+    line-height: 1.15 !important;
+}
+
+/* Cliente + bloquear na mesma linha. */
+body.fundo-escuro #modalSimularJuros > .modal_juros_box > .pm {
+    display: inline-flex !important;
+    align-items: center !important;
+    width: max-content !important;
+    max-width: calc(100% - 150px) !important;
+    min-height: 34px !important;
+    margin: 0 7px 7px 0 !important;
+    padding: 5px 9px !important;
+    border: 1px solid rgba(239,172,74,.22) !important;
+    border-radius: 7px !important;
+    background: rgba(239,172,74,.035) !important;
+    color: #aa997f !important;
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+    vertical-align: middle !important;
+}
+
+body.fundo-escuro #modalSimularJuros > .modal_juros_box > .pm strong {
+    margin-left: 4px;
+    color: #f8c471 !important;
+    font-weight: 800 !important;
+}
+
+body.fundo-escuro #modalSimularJuros > .modal_juros_box > .pm + .conta-juros-acoes {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: auto !important;
+    margin: 0 0 7px !important;
+    gap: 7px !important;
+    vertical-align: middle !important;
+}
+
+body.fundo-escuro #modalSimularJuros > .modal_juros_box > .pm + .conta-juros-acoes button {
+    min-height: 34px !important;
+    padding: 6px 10px !important;
+    border: 1px solid #efac4a !important;
+    border-radius: 7px !important;
+    background: #1c1c1c !important;
+    color: #efac4a !important;
+    font-family: inherit !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    line-height: 1.1 !important;
+    cursor: pointer !important;
+}
+
+body.fundo-escuro #modalSimularJuros > .modal_juros_box > .pm + .conta-juros-acoes button:hover {
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+}
+
+body.fundo-escuro #modalSimularJuros > .modal_juros_box > .pm + .conta-juros-acoes .info-atrasado {
+    margin: 0 !important;
+    font-size: 10px !important;
+}
+
+/* Controles compactos. */
+body.fundo-escuro #modalSimularJuros .juros_config {
+    grid-template-columns: minmax(210px, 260px) minmax(190px, 230px) !important;
+    gap: 9px !important;
+    margin: 0 0 7px !important;
+}
+
+body.fundo-escuro #modalSimularJuros .juros_campo label {
+    margin-bottom: 4px !important;
+    color: #f8c471 !important;
+    font-size: 11px !important;
+}
+
+body.fundo-escuro #modalSimularJuros .juros_campo .inp_m,
+body.fundo-escuro #modalSimularJuros .campo_porcentagem .inp_m {
+    height: 36px !important;
+    padding: 0 9px !important;
+    font-size: 14px !important;
+}
+
+body.fundo-escuro #modalSimularJuros .juros_acoes_selecao {
+    gap: 7px !important;
+    margin: 0 0 7px !important;
+}
+
+body.fundo-escuro #modalSimularJuros .juros_acoes_selecao button {
+    min-height: 34px !important;
+    padding: 6px 10px !important;
+    border: 1px solid #efac4a !important;
+    border-radius: 7px !important;
+    background: #1c1c1c !important;
+    color: #efac4a !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+}
+
+body.fundo-escuro #modalSimularJuros .juros_acoes_selecao button:hover {
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+}
+
+/* A maior área do modal fica para as contas/produtos. */
+body.fundo-escuro #modalSimularJuros #listaContasJuros {
+    min-height: 260px !important;
+    height: calc(100dvh - 286px) !important;
+    max-height: calc(100dvh - 286px) !important;
+    margin: 0 !important;
+    padding: 0 2px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-gutter: stable !important;
+}
+
+/* Cada conta fica visualmente separada. */
+body.fundo-escuro #modalSimularJuros .conta_juros_item {
+    margin: 0 0 8px !important;
+    padding: 0 !important;
+    border: 1px solid rgba(239,172,74,.20) !important;
+    border-radius: 9px !important;
+    background: #1a120c !important;
+    overflow: hidden !important;
+}
+
+body.fundo-escuro #modalSimularJuros .conta_juros_item:last-child {
+    margin-bottom: 0 !important;
+}
+
+body.fundo-escuro #modalSimularJuros .conta_juros_titulo {
+    min-height: 38px !important;
+    padding: 6px 9px !important;
+    border-bottom: 1px solid rgba(239,172,74,.12) !important;
+    background: rgba(239,172,74,.025) !important;
+}
+
+body.fundo-escuro #modalSimularJuros .conta_juros_titulo > div:first-child {
+    min-width: 0;
+}
+
+body.fundo-escuro #modalSimularJuros .conta_juros_titulo strong {
+    color: #f8c471 !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+}
+
+body.fundo-escuro #modalSimularJuros .compra-vencimento {
+    color: #aa997f !important;
+    font-size: 10px !important;
+}
+
+body.fundo-escuro #modalSimularJuros .conta-valor-resumo {
+    padding: 6px 9px !important;
+    color: #aa997f !important;
+    font-size: 11px !important;
+}
+
+body.fundo-escuro #modalSimularJuros .conta-valor-resumo strong {
+    color: #f4ddad !important;
+    font-size: 13px !important;
+}
+
+/* Produtos sem uma coluna exclusiva para dias. */
+body.fundo-escuro #modalSimularJuros .juros-produto-linha {
+    grid-template-columns: 30px minmax(280px, 1fr) 90px 115px 135px !important;
+    gap: 9px !important;
+    min-height: 46px !important;
+    padding: 6px 9px !important;
+    border-top: 1px solid rgba(255,255,255,.055) !important;
+}
+
+body.fundo-escuro #modalSimularJuros .juros-produto-dias {
+    display: none !important;
+}
+
+body.fundo-escuro #modalSimularJuros .juros-produto-nome strong {
+    color: #f5e5ce !important;
+    font-size: 13px !important;
+}
+
+body.fundo-escuro #modalSimularJuros .juros-produto-nome > span {
+    color: #aa997f !important;
+    font-size: 11px !important;
+}
+
+body.fundo-escuro #modalSimularJuros .juros-produto-valor,
+body.fundo-escuro #modalSimularJuros .juros-produto-vencimento,
+body.fundo-escuro #modalSimularJuros .juros-produto-resultado {
+    gap: 1px !important;
+}
+
+body.fundo-escuro #modalSimularJuros .juros-produto-valor span,
+body.fundo-escuro #modalSimularJuros .juros-produto-vencimento span,
+body.fundo-escuro #modalSimularJuros .juros-produto-resultado span {
+    color: #8e7c65 !important;
+    font-size: 9px !important;
+}
+
+body.fundo-escuro #modalSimularJuros .juros-produto-valor strong,
+body.fundo-escuro #modalSimularJuros .juros-produto-vencimento strong,
+body.fundo-escuro #modalSimularJuros .juros-produto-resultado strong {
+    color: #f1e0c8 !important;
+    font-size: 12px !important;
+}
+
+/* Resumo e ações menores para não roubar espaço da lista. */
+body.fundo-escuro #modalSimularJuros .resumo_juros {
+    gap: 7px !important;
+    margin: 7px 0 0 !important;
+}
+
+body.fundo-escuro #modalSimularJuros .resumo_juros > div {
+    padding: 7px 9px !important;
+    border: 1px solid rgba(239,172,74,.14) !important;
+    border-radius: 7px !important;
+    background: rgba(239,172,74,.025) !important;
+}
+
+body.fundo-escuro #modalSimularJuros .juros_botoes {
+    gap: 7px !important;
+    margin: 7px 0 0 !important;
+}
+
+body.fundo-escuro #modalSimularJuros .juros_botoes button {
+    min-height: 36px !important;
+    padding: 7px 11px !important;
+    border-width: 1px !important;
+    border-radius: 7px !important;
+    font-size: 11px !important;
+}
+
+/* ------------------------------------------------------------
+   COMPRAS PARCELADAS
+   Cada compra recebe sua própria caixa e suas informações ficam
+   separadas visualmente dentro dela.
+------------------------------------------------------------ */
+body.fundo-escuro #modalComprasParceladas {
+    width: min(980px, calc(100vw - 24px)) !important;
+    max-width: min(980px, calc(100vw - 24px)) !important;
+    max-height: calc(100dvh - 18px) !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+}
+
+body.fundo-escuro #modalComprasParceladas .modal-parceladas-box {
+    width: 100% !important;
+    max-width: none !important;
+    max-height: calc(100dvh - 18px) !important;
+    box-sizing: border-box !important;
+    padding: 18px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    border: 1px solid #efac4a !important;
+    border-radius: 12px !important;
+    background: #1c1c1c !important;
+    box-shadow: 0 12px 30px rgba(0,0,0,.34) !important;
+}
+
+body.fundo-escuro #modalComprasParceladas .modal_titulo {
+    margin: 0 42px 10px 0 !important;
+    color: #f8c471 !important;
+    font-size: 20px !important;
+    line-height: 1.15 !important;
+}
+
+body.fundo-escuro .lista-compras-parceladas {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 11px !important;
+}
+
+body.fundo-escuro .credito-card {
+    padding: 13px !important;
+    border: 1px solid rgba(239,172,74,.22) !important;
+    border-radius: 9px !important;
+    background: #1a120c !important;
+    box-shadow: none !important;
+}
+
+body.fundo-escuro .credito-card-topo {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    padding-bottom: 9px !important;
+    border-bottom: 1px solid rgba(255,255,255,.055) !important;
+}
+
+body.fundo-escuro .credito-card-topo h3 {
+    margin: 0 0 7px !important;
+    color: #f5e5ce !important;
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+}
+
+body.fundo-escuro .credito-meta {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    color: #a8957d !important;
+    font-size: 10px !important;
+    line-height: 1.35 !important;
+}
+
+body.fundo-escuro .credito-meta span {
+    min-width: 0 !important;
+    padding: 6px 7px !important;
+    border: 1px solid rgba(239,172,74,.10) !important;
+    border-radius: 6px !important;
+    background: #21170f !important;
+}
+
+body.fundo-escuro .credito-meta strong {
+    color: #e7d5bb !important;
+}
+
+body.fundo-escuro .credito-progresso {
+    flex: 0 0 auto !important;
+    padding: 6px 8px !important;
+    border: 1px solid rgba(103,214,138,.23) !important;
+    border-radius: 999px !important;
+    color: #96e4ad !important;
+    background: rgba(103,214,138,.06) !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+}
+
+body.fundo-escuro .credito-proxima {
+    margin: 9px 0 !important;
+    padding: 8px 9px !important;
+    border-left: 3px solid #efac4a !important;
+    border-radius: 0 7px 7px 0 !important;
+    background: rgba(239,172,74,.04) !important;
+    color: #a99880 !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+}
+
+body.fundo-escuro .credito-proxima strong {
+    color: #f2d393 !important;
+}
+
+body.fundo-escuro .credito-parcelas {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    margin-top: 8px !important;
+}
+
+body.fundo-escuro .credito-parcela {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+    min-width: 0 !important;
+    padding: 8px !important;
+    border: 1px solid rgba(239,172,74,.13) !important;
+    border-radius: 7px !important;
+    background: #21170f !important;
+}
+
+body.fundo-escuro .credito-parcela strong {
+    color: #f0dfc6 !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+}
+
+body.fundo-escuro .credito-parcela small {
+    color: #88765f !important;
+    font-size: 9.5px !important;
+    line-height: 1.35 !important;
+}
+
+body.fundo-escuro .credito-parcela.paga {
+    border-color: rgba(103,214,138,.16) !important;
+    background: rgba(103,214,138,.035) !important;
+}
+
+body.fundo-escuro .credito-parcela.paga strong {
+    color: #95e3ac !important;
+}
+
+body.fundo-escuro .credito-vazio {
+    min-height: 110px !important;
+    border: 1px dashed rgba(239,172,74,.20) !important;
+    border-radius: 9px !important;
+    color: #93816a !important;
+    background: rgba(255,255,255,.01) !important;
+    font-size: 11px !important;
+}
+
+/* ------------------------------------------------------------
+   RESPONSIVIDADE
+------------------------------------------------------------ */
+@media (max-width: 900px) {
+    body.fundo-escuro #modalSimularJuros #listaContasJuros {
+        height: calc(100dvh - 330px) !important;
+        max-height: calc(100dvh - 330px) !important;
+    }
+
+    body.fundo-escuro #modalSimularJuros .juros-produto-linha {
+        grid-template-columns: 28px minmax(210px, 1fr) 80px 105px 120px !important;
+        gap: 6px !important;
+    }
+
+    body.fundo-escuro .credito-meta {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    body.fundo-escuro .credito-parcelas {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 650px) {
+    body.fundo-escuro #modalSimularJuros .modal_juros_box,
+    body.fundo-escuro #modalComprasParceladas .modal-parceladas-box {
+        padding: 14px !important;
+    }
+
+    body.fundo-escuro #modalSimularJuros .juros_config {
+        grid-template-columns: 1fr !important;
+    }
+
+    body.fundo-escuro #modalSimularJuros #listaContasJuros {
+        height: calc(100dvh - 385px) !important;
+        max-height: calc(100dvh - 385px) !important;
+    }
+
+    body.fundo-escuro #modalSimularJuros .juros-produto-linha {
+        grid-template-columns: 28px minmax(150px, 1fr) 75px 90px 105px !important;
+        gap: 5px !important;
+        padding: 6px !important;
+    }
+
+    body.fundo-escuro #modalSimularJuros > .modal_juros_box > .pm {
+        max-width: calc(100% - 8px) !important;
+        margin-right: 0 !important;
+    }
+
+    body.fundo-escuro #modalSimularJuros > .modal_juros_box > .pm + .conta-juros-acoes {
+        display: flex !important;
+        margin-bottom: 7px !important;
+    }
+
+    body.fundo-escuro .credito-meta,
+    body.fundo-escuro .credito-parcelas {
+        grid-template-columns: 1fr !important;
+    }
+
+    body.fundo-escuro .credito-card-topo {
+        flex-direction: column !important;
+    }
+
+    body.fundo-escuro .credito-progresso {
+        white-space: normal !important;
+        align-self: flex-start !important;
+    }
+}
+
+/* ============================================================
+   AJUSTES FINAIS — CONTA FIADO
+   Mantém o visual existente e corrige apenas proporção/cores.
+============================================================ */
+
+/* Botões principais: mesma fonte do botão "Cadastrar cliente". */
+body.fundo-escuro > .d_util > #b_addq,
+body.fundo-escuro > .d_util > #b_nova_compra,
+body.fundo-escuro > .d_util > #b_compras_parceladas,
+body.fundo-escuro #modalSimularJuros .juros_botoes button,
+body.fundo-escuro #modalComprasParceladas button:not(#btnFecharComprasParceladas),
+body.fundo-escuro #btnBloquearClienteJuros,
+body.fundo-escuro #btnSelecionarTodosJuros,
+body.fundo-escuro #btnDesmarcarTodosJuros {
+    font-family: "Roca One", sans-serif !important;
+}
+
+/* O título das duas áreas de contas usa texto preto. */
+body.fundo-escuro > #sc_tabela .titulo-contas {
+    color: #1c1c1c !important;
+}
+
+/* ============================================================
+   NOVO CLIENTE — MAIS LARGURA, MENOS ALTURA
+============================================================ */
+
+body.fundo-escuro #modal_cliente {
+    width: min(920px, calc(100vw - 28px)) !important;
+    max-width: min(920px, calc(100vw - 28px)) !important;
+    max-height: 92dvh !important;
+}
+
+/* As seções ficam empilhadas; os campos se distribuem horizontalmente. */
+body.fundo-escuro #modal_cliente .cliente-cadastro-box {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    max-height: 92dvh !important;
+    padding: 22px 25px 20px !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-secao {
+    margin-top: 11px !important;
+    padding: 12px !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-grid {
+    gap: 9px !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-grid-2 {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-grid-6 {
+    grid-template-columns: minmax(110px, .9fr) minmax(90px, .7fr) minmax(150px, 1.3fr) !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-secao-final {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: end !important;
+    gap: 15px !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-vencimento {
+    min-width: 0 !important;
+}
+
+body.fundo-escuro #modal_cliente .btn-principal-cliente,
+body.fundo-escuro #modal_cliente #b_addf {
+    width: auto !important;
+    min-width: 205px !important;
+    white-space: nowrap !important;
+    font-family: "Roca One", sans-serif !important;
+}
+
+/* ============================================================
+   SIMULAR JUROS — APENAS PRETO #1c1c1c NAS CAIXAS PRINCIPAIS
+============================================================ */
+
+body.fundo-escuro #modalSimularJuros .modal_juros_box,
+body.fundo-escuro #modalSimularJuros .conta_juros_item,
+body.fundo-escuro #modalSimularJuros .conta_juros_titulo,
+body.fundo-escuro #modalSimularJuros .juros-flat-lista,
+body.fundo-escuro #modalSimularJuros .juros-flat-linha {
+    background: #1c1c1c !important;
+}
+
+/* ============================================================
+   COMPRAS PARCELADAS — SEM O MARROM EXTRA
+============================================================ */
+
+body.fundo-escuro #modalComprasParceladas .modal-parceladas-box,
+body.fundo-escuro .credito-card,
+body.fundo-escuro .credito-meta span,
+body.fundo-escuro .credito-parcela {
+    background: #1c1c1c !important;
+}
+
+body.fundo-escuro .credito-proxima {
+    background: #1c1c1c !important;
+}
+
+@media (max-width: 900px) {
+    body.fundo-escuro #modal_cliente {
+        width: min(820px, calc(100vw - 24px)) !important;
+        max-width: calc(100vw - 24px) !important;
+    }
+
+    body.fundo-escuro #modal_cliente .cliente-form-grid-6 {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 650px) {
+    body.fundo-escuro #modal_cliente {
+        width: calc(100vw - 18px) !important;
+        max-width: calc(100vw - 18px) !important;
+    }
+
+    body.fundo-escuro #modal_cliente .cliente-form-grid-2,
+    body.fundo-escuro #modal_cliente .cliente-form-grid-6,
+    body.fundo-escuro #modal_cliente .cliente-form-secao-final {
+        grid-template-columns: 1fr !important;
+    }
+
+    body.fundo-escuro #modal_cliente .btn-principal-cliente,
+    body.fundo-escuro #modal_cliente #b_addf {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+}
+
+/* ============================================================
+   CORREÇÃO FINAL — FONTE E ORGANIZAÇÃO DO CLIENTE FIADO
+============================================================ */
+
+/*
+   Mesma tipografia usada pelo botão Cadastrar cliente do modal
+   de Novo Cliente no CSS compartilhado.
+*/
+body.fundo-escuro > .d_util > #b_addq,
+body.fundo-escuro > .d_util > #b_nova_compra,
+body.fundo-escuro > .d_util > #b_compras_parceladas,
+body.fundo-escuro #modalSimularJuros .juros_botoes button,
+body.fundo-escuro #modalSimularJuros #btnBloquearClienteJuros,
+body.fundo-escuro #modalSimularJuros #btnSelecionarTodosJuros,
+body.fundo-escuro #modalSimularJuros #btnDesmarcarTodosJuros,
+body.fundo-escuro #modalComprasParceladas button,
+body.fundo-escuro #modal_cliente #b_addf,
+body.fundo-escuro #modal_cliente .btn-principal-cliente {
+    font-family: "Roca One", sans-serif !important;
+    font-weight: 900 !important;
+    font-style: normal !important;
+}
+
+/* Evita que regras de botão do navegador voltem a Arial. */
+body.fundo-escuro > .d_util > button,
+body.fundo-escuro dialog button {
+    font-family: "Roca One", sans-serif !important;
+}
+
+/* ============================================================
+   MODAIS — PRETO ORIGINAL, SEM O MARROM ADICIONADO
+============================================================ */
+
+body.fundo-escuro #modalSimularJuros .modal_juros_box,
+body.fundo-escuro #modalSimularJuros .conta_juros_item,
+body.fundo-escuro #modalSimularJuros .conta_juros_titulo,
+body.fundo-escuro #modalSimularJuros .juros-flat-lista,
+body.fundo-escuro #modalSimularJuros .juros-flat-linha,
+body.fundo-escuro #modalComprasParceladas .modal-parceladas-box,
+body.fundo-escuro #modalComprasParceladas .credito-card,
+body.fundo-escuro #modalComprasParceladas .credito-parcela,
+body.fundo-escuro #modalComprasParceladas .credito-proxima,
+body.fundo-escuro #modal_cliente .cliente-cadastro-box {
+    background: #1c1c1c !important;
+    background-image: none !important;
+}
+
+/* ============================================================
+   NOVO CLIENTE — MAIS LARGURA E CAMPOS LADO A LADO
+============================================================ */
+
+body.fundo-escuro #modal_cliente {
+    width: min(960px, calc(100vw - 28px)) !important;
+    max-width: min(960px, calc(100vw - 28px)) !important;
+    max-height: 92dvh !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-cadastro-box {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 22px 26px 20px !important;
+    box-sizing: border-box !important;
+    overflow-y: auto !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-secao {
+    margin-top: 10px !important;
+    padding: 12px !important;
+}
+
+/* Dados pessoais: nome em uma linha e os demais dados em até 3 por linha. */
+body.fundo-escuro #modal_cliente .cliente-form-grid-2 {
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 10px 12px !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-grid-2 .cliente-campo {
+    grid-column: span 2 !important;
+    min-width: 0 !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-grid-2 .cliente-campo.campo-coluna-2 {
+    grid-column: 1 / -1 !important;
+}
+
+/* Endereço: seis campos organizados em duas linhas de três. */
+body.fundo-escuro #modal_cliente .cliente-form-grid-6 {
+    display: grid !important;
+    grid-template-columns: minmax(0, .95fr) minmax(0, .7fr) minmax(0, 1.25fr) !important;
+    gap: 10px 12px !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-grid-6 .cliente-campo {
+    min-width: 0 !important;
+}
+
+/* Campos ocupam a largura disponível, sem aumentar a altura. */
+body.fundo-escuro #modal_cliente .cliente-campo,
+body.fundo-escuro #modal_cliente .cliente-campo .inp_m {
+    min-width: 0 !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-secao-final {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: end !important;
+    gap: 16px !important;
+}
+
+body.fundo-escuro #modal_cliente .btn-principal-cliente,
+body.fundo-escuro #modal_cliente #b_addf {
+    width: auto !important;
+    min-width: 205px !important;
+    white-space: nowrap !important;
+}
+
+/* ============================================================
+   TÍTULOS DAS CONTAS — PRETO
+============================================================ */
+
+body.fundo-escuro > #sc_tabela .titulo-contas {
+    color: #1c1c1c !important;
+}
+
+/* ============================================================
+   RESPONSIVO
+============================================================ */
+
+@media (max-width: 900px) {
+    body.fundo-escuro #modal_cliente {
+        width: min(860px, calc(100vw - 24px)) !important;
+        max-width: calc(100vw - 24px) !important;
+    }
+
+    body.fundo-escuro #modal_cliente .cliente-form-grid-2 {
+        grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    }
+
+    body.fundo-escuro #modal_cliente .cliente-form-grid-2 .cliente-campo {
+        grid-column: span 3 !important;
+    }
+
+    body.fundo-escuro #modal_cliente .cliente-form-grid-2 .cliente-campo.campo-coluna-2 {
+        grid-column: 1 / -1 !important;
+    }
+
+    body.fundo-escuro #modal_cliente .cliente-form-grid-6 {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 650px) {
+    body.fundo-escuro #modal_cliente {
+        width: calc(100vw - 18px) !important;
+        max-width: calc(100vw - 18px) !important;
+    }
+
+    body.fundo-escuro #modal_cliente .cliente-form-grid-2,
+    body.fundo-escuro #modal_cliente .cliente-form-grid-6,
+    body.fundo-escuro #modal_cliente .cliente-form-secao-final {
+        grid-template-columns: 1fr !important;
+    }
+
+    body.fundo-escuro #modal_cliente .cliente-form-grid-2 .cliente-campo,
+    body.fundo-escuro #modal_cliente .cliente-form-grid-2 .cliente-campo.campo-coluna-2 {
+        grid-column: 1 / -1 !important;
+    }
+
+    body.fundo-escuro #modal_cliente .btn-principal-cliente,
+    body.fundo-escuro #modal_cliente #b_addf {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
 }

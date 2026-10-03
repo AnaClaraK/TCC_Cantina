@@ -626,30 +626,47 @@ let parcelasCredito = 1;
 function atualizarBloqueioPagamento() {
 
     const botoesPagamento =
-        document.querySelectorAll(".pagamento");
+        document.querySelectorAll(".area_pagamento .pagamento");
+
+    const botaoDividir =
+        document.getElementById("b_dividir_pagamento");
 
     const botaoDesbloquear =
         document.getElementById("b_desbloquear_pagamento");
 
-    // O bloqueio só existe quando uma COMANDA DO APP
-    // foi carregada e realmente trouxe uma forma de pagamento.
     const bloqueado =
         comandaAtual !== null &&
         pagamentoComandaBloqueado === true &&
         normalizarFormaPagamento(formaPagamentoComanda) !== "";
 
+    if (bloqueado) {
+
+        botoesPagamento.forEach(botao => {
+            botao.style.setProperty("display", "none", "important");
+        });
+
+        if (botaoDividir) {
+            botaoDividir.style.setProperty("display", "none", "important");
+        }
+
+        if (botaoDesbloquear) {
+            botaoDesbloquear.style.setProperty("display", "flex", "important");
+            botaoDesbloquear.innerText = "Desbloquear pagamento 🔓";
+        }
+
+        return;
+    }
+
+    if (botaoDesbloquear) {
+        botaoDesbloquear.style.setProperty("display", "none", "important");
+    }
+
     botoesPagamento.forEach(botao => {
-        botao.disabled = bloqueado;
+        botao.style.setProperty("display", "", "important");
     });
 
-    // Venda normal do PDV: botão fica escondido.
-    // Comanda APP bloqueada: mostra o cadeado.
-    if (botaoDesbloquear) {
-        botaoDesbloquear.style.display =
-            bloqueado ? "block" : "none";
-
-        botaoDesbloquear.innerText =
-            bloqueado ? "🔒" : "";
+    if (botaoDividir) {
+        botaoDividir.style.setProperty("display", "", "important");
     }
 }
 
@@ -912,12 +929,14 @@ if (event.key.length === 1) {
 
         estaProcessando = true;
 
-        // O scanner usa a mesma rota de busca que o campo de produtos.
-        // Assim ele não depende de uma rota /produtos/cod/:codigo que pode não
-        // estar disponível no backend que está sendo executado.
+        // Leitura do código de barras usa a rota específica do código.
+        // A busca /produtos/busca possui LIMIT 10 e é destinada à pesquisa
+        // por nome/código, então não deve ser usada para validar o scanner.
         const buscarPorCodigo = async () => {
-            const buscaRes = await apiFetch(
-                `${URL_BACKEND_CAD}/produtos/busca?q=${encodeURIComponent(codigo)}`,
+            const codigoBusca = String(codigo).trim();
+
+            const buscaRes = await fetch(
+                `${URL_BACKEND_CAD}/produtos/cod/${encodeURIComponent(codigoBusca)}`,
                 {
                     method: "GET",
                     headers: {
@@ -932,7 +951,7 @@ if (event.key.length === 1) {
                 throw new Error(
                     buscaJson.erro ||
                     buscaJson.mensagem ||
-                    "Erro ao buscar produto."
+                    "Produto não encontrado ou está inativo."
                 );
             }
 
@@ -940,14 +959,9 @@ if (event.key.length === 1) {
                 ? buscaJson
                 : (Array.isArray(buscaJson.produtos) ? buscaJson.produtos : []);
 
-            const codigoBusca = String(codigo).trim();
+            const produtoEncontrado = produtos[0];
 
-            // Primeiro tenta igualdade exata no código de barras.
-            const produtoEncontrado = produtos.find(produto =>
-                String(produto.codigo_barras ?? produto.codigo ?? "").trim() === codigoBusca
-            );
-
-            if (!produtoEncontrado) {
+            if (!produtoEncontrado || Number(produtoEncontrado.ativo) !== 1) {
                 throw new Error("Produto não encontrado ou está inativo.");
             }
 
@@ -1155,6 +1169,7 @@ if (event.key.length === 1) {
 });
 
     b_pesq.addEventListener("click", () => {
+        limparPesquisaProdutos();
         modalp.showModal();
         setTimeout(() => inputBusca.focus(), 50);
     });
@@ -1884,14 +1899,34 @@ function confirmarCancelamento() {
         });
     }
 
+    function normalizarTextoBusca(texto) {
+        return String(texto || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .trim();
+    }
+
+    function limparPesquisaProdutos() {
+        inputBusca.value = "";
+        lista.innerHTML = "";
+        produtosFiltrados = [];
+        indexSelecionado = -1;
+    }
+
+    // Limpa a pesquisa sempre que o modal for fechado.
+    dialogBusca.addEventListener("close", limparPesquisaProdutos);
+
     inputBusca.addEventListener("input", async () => {
         const q = inputBusca.value.trim();
-        indexSelecionado = -1; 
-        if (!q) {
-            lista.innerHTML = "";
-            produtosFiltrados = [];
+        const termo = normalizarTextoBusca(q);
+        indexSelecionado = -1;
+
+        if (!termo) {
+            limparPesquisaProdutos();
             return;
         }
+
         try {
             const resposta = await apiFetch(`${URL_BACKEND_CAD}/produtos/?busca=${encodeURIComponent(q)}`, {
                 headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
@@ -1899,35 +1934,72 @@ function confirmarCancelamento() {
 
             const respostaJson = await resposta.json();
 
-            const dadosBrutos = Array.isArray(respostaJson)
+            let dadosBrutos = Array.isArray(respostaJson)
                 ? respostaJson
                 : (Array.isArray(respostaJson.produtos)
                     ? respostaJson.produtos
                     : []);
 
-            const dados = dadosBrutos.filter(prod =>
+            let dados = dadosBrutos.filter(prod =>
                 prod &&
-                prod.nome != null
+                prod.nome != null &&
+                (
+                    normalizarTextoBusca(prod.nome).includes(termo) ||
+                    normalizarTextoBusca(prod.codigo_barras || prod.codigo || "").includes(termo)
+                )
             );
 
-            const termo = q.toLowerCase();
+            // Alguns backends filtram a busca apenas por início/exato.
+            // Se isso acontecer, busca a lista completa somente nesta situação
+            // para manter a pesquisa por trecho e sem acentos no navegador.
+            if (dados.length === 0) {
+                const respostaCompleta = await apiFetch(`${URL_BACKEND_CAD}/produtos`, {
+                    headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
+                });
 
+                const respostaCompletaJson = await respostaCompleta.json();
+
+                dadosBrutos = Array.isArray(respostaCompletaJson)
+                    ? respostaCompletaJson
+                    : (Array.isArray(respostaCompletaJson.produtos)
+                        ? respostaCompletaJson.produtos
+                        : []);
+
+                dados = dadosBrutos.filter(prod =>
+                    prod &&
+                    prod.nome != null &&
+                    (
+                        normalizarTextoBusca(prod.nome).includes(termo) ||
+                        normalizarTextoBusca(prod.codigo_barras || prod.codigo || "").includes(termo)
+                    )
+                );
+            }
+
+            // Prioriza correspondência no começo do nome, depois no começo
+            // de alguma palavra e, por último, em qualquer posição.
             dados.sort((a, b) => {
-                const aNome = String(a.nome).toLowerCase();
-                const bNome = String(b.nome).toLowerCase();
+                const nomeA = normalizarTextoBusca(a.nome);
+                const nomeB = normalizarTextoBusca(b.nome);
 
-                const aComeca = aNome.startsWith(termo);
-                const bComeca = bNome.startsWith(termo);
+                const palavraA = nomeA.split(/\s+/).some(palavra => palavra.startsWith(termo));
+                const palavraB = nomeB.split(/\s+/).some(palavra => palavra.startsWith(termo));
+                const inicioA = nomeA.startsWith(termo);
+                const inicioB = nomeB.startsWith(termo);
+                const posA = nomeA.indexOf(termo);
+                const posB = nomeB.indexOf(termo);
 
-                if (aComeca && !bComeca) return -1;
-                if (!aComeca && bComeca) return 1;
+                const scoreA = inicioA ? 0 : palavraA ? 1 : 2;
+                const scoreB = inicioB ? 0 : palavraB ? 1 : 2;
 
-                return aNome.localeCompare(bNome);
+                if (scoreA !== scoreB) return scoreA - scoreB;
+                if (posA !== posB) return posA - posB;
+                return nomeA.localeCompare(nomeB, "pt-BR");
             });
 
-            produtosFiltrados = dados; 
+            produtosFiltrados = dados.slice(0, 5);
             lista.innerHTML = "";
-            dados.forEach((prod, index) => {
+
+            produtosFiltrados.forEach((prod, index) => {
                 const li = document.createElement("li");
                 li.style.padding = "12px";
                 li.style.borderBottom = "1px solid #eee";
@@ -2454,6 +2526,11 @@ window.addEventListener("keydown", (event) => {
             event.preventDefault();
             event.stopPropagation();
 
+            // Fechamento diário
+            if (dialogFechamentoDiario?.open) {
+                fecharModalFechamento();
+                break;
+            }
             // Modal buscar comanda
             if (dialogComanda?.open) {
                 inputComanda.value = "";
@@ -4222,7 +4299,7 @@ window.addEventListener("load", () => {
             estado.carrinho.length === 0
         ) {
             fecharModaisMonitor();
-            window.location.href = "index.html";
+            window.location.href = "../landing_page/cardapio.html";
             return;
         }
 
