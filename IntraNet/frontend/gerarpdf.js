@@ -511,29 +511,24 @@ function gerarPDFReposicaoEstoque() {
     // =============================================================
 
     const colunas = [
-        "Nome do Produto",
-        "Código",
-        "Estoque Atual",
-        "Estoque Mínimo",
-        "Quantidade Sugerida para Compra"
+    "Nome do Produto",
+    "Código",
+    "Estoque Atual",
+    "Estoque Mínimo"
+];
+
+const dadosTabela = produtosParaReposicao.map(produto => {
+
+    const estoqueAtual = Number(produto.qtd || 0);
+    const estoqueMinimo = Number(produto.qtd_min || 0);
+
+    return [
+        produto.nome || "-",
+        produto.codigo_barras || "-",
+        estoqueAtual,
+        estoqueMinimo
     ];
-
-    const dadosTabela = produtosParaReposicao.map(produto => {
-
-        const estoqueAtual = Number(produto.qtd || 0);
-        const estoqueMinimo = Number(produto.qtd_min || 0);
-
-        const quantidadeSugerida =
-            estoqueMinimo - estoqueAtual;
-
-        return [
-            produto.nome || "-",
-            produto.codigo_barras || "-",
-            estoqueAtual,
-            estoqueMinimo,
-            quantidadeSugerida
-        ];
-    });
+});
 
     // =============================================================
     // TABELA
@@ -571,11 +566,8 @@ function gerarPDFReposicaoEstoque() {
             },
             3: {
                 halign: "center"
-            },
-            4: {
-                halign: "center",
-                fontStyle: "bold"
             }
+            
         },
 
         didDrawPage: function () {
