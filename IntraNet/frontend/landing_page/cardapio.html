@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cardápio — Grano Vita</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            width: 100%;
+            min-height: 100%;
+            height: 100%;
+            background: #111;
+            overflow-y: scroll !important;
+            overflow-x: hidden;
+            scrollbar-width: none;
+        }
+
+        body {
+            width: 100%;
+            min-height: 100%;
+            height: auto;
+            margin: 0;
+            background: #111;
+            overflow: visible !important;
+            overflow-x: clip;
+            scrollbar-width: none;
+        }
+
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+        }
+
+        #pdf-container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            background: #111;
+        }
+
+        .pagina-pdf {
+            display: block;
+            width: 100%;
+            max-width: 1920px;
+            height: auto;
+            background: #fff;
+        }
+
+        /*
+         * =========================================================
+         * VÍDEOS FUTUROS
+         * =========================================================
+         *
+         * Quando você adicionar vídeos ao cardápio, o ponto principal
+         * para fazer a configuração fica no JavaScript abaixo, em:
+         *
+         *     const VIDEOS_CARDAPIO = [];
+         *
+         * Não precisa mexer no restante do arquivo.
+         *
+         * Exemplo futuro:
+         *
+         * const VIDEOS_CARDAPIO = [
+         *     {
+         *         arquivo: "videos/video1.mp4",
+         *         segundos: 15
+         *     }
+         * ];
+         *
+         * =========================================================
+         */
+
+        #videos-container {
+            width: 100%;
+            max-width: 1920px;
+            background: #111;
+            display: none;
+        }
+
+        .video-cardapio {
+            display: block;
+            width: 100%;
+            max-width: 1920px;
+            height: auto;
+            background: #000;
+        }
+
+        #carregando {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #111;
+            color: #efac4a;
+
+            font-family: Arial, sans-serif;
+            font-size: clamp(20px, 2vw, 34px);
+            font-weight: bold;
+        }
+
+        #erro-pdf {
+            position: fixed;
+            inset: 0;
+            z-index: 30;
+
+            display: none;
+            align-items: center;
+            justify-content: center;
+
+            padding: 30px;
+            text-align: center;
+
+            background: #111;
+            color: #efac4a;
+
+            font-family: Arial, sans-serif;
+            font-size: clamp(18px, 1.8vw, 28px);
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="carregando">
+    Carregando cardápio...
+</div>
+
+<div id="erro-pdf">
+    Não foi possível carregar o cardápio.<br>
+    Coloque o arquivo <strong>cardapio.pdf</strong> na mesma pasta deste HTML.
+</div>
+
+<main id="pdf-container"></main>
+
+<div id="videos-container"></div>
+
+<script type="module">
+    import * as pdfjsLib from
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs";
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+
+
+    const PDF_URL =
+        "cardapio.pdf";
+
+
+    const MONITOR_CHAVE =
+        "grano_vita_monitor_venda";
+
+
+    /*
+     * =========================================================
+     * VÍDEOS FUTUROS — ALTERE AQUI QUANDO FOR ADICIONAR VÍDEOS
+     * =========================================================
+     *
+     * Deixe [] enquanto não houver vídeos.
+     *
+     * Quando tiver, coloque assim:
+     *
+     * const VIDEOS_CARDAPIO = [
+     *     {
+     *         arquivo: "videos/video1.mp4",
+     *         segundos: 15
+     *     },
+     *     {
+     *         arquivo: "videos/video2.mp4",
+     *         segundos: 12
+     *     }
+     * ];
+     *
+     * =========================================================
+     */
+    const VIDEOS_CARDAPIO = [];
+
+
+    /*
+     * Velocidade da rolagem automática.
+     * Quanto maior, mais rápido.
+     */
+    // =========================================================
+    // VELOCIDADE DA ROLAGEM AUTOMÁTICA — ALTERE AQUI
+    // =========================================================
+    const VELOCIDADE_ROLAGEM =
+        30;
+
+
+    /*
+     * Tempo parado no final, em segundos.
+     */
+    const ESPERA_NO_FINAL =
+        2;
+
+
+    const SCROLL_CHAVE =
+        "grano_vita_cardapio_scroll";
+
+    const RETORNO_CARDAPIO_CHAVE =
+        "grano_vita_cardapio_retorno";
+
+
+    const container =
+        document.getElementById(
+            "pdf-container"
+        );
+
+
+    const videosContainer =
+        document.getElementById(
+            "videos-container"
+        );
+
+
+    const carregando =
+        document.getElementById(
+            "carregando"
+        );
+
+
+    const erroPdf =
+        document.getElementById(
+            "erro-pdf"
+        );
+
+    // Retorno vindo do monitor: não deixa a tela intermediária de
+    // "Carregando cardápio..." aparecer por cima do conteúdo restaurado.
+    try {
+        if (sessionStorage.getItem(RETORNO_CARDAPIO_CHAVE) === "1") {
+            carregando.style.display = "none";
+            sessionStorage.removeItem(RETORNO_CARDAPIO_CHAVE);
+        }
+    } catch (_) {}
+
+
+    let rolando =
+        false;
+
+
+    let animacaoScroll =
+        null;
+
+
+    let ultimaVenda =
+        false;
+
+
+    let timerFinal =
+        null;
+
+    let intervaloVigilanciaScroll =
+        null;
+
+    let ultimaAtualizacaoScroll =
+        0;
+
+
+    function lerEstadoVenda() {
+
+        try {
+
+            const bruto =
+                localStorage.getItem(
+                    MONITOR_CHAVE
+                );
+
+
+            if (!bruto) {
+                return null;
+            }
+
+
+            return JSON.parse(
+                bruto
+            );
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao ler estado do monitor:",
+                erro
+            );
+
+            return null;
+        }
+    }
+
+
+    function vendaAtiva() {
+
+        const estado =
+            lerEstadoVenda();
+
+
+        return (
+            estado?.vendaEmAndamento === true &&
+            Array.isArray(
+                estado?.carrinho
+            ) &&
+            estado.carrinho.length > 0
+        );
+    }
+
+
+    function obterScrollerCardapio() {
+        return document.scrollingElement || document.documentElement || document.body;
+    }
+
+
+    function lerScrollCardapio(scroller = obterScrollerCardapio()) {
+        const valorScroller = Number(scroller?.scrollTop || 0);
+        const valorHtml = Number(document.documentElement?.scrollTop || 0);
+        const valorBody = Number(document.body?.scrollTop || 0);
+        return Math.max(valorScroller, valorHtml, valorBody);
+    }
+
+
+    function definirScrollCardapio(valor, scroller = obterScrollerCardapio()) {
+        const numero = Math.max(0, Number(valor) || 0);
+        if (scroller) scroller.scrollTop = numero;
+        if (document.documentElement && document.documentElement !== scroller) {
+            document.documentElement.scrollTop = numero;
+        }
+        if (document.body && document.body !== scroller) {
+            document.body.scrollTop = numero;
+        }
+    }
+
+
+    function salvarPosicaoCardapio() {
+
+        try {
+
+            const scroller = obterScrollerCardapio();
+
+            localStorage.setItem(
+                SCROLL_CHAVE,
+                String(lerScrollCardapio(scroller))
+            );
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao salvar posição do cardápio:",
+                erro
+            );
+
+        }
+    }
+
+
+    function obterPosicaoSalva() {
+
+        /*
+         * Começa no ponto salvo apenas quando não
+         * existe uma venda em andamento.
+         */
+        try {
+
+            const valor =
+                Number(
+                    localStorage.getItem(
+                        SCROLL_CHAVE
+                    ) || 0
+                );
+
+
+            return (
+                Number.isFinite(valor) &&
+                valor >= 0
+            )
+                ? valor
+                : 0;
+
+        } catch {
+
+            return 0;
+
+        }
+    }
+
+
+    function pararRolagem() {
+
+        rolando =
+            false;
+
+
+        if (
+            animacaoScroll !== null
+        ) {
+
+            cancelAnimationFrame(
+                animacaoScroll
+            );
+
+            animacaoScroll =
+                null;
+
+        }
+
+
+        if (
+            timerFinal !== null
+        ) {
+
+            clearTimeout(
+                timerFinal
+            );
+
+            timerFinal =
+                null;
+
+        }
+
+        if (intervaloVigilanciaScroll !== null) {
+            clearInterval(intervaloVigilanciaScroll);
+            intervaloVigilanciaScroll = null;
+        }
+
+    }
+
+
+    function iniciarRolagem() {
+
+        if (vendaAtiva()) {
+            return;
+        }
+
+        pararRolagem();
+
+        const scroller = obterScrollerCardapio();
+
+        rolando = true;
+
+        let ultimoTempo = performance.now();
+        let ultimoProcessamento = ultimoTempo;
+
+        const medirLimite = () =>
+            Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+
+        function processarRolagem(agora) {
+
+            if (!rolando || vendaAtiva()) {
+                pararRolagem();
+                salvarPosicaoCardapio();
+                return;
+            }
+
+            if (timerFinal !== null) {
+                return;
+            }
+
+            const delta = Math.max(0, agora - ultimoTempo);
+            ultimoTempo = agora;
+            ultimoProcessamento = agora;
+
+            const limite = medirLimite();
+
+            if (limite <= 2) {
+                return;
+            }
+
+            const deslocamento =
+                VELOCIDADE_ROLAGEM * (delta / 1000);
+
+            const atual = lerScrollCardapio(scroller);
+            const proximo = Math.min(atual + deslocamento, limite);
+            definirScrollCardapio(proximo, scroller);
+
+            if (lerScrollCardapio(scroller) >= limite - 2) {
+
+                salvarPosicaoCardapio();
+
+                timerFinal = setTimeout(() => {
+
+                    timerFinal = null;
+
+                    if (vendaAtiva()) {
+                        pararRolagem();
+                        return;
+                    }
+
+                    definirScrollCardapio(0, scroller);
+                    ultimoTempo = performance.now();
+                    ultimoProcessamento = ultimoTempo;
+                    animacaoScroll = requestAnimationFrame(passo);
+
+                }, ESPERA_NO_FINAL * 1000);
+            }
+        }
+
+        function passo(agora) {
+
+            if (!rolando || vendaAtiva()) {
+                pararRolagem();
+                salvarPosicaoCardapio();
+                return;
+            }
+
+            processarRolagem(agora);
+
+            if (rolando && timerFinal === null) {
+                animacaoScroll = requestAnimationFrame(passo);
+            }
+        }
+
+        animacaoScroll = requestAnimationFrame(passo);
+
+        // Fallback para quando o navegador reduz o rAF de uma janela
+        // visível, mas que não está com foco.
+        intervaloVigilanciaScroll = setInterval(() => {
+
+            if (!rolando || vendaAtiva() || timerFinal !== null) {
+                return;
+            }
+
+            const agora = performance.now();
+
+            // Quando o rAF da janela sem foco é reduzido pelo navegador,
+            // o temporizador continua tentando manter a rolagem viva.
+            if (agora - ultimoProcessamento >= 80) {
+                processarRolagem(agora);
+            }
+
+        }, 50);
+    }
+
+    async function prepararVideos() {
+
+        videosContainer.innerHTML =
+            "";
+
+
+        if (
+            !Array.isArray(
+                VIDEOS_CARDAPIO
+            ) ||
+            VIDEOS_CARDAPIO.length === 0
+        ) {
+
+            videosContainer.style.display =
+                "none";
+
+            return;
+
+        }
+
+
+        videosContainer.style.display =
+            "block";
+
+
+        for (
+            const videoInfo
+            of VIDEOS_CARDAPIO
+        ) {
+
+            if (
+                !videoInfo?.arquivo
+            ) {
+
+                continue;
+
+            }
+
+
+            const video =
+                document.createElement(
+                    "video"
+                );
+
+
+            video.className =
+                "video-cardapio";
+
+
+            video.src =
+                videoInfo.arquivo;
+
+
+            video.muted =
+                true;
+
+
+            video.playsInline =
+                true;
+
+
+            video.autoplay =
+                true;
+
+
+            video.loop =
+                true;
+
+
+            video.controls =
+                false;
+
+
+            videosContainer.appendChild(
+                video
+            );
+
+        }
+
+    }
+
+
+    async function renderizarPDF() {
+
+        try {
+
+            const pdf =
+                await pdfjsLib
+                    .getDocument(
+                        PDF_URL
+                    )
+                    .promise;
+
+
+            container.innerHTML =
+                "";
+
+
+            for (
+                let numero = 1;
+                numero <= pdf.numPages;
+                numero++
+            ) {
+
+                const pagina =
+                    await pdf.getPage(
+                        numero
+                    );
+
+
+                const viewportOriginal =
+                    pagina.getViewport({
+                        scale: 1
+                    });
+
+
+                const larguraDisponivel =
+                    Math.min(
+                        window.innerWidth,
+                        1920
+                    );
+
+
+                const escala =
+                    larguraDisponivel /
+                    viewportOriginal.width;
+
+
+                const viewport =
+                    pagina.getViewport({
+                        scale: escala
+                    });
+
+
+                const canvas =
+                    document.createElement(
+                        "canvas"
+                    );
+
+
+                canvas.className =
+                    "pagina-pdf";
+
+
+                canvas.width =
+                    Math.ceil(
+                        viewport.width
+                    );
+
+
+                canvas.height =
+                    Math.ceil(
+                        viewport.height
+                    );
+
+
+                const contexto =
+                    canvas.getContext(
+                        "2d",
+                        {
+                            alpha: false
+                        }
+                    );
+
+
+                container.appendChild(
+                    canvas
+                );
+
+
+                await pagina.render({
+                    canvasContext:
+                        contexto,
+                    viewport
+                }).promise;
+
+            }
+
+
+            await prepararVideos();
+
+
+            carregando.style.display =
+                "none";
+
+
+            /*
+             * IMPORTANTE:
+             * Recupera o ponto salvo e começa
+             * a rolar sozinho novamente.
+             */
+            const posicaoSalva =
+                obterPosicaoSalva();
+
+
+            if (!vendaAtiva()) {
+
+                const scroller = obterScrollerCardapio();
+
+                const limiteInicial =
+                    Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+
+                definirScrollCardapio(
+                    Math.min(Math.max(0, posicaoSalva), limiteInicial),
+                    scroller
+                );
+
+                requestAnimationFrame(() => {
+                    definirScrollCardapio(
+                        Math.min(Math.max(0, posicaoSalva), Math.max(0, scroller.scrollHeight - scroller.clientHeight)),
+                        scroller
+                    );
+
+                    setTimeout(() => {
+                        if (!vendaAtiva()) {
+                            iniciarRolagem();
+                        }
+                    }, 250);
+
+                    setTimeout(() => {
+                        if (!rolando && !vendaAtiva()) {
+                            iniciarRolagem();
+                        }
+                    }, 1000);
+                });
+
+
+            }
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao carregar PDF:",
+                erro
+            );
+
+
+            carregando.style.display =
+                "none";
+
+
+            erroPdf.style.display =
+                "flex";
+
+        }
+
+    }
+
+
+    function verificarVenda() {
+
+        const ativa =
+            vendaAtiva();
+
+
+        if (
+            ativa &&
+            !ultimaVenda
+        ) {
+
+            salvarPosicaoCardapio();
+
+            pararRolagem();
+
+
+            /*
+             * =====================================================
+             * SEGUNDO MONITOR:
+             * O PDV fica na RAIZ do frontend.
+             *
+             * NÃO TROQUE para "pdv.html?monitor=1"
+             * sem a barra no começo, porque isso faria o
+             * navegador procurar /landing_page/pdv.html
+             * =====================================================
+             */
+            try {
+                sessionStorage.setItem("grano_vita_cardapio_historico", "1");
+            } catch (_) {}
+
+            window.location.href =
+                "/pdv.html?monitor=1";
+
+
+            return;
+
+        }
+
+
+        /*
+         * Quando não há venda, o próprio PDV
+         * costuma devolver para o cardápio.
+         * Caso esta página ainda esteja aberta,
+         * volta a rolagem automaticamente.
+         */
+        if (
+            !ativa &&
+            ultimaVenda
+        ) {
+
+            salvarPosicaoCardapio();
+
+            setTimeout(
+                iniciarRolagem,
+                100
+            );
+
+        }
+
+
+        ultimaVenda =
+            ativa;
+
+    }
+
+
+    window.addEventListener(
+        "storage",
+        event => {
+
+            if (
+                event.key ===
+                MONITOR_CHAVE
+            ) {
+
+                verificarVenda();
+
+            }
+
+        }
+    );
+
+
+    window.addEventListener(
+        "pagehide",
+        () => {
+
+            salvarPosicaoCardapio();
+
+        }
+    );
+
+
+    window.addEventListener("pageshow", (event) => {
+        if (event.persisted && !vendaAtiva()) {
+            setTimeout(() => {
+                iniciarRolagem();
+            }, 0);
+        }
+    });
+
+
+    document.addEventListener(
+        "visibilitychange",
+        () => {
+
+            if (
+                document.visibilityState ===
+                "visible" &&
+                !vendaAtiva()
+            ) {
+
+                setTimeout(
+                    iniciarRolagem,
+                    100
+                );
+
+            }
+
+        }
+    );
+
+
+    setInterval(
+        verificarVenda,
+        150
+    );
+
+
+    ultimaVenda =
+        vendaAtiva();
+
+
+    renderizarPDF();
+</script>
+
+</body>
+</html>

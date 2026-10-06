@@ -41,6 +41,133 @@
             letter-spacing: 0;
         }
 
+
+        /* ============================================================
+           SUGESTÕES DO MODAL "ADICIONAR PRODUTO"
+           Nome à esquerda e código de barras no canto superior direito.
+        ============================================================ */
+        #d_modal .autocomplete-box {
+            position: relative;
+            z-index: 100;
+        }
+
+        #d_modal #lista_sugestoes {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            z-index: 9999;
+
+            width: 100%;
+            max-height: 360px;
+            margin: 0;
+            padding: 0;
+
+            overflow-y: auto;
+            overflow-x: hidden;
+
+            background: #1c1c1c;
+            border: 2px solid #efac4a;
+            border-radius: 10px;
+
+            list-style: none;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+        }
+
+        #d_modal #lista_sugestoes li {
+            position: relative;
+            min-height: 52px;
+            width: 100%;
+            margin: 0;
+            padding: 16px 150px 12px 14px;
+
+            color: #f8c471;
+            background: #242424;
+            border-bottom: 1px solid #49382b;
+
+            cursor: pointer;
+            overflow: hidden;
+            text-align: left;
+        }
+
+        #d_modal #lista_sugestoes li:last-child {
+            border-bottom: none;
+        }
+
+        #d_modal #lista_sugestoes li:hover,
+        #d_modal #lista_sugestoes li.ativo {
+            color: #1c1c1c;
+            background: #efac4a;
+        }
+
+        #d_modal #lista_sugestoes .sugestao-produto-nome {
+            display: block;
+            min-width: 0;
+
+            color: inherit;
+            font-weight: 700;
+            line-height: 1.2;
+            overflow-wrap: anywhere;
+        }
+
+        #d_modal #lista_sugestoes .sugestao-produto-codigo {
+            position: absolute;
+            top: 7px;
+            right: 10px;
+
+            max-width: 135px;
+
+            color: #bfae96;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.1;
+            text-align: right;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #d_modal #lista_sugestoes li:hover .sugestao-produto-codigo,
+        #d_modal #lista_sugestoes li.ativo .sugestao-produto-codigo {
+            color: #4d351e;
+        }
+
+        #d_modal #lista_sugestoes .sem-resultado-busca {
+            padding: 16px 14px !important;
+            color: #bfae96 !important;
+            background: #242424 !important;
+            cursor: default !important;
+        }
+
+        #d_modal #lista_sugestoes::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #d_modal #lista_sugestoes::-webkit-scrollbar-track {
+            background: #1c1c1c;
+        }
+
+        #d_modal #lista_sugestoes::-webkit-scrollbar-thumb {
+            background: #dbb57c;
+            border-radius: 8px;
+        }
+
+        #d_modal #lista_sugestoes::-webkit-scrollbar-thumb:hover {
+            background: #c2904b;
+        }
+
+        /* Botão Baixar Lista seguindo o mesmo padrão dos botões do topo. */
+        #b_imprimir_lista {
+            color: #2b1f14;
+            background: #f1b869;
+            border: none;
+            border-radius: 8px;
+
+            font-family: "Roca One", sans-serif !important;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
 </style>
 
     <script>
@@ -680,252 +807,198 @@
     let contadorBuscaProduto = 0;
     let timerBuscaProduto = null;
 
-    function renderizarSugestoesProdutos(produtos) {
+    function renderizarSugestoesProdutos(produtos, termoAtual = inpBuscaModal.value) {
         lista.innerHTML = "";
         indexSelecionado = -1;
+
+        const termo = normalizarBusca(termoAtual);
+
+        if (!termo) {
+            return;
+        }
+
+        const somenteNumeros = termo.replace(/\D/g, "");
+        const buscaPorCodigo = somenteNumeros !== "" && /^[\d\s\-./]+$/.test(String(termoAtual));
 
         const filtrados = (Array.isArray(produtos) ? produtos : [])
             .filter(p => Number(p.ativo) === 1)
             .map(p => {
-                const nome = p.nome || p.nome_produto || "Sem nome";
-                const codigo = String(p.codigo_barras ?? p.codigo ?? "").trim();
-                const termo = normalizarBusca(inpBuscaModal.value);
-                const nomeNormalizado = normalizarBusca(nome);
-                const codigoNormalizado = normalizarBusca(codigo);
+                const nome = String(
+                    p.nome ||
+                    p.nome_produto ||
+                    ""
+                ).trim();
 
-                let prioridade = 50;
+                const codigo = String(
+                    p.codigo_barras ??
+                    p.codigo ??
+                    ""
+                ).trim();
 
-                if (codigoNormalizado === termo) prioridade = 0;
-                else if (codigoNormalizado.startsWith(termo)) prioridade = 1;
-                else if (nomeNormalizado.startsWith(termo)) prioridade = 2;
-                else if (nomeNormalizado.includes(termo)) prioridade = 3;
-                else if (codigoNormalizado.includes(termo)) prioridade = 4;
+                const nomeBusca = normalizarBusca(nome);
+                const codigoBusca = codigo.replace(/\D/g, "");
 
-                return { p, nome, codigo, prioridade };
+                let encontrou = false;
+                let prioridade = 99;
+
+                if (buscaPorCodigo) {
+                    encontrou =
+                        somenteNumeros !== "" &&
+                        codigoBusca.includes(somenteNumeros);
+
+                    if (encontrou) {
+                        if (codigoBusca === somenteNumeros) prioridade = 0;
+                        else if (codigoBusca.startsWith(somenteNumeros)) prioridade = 1;
+                        else prioridade = 2;
+                    }
+                } else {
+                    encontrou = nomeBusca.includes(termo);
+
+                    if (encontrou) {
+                        if (nomeBusca === termo) prioridade = 0;
+                        else if (nomeBusca.startsWith(termo)) prioridade = 1;
+                        else prioridade = 2;
+                    }
+
+                    // Só usa o código como complemento para buscas que
+                    // tenham números misturados ao termo.
+                    if (!encontrou && somenteNumeros !== "") {
+                        encontrou = codigoBusca.includes(somenteNumeros);
+
+                        if (encontrou) {
+                            if (codigoBusca === somenteNumeros) prioridade = 3;
+                            else if (codigoBusca.startsWith(somenteNumeros)) prioridade = 4;
+                            else prioridade = 5;
+                        }
+                    }
+                }
+
+                return {
+                    p,
+                    nome,
+                    codigo,
+                    nomeBusca,
+                    codigoBusca,
+                    prioridade,
+                    encontrou
+                };
             })
-            .filter(item => item.prioridade < 50)
-            .sort((a, b) => a.prioridade - b.prioridade || a.nome.localeCompare(b.nome, "pt-BR"))
-            .slice(0, 8);
+            .filter(item => item.encontrou)
+            .sort((a, b) => {
+                if (a.prioridade !== b.prioridade) {
+                    return a.prioridade - b.prioridade;
+                }
 
-        filtrados.forEach(({ p, nome, codigo }) => {
-            const li = document.createElement("li");
-
-            if (codigo) {
-                li.innerHTML = `<span class="sugestao-produto-nome"></span><span class="sugestao-produto-codigo"></span>`;
-                li.querySelector(".sugestao-produto-nome").textContent = nome;
-                li.querySelector(".sugestao-produto-codigo").textContent = codigo;
-            } else {
-                li.textContent = nome;
-            }
-
-            li.onclick = () => {
-                inpBuscaModal.value = nome;
-                inpBuscaModal.dataset.codigo = codigo;
-                document.getElementById("s_produto").innerText = nome;
-                document.getElementById("s_qtda").innerText = p.qtd ?? p.quantidade ?? 0;
-                lista.innerHTML = "";
-                indexSelecionado = -1;
-                document.getElementById("inp_add_qtd").focus();
-            };
-
-            lista.appendChild(li);
-        });
+                return a.nome.localeCompare(
+                    b.nome,
+                    "pt-BR",
+                    {
+                        sensitivity: "base",
+                        numeric: true
+                    }
+                );
+            })
+            .slice(0, 15);
 
         if (filtrados.length === 0) {
             const li = document.createElement("li");
             li.className = "sem-resultado-busca";
             li.textContent = "Nenhum produto encontrado.";
             lista.appendChild(li);
+            return;
         }
+
+        filtrados.forEach(({ p, nome, codigo }) => {
+            const li = document.createElement("li");
+
+            const nomeSpan = document.createElement("span");
+            nomeSpan.className = "sugestao-produto-nome";
+            nomeSpan.textContent = nome;
+
+            li.appendChild(nomeSpan);
+
+            if (codigo) {
+                const codigoSpan = document.createElement("span");
+                codigoSpan.className = "sugestao-produto-codigo";
+                codigoSpan.textContent = codigo;
+                codigoSpan.title = `Código: ${codigo}`;
+                li.appendChild(codigoSpan);
+            }
+
+            li.addEventListener("click", () => {
+                inpBuscaModal.value = nome;
+                inpBuscaModal.dataset.codigo = codigo;
+
+                document.getElementById("s_produto").innerText = nome;
+                document.getElementById("s_qtda").innerText =
+                    p.qtd ??
+                    p.quantidade ??
+                    0;
+
+                lista.innerHTML = "";
+                indexSelecionado = -1;
+
+                document.getElementById("inp_add_qtd").focus();
+            });
+
+            lista.appendChild(li);
+        });
     }
 
     inpBuscaModal.addEventListener("keydown", (e) => {
-    const itens = lista.querySelectorAll("li");
+        const itens = Array.from(
+            lista.querySelectorAll("li:not(.sem-resultado-busca)")
+        );
 
-    if (itens.length === 0) {
-        return;
-    }
-
-    if (e.key === "ArrowDown") {
-        e.preventDefault();
-
-        indexSelecionado =
-            (indexSelecionado + 1) % itens.length;
-
-        atualizarDestaque(itens);
-    }
-
-    else if (e.key === "ArrowUp") {
-        e.preventDefault();
-
-        indexSelecionado =
-            (indexSelecionado - 1 + itens.length) %
-            itens.length;
-
-        atualizarDestaque(itens);
-    }
-
-    else if (e.key === "Enter") {
-        e.preventDefault();
-
-        if (
-            indexSelecionado >= 0 &&
-            itens[indexSelecionado]
-        ) {
-            itens[indexSelecionado].click();
+        if (itens.length === 0) {
+            return;
         }
-    }
-});
+
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+
+            indexSelecionado =
+                (indexSelecionado + 1) % itens.length;
+
+            atualizarDestaque(itens);
+        }
+
+        else if (e.key === "ArrowUp") {
+            e.preventDefault();
+
+            indexSelecionado =
+                (indexSelecionado - 1 + itens.length) %
+                itens.length;
+
+            atualizarDestaque(itens);
+        }
+
+        else if (e.key === "Enter") {
+            e.preventDefault();
+
+            if (
+                indexSelecionado >= 0 &&
+                itens[indexSelecionado]
+            ) {
+                itens[indexSelecionado].click();
+            }
+        }
+    });
 
     function normalizarBusca(valor) {
-    return String(valor ?? "")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .trim();
-}
-
-inpBuscaModal.addEventListener("input", () => {
-    const termoOriginal = inpBuscaModal.value.trim();
-    const termo = normalizarBusca(termoOriginal);
-
-    lista.innerHTML = "";
-    indexSelecionado = -1;
-
-    if (!termo) {
-        return;
+        return String(valor ?? "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .trim();
     }
 
-    const resultados = produtosCache
-        .filter(p => Number(p.ativo) === 1)
-        .map(p => {
-            const nome = String(
-                p.nome ||
-                p.nome_produto ||
-                ""
-            ).trim();
-
-            const codigo = String(
-                p.codigo_barras ||
-                p.codigo ||
-                ""
-            ).trim();
-
-            return {
-                produto: p,
-                nome,
-                codigo,
-                nomeBusca: normalizarBusca(nome),
-                codigoBusca: codigo
-                    .replace(/\D/g, "")
-            };
-        })
-        .filter(item => {
-            const termoNome = termo;
-            const termoCodigo = termo.replace(/\D/g, "");
-
-            const encontrouNome =
-                termoNome !== "" &&
-                item.nomeBusca.includes(termoNome);
-
-            const encontrouCodigo =
-                termoCodigo !== "" &&
-                item.codigoBusca.includes(termoCodigo);
-
-            return encontrouNome || encontrouCodigo;
-        })
-        .sort((a, b) => {
-            const termoCodigo = termo.replace(/\D/g, "");
-
-            const aCodigoExato =
-                termoCodigo &&
-                a.codigoBusca === termoCodigo;
-
-            const bCodigoExato =
-                termoCodigo &&
-                b.codigoBusca === termoCodigo;
-
-            if (aCodigoExato !== bCodigoExato) {
-                return aCodigoExato ? -1 : 1;
-            }
-
-            const aCodigoInicio =
-                termoCodigo &&
-                a.codigoBusca.startsWith(termoCodigo);
-
-            const bCodigoInicio =
-                termoCodigo &&
-                b.codigoBusca.startsWith(termoCodigo);
-
-            if (aCodigoInicio !== bCodigoInicio) {
-                return aCodigoInicio ? -1 : 1;
-            }
-
-            const aNomeInicio =
-                a.nomeBusca.startsWith(termo);
-
-            const bNomeInicio =
-                b.nomeBusca.startsWith(termo);
-
-            if (aNomeInicio !== bNomeInicio) {
-                return aNomeInicio ? -1 : 1;
-            }
-
-            return a.nome.localeCompare(
-                b.nome,
-                "pt-BR",
-                {
-                    sensitivity: "base"
-                }
-            );
-        })
-        .slice(0, 8);
-
-    if (resultados.length === 0) {
-        const li = document.createElement("li");
-        li.className = "sem-resultado-busca";
-        li.textContent = "Nenhum produto encontrado.";
-        lista.appendChild(li);
-        return;
-    }
-
-    resultados.forEach((item, indice) => {
-        const li = document.createElement("li");
-
-        li.innerHTML = `
-            <span class="sugestao-produto-nome">
-                ${item.nome}
-            </span>
-
-            <span class="sugestao-produto-codigo">
-                ${item.codigo || "Sem código"}
-            </span>
-        `;
-
-        li.addEventListener("click", () => {
-            const p = item.produto;
-
-            inpBuscaModal.value = item.nome;
-            inpBuscaModal.dataset.codigo =
-                p.codigo_barras || p.codigo || "";
-
-            document.getElementById("s_produto").innerText =
-                item.nome;
-
-            document.getElementById("s_qtda").innerText =
-                p.qtd ??
-                p.quantidade ??
-                0;
-
-            lista.innerHTML = "";
-            indexSelecionado = -1;
-
-            document.getElementById("inp_add_qtd").focus();
-        });
-
-        lista.appendChild(li);
+    inpBuscaModal.addEventListener("input", () => {
+        renderizarSugestoesProdutos(
+            produtosCache,
+            inpBuscaModal.value
+        );
     });
-});
 
     async function carregarReposicao() {
         const res = await apiFetch("http://localhost:3000/reposicao", {

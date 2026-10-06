@@ -9,6 +9,91 @@ const verificarToken = require('../middlewares/auth');
 
 
 /* =========================================================
+   GARANTE A ESTRUTURA DA TABELA DE FECHAMENTOS
+   Corrige bancos que já possuem a tabela antiga, mas não
+   possuem as colunas usadas pela versão atual da rota.
+========================================================= */
+
+async function garantirEstruturaFechamentos(conn = conexao) {
+
+    await conn.query(`
+        CREATE TABLE IF NOT EXISTS fechamentos_diarios (
+            id_fechamento INT NOT NULL AUTO_INCREMENT,
+            data_referencia DATE NOT NULL,
+            troco_inicial DECIMAL(12,2) NOT NULL DEFAULT 0,
+            troco_proximo_dia DECIMAL(12,2) NULL,
+            dinheiro_esperado DECIMAL(12,2) NULL,
+            diferenca_caixa DECIMAL(12,2) NULL,
+            status VARCHAR(20) NOT NULL DEFAULT 'ABERTO',
+            data_fechamento DATETIME NULL,
+            PRIMARY KEY (id_fechamento),
+            UNIQUE KEY uk_fechamentos_diarios_data (data_referencia)
+        ) ENGINE=InnoDB
+    `);
+
+    const colunasNecessarias = [
+        ['id_user_abertura', 'INT NULL'],
+        ['id_user_fechamento', 'INT NULL'],
+        ['troco_inicial', 'DECIMAL(12,2) NOT NULL DEFAULT 0'],
+        ['troco_proximo_dia', 'DECIMAL(12,2) NULL'],
+        ['data_origem_troco', 'DATE NULL'],
+        ['total_vendas', 'DECIMAL(12,2) NOT NULL DEFAULT 0'],
+        ['total_dinheiro', 'DECIMAL(12,2) NOT NULL DEFAULT 0'],
+        ['total_credito', 'DECIMAL(12,2) NOT NULL DEFAULT 0'],
+        ['total_debito', 'DECIMAL(12,2) NOT NULL DEFAULT 0'],
+        ['total_pix', 'DECIMAL(12,2) NOT NULL DEFAULT 0'],
+        ['total_voucher', 'DECIMAL(12,2) NOT NULL DEFAULT 0'],
+        ['total_fiado', 'DECIMAL(12,2) NOT NULL DEFAULT 0'],
+        ['total_outros', 'DECIMAL(12,2) NOT NULL DEFAULT 0'],
+        ['quantidade_vendas', 'INT NOT NULL DEFAULT 0'],
+        ['dinheiro_esperado', 'DECIMAL(12,2) NULL'],
+        ['diferenca_caixa', 'DECIMAL(12,2) NULL'],
+        ['status', "VARCHAR(20) NOT NULL DEFAULT 'ABERTO'"],
+        ['data_fechamento', 'DATETIME NULL'],
+        ['fechado_em', 'DATETIME NULL']
+    ];
+
+    const [existentes] = await conn.query(`
+        SELECT COLUMN_NAME
+        FROM information_schema.columns
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'fechamentos_diarios'
+    `);
+
+    const conjunto = new Set(
+        existentes.map(coluna => coluna.COLUMN_NAME)
+    );
+
+    for (const [nome, definicao] of colunasNecessarias) {
+
+        if (conjunto.has(nome)) {
+            continue;
+        }
+
+        await conn.query(`
+            ALTER TABLE fechamentos_diarios
+            ADD COLUMN ${nome} ${definicao}
+        `);
+    }
+}
+
+
+/* =========================================================
+   IDENTIFICA O USUÁRIO LOGADO
+========================================================= */
+
+function obterUsuarioId(req) {
+
+    return (
+        req.usuarioId ||
+        req.user?.id_user ||
+        req.user?.id ||
+        null
+    );
+}
+
+
+/* =========================================================
    VALIDAÇÃO DE DATA
 ========================================================= */
 
@@ -583,14 +668,19 @@ async function criarBackupBanco(
 
     try {
 
+        const [bancoRows] =
+            await conn.query(
+                `SELECT DATABASE() AS banco`
+            );
+
         const banco =
-            process.env.DB_DATABASE;
+            bancoRows[0]?.banco;
 
 
         if (!banco) {
 
             throw new Error(
-                'DB_DATABASE não foi definido no .env.'
+                'A conexão do banco não possui um banco selecionado.'
             );
         }
 
@@ -915,6 +1005,8 @@ router.get(
 
         try {
 
+            await garantirEstruturaFechamentos(conexao);
+
             const hoje =
                 await obterHojeBanco();
 
@@ -940,8 +1032,10 @@ router.get(
 
                 hoje,
 
+                // A data pendente continua sendo informativa,
+                // mas NÃO deve ser aberta automaticamente pelo PDV.
                 data_pendente:
-                    pendencia,
+                    null,
 
                 troco_inicial_hoje:
                     abertura.valor,
@@ -989,6 +1083,8 @@ router.get(
     ) => {
 
         try {
+
+            await garantirEstruturaFechamentos(conexao);
 
             const data =
                 validarData(
@@ -1076,7 +1172,7 @@ router.get(
                     abertura.primeiro_dia,
 
                 pode_fechar:
-                    !fechamento
+                    !fechamento || fechamento.status !== 'FECHADO'
             });
 
         } catch (erro) {
@@ -1121,6 +1217,8 @@ router.post(
 
 
         try {
+
+            await garantirEstruturaFechamentos(conn);
 
             const data =
                 validarData(
@@ -1265,8 +1363,7 @@ router.post(
 
                         aberturaAnterior.data_origem,
 
-                        req.usuarioId ||
-                            null,
+                        obterUsuarioId(req),
 
                         existente[0]
                             .id_fechamento
@@ -1305,8 +1402,7 @@ router.post(
 
                         data,
 
-                        req.usuarioId ||
-                            null,
+                        obterUsuarioId(req),
 
                         trocoInicial,
 
@@ -1393,6 +1489,8 @@ router.post(
 
 
         try {
+
+            await garantirEstruturaFechamentos(conn);
 
             const data =
                 validarData(
@@ -1484,40 +1582,10 @@ router.post(
 
 
             /*
-                Não deixa fechar um dia anterior
-                depois que já existe um fechamento
-                posterior.
+                Datas anteriores podem ser fechadas manualmente.
+                Não bloqueamos o fechamento só porque já existe
+                outro fechamento posterior no banco.
             */
-            const [posterior] =
-                await conn.query(
-                    `
-                    SELECT
-                        data_referencia
-                    FROM fechamentos_diarios
-                    WHERE data_referencia > ?
-                    ORDER BY
-                        data_referencia ASC
-                    LIMIT 1
-                    `,
-                    [data]
-                );
-
-
-            if (
-                posterior.length
-            ) {
-
-                const erro =
-                    new Error(
-                        `O dia ${data} não pode ser fechado agora porque já existe um fechamento posterior (${posterior[0].data_referencia}).`
-                    );
-
-                erro.statusCode =
-                    409;
-
-                throw erro;
-            }
-
 
             const resumo =
                 await buscarResumoDia(
@@ -1609,6 +1677,8 @@ router.post(
 
                         status = 'FECHADO',
 
+                        data_fechamento = NOW(),
+
                         fechado_em = NOW()
 
                     WHERE
@@ -1616,8 +1686,7 @@ router.post(
                     `,
                     [
 
-                        req.usuarioId ||
-                            null,
+                        obterUsuarioId(req),
 
                         resumo.total_vendas,
 
@@ -1702,11 +1771,9 @@ router.post(
 
                         data,
 
-                        req.usuarioId ||
-                            null,
+                        obterUsuarioId(req),
 
-                        req.usuarioId ||
-                            null,
+                        obterUsuarioId(req),
 
                         abertura.valor,
 
@@ -1740,27 +1807,41 @@ router.post(
             }
 
 
+            /*
+                Primeiro confirma o fechamento no banco.
+                Assim, um problema no backup não desfaz
+                o fechamento que já foi salvo.
+            */
+            await conn.commit();
+
+
             /* =====================================================
                BACKUP AUTOMÁTICO
                backend/config/backups
             ===================================================== */
 
-            const backup =
-                await criarBackupBanco(
-                    conn,
-                    data
-                );
+            let backup = null;
 
+            try {
 
-            caminhoBackupCriado =
-                backup.caminho;
+                backup =
+                    await criarBackupBanco(
+                        conn,
+                        data
+                    );
 
+                caminhoBackupCriado =
+                    backup.caminho || null;
 
-            /*
-                O commit só acontece depois
-                que o backup terminou.
-            */
-            await conn.commit();
+            } catch (erroBackup) {
+
+                backup = {
+                    sucesso: false,
+                    erro:
+                        erroBackup.message ||
+                        'Não foi possível criar o backup.'
+                };
+            }
 
 
             return res.status(
@@ -1791,38 +1872,27 @@ router.post(
                     diferenca,
 
                 backup_sucesso:
-                    true,
+                    backup.sucesso === true,
 
                 backup_arquivo:
-                    backup.nome_arquivo
+                    backup.nome_arquivo || null,
+
+                backup_erro:
+                    backup.sucesso === false
+                        ? backup.erro
+                        : null
             });
 
         } catch (erro) {
 
             /*
-                Se falhar o fechamento OU o backup,
-                desfaz a transação.
+                Só desfaz a transação quando o erro aconteceu
+                antes do commit do fechamento.
             */
-            await conn.rollback();
-
-
-            /*
-                Remove o backup se ele chegou
-                a ser criado antes do commit.
-            */
-            if (
-                caminhoBackupCriado
-            ) {
-
-                try {
-
-                    await fs.unlink(
-                        caminhoBackupCriado
-                    );
-
-                } catch (_) {
-                    // Pode não existir.
-                }
+            try {
+                await conn.rollback();
+            } catch (_) {
+                // A transação já pode ter sido confirmada.
             }
 
 

@@ -612,3 +612,230 @@ main, .conteudo-principal {
 #calendario-numeros {
     min-height: min(200px, 18.518519vh);
 }
+/* ============================================================
+   REGRAS BASE - MODAL DE AVISO (#d_aviso)
+   Centralização fixa na tela para impedir que estique até ao fim.
+============================================================ */
+
+dialog#d_aviso {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+
+    width: min(460px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px) !important;
+    height: auto !important;
+    max-height: calc(90dvh - 24px) !important;
+    
+    padding: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+
+    background: #1c1c1c !important;
+    color: #f8c471 !important;
+    border: 3px solid #efac4a !important;
+    border-radius: 14px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .75) !important;
+}
+
+/* Modal específico quando contém a lista de estoque baixo */
+dialog#d_aviso:has(.lista-estoque-aviso) {
+    width: min(760px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px) !important;
+}
+
+/* Fundo escuro do Modal */
+dialog#d_aviso::backdrop {
+    background: rgba(0, 0, 0, .68) !important;
+}
+
+/* Conteúdo interno ajustável */
+#d_aviso .aviso_box {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: calc(90dvh - 32px) !important;
+    min-height: 0 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+
+    padding: 24px 26px 20px !important;
+    gap: 16px !important;
+
+    overflow: hidden !important;
+}
+
+/* Texto do Aviso / Mensagem de Confirmação */
+#d_aviso #msg_aviso {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    text-align: center !important;
+    font-family: "Roca One", sans-serif !important;
+    font-size: 19px !important;
+    line-height: 1.3 !important;
+    color: #f8c471 !important;
+}
+
+#d_aviso #msg_aviso p {
+    margin: 0 0 8px !important;
+    padding: 0 !important;
+}
+
+/* ============================================================
+   LISTA DE PRODUTOS (COM SCROLL INTERNO SE FOR GRANDE)
+============================================================ */
+
+#d_aviso #msg_aviso .lista-estoque-aviso {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    margin: 8px 0 0 !important;
+    padding: 0 4px 0 24px !important;
+
+    box-sizing: border-box !important;
+
+    /* A barra de rolagem fica retida apenas na lista de itens */
+    max-height: min(40dvh, 320px) !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    text-align: left !important;
+}
+
+#d_aviso #msg_aviso .lista-estoque-aviso li {
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 8px 10px !important;
+    min-height: 36px !important;
+
+    font-family: "Roca One", sans-serif !important;
+    font-size: 15px !important;
+    line-height: 1.2 !important;
+
+    color: #1c1c1c !important;
+    background: #efac4a !important;
+
+    border: 0 !important;
+    border-radius: 6px !important;
+    overflow-wrap: anywhere !important;
+}
+
+#d_aviso #msg_aviso .lista-estoque-aviso li + li {
+    margin-top: 5px !important;
+}
+
+#d_aviso #msg_aviso .lista-estoque-aviso::-webkit-scrollbar {
+    width: 7px !important;
+}
+
+#d_aviso #msg_aviso .lista-estoque-aviso::-webkit-scrollbar-track {
+    background: #242628 !important;
+    border-radius: 8px !important;
+}
+
+#d_aviso #msg_aviso .lista-estoque-aviso::-webkit-scrollbar-thumb {
+    background: #dbb57c !important;
+    border-radius: 8px !important;
+}
+
+/* ============================================================
+   ÁREA DOS BOTÕES DE AÇÃO
+============================================================ */
+
+#d_aviso .aviso_botoes {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 12px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+#d_aviso #b_confirmar_aviso,
+#d_aviso #b_cancelar_aviso {
+    box-sizing: border-box !important;
+    width: 125px !important;
+    min-width: 125px !important;
+    max-width: 125px !important;
+
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+
+    padding: 8px 14px !important;
+    border-radius: 7px !important;
+
+    font-family: "Roca One", sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+}
+
+#d_aviso #b_confirmar_aviso {
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+    border: 2px solid #efac4a !important;
+}
+
+#d_aviso #b_confirmar_aviso:hover {
+    background: #f8c471 !important;
+}
+
+#d_aviso #b_cancelar_aviso {
+    background: #242628 !important;
+    color: #efac4a !important;
+    border: 2px solid #efac4a !important;
+}
+
+#d_aviso #b_cancelar_aviso:hover {
+    background: #303336 !important;
+    color: #f8c471 !important;
+}
+
+/* ============================================================
+   RESPONSIVIDADE E TELAS MENORES (ZOOM / F11)
+============================================================ */
+
+@media (max-width: 800px) {
+    dialog#d_aviso:has(.lista-estoque-aviso) {
+        width: calc(100vw - 24px) !important;
+        max-width: calc(100vw - 24px) !important;
+    }
+
+    #d_aviso .aviso_box {
+        padding: 20px !important;
+        gap: 14px !important;
+    }
+
+    #d_aviso #msg_aviso {
+        font-size: 17px !important;
+    }
+}
+
+@media (max-height: 700px) {
+    #d_aviso .aviso_box {
+        padding: 14px 18px !important;
+        gap: 10px !important;
+    }
+
+    #d_aviso #msg_aviso {
+        font-size: 16px !important;
+    }
+
+    #d_aviso #msg_aviso .lista-estoque-aviso {
+        max-height: 32dvh !important;
+    }
+}

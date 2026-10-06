@@ -13,15 +13,15 @@ const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
 // LISTAR PRODUTOS PARA REPOSIÇÃO
 // SOMENTE PRODUTOS ATIVOS
 // ============================================================
-
 router.get("/reposicao/produtos", verificarToken, async (req, res) => {
 
     try {
 
-        const termo = (req.query.q || "").trim();
+        const termoOriginal = String(req.query.q || "").trim();
+        const termo = termoOriginal.toLowerCase();
 
         let sql = `
-            SELECT 
+            SELECT
                 id_produto,
                 nome,
                 codigo_barras,
@@ -35,27 +35,65 @@ router.get("/reposicao/produtos", verificarToken, async (req, res) => {
 
         let params = [];
 
+        /*
+         * Sem termo:
+         * devolve TODOS os produtos ativos para o cache da Reposição.
+         * Antes havia LIMIT 10, então vários produtos nem chegavam
+         * ao frontend para serem pesquisados.
+         */
         if (termo !== "") {
 
             sql += `
                 AND (
-                    nome LIKE ?
-                    OR codigo_barras LIKE ?
+                    LOWER(nome) LIKE CONCAT('%', LOWER(?), '%')
+                    OR codigo_barras LIKE CONCAT('%', ?, '%')
                 )
             `;
 
             params = [
-                `%${termo}%`,
-                `${termo}%`
+                termoOriginal,
+                termoOriginal
             ];
+
+            /*
+             * Primeiro nomes que começam pelo termo.
+             * Depois nomes que apenas contêm o termo.
+             * Por fim, códigos.
+             */
+            sql += `
+                ORDER BY
+                    CASE
+                        WHEN LOWER(nome) LIKE CONCAT(LOWER(?), '%') THEN 0
+                        WHEN LOWER(nome) LIKE CONCAT('%', LOWER(?), '%') THEN 1
+                        WHEN codigo_barras LIKE CONCAT(?, '%') THEN 2
+                        WHEN codigo_barras LIKE CONCAT('%', ?, '%') THEN 3
+                        ELSE 4
+                    END,
+                    nome ASC
+                LIMIT 50
+            `;
+
+            params.push(
+                termoOriginal,
+                termoOriginal,
+                termoOriginal,
+                termoOriginal
+            );
+
+        } else {
+
+            /*
+             * Carrega a lista completa para o cache.
+             */
+            sql += `
+                ORDER BY nome ASC
+            `;
         }
 
-        sql += `
-            ORDER BY nome ASC
-            LIMIT 10
-        `;
-
-        const [produtos] = await conexao.query(sql, params);
+        const [produtos] = await conexao.query(
+            sql,
+            params
+        );
 
         return res.json(produtos);
 
@@ -72,7 +110,6 @@ router.get("/reposicao/produtos", verificarToken, async (req, res) => {
     }
 
 });
-
 
 // ============================================================
 // CRIAR REPOSIÇÃO

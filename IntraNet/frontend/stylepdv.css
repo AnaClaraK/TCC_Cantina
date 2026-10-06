@@ -4042,10 +4042,16 @@ dialog {
 /* Fechamento: largura natural suficiente para o status + abertura, sem
    esticar a altura artificialmente. */
 #dialogFechamentoDiario {
-    width: min(980px, calc(100vw - 24px)) !important;
-    height: auto !important;
-    max-height: calc(100dvh - 24px) !important;
-    overflow: hidden !important;
+    border: none;
+    border-radius: 8px;
+    padding: 0;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 #dialogFechamentoDiario .fechamento-box {
@@ -4723,4 +4729,355 @@ body {
     color: #ffffff;
     background: rgba(239, 172, 74, 0.15);
     border-radius: 50%;
+}
+
+/* ============================================================
+   AJUSTE FINAL — FECHAMENTO SEM DESLOCAR AO REGISTRAR ABERTURA
+   O modal permanece centralizado mesmo quando o conteúdo muda.
+============================================================ */
+#dialogFechamentoDiario {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    inset: auto auto auto auto !important;
+    margin: 0 !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+#dialogFechamentoDiario[open] {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    margin: 0 !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+
+/* ============================================================
+   AJUSTE DEFINITIVO — MODAL DE FECHAMENTO CENTRALIZADO
+   Registrar abertura de outro dia altera o conteúdo, mas o modal
+   continua preso ao centro da viewport e não "desce".
+============================================================ */
+#dialogFechamentoDiario,
+#dialogFechamentoDiario[open] {
+    position: fixed !important;
+    inset: auto !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    margin: 0 !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+#dialogFechamentoDiario .fechamento-box {
+    box-sizing: border-box !important;
+}
+
+
+/* ============================================================
+   CORREÇÃO FINAL — FECHAMENTO + MONITOR
+============================================================ */
+#dialogFechamentoDiario {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+
+    width: min(1120px, calc(100vw - 24px)) !important;
+    height: min(820px, calc(100dvh - 24px)) !important;
+    max-width: calc(100vw - 24px) !important;
+    max-height: calc(100dvh - 24px) !important;
+
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+
+    background: #1c1c1c !important;
+    border: 2px solid #efac4a !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.7) !important;
+}
+
+#dialogFechamentoDiario .fechamento-box {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* O campo e o botão de abertura manual ficam ocultos por padrão.
+   O JavaScript só os torna visíveis nos dias antigos que ainda não foram abertos. */
+#fechamentoTrocoInicialInput,
+#btnRegistrarAbertura,
+.fechamento-abertura-acao {
+    display: none !important;
+}
+
+#fechamentoTrocoInicialInput[style*="display: block"] {
+    display: block !important;
+}
+
+#btnRegistrarAbertura[style*="display: inline-flex"],
+#btnRegistrarAbertura[style*="display: inline-block"] {
+    display: inline-flex !important;
+}
+
+.fechamento-abertura-acao:has(#fechamentoTrocoInicialInput[style*="display: block"]) {
+    display: flex !important;
+}
+
+@media (max-height: 850px) {
+    #dialogFechamentoDiario {
+        height: calc(100dvh - 18px) !important;
+    }
+
+    #dialogFechamentoDiario .fechamento-box {
+        padding: 15px !important;
+        gap: 8px !important;
+    }
+
+    #dialogFechamentoDiario .fechamento-linha {
+        padding: 8px !important;
+        gap: 8px !important;
+    }
+
+    #dialogFechamentoDiario .fechamento-grid {
+        gap: 7px !important;
+    }
+
+    #dialogFechamentoDiario .fechamento-card {
+        padding: 7px !important;
+    }
+}
+
+
+/* ============================================================
+   MONITOR — MANTÉM O MODAL PRINCIPAL VISÍVEL ATRÁS DO PAGAMENTO
+============================================================ */
+body.modo-monitor #d_modal[open] {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 999990 !important;
+}
+
+body.modo-monitor #d_modal[open] article {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+body.modo-monitor #d_modal[open] article section {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+body.modo-monitor #d_modal[open] footer,
+body.modo-monitor #d_modal[open] #b_nv_venda {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+body.modo-monitor #dialogDinheiro[open]::backdrop,
+body.modo-monitor #dialogCredito[open]::backdrop,
+body.modo-monitor #dialogDividirPagamento[open]::backdrop,
+body.modo-monitor #d_fiado[open]::backdrop {
+    background: transparent !important;
+    backdrop-filter: none !important;
+}
+
+
+/* ============================================================
+   V5 — FECHAMENTO FIXO E MONITOR
+============================================================ */
+#dialogFechamentoDiario {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+
+    width: min(1120px, calc(100vw - 24px)) !important;
+    height: min(820px, calc(100dvh - 24px)) !important;
+    max-width: calc(100vw - 24px) !important;
+    max-height: calc(100dvh - 24px) !important;
+
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+
+    background: #1c1c1c !important;
+    color: #fff !important;
+    border: 2px solid #efac4a !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 50px rgba(0,0,0,.7) !important;
+}
+
+#dialogFechamentoDiario .fechamento-box {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+#fechamentoTrocoInicialInput,
+#btnRegistrarAbertura,
+.fechamento-abertura-acao {
+    display: none !important;
+}
+
+#fechamentoTrocoInicialInput[style*="display: block"] {
+    display: block !important;
+}
+
+#btnRegistrarAbertura[style*="display: inline-flex"],
+#btnRegistrarAbertura[style*="display: inline-block"] {
+    display: inline-flex !important;
+}
+
+.fechamento-abertura-acao:has(#fechamentoTrocoInicialInput[style*="display: block"]) {
+    display: flex !important;
+}
+
+/* Monitor: o modal principal permanece visível e o botão interno não some. */
+body.modo-monitor #d_modal[open] {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 999990 !important;
+}
+
+body.modo-monitor #d_modal[open] article {
+    display: flex !important;
+    flex-direction: column !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+body.modo-monitor #d_modal[open] article > section {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+body.modo-monitor #d_modal[open] footer {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+body.modo-monitor #d_modal[open] #b_nv_venda {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Pagamentos não escurecem/encobrem o modal principal no espelhamento. */
+body.modo-monitor #dialogDinheiro[open]::backdrop,
+body.modo-monitor #dialogCredito[open]::backdrop,
+body.modo-monitor #dialogDividirPagamento[open]::backdrop,
+body.modo-monitor #d_fiado[open]::backdrop {
+    background: transparent !important;
+    backdrop-filter: none !important;
+}
+
+@media (max-height: 850px) {
+    #dialogFechamentoDiario {
+        height: calc(100dvh - 16px) !important;
+    }
+    #dialogFechamentoDiario .fechamento-box {
+        padding: 15px !important;
+        gap: 8px !important;
+    }
+    #dialogFechamentoDiario .fechamento-linha {
+        padding: 8px !important;
+        gap: 8px !important;
+    }
+    #dialogFechamentoDiario .fechamento-grid {
+        gap: 7px !important;
+    }
+    #dialogFechamentoDiario .fechamento-card {
+        padding: 7px !important;
+    }
+}
+
+/* ============================================================
+   V6 — FECHAMENTO: CENTRALIZAÇÃO REAL, SEM DESLOCAR AO
+   MOSTRAR/ESCONDER A ABERTURA MANUAL
+============================================================ */
+#dialogFechamentoDiario {
+    position: fixed !important;
+    inset: 0 !important;
+    margin: auto !important;
+    width: min(1120px, calc(100vw - 24px)) !important;
+    height: min(860px, calc(100dvh - 24px)) !important;
+    max-width: calc(100vw - 24px) !important;
+    max-height: calc(100dvh - 24px) !important;
+    transform: none !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    background: #1c1c1c !important;
+    color: #fff !important;
+    border: 2px solid #efac4a !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 50px rgba(0,0,0,.7) !important;
+}
+
+#dialogFechamentoDiario .fechamento-box {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+#dialogFechamentoDiario::backdrop {
+    background: rgba(0,0,0,.82) !important;
+}
+
+@media (max-height: 850px) {
+    #dialogFechamentoDiario {
+        width: min(1120px, calc(100vw - 18px)) !important;
+        height: calc(100dvh - 18px) !important;
+        max-width: calc(100vw - 18px) !important;
+        max-height: calc(100dvh - 18px) !important;
+    }
+}
+
+/* Depois de registrar uma abertura, o bloco manual desaparece sem alterar
+   a altura nem a posição do modal. */
+#dialogFechamentoDiario .fechamento-abertura-acao:has(#fechamentoTrocoInicialInput[style*="display: none"]) {
+    display: none !important;
+}
+
+/* Ajuste pontual do modal de fechamento: um pouco maior e estável. */
+#dialogFechamentoDiario {
+    width: min(980px, calc(100vw - 24px));
+    min-height: 720px;
+}
+
+#dialogFechamentoDiario .fechamento-box {
+    min-height: 720px;
+}
+
+@media (max-height: 900px) {
+    #dialogFechamentoDiario {
+        min-height: 0;
+    }
+
+    #dialogFechamentoDiario .fechamento-box {
+        min-height: 0;
+    }
 }

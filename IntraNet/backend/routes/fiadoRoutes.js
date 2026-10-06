@@ -5002,7 +5002,13 @@ router.post(
             }
 
             for (let numero = 1; numero <= qtdParcelas; numero++) {
-                const vencimento = adicionarMesesData(normalizarDataCompra(data_pagamento), numero);
+                const vencimento =
+                numero === 1
+                    ? normalizarDataCompra(data_pagamento)
+                    : adicionarMesesData(
+                        normalizarDataCompra(data_pagamento),
+                        numero - 1
+                    );
                 const valor = numero === qtdParcelas
                     ? Number((credito - valorParcela * (qtdParcelas - 1)).toFixed(2))
                     : Number(valorParcela.toFixed(2));
@@ -5731,10 +5737,9 @@ router.put(
 
                         data_conclusao,
 
-                        ehCredito
+                        ehCredito && qtdParcelas > 1
                             ? "Pendente"
                             : "Finalizado",
-
                         valorTotal,
 
                         qtdTotal,
@@ -5778,78 +5783,109 @@ router.put(
             }
 
 
-            /* ==================================================
-               15. CARTÃO DE CRÉDITO
-               
-               CRIA AS PARCELAS NO BANCO.
+          /* ==================================================
+   15. CARTÃO DE CRÉDITO
 
-               Todas começam como Pendente.
-               
-               A primeira vence um mês após a compra.
-            ================================================== */
+   A primeira parcela é paga no mesmo dia
+   da finalização da compra.
 
-            if (
-                ehCredito
-            ) {
+   1x:
+   - 1ª parcela = Pago hoje
 
-                const dataCompra =
-                    normalizarDataCompra(
-                        data_conclusao
-                    );
+   2x:
+   - 1ª parcela = Pago hoje
+   - 2ª parcela = Pendente / próximo mês
 
+   3x:
+   - 1ª parcela = Pago hoje
+   - 2ª parcela = Pendente / próximo mês
+   - 3ª parcela = Pendente / mês seguinte
+================================================== */
 
-                for (
-                    let numero = 1;
-                    numero <= qtdParcelas;
-                    numero++
-                ) {
+if (ehCredito) {
 
-                    const vencimento =
-                        adicionarMesesData(
-                            dataCompra,
-                            numero
-                        );
+    const dataCompra =
+        normalizarDataCompra(
+            data_conclusao
+        );
 
+    for (
+        let numero = 1;
+        numero <= qtdParcelas;
+        numero++
+    ) {
 
-                    await conn.query(
-                        `
-                        INSERT INTO conta_fiado_parcelas
+        const vencimento =
+            numero === 1
+                ? dataCompra
+                : adicionarMesesData(
+                    dataCompra,
+                    numero - 1
+                );
+
+        const statusParcela =
+            numero === 1
+                ? "Pago"
+                : "Pendente";
+
+        const dataPagamentoParcela =
+            numero === 1
+                ? data_conclusao
+                : null;
+
+        await conn.query(
+            `
+            INSERT INTO conta_fiado_parcelas
+            (
+                id_conta,
+                id_pedido,
+                numero_parcela,
+                total_parcelas,
+                valor,
+                data_vencimento,
+                status,
+                data_pagamento
+            )
+
+            VALUES (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?
+            )
+            `,
+            [
+                idConta,
+
+                pedido.insertId,
+
+                numero,
+
+                qtdParcelas,
+
+                numero === qtdParcelas
+                    ? arredondar(
+                        valorCredito -
                         (
-                            id_conta,
-                            id_pedido,
-                            numero_parcela,
-                            total_parcelas,
-                            valor,
-                            data_vencimento,
-                            status
+                            valorParcelaCalculado *
+                            (qtdParcelas - 1)
                         )
+                    )
+                    : valorParcelaCalculado,
 
-                        VALUES (
-                            ?,
-                            ?,
-                            ?,
-                            ?,
-                            ?,
-                            ?,
-                            'Pendente'
-                        )
-                        `,
-                        [
-                            idConta,
+                vencimento,
 
-                            pedido.insertId,
+                statusParcela,
 
-                            numero,
-
-                            qtdParcelas,
-
-                            valorParcelaCalculado,
-
-                            vencimento
-                        ]
-                    );
-                }
-            }
+                dataPagamentoParcela
+            ]
+        );
+    }
+}
 
 
             /* ==================================================
@@ -5868,7 +5904,7 @@ router.put(
                     true,
 
                 status:
-                    ehCredito
+                    ehCredito && qtdParcelas > 1
                         ? "Pendente"
                         : "Finalizado",
 
@@ -5890,9 +5926,9 @@ router.put(
 
                 mensagem:
                     ehCredito
-
-                        ? "Compra registrada no cartão de crédito. As parcelas ficaram pendentes e aparecerão em Compras Parceladas e no Histórico de Pedidos."
-
+                        ? qtdParcelas > 1
+                            ? "Compra registrada no cartão de crédito. A 1ª parcela já foi paga e as demais ficaram pendentes."
+                            : "Compra registrada no cartão de crédito e paga em 1x."
                         : "Todos os produtos da conta foram pagos e a compra foi registrada no histórico."
             });
 
