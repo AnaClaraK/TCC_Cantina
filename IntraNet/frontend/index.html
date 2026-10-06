@@ -334,6 +334,11 @@ atualizarCalendario();
 }
 
 async function verificarEstoqueBaixo() {
+    // Impede nova abertura durante a sessão
+    if (sessionStorage.getItem("estoqueBaixoExibido")) {
+        return;
+    }
+
     try {
         const resposta = await fetch("http://localhost:3000/produtos", {
             headers: {
@@ -341,7 +346,9 @@ async function verificarEstoqueBaixo() {
             }
         });
 
-        if (!resposta.ok) throw new Error(`Erro HTTP: ${resposta.status}`);
+        if (!resposta.ok) {
+            throw new Error(`Erro HTTP: ${resposta.status}`);
+        }
 
         const produtos = await resposta.json();
 
@@ -349,21 +356,36 @@ async function verificarEstoqueBaixo() {
             p => (p.qtd || 0) < (p.qtd_min || 0)
         );
 
-        if (baixoEstoque.length === 0) return;
+        // Não grava a flag se não houver produtos abaixo do mínimo
+        if (baixoEstoque.length === 0) {
+            return;
+        }
 
         const listaHtml = baixoEstoque
-            .map(p => `<li>${p.nome} — ${p.qtd || 0} un. (mín: ${p.qtd_min || 0})</li>`)
+            .map(p =>
+                `<li>${p.nome} — ${p.qtd || 0} un. (mín: ${p.qtd_min || 0})</li>`
+            )
             .join("");
 
         const mensagem = `
-            <p><strong>Atenção:</strong> os produtos abaixo estão com estoque abaixo do mínimo:</p>
-            <ul class="lista-estoque-aviso">${listaHtml}</ul>
+            <p>
+                <strong>Atenção:</strong> os produtos abaixo estão com
+                estoque abaixo do mínimo:
+            </p>
+
+            <ul class="lista-estoque-aviso">
+                ${listaHtml}
+            </ul>
         `;
 
-        exibirAviso(mensagem, confirmarLeituraEstoqueBaixo, false);
-
-        // Marca somente depois que o aviso realmente foi exibido
+        // Marca antes de abrir para impedir chamadas duplicadas
         sessionStorage.setItem("estoqueBaixoExibido", "true");
+
+        exibirAviso(
+            mensagem,
+            confirmarLeituraEstoqueBaixo,
+            false
+        );
 
     } catch (erro) {
         console.error("Erro ao verificar estoque baixo:", erro);
@@ -371,15 +393,18 @@ async function verificarEstoqueBaixo() {
 }
 
 function confirmarLeituraEstoqueBaixo() {
-    const mensagemConfirmacao = "Você confirma que leu a lista de produtos com estoque baixo?";
+    const mensagemConfirmacao =
+        "Você confirma que leu a lista de produtos com estoque baixo?";
 
-    exibirAviso(mensagemConfirmacao, null, true);
+    exibirAviso(
+        mensagemConfirmacao,
+        null,
+        true
+    );
 
-    // Se clicar em Cancelar, mostra o alerta original de novo
     bCancelarAviso.onclick = () => {
-        modalAviso.close();
-        verificarEstoqueBaixo();
-    };
+    modalAviso.close();
+};
 }
 
 window.addEventListener("load", () => {

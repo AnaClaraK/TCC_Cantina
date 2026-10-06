@@ -4758,3 +4758,221 @@ body.fundo-escuro > #sc_tabela .titulo-contas {
         min-width: 0 !important;
     }
 }
+
+/* ============================================================
+   NOVA COMPRA + COMPRAS PARCELADAS
+   MESMO VISUAL DO NOVO CLIENTE
+============================================================ */
+
+body.fundo-escuro > .d_util > #b_nova_compra,
+body.fundo-escuro > .d_util > #b_compras_parceladas {
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    height: 45px !important;
+    min-height: 45px !important;
+    min-width: 0 !important;
+    width: auto !important;
+
+    padding: 10px 20px !important;
+    margin: 0 !important;
+
+    box-sizing: border-box !important;
+
+    background: #1c1c1c !important;
+    color: #f8c471 !important;
+
+    border: none !important;
+    border-radius: 5px !important;
+
+    font-family: "Roca One", sans-serif !important;
+    font-size: 24px !important;
+    font-weight: bold !important;
+    line-height: 1 !important;
+
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+
+    white-space: nowrap !important;
+
+    cursor: pointer !important;
+    box-shadow: none !important;
+
+    transition: 0.2s ease !important;
+}
+
+body.fundo-escuro > .d_util > #b_nova_compra:hover,
+body.fundo-escuro > .d_util > #b_compras_parceladas:hover {
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+
+    transform: none !important;
+    filter: none !important;
+}
+
+/* ============================================================
+   MODAL NOVO CLIENTE — SOMENTE CENTRALIZA OS INPUTS
+   Não altera tamanho, cor, fonte ou estrutura do modal.
+============================================================ */
+
+body.fundo-escuro #modal_cliente .cliente-campo .inp_m {
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: 100% !important;
+}
+/* ============================================================
+   CONTA FIADO — RESPONSIVO
+   NÃO altera cores, fontes, tamanhos ou aparência.
+   Apenas organiza a disposição para telas menores.
+============================================================ */
+
+@media (max-width: 1050px) {
+    body.fundo-escuro > .d_util {
+        flex-wrap: wrap !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    body.fundo-escuro > .d_util > #d_inp {
+        flex: 1 1 260px !important;
+        min-width: 0 !important;
+        width: auto !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+    }
+
+    body.fundo-escuro > #sc_tabela {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        box-sizing: border-box !important;
+    }
+
+    body.fundo-escuro > #sc_tabela .tabela {
+        width: 100% !important;
+        min-width: 760px !important;
+    }
+}
+
+@media (max-width: 760px) {
+    body.fundo-escuro > .d_util {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    body.fundo-escuro > .d_util > #d_inp {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    body.fundo-escuro > #sc_tabela {
+        width: 100% !important;
+        overflow-x: auto !important;
+    }
+
+    body.fundo-escuro > #sc_tabela .tabela {
+        min-width: 700px !important;
+    }
+}
+
+@media (max-width: 560px) {
+    body.fundo-escuro > .d_util {
+        flex-wrap: wrap !important;
+        width: 100% !important;
+    }
+
+    body.fundo-escuro > .d_util > .h_ag {
+        width: auto !important;
+    }
+
+    body.fundo-escuro > .d_util > #d_inp {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    body.fundo-escuro > #sc_tabela {
+        width: 100% !important;
+        overflow-x: auto !important;
+    }
+
+    body.fundo-escuro > #sc_tabela .tabela {
+        min-width: 650px !important;
+    }
+
+    /* Mantém exatamente a aparência dos botões. */
+    body.fundo-escuro > .d_util > #b_addq,
+    body.fundo-escuro > .d_util > #b_nova_compra,
+    body.fundo-escuro > .d_util > #b_compras_parceladas {
+        flex: 0 0 auto !important;
+        width: auto !important;
+        font-size: 14px !important;
+        padding: 9px 14px !important;
+    }
+}
+
+@media (max-width: 400px) {
+    body.fundo-escuro > #sc_tabela .tabela {
+        min-width: 620px !important;
+    }
+}
+
+/* ============================================================
+   MODAL NOVO CLIENTE — CORREÇÃO
+   Mantém a aparência atual e apenas organiza/centraliza
+   os campos dentro do modal.
+============================================================ */
+
+body.fundo-escuro #modal_cliente {
+    margin: auto !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-cadastro-box {
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-campo {
+    min-width: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-campo .inp_m {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-sizing: border-box !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-grid-2,
+body.fundo-escuro #modal_cliente .cliente-form-grid-6 {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+@media (max-width: 650px) {
+    body.fundo-escuro #modal_cliente {
+        width: calc(100vw - 18px) !important;
+        max-width: calc(100vw - 18px) !important;
+        margin: auto !important;
+    }
+
+    body.fundo-escuro #modal_cliente .cliente-cadastro-box {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    body.fundo-escuro #modal_cliente .cliente-campo .inp_m {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
