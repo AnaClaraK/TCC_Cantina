@@ -5081,3 +5081,671 @@ body.modo-monitor #d_fiado[open]::backdrop {
         min-height: 0;
     }
 }
+
+
+/* ============================================================
+   AVISO DE ESTOQUE
+   Somente o aviso longo de estoque recebe este ajuste.
+   O "Sem Estoque" permanece sem alteração.
+============================================================ */
+
+#d_aviso.aviso-estoque {
+    width: min(560px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px) !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+
+    /* REMOVE o limite antigo de 25vh */
+    max-height: calc(100dvh - 32px) !important;
+
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+
+    transform: translate(-50%, -50%) !important;
+
+    margin: 0 !important;
+
+    padding: 20px !important;
+
+    box-sizing: border-box !important;
+
+    overflow: hidden !important;
+}
+
+
+/* Área interna do aviso */
+#d_aviso.aviso-estoque .aviso_box {
+    width: 100% !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+
+    /*
+       O conteúdo pode ocupar praticamente toda a tela,
+       mas sempre deixa uma margem de segurança.
+    */
+    max-height: calc(100dvh - 72px) !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    align-items: stretch !important;
+    justify-content: center !important;
+
+    gap: 18px !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* Texto do aviso */
+#d_aviso.aviso-estoque #msg_aviso {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+    white-space: pre-wrap !important;
+
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+
+    overflow: visible !important;
+
+    text-align: center !important;
+
+    line-height: 1.5 !important;
+
+    font-size: clamp(15px, 1.25vw, 20px) !important;
+}
+
+
+/* Área dos botões */
+#d_aviso.aviso-estoque .aviso_botoes {
+    width: 100% !important;
+
+    flex-shrink: 0 !important;
+
+    display: flex !important;
+    flex-wrap: wrap !important;
+
+    justify-content: center !important;
+    align-items: center !important;
+
+    gap: 12px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+
+/* Botões */
+#d_aviso.aviso-estoque #b_confirmar_aviso,
+#d_aviso.aviso-estoque #b_cancelar_aviso {
+    flex: 0 1 auto !important;
+
+    min-width: 100px !important;
+    max-width: 100% !important;
+
+    padding: 10px 24px !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* ============================================================
+   NOTEBOOK / TELA COM POUCA ALTURA
+============================================================ */
+
+@media (max-height: 700px) {
+
+    #d_aviso.aviso-estoque {
+        max-height: calc(100dvh - 20px) !important;
+        padding: 14px !important;
+    }
+
+    #d_aviso.aviso-estoque .aviso_box {
+        max-height: calc(100dvh - 48px) !important;
+        gap: 12px !important;
+    }
+
+    #d_aviso.aviso-estoque #msg_aviso {
+        font-size: 15px !important;
+        line-height: 1.4 !important;
+    }
+}
+
+
+/* ============================================================
+   TELA MUITO BAIXA
+============================================================ */
+
+@media (max-height: 500px) {
+
+    #d_aviso.aviso-estoque {
+        max-height: calc(100dvh - 10px) !important;
+        padding: 10px !important;
+    }
+
+    #d_aviso.aviso-estoque .aviso_box {
+        max-height: calc(100dvh - 30px) !important;
+        gap: 8px !important;
+    }
+
+    #d_aviso.aviso-estoque #msg_aviso {
+        font-size: 14px !important;
+        line-height: 1.3 !important;
+    }
+
+    #d_aviso.aviso-estoque #b_confirmar_aviso,
+    #d_aviso.aviso-estoque #b_cancelar_aviso {
+        min-width: 90px !important;
+        padding: 8px 18px !important;
+    }
+}
+
+
+/* ============================================================
+   CELULAR / TELA ESTREITA
+============================================================ */
+
+@media (max-width: 500px) {
+
+    #d_aviso.aviso-estoque {
+        width: calc(100vw - 20px) !important;
+        max-width: calc(100vw - 20px) !important;
+
+        padding: 14px !important;
+    }
+
+    #d_aviso.aviso-estoque .aviso_box {
+        max-height: calc(100dvh - 40px) !important;
+    }
+
+    #d_aviso.aviso-estoque .aviso_botoes {
+        flex-direction: column !important;
+    }
+
+    #d_aviso.aviso-estoque #b_confirmar_aviso,
+    #d_aviso.aviso-estoque #b_cancelar_aviso {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+}
+
+/* ============================================================
+   DIMENSIONAMENTO DOS MODAIS — PADRÃO DEFINITIVO
+   ============================================================
+   IMPORTANTE:
+   - Não altera media queries.
+   - Não altera breakpoints.
+   - Não altera responsividade.
+   - Altura passa a ser determinada pelo conteúdo.
+   - A viewport funciona somente como limite máximo.
+============================================================ */
+
+
+/* ============================================================
+   PADRÃO GERAL
+============================================================ */
+
+dialog {
+    box-sizing: border-box !important;
+
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    margin: auto;
+
+    overflow: hidden !important;
+}
+
+
+/* ============================================================
+   FINALIZAÇÃO DA VENDA
+============================================================ */
+
+#d_modal {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+#d_modal article {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    overflow: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+#d_modal article section {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    flex: 1 1 auto !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+#d_modal footer {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    flex: 0 0 auto !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* ============================================================
+   BUSCA DE PRODUTO
+============================================================ */
+
+#dialogBusca {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+#dialogBusca .modal_box {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    overflow: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+#listaSugestoes {
+    min-height: 0 !important;
+
+    max-height: 240px !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* ============================================================
+   BUSCAR COMANDA
+============================================================ */
+
+#dialogComanda {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+#dialogComanda .modal_box {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* ============================================================
+   PAGAMENTO EM DINHEIRO
+============================================================ */
+
+#dialogDinheiro {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+#dialogDinheiro .conteudo-dinheiro {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* ============================================================
+   PAGAMENTO NO CRÉDITO
+============================================================ */
+
+#dialogCredito {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+#dialogCredito .conteudo-credito {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/*
+   Quando o campo adicional de crédito é exibido,
+   o modal continua crescendo pelo conteúdo.
+*/
+#dialogCredito:has(#campoValorCreditoDivisao[style*="display: block"]) {
+    height: auto !important;
+
+    max-height: calc(100dvh - 32px) !important;
+}
+
+
+/* ============================================================
+   DIVIDIR PAGAMENTO
+============================================================ */
+
+#dialogDividirPagamento {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+#dialogDividirPagamento .split-box {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* ============================================================
+   FIADO
+============================================================ */
+
+#d_fiado {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+#d_fiado .modal_titulo {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* ============================================================
+   AVISO
+============================================================ */
+
+#d_aviso {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    /*
+       Antes estava em 25vh.
+       Isso cortava avisos maiores.
+    */
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+#d_aviso .aviso_box {
+    width: 100% !important;
+
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 72px) !important;
+
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+#msg_aviso {
+    width: 100% !important;
+
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-width: 100% !important;
+
+    white-space: pre-wrap !important;
+
+    overflow-wrap: anywhere !important;
+
+    word-break: break-word !important;
+
+    box-sizing: border-box !important;
+}
+
+#d_aviso .aviso_botoes {
+    width: 100% !important;
+
+    flex: 0 0 auto !important;
+
+    display: flex !important;
+
+    flex-wrap: wrap !important;
+
+    justify-content: center !important;
+
+    align-items: center !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* ============================================================
+   FECHAMENTO DIÁRIO
+============================================================ */
+
+#dialogFechamentoDiario {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+#dialogFechamentoDiario .fechamento-box {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* ============================================================
+   NOVA COMPRA FIADO
+============================================================ */
+
+#d_modal_fiado {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+#d_modal_fiado .modal_box {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* ============================================================
+   MODAL DE PRODUTOS
+============================================================ */
+
+#d_modal_produtos {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+#d_modal_produtos .modal_box {
+    height: auto !important;
+
+    min-height: 0 !important;
+
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* ============================================================
+   BOTÕES DOS MODAIS
+   Impede que flex ou conteúdo rolável esconda os botões.
+============================================================ */
+
+dialog button {
+    flex: 0 0 auto;
+}
+

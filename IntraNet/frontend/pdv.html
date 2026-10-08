@@ -439,7 +439,14 @@
     console.log("abrindo aviso");
 
     msgAviso.innerText = mensagem;
-    bCancelarAviso.style.display = mostrarCancelar ? "block" : "none";
+
+/* Identifica somente o aviso de estoque */
+aviso.classList.toggle(
+    "aviso-estoque",
+    String(mensagem).startsWith("⚠️ AVISO DE ESTOQUE:")
+);
+
+bCancelarAviso.style.display = mostrarCancelar ? "block" : "none";
 
     try {
         aviso.showModal();
