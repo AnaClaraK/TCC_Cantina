@@ -90,6 +90,8 @@
     </button>
 
 
+    <button id="b_gerenciar_cliente" type="button">Consultar / editar cliente</button>
+
     <button
         id="b_nova_compra"
         type="button"
@@ -182,11 +184,11 @@
                     <input
                         class="inp_m"
                         id="cpf"
-                        placeholder="Apenas números"
-                        maxlength="11"
+                        placeholder="000.000.000-00"
+                        maxlength="14"
                         inputmode="numeric"
                         autocomplete="off"
-                        oninput="this.value = this.value.replace(/\D/g, '')"
+                        oninput="formatarCPF(this)"
                     >
                 </div>
 
@@ -195,11 +197,11 @@
                     <input
                         class="inp_m"
                         id="telefone"
-                        placeholder="DDD + número"
-                        maxlength="11"
+                        placeholder="(00) 00000-0000"
+                        maxlength="15"
                         inputmode="numeric"
                         autocomplete="tel"
-                        oninput="this.value = this.value.replace(/\D/g, '')"
+                        oninput="formatarTelefone(this)"
                     >
                 </div>
 
@@ -247,10 +249,20 @@
                         class="inp_m"
                         id="cep"
                         placeholder="00000-000"
-                        maxlength="8"
+                        maxlength="9"
                         inputmode="numeric"
-                        autocomplete="postal-code"
+                        autocomplete="off"
                         oninput="this.value = this.value.replace(/\D/g, '')"
+                    >
+                </div>
+
+                <div class="cliente-campo campo-coluna-2">
+                    <label for="logradouro">Rua <span>*</span></label>
+                    <input
+                        class="inp_m"
+                        id="logradouro"
+                        placeholder="Nome da rua/avenida"
+                        autocomplete="address-line1"
                     >
                 </div>
 
@@ -262,6 +274,18 @@
                         placeholder="Nº"
                         maxlength="10"
                         autocomplete="address-line2"
+                    >
+                </div>
+
+                <div class="cliente-campo">
+                    <label for="estado">Estado <span>*</span></label>
+                    <input
+                        class="inp_m"
+                        id="estado"
+                        placeholder="UF"
+                        maxlength="2"
+                        autocomplete="address-level1"
+                        oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '').toUpperCase()"
                     >
                 </div>
 
@@ -295,17 +319,7 @@
                     >
                 </div>
 
-                <div class="cliente-campo">
-                    <label for="estado">Estado <span>*</span></label>
-                    <input
-                        class="inp_m"
-                        id="estado"
-                        placeholder="UF"
-                        maxlength="2"
-                        autocomplete="address-level1"
-                        oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '').toUpperCase()"
-                    >
-                </div>
+
 
             </div>
 
@@ -330,13 +344,15 @@
                 </div>
             </div>
 
-            <button
-                id="b_addf"
-                type="button"
-                class="btn-principal-cliente"
-            >
-                Cadastrar cliente
-            </button>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button
+                    id="b_addf"
+                    type="button"
+                    class="btn-principal-cliente"
+                >
+                    Cadastrar cliente
+                </button>
+            </div>
         </div>
 
     </div>
@@ -1330,6 +1346,155 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     }
 
+    function formatarCPF(campo) {
+        const n = campo.value.replace(/\D/g, "").slice(0, 11);
+        let v = n;
+        if (n.length > 9) v = n.replace(/^(\d{3})(\d{3})(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
+        else if (n.length > 6) v = n.replace(/^(\d{3})(\d{3})(\d{1,3}).*/, "$1.$2.$3");
+        else if (n.length > 3) v = n.replace(/^(\d{3})(\d{1,3}).*/, "$1.$2");
+        campo.value = v;
+    }
+
+    function formatarTelefone(campo) {
+        const n = campo.value.replace(/\D/g, "").slice(0, 11);
+        if (!n) campo.value = "";
+        else if (n.length <= 2) campo.value = `(${n}`;
+        else if (n.length <= 6) campo.value = `(${n.slice(0, 2)}) ${n.slice(2)}`;
+        else if (n.length <= 10) campo.value = `(${n.slice(0, 2)}) ${n.slice(2, 6)}-${n.slice(6)}`;
+        else campo.value = `(${n.slice(0, 2)}) ${n.slice(2, 7)}-${n.slice(7)}`;
+    }
+
+    function formatarCEP(campo) {
+        const n = campo.value.replace(/\D/g, "").slice(0, 8);
+        campo.value = n.length > 5 ? `${n.slice(0, 5)}-${n.slice(5)}` : n;
+    }
+
+    // Os handlers inline do HTML precisam acessar as funções pelo window.
+    window.formatarCPF = formatarCPF;
+    window.formatarTelefone = formatarTelefone;
+    window.formatarCEP = formatarCEP;
+
+    function validarCPF(cpf) {
+        if (!/^\d{11}$/.test(cpf) || /^(\d)\1{10}$/.test(cpf)) return false;
+        for (let t = 9; t < 11; t++) {
+            let soma = 0;
+            for (let i = 0; i < t; i++) soma += Number(cpf[i]) * ((t + 1) - i);
+            const digito = (soma * 10) % 11 % 10;
+            if (Number(cpf[t]) !== digito) return false;
+        }
+        return true;
+    }
+
+
+    // Consulta e edição em modal, com seleção por lista (sem digitar CPF/nome).
+    let clienteEmEdicao = null;
+    let listaClientesGerenciar = [];
+
+    const modalGerenciarHTML = `
+      <dialog id="modal_gerenciar_cliente" class="modal-gerenciar-cliente">
+        <div class="modal_box">
+          <button type="button" id="fechar_modal_gerenciar_cliente" class="fechar-modal" aria-label="Fechar">×</button>
+          <div class="modal-cabecalho">
+            <span class="modal-cabecalho-kicker">CLIENTES FIADO</span>
+            <h2 class="modal_titulo">Consultar / editar cliente</h2>
+            <p class="modal-subtitulo">Selecione um cliente cadastrado para visualizar ou editar seus dados.</p>
+          </div>
+          <div class="cliente-campo">
+            <label for="select_cliente_gerenciar">Cliente cadastrado</label>
+            <select id="select_cliente_gerenciar" class="inp_m">
+              <option value="">Selecione um cliente</option>
+            </select>
+          </div>
+          <div id="detalhes_cliente_gerenciar" class="cliente-detalhes-gerenciar" hidden></div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:18px">
+            <button type="button" id="cancelar_gerenciar_cliente" class="btn-secundario-cliente">Fechar</button>
+            <button type="button" id="editar_cliente_selecionado" class="btn-principal-cliente" disabled>Editar informações</button>
+          </div>
+        </div>
+      </dialog>`;
+    if (!document.getElementById("modal_gerenciar_cliente")) {
+        document.body.insertAdjacentHTML("beforeend", modalGerenciarHTML);
+    }
+
+    const modalGerenciarCliente = document.getElementById("modal_gerenciar_cliente");
+    const selectGerenciarCliente = document.getElementById("select_cliente_gerenciar");
+    const detalhesGerenciarCliente = document.getElementById("detalhes_cliente_gerenciar");
+    const botaoEditarCliente = document.getElementById("editar_cliente_selecionado");
+
+    function preencherDetalhesCliente(c) {
+        if (!c) {
+            detalhesGerenciarCliente.hidden = true;
+            detalhesGerenciarCliente.innerHTML = "";
+            botaoEditarCliente.disabled = true;
+            return;
+        }
+        const linhas = [
+            ["CPF", c.cpf], ["Telefone", c.telefone], ["E-mail", c.email],
+            ["Data de nascimento", c.data_nascimento ? String(c.data_nascimento).slice(0,10) : ""],
+            ["Endereço", c.endereco], ["CEP", c.cep], ["Número", c.numero],
+            ["Complemento", c.complemento], ["Bairro", c.bairro], ["Cidade", c.cidade],
+            ["Estado", c.estado], ["Setor", c.setor], ["Dia de vencimento", c.dia_vencimento]
+        ].filter(([_, v]) => v !== null && v !== undefined && String(v).trim() !== "");
+        detalhesGerenciarCliente.innerHTML = `<h3>${escaparHTML(c.nome_completo || "Cliente")}</h3><dl>${linhas.map(([k,v]) => `<dt>${escaparHTML(k)}</dt><dd>${escaparHTML(String(v))}</dd>`).join("")}</dl>`;
+        detalhesGerenciarCliente.hidden = false;
+        botaoEditarCliente.disabled = false;
+    }
+    function escaparHTML(v) {
+        return String(v).replace(/[&<>"']/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[ch]));
+    }
+
+    document.getElementById("b_gerenciar_cliente")?.addEventListener("click", async () => {
+        try {
+            const resposta = await apiFetch("/clientes-fiado");
+            if (!resposta.ok) throw new Error("Não foi possível carregar os clientes cadastrados.");
+            listaClientesGerenciar = await resposta.json();
+            selectGerenciarCliente.innerHTML = '<option value="">Selecione um cliente</option>' +
+                listaClientesGerenciar.map(c => `<option value="${Number(c.id_cliente)}">${escaparHTML(c.nome_completo)}${c.cpf ? " — " + escaparHTML(c.cpf) : ""}</option>`).join("");
+            selectGerenciarCliente.value = "";
+            preencherDetalhesCliente(null);
+            modalGerenciarCliente.showModal();
+        } catch (erro) {
+            exibirAviso(erro.message || "Erro ao consultar clientes.");
+        }
+    });
+    selectGerenciarCliente.addEventListener("change", () => {
+        const id = Number(selectGerenciarCliente.value);
+        preencherDetalhesCliente(listaClientesGerenciar.find(c => Number(c.id_cliente) === id));
+    });
+    document.getElementById("fechar_modal_gerenciar_cliente").addEventListener("click", () => modalGerenciarCliente.close());
+    document.getElementById("cancelar_gerenciar_cliente").addEventListener("click", () => modalGerenciarCliente.close());
+
+    botaoEditarCliente.addEventListener("click", () => {
+        clienteEmEdicao = listaClientesGerenciar.find(c => Number(c.id_cliente) === Number(selectGerenciarCliente.value));
+        if (!clienteEmEdicao) return;
+        // Preenche o próprio modal de cadastro, mantendo o visual e os campos existentes.
+        const valores = {
+            nome: clienteEmEdicao.nome_completo, cpf: clienteEmEdicao.cpf,
+            telefone: clienteEmEdicao.telefone, email: clienteEmEdicao.email,
+            data_nascimento: clienteEmEdicao.data_nascimento ? String(clienteEmEdicao.data_nascimento).slice(0,10) : "",
+            setor: clienteEmEdicao.setor, cep: clienteEmEdicao.cep,
+            logradouro: clienteEmEdicao.logradouro || clienteEmEdicao.endereco || "",
+            numero: clienteEmEdicao.numero, complemento: clienteEmEdicao.complemento,
+            bairro: clienteEmEdicao.bairro, cidade: clienteEmEdicao.cidade,
+            estado: clienteEmEdicao.estado, diaVencimentoPadraoCliente: clienteEmEdicao.dia_vencimento
+        };
+        Object.entries(valores).forEach(([id, valor]) => {
+            const campo = document.getElementById(id);
+            if (campo) campo.value = valor ?? "";
+        });
+        if (window.formatarCPF) window.formatarCPF(document.getElementById("cpf"));
+        if (window.formatarTelefone) window.formatarTelefone(document.getElementById("telefone"));
+        if (window.formatarCEP) window.formatarCEP(document.getElementById("cep"));
+        const titulo = document.querySelector("#modal_cliente .modal_titulo");
+        const subtitulo = document.querySelector("#modal_cliente .modal-subtitulo");
+        const botaoSalvar = document.getElementById("b_addf");
+        if (titulo) titulo.textContent = "Editar Cliente";
+        if (subtitulo) subtitulo.textContent = "Atualize as informações do cliente selecionado.";
+        if (botaoSalvar) botaoSalvar.textContent = "Salvar alterações";
+        modalGerenciarCliente.close();
+        modalCliente?.showModal();
+    });
+
     /* ======================================================
        NOVO CLIENTE
     ====================================================== */
@@ -1390,6 +1555,24 @@ document.addEventListener("DOMContentLoaded", () => {
                     "setor"
                 ).value.trim();
 
+            const logradouro =
+                document.getElementById("logradouro").value.trim();
+
+            const numero =
+                document.getElementById("numero").value.trim();
+
+            const complemento =
+                document.getElementById("complemento").value.trim();
+
+            const bairro =
+                document.getElementById("bairro").value.trim();
+
+            const cidade =
+                document.getElementById("cidade").value.trim();
+
+            const estado =
+                document.getElementById("estado").value.trim().toUpperCase();
+
             const cep =
                 document.getElementById(
                     "cep"
@@ -1401,22 +1584,25 @@ document.addEventListener("DOMContentLoaded", () => {
                     diaVencimentoPadraoCliente?.value || 0
                 );
 
-            if (
-                !nome ||
-                cpf.length !== 11 ||
-                telefone.length < 10 ||
-                telefone.length > 11 ||
-                !numero ||
-                !bairro ||
-                !cidade ||
-                estado.length !== 2 ||
-                !Number.isInteger(diaVencimento) ||
-                diaVencimento < 1 ||
-                diaVencimento > 31
-            ) {
-                exibirAviso(
-                    "Preencha nome, CPF, telefone, número, bairro, cidade, estado e um dia de vencimento entre 1 e 31."
-                );
+            const camposObrigatorios = [
+                [nome, "Informe o nome completo."],
+                [cpf.length === 11, "CPF incompleto: digite os 11 números."],
+                [telefone.length === 10 || telefone.length === 11, "Telefone inválido: informe DDD e número."],
+                [logradouro, "Informe a rua/logradouro."],
+                [numero, "Informe o número do endereço."],
+                [estado.length === 2, "Estado inválido: informe a UF com 2 letras."],
+                [bairro, "Informe o bairro."],
+                [cidade, "Informe a cidade."],
+                [Number.isInteger(diaVencimento) && diaVencimento >= 1 && diaVencimento <= 31, "Informe um dia de vencimento entre 1 e 31."]
+            ];
+            const campoInvalido = camposObrigatorios.find(([valido]) => !valido);
+            if (campoInvalido) {
+                exibirAviso(campoInvalido[1]);
+                return;
+            }
+            if (!validarCPF(cpf)) {
+                exibirAviso("CPF inválido. Confira os números digitados.");
+                document.getElementById("cpf").focus();
                 return;
             }
 
@@ -1444,9 +1630,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const res =
                     await apiFetch(
-                        "/clientes-fiado",
+                        clienteEmEdicao
+                            ? `/clientes-fiado/${Number(clienteEmEdicao.id_cliente)}`
+                            : "/clientes-fiado",
                         {
-                            method: "POST",
+                            method: clienteEmEdicao ? "PUT" : "POST",
                             headers: {
                                 "Content-Type":
                                     "application/json"
@@ -1459,6 +1647,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                     telefone,
                                     cep:
                                         cep || null,
+                                    logradouro,
                                     numero,
                                     complemento:
                                         complemento || null,
@@ -1500,6 +1689,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     "nome",
                     "cpf",
                     "telefone",
+                    "logradouro",
+                    "numero",
+                    "complemento",
+                    "bairro",
+                    "cidade",
+                    "estado",
                     "email",
                     "data_nascimento",
                     "setor",
@@ -1526,11 +1721,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 modalCliente.close();
+                const foiEdicao = Boolean(clienteEmEdicao);
+                clienteEmEdicao = null;
+                const tituloModalCliente = document.querySelector("#modal_cliente .modal_titulo");
+                const subtituloModalCliente = document.querySelector("#modal_cliente .modal-subtitulo");
+                const botaoSalvarCliente = document.getElementById("b_addf");
+                if (tituloModalCliente) tituloModalCliente.textContent = "Novo Cliente";
+                if (subtituloModalCliente) subtituloModalCliente.textContent = "Cadastre os dados do cliente para facilitar as próximas compras fiado.";
+                if (botaoSalvarCliente) botaoSalvarCliente.textContent = "Cadastrar cliente";
 
                 await carregarClientes();
 
                 exibirAviso(
-                    "Cliente cadastrado com sucesso!"
+                    foiEdicao ? "Dados do cliente atualizados com sucesso!" : "Cliente cadastrado com sucesso!"
                 );
 
             } catch (erro) {
@@ -5622,6 +5825,109 @@ document.addEventListener("DOMContentLoaded", () => {
     /* Torna o estado acessível ao restante do HTML, sem substituir as funções existentes. */
     window.pagamentoContaFiado = pagamento;
 });
+</script>
+
+
+<script>
+/* Consulta o endereço diretamente na internet pelo serviço ViaCEP. */
+(() => {
+    const campoCep = document.getElementById("cep");
+    const modalCliente = document.getElementById("modal_cliente");
+    if (!campoCep) return;
+
+    const camposEndereco = {
+        logradouro: document.getElementById("logradouro"),
+        bairro: document.getElementById("bairro"),
+        cidade: document.getElementById("cidade"),
+        estado: document.getElementById("estado")
+    };
+
+    let ultimoCepConsultado = "";
+    let requisicaoAtual = 0;
+    let valoresPreenchidosAutomaticamente = {};
+
+    function limparEnderecoAutomatico() {
+        Object.entries(valoresPreenchidosAutomaticamente).forEach(([id, valor]) => {
+            const campo = camposEndereco[id];
+            // Só apaga se o campo ainda contém o valor que foi preenchido pelo CEP.
+            // Assim, não apaga uma alteração manual feita pela pessoa.
+            if (campo && campo.value === valor) campo.value = "";
+        });
+        valoresPreenchidosAutomaticamente = {};
+    }
+
+    function registrarPreenchimento(id, valor) {
+        const campo = camposEndereco[id];
+        if (!campo || !valor) return;
+        campo.value = valor;
+        valoresPreenchidosAutomaticamente[id] = valor;
+    }
+
+    async function preencherEnderecoPeloCep() {
+        const cep = campoCep.value.replace(/\D/g, "");
+        if (cep.length !== 8 || cep === ultimoCepConsultado) return;
+
+        const idRequisicao = ++requisicaoAtual;
+        ultimoCepConsultado = cep;
+        campoCep.setCustomValidity("");
+
+        try {
+            const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`, {
+                method: "GET",
+                headers: { "Accept": "application/json" },
+                cache: "no-store"
+            });
+            if (!resposta.ok) throw new Error(`Falha na consulta do CEP (HTTP ${resposta.status})`);
+
+            const endereco = await resposta.json();
+            // Ignora a resposta se a pessoa já alterou o CEP enquanto a consulta ocorria.
+            if (idRequisicao !== requisicaoAtual || campoCep.value.replace(/\D/g, "") !== cep) return;
+
+            if (endereco.erro) {
+                ultimoCepConsultado = "";
+                campoCep.setCustomValidity("CEP não encontrado. Confira os números digitados.");
+                campoCep.reportValidity();
+                return;
+            }
+
+            limparEnderecoAutomatico();
+            registrarPreenchimento("logradouro", endereco.logradouro || "");
+            registrarPreenchimento("bairro", endereco.bairro || "");
+            registrarPreenchimento("cidade", endereco.localidade || "");
+            registrarPreenchimento("estado", endereco.uf ? endereco.uf.toUpperCase() : "");
+        } catch (erro) {
+            if (idRequisicao !== requisicaoAtual) return;
+            ultimoCepConsultado = "";
+            console.error("Erro ao consultar o CEP no ViaCEP:", erro);
+            campoCep.setCustomValidity("Não foi possível consultar o CEP pela internet. Confira sua conexão ou preencha o endereço manualmente.");
+            campoCep.reportValidity();
+        }
+    }
+
+    campoCep.addEventListener("input", () => {
+        campoCep.setCustomValidity("");
+        const cep = campoCep.value.replace(/\D/g, "");
+        if (cep !== ultimoCepConsultado) {
+            requisicaoAtual++;
+            ultimoCepConsultado = "";
+            limparEnderecoAutomatico();
+        }
+        if (cep.length === 8) preencherEnderecoPeloCep();
+    });
+    campoCep.addEventListener("blur", preencherEnderecoPeloCep);
+
+    // Fechar o modal sempre descarta o cadastro incompleto, inclusive com Esc ou clique fora.
+    modalCliente?.addEventListener("close", () => {
+        modalCliente.querySelectorAll("input, textarea, select").forEach(campo => {
+            if (campo.type === "checkbox" || campo.type === "radio") campo.checked = false;
+            else campo.value = "";
+            if (typeof campo.setCustomValidity === "function") campo.setCustomValidity("");
+        });
+        ultimoCepConsultado = "";
+        requisicaoAtual++;
+        valoresPreenchidosAutomaticamente = {};
+    });
+})();
 </script>
 
 </body>

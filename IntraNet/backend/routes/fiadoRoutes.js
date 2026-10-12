@@ -884,36 +884,12 @@ router.post(
 
 
             /* ==================================================
-               ENDEREÇO LEGADO
-               
-               Continua sendo salvo em "endereco"
-               para manter compatibilidade com
-               partes antigas do sistema.
-            ================================================== */
+               ENDEREÇO
 
-            const enderecoFormatado = [
-                logradouro,
-                numero
-                    ? `Nº ${numero}`
-                    : "",
-                complemento,
-                bairro,
-                cidade && estado
-                    ? `${cidade} - ${estado}`
-                    : cidade || estado,
-                cep
-                    ? `CEP ${cep}`
-                    : "",
-                ponto_referencia
-                    ? `Ref.: ${ponto_referencia}`
-                    : ""
-            ]
-                .filter(Boolean)
-                .join(", ");
-
-
-            /* ==================================================
-               CADASTRO
+               A tabela atual possui a coluna "endereco", mas não
+               possui "logradouro" nem "ponto_referencia".
+               Salva somente o nome da rua em "endereco" e mantém
+               os demais dados nos campos próprios existentes.
             ================================================== */
 
             await conexao.query(
@@ -924,49 +900,36 @@ router.post(
                     cpf,
                     telefone,
                     endereco,
-
                     cep,
-                    logradouro,
                     numero,
                     complemento,
                     bairro,
                     cidade,
                     estado,
-                    ponto_referencia,
-
                     data_nascimento,
                     email,
                     setor,
-
                     dia_vencimento
                 )
                 VALUES
                 (
-                    ?, ?, ?, ?,
-                    ?, ?, ?, ?, ?, ?, ?, ?,
-                    ?, ?, ?,
-                    ?
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                 )
                 `,
                 [
                     nome_completo,
                     cpf,
                     telefone,
-                    enderecoFormatado,
-
+                    logradouro || null,
                     cep || null,
-                    logradouro,
-                    numero,
-                    complemento,
-                    bairro,
-                    cidade,
-                    estado,
-                    ponto_referencia,
-
-                    data_nascimento,
-                    email,
-                    setor,
-
+                    numero || null,
+                    complemento || null,
+                    bairro || null,
+                    cidade || null,
+                    estado || null,
+                    data_nascimento || null,
+                    email || null,
+                    setor || null,
                     dia_vencimento
                 ]
             );
