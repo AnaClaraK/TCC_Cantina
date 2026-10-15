@@ -2873,7 +2873,7 @@ body.fundo-escuro > .d_util > #b_simular_juros,
 body.fundo-escuro > .d_util > #b_compras_parceladas {
     flex: 0 0 auto;
     min-width: 0;
-    min-height: 42px;
+    min-height: 42Zpx;
     padding: 9px 14px;
     border: 2px solid #efac4a !important;
     border-radius: 8px !important;
@@ -7190,4 +7190,794 @@ body.fundo-escuro > .d_util > #d_inp {
         width: auto !important;
         max-width: none !important;
     }
+}
+
+/* ============================================================
+   CONTA FIADO — BOTÕES PADRONIZADOS
+   Novo Cliente / Consultar / Nova Compra / Compras Parceladas
+============================================================ */
+
+body.fundo-escuro > .d_util > .btn-topo-conta-fiado {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    box-sizing: border-box !important;
+    height: 45px !important;
+    min-height: 45px !important;
+    min-width: 0 !important;
+    width: auto !important;
+
+    margin: 0 !important;
+    padding: 10px 20px !important;
+
+    background: #1c1c1c !important;
+    color: #f8c471 !important;
+
+    border: none !important;
+    border-radius: 5px !important;
+
+    font-family: "Roca One", sans-serif !important;
+    font-size: 24px !important;
+    font-weight: bold !important;
+    font-style: normal !important;
+    line-height: 1 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+
+    text-align: center !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+
+    cursor: pointer !important;
+    box-shadow: none !important;
+    transform: none !important;
+    filter: none !important;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease !important;
+}
+
+/* Hover */
+body.fundo-escuro > .d_util > .btn-topo-conta-fiado:hover {
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+    filter: none !important;
+}
+
+/* Foco pelo teclado */
+body.fundo-escuro > .d_util > .btn-topo-conta-fiado:focus-visible {
+    outline: 2px solid #efac4a !important;
+    outline-offset: 3px !important;
+}
+
+/* Botão pressionado */
+body.fundo-escuro > .d_util > .btn-topo-conta-fiado:active {
+    background: #d99432 !important;
+    color: #1c1c1c !important;
+    transform: none !important;
+}
+
+/* Alinhamento dos botões no cabeçalho */
+body.fundo-escuro > .d_util {
+    align-items: center !important;
+    gap: 10px !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* ============================================================
+   RESPONSIVIDADE — TABLETS
+============================================================ */
+
+@media (max-width: 1250px) {
+    body.fundo-escuro > .d_util > .btn-topo-conta-fiado {
+        padding: 9px 14px !important;
+        font-size: 18px !important;
+    }
+}
+
+/* ============================================================
+   RESPONSIVIDADE — CELULARES
+============================================================ */
+
+@media (max-width: 767px) {
+    body.fundo-escuro {
+        overflow-x: hidden !important;
+    }
+
+    body.fundo-escuro > .d_util {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    body.fundo-escuro > .d_util > .h_ag {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        margin-bottom: 4px !important;
+    }
+
+    body.fundo-escuro > .d_util > .btn-topo-conta-fiado {
+        flex: 1 1 calc(50% - 8px) !important;
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 44px !important;
+        padding: 10px 8px !important;
+
+        font-size: 16px !important;
+        line-height: 1.25 !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    body.fundo-escuro > .d_util > #d_inp {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin-left: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    body.fundo-escuro > .d_util > #d_inp .busca-box {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    body.fundo-escuro > .d_util > #d_inp input {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+}
+
+/* ============================================================
+   CELULARES ESTREITOS
+============================================================ */
+
+@media (max-width: 380px) {
+    body.fundo-escuro > .d_util > .btn-topo-conta-fiado {
+        flex-basis: 100% !important;
+        width: 100% !important;
+        font-size: 15px !important;
+    }
+}
+
+/* ============================================================
+   CONTA FIADO — MODAIS CONSULTAR E EDITAR CLIENTE
+   Apenas ajustes visuais e responsividade
+============================================================ */
+
+/* ---------- Overlay e estrutura dos modais ---------- */
+
+body.fundo-escuro #modal_gerenciar_cliente,
+body.fundo-escuro #modal_cliente {
+    position: fixed !important;
+    inset: 0 !important;
+
+    width: min(720px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px) !important;
+    max-height: calc(100dvh - 32px) !important;
+
+    margin: auto !important;
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+    border: 1px solid rgba(239, 172, 74, 0.65) !important;
+    border-radius: 12px !important;
+
+    background: #1c1c1c !important;
+    color: #f8c471 !important;
+
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55) !important;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+
+    scrollbar-width: thin;
+    scrollbar-color: #efac4a #242628;
+}
+
+/* Fundo escuro atrás dos modais */
+body.fundo-escuro #modal_gerenciar_cliente::backdrop,
+body.fundo-escuro #modal_cliente::backdrop {
+    background: rgba(0, 0, 0, 0.72) !important;
+    backdrop-filter: blur(3px);
+}
+
+/* ---------- Caixa interna ---------- */
+
+body.fundo-escuro #modal_gerenciar_cliente .modal_box,
+body.fundo-escuro #modal_cliente .modal_box {
+    position: relative !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    min-height: 0 !important;
+
+    box-sizing: border-box !important;
+    padding: 30px !important;
+    margin: 0 !important;
+
+    border: none !important;
+    border-radius: inherit !important;
+
+    background: #1c1c1c !important;
+    color: #f8c471 !important;
+
+    box-shadow: none !important;
+    overflow: visible !important;
+
+    font-family: "Montserrat", sans-serif !important;
+}
+
+/* ---------- Cabeçalho e títulos ---------- */
+
+body.fundo-escuro #modal_gerenciar_cliente .modal-cabecalho,
+body.fundo-escuro #modal_cliente .modal-cabecalho {
+    position: relative !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+
+    margin: 0 0 24px !important;
+    padding: 0 48px 18px 0 !important;
+
+    border-bottom: 1px solid rgba(239, 172, 74, 0.35) !important;
+
+    background: transparent !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente .modal-cabecalho-kicker,
+body.fundo-escuro #modal_cliente .modal-cabecalho-kicker {
+    display: block !important;
+    margin: 0 0 8px !important;
+
+    color: #efac4a !important;
+
+    font-family: "Montserrat", sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+
+    letter-spacing: 1.5px !important;
+    text-transform: uppercase !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente .modal_titulo,
+body.fundo-escuro #modal_cliente .modal_titulo {
+    width: 100% !important;
+    min-width: 0 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    color: #f8c471 !important;
+    background: transparent !important;
+
+    font-family: "Roca One", sans-serif !important;
+    font-size: 25px !important;
+    font-weight: bold !important;
+    line-height: 1.25 !important;
+
+    text-align: left !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0 !important;
+
+    overflow-wrap: anywhere;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente .modal-subtitulo,
+body.fundo-escuro #modal_cliente .modal-subtitulo {
+    margin: 10px 0 0 !important;
+
+    color: #d0d0d0 !important;
+    background: transparent !important;
+
+    font-family: "Montserrat", sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    line-height: 1.6 !important;
+}
+
+/* ---------- Botão X ---------- */
+
+body.fundo-escuro #modal_gerenciar_cliente #fechar_modal_gerenciar_cliente,
+body.fundo-escuro #modal_cliente #b_close_modal_cliente {
+    position: absolute !important;
+    top: 14px !important;
+    right: 14px !important;
+
+    z-index: 30 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    border: none !important;
+    border-radius: 8px !important;
+
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+
+    font-family: Arial, sans-serif !important;
+    font-size: 25px !important;
+    font-weight: bold !important;
+    line-height: 1 !important;
+
+    cursor: pointer !important;
+    box-shadow: none !important;
+
+    transition: background-color 0.2s ease,
+                color 0.2s ease !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente #fechar_modal_gerenciar_cliente:hover,
+body.fundo-escuro #modal_cliente #b_close_modal_cliente:hover {
+    background: #f8c471 !important;
+    color: #000 !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente #fechar_modal_gerenciar_cliente:focus-visible,
+body.fundo-escuro #modal_cliente #b_close_modal_cliente:focus-visible {
+    outline: 2px solid #f8c471 !important;
+    outline-offset: 3px !important;
+}
+
+/* ---------- Campos, labels, inputs e selects ---------- */
+
+body.fundo-escuro #modal_gerenciar_cliente .cliente-campo,
+body.fundo-escuro #modal_cliente .cliente-campo {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+
+    margin: 0 0 16px !important;
+    box-sizing: border-box !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente label,
+body.fundo-escuro #modal_cliente label {
+    display: block !important;
+
+    color: #f8c471 !important;
+    background: transparent !important;
+
+    font-family: "Montserrat", sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    line-height: 1.4 !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente input,
+body.fundo-escuro #modal_gerenciar_cliente select,
+body.fundo-escuro #modal_gerenciar_cliente textarea,
+body.fundo-escuro #modal_cliente input,
+body.fundo-escuro #modal_cliente select,
+body.fundo-escuro #modal_cliente textarea {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: 42px !important;
+
+    box-sizing: border-box !important;
+    padding: 10px 12px !important;
+
+    border: 1px solid #555 !important;
+    border-radius: 7px !important;
+
+    background: #242628 !important;
+    color: #f5f5f5 !important;
+
+    font-family: "Montserrat", sans-serif !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+
+    outline: none !important;
+    box-shadow: none !important;
+
+    transition: border-color 0.2s ease,
+                box-shadow 0.2s ease !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente input:focus,
+body.fundo-escuro #modal_gerenciar_cliente select:focus,
+body.fundo-escuro #modal_gerenciar_cliente textarea:focus,
+body.fundo-escuro #modal_cliente input:focus,
+body.fundo-escuro #modal_cliente select:focus,
+body.fundo-escuro #modal_cliente textarea:focus {
+    border-color: #efac4a !important;
+    box-shadow: 0 0 0 3px rgba(239, 172, 74, 0.15) !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente input::placeholder,
+body.fundo-escuro #modal_cliente input::placeholder,
+body.fundo-escuro #modal_cliente textarea::placeholder {
+    color: #929292 !important;
+    opacity: 1 !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente select option,
+body.fundo-escuro #modal_cliente select option {
+    background: #242628 !important;
+    color: #f5f5f5 !important;
+}
+
+/* ---------- Detalhes do cliente consultado ---------- */
+
+body.fundo-escuro #modal_gerenciar_cliente .cliente-detalhes-gerenciar {
+    width: 100% !important;
+    min-width: 0 !important;
+
+    margin-top: 18px !important;
+    padding: 18px !important;
+
+    box-sizing: border-box !important;
+
+    border: 1px solid rgba(239, 172, 74, 0.35) !important;
+    border-radius: 9px !important;
+
+    background: #242628 !important;
+    color: #f5f5f5 !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente .cliente-detalhes-gerenciar[hidden] {
+    display: none !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente .cliente-detalhes-gerenciar h3 {
+    margin: 0 0 16px !important;
+    padding: 0 0 12px !important;
+
+    border-bottom: 1px solid rgba(239, 172, 74, 0.3) !important;
+
+    color: #f8c471 !important;
+    background: transparent !important;
+
+    font-family: "Roca One", sans-serif !important;
+    font-size: 19px !important;
+    font-weight: bold !important;
+
+    overflow-wrap: anywhere;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente .cliente-detalhes-gerenciar dl {
+    display: grid !important;
+    grid-template-columns: minmax(100px, 0.8fr) minmax(0, 1.5fr) !important;
+    gap: 10px 16px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente .cliente-detalhes-gerenciar dt {
+    min-width: 0 !important;
+
+    color: #f8c471 !important;
+    font-family: "Montserrat", sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+
+    overflow-wrap: anywhere;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente .cliente-detalhes-gerenciar dd {
+    min-width: 0 !important;
+
+    margin: 0 !important;
+    color: #f5f5f5 !important;
+
+    font-family: "Montserrat", sans-serif !important;
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+
+    overflow-wrap: anywhere;
+}
+
+/* ---------- Rodapé e botões de ação ---------- */
+
+body.fundo-escuro #modal_gerenciar_cliente .modal_box > div:last-child {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex-wrap: wrap !important;
+
+    gap: 10px !important;
+    width: 100% !important;
+
+    margin-top: 22px !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente .btn-principal-cliente,
+body.fundo-escuro #modal_gerenciar_cliente .btn-secundario-cliente,
+body.fundo-escuro #modal_cliente .btn-principal-cliente,
+body.fundo-escuro #modal_cliente .btn-secundario-cliente {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    min-height: 42px !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+
+    padding: 10px 18px !important;
+
+    border: 1px solid #efac4a !important;
+    border-radius: 7px !important;
+
+    font-family: "Roca One", sans-serif !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    line-height: 1.3 !important;
+
+    text-align: center !important;
+    text-decoration: none !important;
+
+    cursor: pointer !important;
+
+    transition: background-color 0.2s ease,
+                color 0.2s ease,
+                border-color 0.2s ease !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente .btn-principal-cliente,
+body.fundo-escuro #modal_cliente .btn-principal-cliente {
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente .btn-principal-cliente:hover:not(:disabled),
+body.fundo-escuro #modal_cliente .btn-principal-cliente:hover:not(:disabled) {
+    background: #f8c471 !important;
+    border-color: #f8c471 !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente .btn-secundario-cliente,
+body.fundo-escuro #modal_cliente .btn-secundario-cliente {
+    background: transparent !important;
+    color: #f8c471 !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente .btn-secundario-cliente:hover,
+body.fundo-escuro #modal_cliente .btn-secundario-cliente:hover {
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente button:disabled {
+    opacity: 0.45 !important;
+    cursor: not-allowed !important;
+}
+
+/* ---------- Responsividade: tablets ---------- */
+
+@media (max-width: 760px) {
+    body.fundo-escuro #modal_gerenciar_cliente,
+    body.fundo-escuro #modal_cliente {
+        width: calc(100vw - 24px) !important;
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(100dvh - 24px) !important;
+    }
+
+    body.fundo-escuro #modal_gerenciar_cliente .modal_box,
+    body.fundo-escuro #modal_cliente .modal_box {
+        padding: 24px 22px !important;
+    }
+
+    body.fundo-escuro #modal_gerenciar_cliente .modal_titulo,
+    body.fundo-escuro #modal_cliente .modal_titulo {
+        font-size: 22px !important;
+    }
+}
+
+/* ---------- Responsividade: celulares ---------- */
+
+@media (max-width: 520px) {
+    body.fundo-escuro #modal_gerenciar_cliente,
+    body.fundo-escuro #modal_cliente {
+        width: calc(100vw - 16px) !important;
+        max-width: calc(100vw - 16px) !important;
+        max-height: calc(100dvh - 16px) !important;
+
+        border-radius: 9px !important;
+    }
+
+    body.fundo-escuro #modal_gerenciar_cliente .modal_box,
+    body.fundo-escuro #modal_cliente .modal_box {
+        padding: 22px 16px 18px !important;
+    }
+
+    body.fundo-escuro #modal_gerenciar_cliente .modal-cabecalho,
+    body.fundo-escuro #modal_cliente .modal-cabecalho {
+        margin-bottom: 18px !important;
+        padding-right: 42px !important;
+        padding-bottom: 14px !important;
+    }
+
+    body.fundo-escuro #modal_gerenciar_cliente .modal_titulo,
+    body.fundo-escuro #modal_cliente .modal_titulo {
+        font-size: 19px !important;
+    }
+
+    body.fundo-escuro #modal_gerenciar_cliente .modal-subtitulo,
+    body.fundo-escuro #modal_cliente .modal-subtitulo {
+        font-size: 12px !important;
+    }
+
+    body.fundo-escuro #modal_gerenciar_cliente #fechar_modal_gerenciar_cliente,
+    body.fundo-escuro #modal_cliente #b_close_modal_cliente {
+        top: 10px !important;
+        right: 10px !important;
+
+        width: 34px !important;
+        min-width: 34px !important;
+        height: 34px !important;
+        min-height: 34px !important;
+    }
+
+    body.fundo-escuro #modal_gerenciar_cliente .cliente-detalhes-gerenciar {
+        padding: 13px !important;
+    }
+
+    body.fundo-escuro #modal_gerenciar_cliente .cliente-detalhes-gerenciar dl {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 4px !important;
+    }
+
+    body.fundo-escuro #modal_gerenciar_cliente .cliente-detalhes-gerenciar dd {
+        margin-bottom: 10px !important;
+    }
+
+    body.fundo-escuro #modal_gerenciar_cliente .modal_box > div:last-child {
+        flex-direction: column-reverse !important;
+        align-items: stretch !important;
+    }
+
+    body.fundo-escuro #modal_gerenciar_cliente .btn-principal-cliente,
+    body.fundo-escuro #modal_gerenciar_cliente .btn-secundario-cliente,
+    body.fundo-escuro #modal_cliente .btn-principal-cliente,
+    body.fundo-escuro #modal_cliente .btn-secundario-cliente {
+        width: 100% !important;
+        min-width: 0 !important;
+        white-space: normal !important;
+    }
+}
+
+/* ---------- Celulares estreitos ---------- */
+
+@media (max-width: 350px) {
+    body.fundo-escuro #modal_gerenciar_cliente .modal_box,
+    body.fundo-escuro #modal_cliente .modal_box {
+        padding: 18px 12px !important;
+    }
+
+    body.fundo-escuro #modal_gerenciar_cliente .modal_titulo,
+    body.fundo-escuro #modal_cliente .modal_titulo {
+        font-size: 17px !important;
+    }
+}
+
+
+/* LISTA DE CLIENTES — IDENTIDADE VISUAL DA CANTINA */
+
+body.fundo-escuro #modal_gerenciar_cliente #select_cliente_gerenciar {
+    width: 100% !important;
+    min-height: 48px !important;
+    box-sizing: border-box !important;
+    padding: 12px 40px 12px 14px !important;
+
+    background-color: #242628 !important;
+    color: #f5f5f5 !important;
+
+    border: 1px solid #efac4a !important;
+    border-radius: 9px !important;
+
+    font-family: "Montserrat", sans-serif !important;
+    font-size: 14px !important;
+
+    color-scheme: dark;
+    accent-color: #efac4a;
+
+    cursor: pointer !important;
+    outline: none !important;
+
+    transition: border-color .2s ease, box-shadow .2s ease !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente #select_cliente_gerenciar:hover {
+    border-color: #f8c471 !important;
+}
+
+body.fundo-escuro #modal_gerenciar_cliente #select_cliente_gerenciar:focus {
+    border-color: #efac4a !important;
+    box-shadow: 0 0 0 3px rgba(239, 172, 74, .2) !important;
+}
+
+/* Opções da lista */
+body.fundo-escuro #modal_gerenciar_cliente #select_cliente_gerenciar option {
+    background-color: #242628 !important;
+    color: #f5f5f5 !important;
+    font-family: "Montserrat", sans-serif !important;
+    padding: 12px !important;
+}
+
+/* Opção selecionada */
+body.fundo-escuro #modal_gerenciar_cliente #select_cliente_gerenciar option:checked {
+    background-color: #efac4a !important;
+    color: #242628 !important;
+    font-weight: 700 !important;
+}
+
+/* Texto inicial */
+body.fundo-escuro #modal_gerenciar_cliente #select_cliente_gerenciar option[value=""] {
+    color: #c5c5c5 !important;
+}
+
+
+/* Modal de gerenciamento de clientes */
+#modal_gerenciar_cliente .modal_box #select_cliente_gerenciar {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background: #242628 !important;
+    background-color: #242628 !important;
+    color: #ffffff !important;
+    border: 1px solid #efac4a !important;
+    outline: none !important;
+    box-shadow: none !important;
+    color-scheme: dark;
+}
+
+/* Lista de opções */
+#modal_gerenciar_cliente #select_cliente_gerenciar option {
+    background: #242628 !important;
+    background-color: #242628 !important;
+    color: #ffffff !important;
+}
+
+/* Opção selecionada */
+#modal_gerenciar_cliente #select_cliente_gerenciar option:checked {
+    background: #efac4a !important;
+    background-color: #efac4a !important;
+    color: #242628 !important;
+}
+
+/* Quando o campo recebe foco */
+#modal_gerenciar_cliente #select_cliente_gerenciar:focus {
+    border-color: #efac4a !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(239, 172, 74, 0.2) !important;
 }

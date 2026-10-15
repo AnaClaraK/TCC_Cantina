@@ -73,28 +73,33 @@
      CABEÇALHO
 ====================================================== -->
 
+
 <div class="d_util">
 
     <h2 class="h_ag">
         Contas
     </h2>
 
-
     <button
         id="b_addq"
         type="button"
+        class="btn-topo-conta-fiado"
     >
         <span id="s_addq">
             Novo Cliente
         </span>
     </button>
 
-
-    <button id="b_gerenciar_cliente" type="button">Consultar / editar cliente</button>
+    <button
+        id="b_gerenciar_cliente"
+        type="button"
+        class="btn-topo-conta-fiado"
+    >Consultar</button>
 
     <button
         id="b_nova_compra"
         type="button"
+        class="btn-topo-conta-fiado"
     >
         Nova Compra
     </button>
@@ -102,9 +107,11 @@
     <button
         id="b_compras_parceladas"
         type="button"
+        class="btn-topo-conta-fiado"
     >
         Compras parceladas
     </button>
+
 
     <div id="notificacaoParcelasConcluidas" class="notificacao-parcela-pagina" aria-live="polite"></div>
 
@@ -1390,28 +1397,61 @@ document.addEventListener("DOMContentLoaded", () => {
     let clienteEmEdicao = null;
     let listaClientesGerenciar = [];
 
-    const modalGerenciarHTML = `
-      <dialog id="modal_gerenciar_cliente" class="modal-gerenciar-cliente">
-        <div class="modal_box">
-          <button type="button" id="fechar_modal_gerenciar_cliente" class="fechar-modal" aria-label="Fechar">×</button>
-          <div class="modal-cabecalho">
-            <span class="modal-cabecalho-kicker">CLIENTES FIADO</span>
-            <h2 class="modal_titulo">Consultar / editar cliente</h2>
-            <p class="modal-subtitulo">Selecione um cliente cadastrado para visualizar ou editar seus dados.</p>
-          </div>
-          <div class="cliente-campo">
-            <label for="select_cliente_gerenciar">Cliente cadastrado</label>
-            <select id="select_cliente_gerenciar" class="inp_m">
-              <option value="">Selecione um cliente</option>
-            </select>
-          </div>
-          <div id="detalhes_cliente_gerenciar" class="cliente-detalhes-gerenciar" hidden></div>
-          <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:18px">
-            <button type="button" id="cancelar_gerenciar_cliente" class="btn-secundario-cliente">Fechar</button>
-            <button type="button" id="editar_cliente_selecionado" class="btn-principal-cliente" disabled>Editar informações</button>
-          </div>
-        </div>
-      </dialog>`;
+    
+const modalGerenciarHTML = `
+  <dialog id="modal_gerenciar_cliente" class="modal-gerenciar-cliente">
+    <div class="modal_box">
+
+      <button
+        type="button"
+        id="fechar_modal_gerenciar_cliente"
+        class="fechar-modal"
+        aria-label="Fechar"
+      >×</button>
+
+      <div class="modal-cabecalho">
+        <span class="modal-cabecalho-kicker">CLIENTES FIADO</span>
+        <h2 class="modal_titulo">Consultar / editar cliente</h2>
+        
+      </div>
+
+      <div class="cliente-campo">
+        <label for="select_cliente_gerenciar">
+          Cliente cadastrado
+        </label>
+
+        <select id="select_cliente_gerenciar" class="inp_m">
+          <option value="">Selecione um cliente</option>
+        </select>
+      </div>
+
+      <div
+        id="detalhes_cliente_gerenciar"
+        class="cliente-detalhes-gerenciar"
+        hidden
+      ></div>
+
+      <div class="cliente-gerenciar-acoes">
+        <button
+          type="button"
+          id="cancelar_gerenciar_cliente"
+          class="btn-secundario-cliente"
+        >Fechar</button>
+
+        <button
+          type="button"
+          id="editar_cliente_selecionado"
+          class="btn-principal-cliente"
+          disabled
+        >Editar informações</button>
+      </div>
+
+    </div>
+  </dialog>`;
+
+
+    
+    // Insere o modal no HTML antes de buscar seus elementos.
     if (!document.getElementById("modal_gerenciar_cliente")) {
         document.body.insertAdjacentHTML("beforeend", modalGerenciarHTML);
     }
@@ -1421,27 +1461,62 @@ document.addEventListener("DOMContentLoaded", () => {
     const detalhesGerenciarCliente = document.getElementById("detalhes_cliente_gerenciar");
     const botaoEditarCliente = document.getElementById("editar_cliente_selecionado");
 
-    function preencherDetalhesCliente(c) {
-        if (!c) {
-            detalhesGerenciarCliente.hidden = true;
-            detalhesGerenciarCliente.innerHTML = "";
-            botaoEditarCliente.disabled = true;
-            return;
-        }
-        const linhas = [
-            ["CPF", c.cpf], ["Telefone", c.telefone], ["E-mail", c.email],
-            ["Data de nascimento", c.data_nascimento ? String(c.data_nascimento).slice(0,10) : ""],
-            ["Endereço", c.endereco], ["CEP", c.cep], ["Número", c.numero],
-            ["Complemento", c.complemento], ["Bairro", c.bairro], ["Cidade", c.cidade],
-            ["Estado", c.estado], ["Setor", c.setor], ["Dia de vencimento", c.dia_vencimento]
-        ].filter(([_, v]) => v !== null && v !== undefined && String(v).trim() !== "");
-        detalhesGerenciarCliente.innerHTML = `<h3>${escaparHTML(c.nome_completo || "Cliente")}</h3><dl>${linhas.map(([k,v]) => `<dt>${escaparHTML(k)}</dt><dd>${escaparHTML(String(v))}</dd>`).join("")}</dl>`;
-        detalhesGerenciarCliente.hidden = false;
-        botaoEditarCliente.disabled = false;
+
+    
+function preencherDetalhesCliente(c) {
+    if (!detalhesGerenciarCliente || !botaoEditarCliente) {
+        console.error(
+            "Erro: elementos de detalhes ou botão de edição não encontrados no modal."
+        );
+        return;
     }
-    function escaparHTML(v) {
-        return String(v).replace(/[&<>"']/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[ch]));
+
+    if (!c) {
+        detalhesGerenciarCliente.hidden = true;
+        detalhesGerenciarCliente.innerHTML = "";
+        botaoEditarCliente.disabled = true;
+        return;
     }
+
+    const linhas = [
+        ["CPF", c.cpf],
+        ["Telefone", c.telefone],
+        ["E-mail", c.email],
+        [
+            "Data de nascimento",
+            c.data_nascimento
+                ? String(c.data_nascimento).slice(0, 10)
+                : ""
+        ],
+        ["Endereço", c.endereco],
+        ["CEP", c.cep],
+        ["Número", c.numero],
+        ["Complemento", c.complemento],
+        ["Bairro", c.bairro],
+        ["Cidade", c.cidade],
+        ["Estado", c.estado],
+        ["Setor", c.setor],
+        ["Dia de vencimento", c.dia_vencimento]
+    ].filter(([_, v]) =>
+        v !== null &&
+        v !== undefined &&
+        String(v).trim() !== ""
+    );
+
+    detalhesGerenciarCliente.innerHTML = `
+        <h3>${escaparHTML(c.nome_completo || "Cliente")}</h3>
+        <dl>
+            ${linhas.map(([k, v]) => `
+                <dt>${escaparHTML(k)}</dt>
+                <dd>${escaparHTML(String(v))}</dd>
+            `).join("")}
+        </dl>
+    `;
+
+    detalhesGerenciarCliente.hidden = false;
+    botaoEditarCliente.disabled = false;
+}
+
 
     document.getElementById("b_gerenciar_cliente")?.addEventListener("click", async () => {
         try {
