@@ -115,7 +115,7 @@ export default function PedidosScreen() {
         <View style={styles.topoCard}>
           <Text style={styles.txtNumeroPedido}>PEDIDO #{item.num_pedido || item.id_pedido}</Text>
           <View style={[styles.badgeStatus, { backgroundColor: isPendente ? CORES.dourado : '#4CD964' }]}>
-            <Text style={styles.txtStatus}>{(item.status || 'PENDENTE').toUpperCase()}</Text>
+            <Text style={[styles.txtStatus, !isPendente && styles.txtStatusFinalizado]}>{(item.status || 'PENDENTE').toUpperCase()}</Text>
           </View>
         </View>
 
@@ -144,9 +144,7 @@ export default function PedidosScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.barraTituloTela}>
-        <Text style={styles.txtTituloTela}>MEUS PEDIDOS</Text>
-      </View>
+      <View style={styles.barraTituloTela} />
 
       {carregando && (
         <ActivityIndicator size="large" color={CORES.dourado} style={styles.loadingStyle} />
@@ -241,12 +239,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#242628' 
   },
   barraTituloTela: { 
-    backgroundColor: CORES.marromDestaque, 
+    backgroundColor: CORES.dourado, 
     paddingVertical: 15, 
     alignItems: 'center' 
   },
   txtTituloTela: { 
-    color: CORES.branco, 
+    color: CORES.marromEscuro, 
     fontFamily: 'BebasNeue-Regular', 
     fontSize: 24, 
     letterSpacing: 2 
@@ -296,6 +294,9 @@ const styles = StyleSheet.create({
     color: CORES.marromEscuro, 
     fontSize: 10, 
     fontWeight: 'bold' 
+  },
+  txtStatusFinalizado: {
+    color: CORES.branco,
   },
   txtData: { 
     color: CORES.creme, 

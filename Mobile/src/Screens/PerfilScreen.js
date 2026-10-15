@@ -204,7 +204,7 @@ export default function PerfilScreen() {
       const caminho = fotoServidor.startsWith('/') ? fotoServidor : '/' + fotoServidor;
       return <Image source={{ uri: `${BASE_URL}${caminho}` }} style={styles.imagemAvatar} />;
     }
-    return <Ionicons name="person-outline" size={50} color={CORES.marromEscuro} />;
+    return <Ionicons name="person-outline" size={50} color={CORES.marromEscuro} style={{ alignSelf: 'center' }} />;
   };
 
   if (carregando) {
@@ -217,10 +217,6 @@ export default function PerfilScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.barraTituloTela}>
-        <Text style={styles.txtTituloTela}>EDITAR MEU PERFIL</Text>
-      </View>
-
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.containerAvatar}>
           <View style={styles.circuloAvatar}>{renderAvatar()}</View>
@@ -316,13 +312,11 @@ export default function PerfilScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: CORES.fundo },
   containerCentro: { justifyContent: 'center', alignItems: 'center' },
-  barraTituloTela: { backgroundColor: CORES.marromDestaque, paddingVertical: 15, alignItems: 'center' },
-  txtTituloTela: { color: CORES.branco, fontWeight: 'bold', fontSize: 20, letterSpacing: 2 },
-  scrollContent: { padding: 20, paddingBottom: 40 },
+  scrollContent: { padding: 20, paddingTop: 38, paddingBottom: 40 },
   containerAvatar: { alignItems: 'center', marginBottom: 20 },
   circuloAvatar: {
     width: 100, height: 100, borderRadius: 50, backgroundColor: CORES.dourado,
-    justify: 'center', alignItems: 'center', overflow: 'hidden', marginBottom: 10,
+    justifyContent: 'center', alignItems: 'center', overflow: 'hidden', marginBottom: 10,
     borderWidth: 2, borderColor: CORES.dourado,
   },
   imagemAvatar: { width: '100%', height: '100%' },

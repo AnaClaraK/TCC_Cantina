@@ -173,7 +173,7 @@ export default function CardapioScreen() {
           estoque: qtdDisponivel,
           preco: parseFloat(p.preco || 0).toFixed(2).replace(".", ","),
           precoNumerico: parseFloat(p.preco || 0),
-          detalheTitulo: "Sabor do dia:",
+          detalheTitulo: "Descrição:",
           info: p.descricao && p.descricao.trim() !== "" ? p.descricao : "Sem descrição cadastrada.",
           imagem: imagemDefinida,
         };
@@ -254,11 +254,7 @@ export default function CardapioScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View style={{ width: 40 }} /> 
         <Image source={require('../../assets/images/logo_m.png')} style={styles.logo} />
-        <TouchableOpacity onPress={fazerLogout} style={styles.botaoSair}>
-          <Ionicons name="log-out-outline" size={30} color={CORES.marromEscuro} />
-        </TouchableOpacity>
       </View>
 
       <View style={styles.containerCategorias}>
@@ -315,24 +311,26 @@ const styles = StyleSheet.create({
     backgroundColor: CORES.marromEscuro 
   },
   header: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    paddingHorizontal: 15, 
-    paddingVertical: 10, 
-    backgroundColor: '#efac4a' 
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingLeft: 15,
+    paddingRight: 15,
+    paddingTop: 8,
+    paddingBottom: 8,
+    backgroundColor: '#efac4a'
   },
   logo: { 
     width: 170, 
     height: 49, 
     resizeMode: 'contain', 
-    marginLeft: -220 
+    marginLeft: 0,
   },
   botaoSair: { 
     padding: 5 
   },
   containerCategorias: { 
-    backgroundColor: CORES.marromDestaque, 
+    backgroundColor: CORES.marromEscuro, 
     paddingVertical: 14, 
     paddingHorizontal: 2 
   },
@@ -351,7 +349,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 0.5 
   },
   btnCategoriaAtiva: { 
-    backgroundColor: 'rgba(235, 213, 166, 0.2)' 
+    backgroundColor: CORES.dourado 
   },
   txtCategoria: { 
     color: CORES.branco, 
@@ -361,7 +359,7 @@ const styles = StyleSheet.create({
     textAlign: 'center' 
   },
   txtCategoriaAtiva: { 
-    color: CORES.dourado 
+    color: CORES.marromEscuro 
   },
   listaConteudo: { 
     padding: 15, 

@@ -7981,3 +7981,135 @@ body.fundo-escuro #modal_gerenciar_cliente #select_cliente_gerenciar option[valu
     outline: none !important;
     box-shadow: 0 0 0 2px rgba(239, 172, 74, 0.2) !important;
 }
+/* AJUSTE FINAL — MODAL DE EDIÇÃO/CADASTRO EM DUAS LINHAS */
+body.fundo-escuro #modal_cliente {
+    width: min(1240px, calc(100vw - 20px)) !important;
+    max-width: min(1240px, calc(100vw - 20px)) !important;
+    height: auto !important;
+    max-height: 100dvh !important;
+    margin: auto !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-cadastro-box {
+    width: 100% !important;
+    max-width: none !important;
+    max-height: 100dvh !important;
+    padding: 14px 22px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+body.fundo-escuro #modal_cliente .modal-cabecalho {
+    margin-bottom: 8px !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-secao {
+    margin-top: 6px !important;
+    padding: 8px 10px !important;
+}
+
+/* Dados pessoais: três campos por linha, sem deixar o nome sozinho. */
+body.fundo-escuro #modal_cliente .cliente-form-grid-2 {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 7px 12px !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-grid-2 .cliente-campo,
+body.fundo-escuro #modal_cliente .cliente-form-grid-2 .cliente-campo.campo-coluna-2 {
+    grid-column: auto !important;
+    min-width: 0 !important;
+}
+
+/* Endereço: quatro colunas para acomodar os campos em duas linhas. */
+body.fundo-escuro #modal_cliente .cliente-form-grid-6 {
+    display: grid !important;
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, .8fr) !important;
+    gap: 7px 12px !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-grid-6 .cliente-campo {
+    min-width: 0 !important;
+    grid-column: auto !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-grid-6 .cliente-campo.campo-coluna-2 {
+    grid-column: span 2 !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-campo label {
+    margin-bottom: 3px !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-campo .inp_m {
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-secao-final {
+    margin-top: 6px !important;
+    padding: 8px 10px !important;
+    gap: 12px !important;
+}
+
+body.fundo-escuro #modal_cliente .campo-ajuda {
+    display: none !important;
+}
+
+@media (max-height: 800px) {
+    body.fundo-escuro #modal_cliente .cliente-cadastro-box {
+        padding: 8px 16px !important;
+    }
+
+    body.fundo-escuro #modal_cliente .modal-cabecalho-kicker {
+        display: none !important;
+    }
+
+    body.fundo-escuro #modal_cliente .modal_titulo {
+        margin: 0 0 3px !important;
+    }
+
+    body.fundo-escuro #modal_cliente .modal-subtitulo {
+        margin: 0 !important;
+    }
+
+    body.fundo-escuro #modal_cliente .cliente-form-secao {
+        margin-top: 4px !important;
+        padding: 6px 8px !important;
+    }
+}
+
+
+/* AJUSTE PONTUAL: reduzir a altura do modal de cadastro/edição de cliente */
+body.fundo-escuro #modal_cliente {
+    max-height: 90dvh !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-cadastro-box {
+    padding: 14px 22px 12px !important;
+    overflow-y: hidden !important;
+}
+
+body.fundo-escuro #modal_cliente .modal-cabecalho {
+    margin-bottom: 6px !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-secao {
+    margin-top: 6px !important;
+    padding: 8px 10px !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-grid-2,
+body.fundo-escuro #modal_cliente .cliente-form-grid-6 {
+    row-gap: 6px !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-campo label {
+    margin-bottom: 3px !important;
+}
+
+body.fundo-escuro #modal_cliente .cliente-form-secao-final {
+    margin-top: 8px !important;
+}

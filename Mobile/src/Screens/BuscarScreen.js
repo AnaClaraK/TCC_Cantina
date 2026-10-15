@@ -177,7 +177,7 @@ export default function BuscarScreen() {
           vendas: parseInt(p.vendas || p.total_vendas || p.qtd_vendida || 0, 10),
           preco: parseFloat(p.preco || 0).toFixed(2).replace(".", ","),
           precoNumerico: parseFloat(p.preco || 0),
-          detalheTitulo: "Sabor / Detalhes:",
+          detalheTitulo: "Descrição:",
           info: p.descricao && p.descricao.trim() !== "" ? p.descricao : "Sem descrição cadastrada.",
           imagem: { uri: urlFinal },
         };
@@ -273,8 +273,8 @@ export default function BuscarScreen() {
   ), [adicionarAoCarrinho]);
 
   return (
-    <SafeAreaView style={styles.container}>
-      
+    <SafeAreaView style={styles.containerSeguro}>
+      <View style={styles.container}>
       {/* Barra Superior de Busca */}
       <View style={styles.containerBarraBusca}>
         <View style={styles.inputWrapper}>
@@ -298,6 +298,7 @@ export default function BuscarScreen() {
         </View>
       </View>
 
+      <View style={styles.conteudoBusca}>
       {/* Categorias no Estilo Cardápio (Versão Menor) */}
       <View style={styles.containerCategorias}>
         <ScrollView 
@@ -345,24 +346,34 @@ export default function BuscarScreen() {
           }
         />
       )}
+      </View>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  containerSeguro: {
+    flex: 1,
+    backgroundColor: CORES.dourado,
+  },
   container: {
     flex: 1,
     backgroundColor: CORES.marromEscuro,
   },
+  conteudoBusca: {
+    flex: 1,
+    backgroundColor: CORES.marromEscuro,
+  },
   containerBarraBusca: {
-    backgroundColor: CORES.marromDestaque,
+    backgroundColor: CORES.dourado,
     paddingHorizontal: 15,
     paddingTop: 12,
     paddingBottom: 6,
   },
   inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    position: 'relative',
+    justifyContent: 'center',
     backgroundColor: CORES.cinzaInput,
     borderRadius: 10,
     paddingHorizontal: 12,
@@ -371,21 +382,33 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(239, 172, 74, 0.3)',
   },
   iconeBusca: {
-    marginRight: 8,
+    position: 'absolute',
+    left: 12,
+    zIndex: 1,
   },
   inputBusca: {
-    flex: 1,
+    width: '100%',
+    height: 42,
     color: CORES.branco,
     fontSize: 14,
     fontFamily: 'Montserrat',
+    textAlign: 'center',
+    paddingHorizontal: 38,
   },
   btnLimpar: {
+    position: 'absolute',
+    right: 8,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 4,
+    zIndex: 1,
   },
 
   /* --- CATEGORIAS ESTILO CARDÁPIO (COMPACTO) --- */
   containerCategorias: { 
-    backgroundColor: CORES.marromDestaque, 
+    backgroundColor: CORES.marromEscuro, 
     paddingVertical: 6, 
     paddingHorizontal: 10,
     borderBottomWidth: 1,
@@ -400,11 +423,11 @@ const styles = StyleSheet.create({
     paddingVertical: 5, 
     paddingHorizontal: 10, 
     alignItems: 'center', 
-    justify: 'center', 
+    justifyContent: 'center', 
     borderRadius: 6, 
   },
   btnCategoriaAtiva: { 
-    backgroundColor: 'rgba(235, 213, 166, 0.2)',
+    backgroundColor: CORES.dourado,
   },
   txtCategoria: { 
     color: CORES.branco, 
@@ -414,7 +437,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   txtCategoriaAtiva: { 
-    color: CORES.dourado,
+    color: CORES.marromEscuro,
   },
 
   /* --- LISTA E CARDS --- */
@@ -445,7 +468,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: CORES.cinza,
-    justify: 'center',
+    justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
     position: 'relative',
@@ -473,7 +496,7 @@ const styles = StyleSheet.create({
   containerTextoTop: {
     flex: 1,
     marginLeft: 14,
-    justify: 'center',
+    justifyContent: 'center',
   },
   categoriaTag: {
     color: CORES.dourado,
@@ -546,7 +569,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    justify: 'center',
+    justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: CORES.branco,
@@ -557,7 +580,7 @@ const styles = StyleSheet.create({
   },
   containerLoading: {
     flex: 1,
-    justify: 'center',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   txtLoading: {
@@ -567,7 +590,7 @@ const styles = StyleSheet.create({
   },
   containerVazio: {
     alignItems: 'center',
-    justify: 'center',
+    justifyContent: 'center',
     paddingTop: 60,
   },
   txtVazio: {
