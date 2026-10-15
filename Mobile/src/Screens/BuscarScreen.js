@@ -15,12 +15,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from "@react-navigation/native";
-import Constants from 'expo-constants'; // 1. IMPORTADO O CONSTANTS
 
-// 2. DETECÇÃO DINÂMICA DO IP DA SUA MÁQUINA VIA EXPO
-const hostUri = Constants.expoConfig?.hostUri || Constants.manifest2?.extra?.expoGo?.developer?.manifest?.debuggerHost;
-const IP_SERVIDOR = hostUri ? hostUri.split(':')[0] : '192.168.5.6'; // Fallback se não detectar
-const URL_API = `http://${IP_SERVIDOR}:3000`;
+
+import { BASE_URL } from '../../config';
 
 const CORES = {
   marromEscuro: '#341d04',
@@ -148,7 +145,7 @@ export default function BuscarScreen() {
     try {
       setCarregando(true);
       const token = await AsyncStorage.getItem("token");
-      const resposta = await fetch(`${URL_API}/produtos`, {
+      const resposta = await fetch(`${BASE_URL}/produtos`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -169,7 +166,7 @@ export default function BuscarScreen() {
           .trim();
         
         const nomeSemExt = nomeArquivo.replace(/\.(png|jpg|jpeg|webp)$/i, '');
-        const urlFinal = `${URL_API}/images/${encodeURIComponent(nomeSemExt)}`;
+        const urlFinal = `${BASE_URL}/images/${encodeURIComponent(nomeSemExt)}`;
 
         return {
           id_produto: p.id_produto,

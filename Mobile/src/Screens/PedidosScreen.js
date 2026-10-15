@@ -15,6 +15,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
 
+import { BASE_URL } from '../../config';
+
 const CORES = {
   marromEscuro: '#341d04',
   marromDestaque: '#713b00',
@@ -23,9 +25,6 @@ const CORES = {
   branco: '#FFFFFF',
   cinzaCard: '#4a2c0a',
 };
-
-const IP_SERVIDOR = "192.168.5.6"; 
-const URL_API = `http://${IP_SERVIDOR}:3000`;
 
 // Função auxiliar para formatar a data/hora do agendamento
 const formatarDataAgendada = (dataString) => {
@@ -65,7 +64,7 @@ export default function PedidosScreen() {
       
       const idCliente = idUser ? parseInt(idUser) : 1;
 
-      const resposta = await fetch(`${URL_API}/historico-pedidos`, {
+      const resposta = await fetch(`${BASE_URL}/historico-pedidos`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       

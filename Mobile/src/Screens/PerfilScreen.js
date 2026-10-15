@@ -16,8 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 
-const BASE_URL = 'http://10.0.2.2:3000'; 
-
+import { BASE_URL } from '../../config';
 const CORES = {
   fundo: '#242628',
   marromEscuro: '#341d04',

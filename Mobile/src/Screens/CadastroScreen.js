@@ -5,6 +5,7 @@ import { Botao } from '../Components/Botoes';
 import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 
+import { BASE_URL } from '../../config';
 export default function CadastroScreen() {
     // Hooks para todos os campos da imagem
     const [nome, setNome] = useState("");
@@ -27,7 +28,7 @@ export default function CadastroScreen() {
         if (senha !== confirmaSenha) return Alert.alert("Erro", "As senhas não coincidem!");
 
         try {
-            const resposta = await fetch(`http://10.111.9.32:3000/cadastrar`, {
+            const resposta = await fetch(`${BASE_URL}/cadastrar`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

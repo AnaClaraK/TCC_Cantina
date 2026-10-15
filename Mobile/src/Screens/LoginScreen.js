@@ -12,13 +12,9 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from '@expo/vector-icons'; 
-import Constants from 'expo-constants';
 import { Botao } from '../Components/Botoes';
+import { BASE_URL } from '../../config';
 
-// IP Dinâmico do Expo Go
-const hostUri = Constants.expoConfig?.hostUri || Constants.manifest2?.extra?.expoGo?.developer?.manifest?.debuggerHost;
-const IP_SERVIDOR = hostUri ? hostUri.split(':')[0] : '192.168.5.6';
-const URL_API = `http://${IP_SERVIDOR}:3000`;
 
 export default function LoginScreen() {
     const [email, setEmail] = useState("");
@@ -29,7 +25,7 @@ export default function LoginScreen() {
     const navigation = useNavigation();
 
     const FazerLogin = async () => {
-        const urlAPI = `${URL_API}/logar`;
+        const urlAPI = `${BASE_URL}/logar`;
         
         console.log("\n========================================");
         console.log("🚀 [LOGIN] Botão clicado!");

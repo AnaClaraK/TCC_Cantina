@@ -323,13 +323,14 @@
         prioridade = "Média",
         codigo = "",
         valorComprado = "",
-        status = "Pendente"
+        status = "Pendente",
+        alertaEstoqueMinimo = false
     ) {
         const tr = document.createElement('tr');
         tr.dataset.codigo = codigo;
         
         tr.innerHTML = `
-            <td>${nome}</td>
+            <td>${nome}${alertaEstoqueMinimo ? '<span style="display:inline-block;margin-left:8px;padding:3px 7px;border-radius:5px;background:#7a1f1f;color:#fff;font-size:11px;font-weight:bold;">Alerta: Estoque Mínimo Atingido</span>' : ''}</td>
             <td>${qtd}</td>
             <td><input type="number" value="${valorComprado}" class="input-reposicao input-qtd">
             </td>
@@ -870,13 +871,23 @@
                 item.prioridade,
                 item.codigo,
                 item.quantidade_comprada,
-                item.status
+                item.status,
+                Boolean(Number(item.alerta_estoque_minimo))
             );
         });
 
         // Aplica e reativa o evento de clique e setas nos cabeçalhos após carregar os dados
         aplicarOrdenacaoTabela("tb_tbl_estoque", [5]);
     }
+
+    // Atualiza a lista automaticamente para mostrar reposições criadas por vendas do app.
+    setInterval(() => {
+        const modalAberto = document.getElementById("d_modal")?.open;
+        const editandoTabela = document.activeElement?.classList?.contains("input-reposicao");
+        if (!modalAberto && !editandoTabela) {
+            carregarReposicao().catch(erro => console.error("Erro ao atualizar reposição:", erro));
+        }
+    }, 30000);
 
     const selectPrioridade = document.getElementById("selectPrioridade");
     const btnPrioridade = document.getElementById("btnPrioridade");

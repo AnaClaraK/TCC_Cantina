@@ -13,10 +13,9 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from "@react-navigation/native";
 import NotificacaoModal from '../Components/Modal'; 
-const MODO_DEV = true; 
+import { BASE_URL } from '../../config';
 
-const IP_SERVIDOR = "192.168.5.6"; 
-const URL_API = `http://${IP_SERVIDOR}:3000`;
+const MODO_DEV = true; 
 
 const CORES = {
   marromEscuro: '#341d04',
@@ -85,8 +84,18 @@ const CardapioItem = React.memo(({ item, temEstoque, adicionarAoCarrinho }) => {
         </TouchableOpacity>
 
         <View style={styles.containerPrecoCarrinho}>
-          <View style={styles.badgePreco}>
-            <Text style={styles.textoPreco}>R$ {item.preco}</Text>
+          <View style={styles.containerPrecoEstoque}>
+            <View style={styles.badgePreco}>
+              <Text style={styles.textoPreco}>R$ {item.preco}</Text>
+            </View>
+            <Text
+              style={[
+                styles.txtEstoqueCard,
+                item.estoque <= 0 ? styles.txtSemEstoque : styles.txtComEstoque
+              ]}
+            >
+              {item.estoque > 0 ? `${item.estoque} em estoque` : 'Esgotado'}
+            </Text>
           </View>
           
           <TouchableOpacity 
@@ -130,7 +139,7 @@ export default function CardapioScreen() {
   const carregarProdutosDoBanco = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
-      const resposta = await fetch(`${URL_API}/produtos`, {
+      const resposta = await fetch(`${BASE_URL}/produtos`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -152,7 +161,7 @@ export default function CardapioScreen() {
           .trim();
         
         const nomeSemExt = nomeArquivo.replace(/\.(png|jpg|jpeg|webp)$/i, '');
-        const urlFinal = `${URL_API}/images/${encodeURIComponent(nomeSemExt)}`;
+        const urlFinal = `${BASE_URL}/images/${encodeURIComponent(nomeSemExt)}`;
         
         imagemDefinida = { uri: urlFinal };
 
@@ -456,6 +465,20 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
     justifyContent: 'space-between', 
     width: '100%' 
+  },
+  containerPrecoEstoque: {
+    alignItems: 'flex-start'
+  },
+  txtEstoqueCard: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginTop: 4
+  },
+  txtComEstoque: {
+    color: '#ebd5a6'
+  },
+  txtSemEstoque: {
+    color: '#ff4d4d'
   },
   badgePreco: { 
     backgroundColor: '#1a1002', 

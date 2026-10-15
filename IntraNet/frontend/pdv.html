@@ -754,6 +754,25 @@ if (botaoDesbloquearPagamento) {
         return Math.floor(numero);
     }
 
+    // Os produtos configurados para estoque compartilhado mantêm a quantidade
+    // de venda em unidades para validação, mas exibem o saldo real em ml.
+    function obterVolumeMl(nome) {
+        const match = String(nome || '').match(/(?:^|\s)(\d+(?:[.,]\d+)?)\s*ml(?:\b|$)/i);
+        if (!match) return 0;
+        const volume = Number(match[1].replace(',', '.'));
+        return Number.isFinite(volume) && volume > 0 ? volume : 0;
+    }
+
+    function dadosEstoqueMl(produto) {
+        const habilitado = Number(produto?.estoque_em_ml) === 1 || produto?.estoque_compartilhado === true;
+        const volumeMl = habilitado ? obterVolumeMl(produto?.nome) : 0;
+        return habilitado && volumeMl > 0 ? {
+            estoqueMl: Number(produto.quantidade_ml ?? produto.qtd_base_produto ?? 0),
+            minimoMl: Number(produto.qtd_min_ml ?? 100),
+            volumeMl
+        } : { estoqueMl: null, minimoMl: null, volumeMl: 0 };
+    }
+
     function carrinhoPossuiEstoqueInvalido() {
         return carrinho.some(item => {
             const estoque = normalizarEstoque(item.estoque);
@@ -808,14 +827,18 @@ if (botaoDesbloquearPagamento) {
         document.getElementById("d_vl_und").innerText = "R$ " + formatar(item.preco);
         document.getElementById("d_ttl_i").innerText = "R$ " + formatar(item.preco * item.qtd);
         const estoqueRestante = item.estoque - item.qtd;
-        document.getElementById("d_estoque").innerText = estoqueRestante;
+        const ehMl = Number.isFinite(Number(item.estoqueMl)) && item.estoqueMl !== null && Number(item.volumeMl) > 0;
+        const saldoRestanteMl = ehMl ? Math.max(0, Number(item.estoqueMl) - (Number(item.qtd) * Number(item.volumeMl))) : null;
+        document.getElementById("d_estoque").innerText = ehMl ? `${saldoRestanteMl} ml` : estoqueRestante;
         const avisoEl = document.getElementById("aviso_estoque");
+        const saldoParaAviso = ehMl ? saldoRestanteMl : estoqueRestante;
+        const minimoParaAviso = ehMl ? Number(item.minimoMl ?? 100) : Number(item.qtd_min || 0);
         // estoque baixo
-        if (estoqueRestante > 0 && estoqueRestante <= item.qtd_min){
+        if (saldoParaAviso > 0 && saldoParaAviso <= minimoParaAviso){
             avisoEl.style.display = "block";
-            avisoEl.innerText = `Estoque baixo! Restam ${estoqueRestante} unidade(s).`;
+            avisoEl.innerText = ehMl ? `Estoque baixo! Restam ${saldoParaAviso} ml.` : `Estoque baixo! Restam ${saldoParaAviso} unidade(s).`;
         }
-        else if (estoqueRestante <= 0) {
+        else if (estoqueRestante <= 0 || (ehMl && saldoRestanteMl <= 0)) {
             avisoEl.style.display = "block";
             avisoEl.innerText = "Estoque esgotado!";
         }
@@ -995,6 +1018,7 @@ if (event.key.length === 1) {
             }
 
             const estoqueAtual = normalizarEstoque(produto.qtd);
+            const dadosMl = dadosEstoqueMl(produto);
 
             // Produto sem estoque nunca entra no carrinho.
             if (estoqueAtual <= 0) {
@@ -1018,6 +1042,7 @@ if (event.key.length === 1) {
 
             if (itemExistente) {
                 itemExistente.estoque = estoqueAtual;
+                if (dadosMl.volumeMl > 0) Object.assign(itemExistente, dadosMl);
 
                 if (itemExistente.qtd >= estoqueAtual) {
                     atualizarVisores(itemExistente);
@@ -1039,6 +1064,7 @@ if (event.key.length === 1) {
                     qtd: 1,
                     estoque: estoqueAtual,
                     qtd_min: Number(produto.qtd_min || 0),
+                    ...dadosMl,
                     img: produto.img
                 });
             }
@@ -1450,6 +1476,7 @@ window.pdvConfirmarSaida = function (continuar) {
         }
 
         const estoque = normalizarEstoque(prod.qtd ?? prod.quantidade ?? prod.estoque ?? 0);
+        const dadosMl = dadosEstoqueMl(prod);
         const preco = Number(prod.preco ?? prod.valor ?? prod.preco_unitario ?? 0);
         const idProduto = prod.id_produto ?? prod.id;
         const imagemProduto = prod.img ?? prod.imagem ?? prod.foto ?? prod.imagem_produto ?? prod.image ?? null;
@@ -1469,6 +1496,7 @@ window.pdvConfirmarSaida = function (continuar) {
 
         if (itemExistente) {
             itemExistente.estoque = estoque;
+            if (dadosMl.volumeMl > 0) Object.assign(itemExistente, dadosMl);
             if (itemExistente.qtd >= estoque) {
                 atualizarVisores(itemExistente);
                 verificarBotao();
@@ -1490,6 +1518,7 @@ window.pdvConfirmarSaida = function (continuar) {
                 qtd: 1,
                 estoque: estoque,
                 qtd_min: Number(prod.qtd_min ?? prod.estoque_minimo ?? 0),
+                ...dadosMl,
                 img: imagemProduto
             });
         }
@@ -2020,9 +2049,22 @@ function confirmarCancelamento() {
                 li.style.marginBottom = "5px";
                 li.style.borderRadius = "4px";
                 li.style.transition = "background 0.2s";
+                const dadosMlLista = dadosEstoqueMl(prod);
+                const estoqueLista = normalizarEstoque(prod.qtd ?? prod.quantidade ?? prod.estoque ?? 0);
+                // Exibe o saldo real em ml, não a quantidade de unidades vendáveis.
+                const saldoExibido = dadosMlLista.volumeMl > 0
+                    ? Number(dadosMlLista.estoqueMl ?? prod.qtd_base_produto ?? prod.qtd ?? 0)
+                    : estoqueLista;
+                const textoEstoqueLista = dadosMlLista.volumeMl > 0
+                    ? `${saldoExibido} ml`
+                    : `${estoqueLista} un.`;
+
                 li.innerHTML = `
                     <strong>${prod.nome}</strong>
-                    <span>R$ ${formatar(prod.preco)}</span>
+                    <span style="display:flex; align-items:center; justify-content:flex-end; gap:12px; white-space:nowrap;">
+                        <small style="color:#666;">Estoque: ${textoEstoqueLista}</small>
+                        <span>R$ ${formatar(prod.preco)}</span>
+                    </span>
                 `;
                 li.addEventListener("click", () => selecionarProduto(prod));
                 li.onmouseover = () => {
