@@ -18,7 +18,7 @@ const {
 =
 require('../config/multer');
 
-const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
+const { aplicarDisponibilidadeReceitas } = require('../utils/estoqueLiquidos');
 
 
 //--------- Cadastro produtos add
@@ -425,6 +425,7 @@ router.get(
                 );
 
 
+            await aplicarDisponibilidadeReceitas(produtos);
             return res.json(
                 produtos
             );
@@ -490,6 +491,7 @@ router.get(
             }
 
 
+            await aplicarDisponibilidadeReceitas(rows);
             res.json(rows);
 
 
@@ -868,6 +870,9 @@ router.get(
                 );
 
 
+            await aplicarDisponibilidadeReceitas(rows, conexao, {
+                mostrarVolume: req.query.modo === "estoque"
+            });
             res.json(
                 rows
             );

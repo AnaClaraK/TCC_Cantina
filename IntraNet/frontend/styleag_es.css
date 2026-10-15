@@ -2066,7 +2066,7 @@ body.pagina-estoque {
 body.pagina-estoque .d_util {
     width: 95%;
     margin: clamp(18px, 2.777778vh, 30px) auto clamp(8px, 0.925926vh, 10px);
-    gap: clamp(18px, 5.555556vh, 60px);
+    gap: clamp(10px, 1.35vw, 24px);
     align-items: center;
     flex-wrap: nowrap;
     box-sizing: border-box;
@@ -2080,7 +2080,8 @@ body.pagina-estoque .h_ag {
 }
 
 body.pagina-estoque #b_addq,
-body.pagina-estoque #btnExportarPDF {
+body.pagina-estoque #btnExportarPDF,
+body.pagina-estoque #btnEstoqueLiquidos {
     flex: 0 0 auto;
     width: clamp(190px, 27.777778vh, 300px);
     height: clamp(36px, 4.166667vh, 45px);
@@ -2088,6 +2089,28 @@ body.pagina-estoque #btnExportarPDF {
     font-size: clamp(17px, 2.222222vh, 24px);
     white-space: nowrap;
     box-sizing: border-box;
+}
+
+body.pagina-estoque #btnEstoqueLiquidos {
+    flex: 0 1 auto;
+    width: clamp(180px, 18vw, 245px);
+    min-width: 170px;
+    height: clamp(36px, 4.166667vh, 45px);
+    padding: 6px 12px;
+    border: 1px solid #efac4a;
+    border-radius: 8px;
+    background: #2b241b;
+    color: #ffd28d;
+    font: inherit;
+    font-size: clamp(12px, 1.3vh, 14px);
+    line-height: 1.15;
+    white-space: normal;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+body.pagina-estoque #btnEstoqueLiquidos:hover {
+    background: #efac4a;
+    color: #21180e;
 }
 
 body.pagina-estoque #s_addq {
@@ -2151,6 +2174,33 @@ body.pagina-estoque #sc_tabela .tabela thead th {
     position: sticky;
     top: 0;
     z-index: 20;
+}
+
+/* Status ativo/inativo legível na tabela de estoque. */
+body.pagina-estoque .select-status-produto {
+    min-width: 92px;
+    padding: 6px 24px 6px 9px;
+    border: 1px solid #8d785e;
+    border-radius: 7px;
+    background-color: #26231f;
+    color: #f5eee5;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+body.pagina-estoque .select-status-produto:has(option[value="1"]:checked) {
+    border-color: #62a879;
+    background-color: #1f3929;
+    color: #baf0c8;
+}
+body.pagina-estoque .select-status-produto:has(option[value="0"]:checked) {
+    border-color: #b96a5f;
+    background-color: #402522;
+    color: #ffc0b8;
+}
+body.pagina-estoque .select-status-produto option {
+    background: #26231f;
+    color: #f5eee5;
 }
 
 /* Scrollbar da tabela no mesmo padrão do scroll global da tela.
@@ -2551,3 +2601,168 @@ body:not(.pagina-estoque) #sc_tabela::-webkit-scrollbar-corner {
             font-weight: bold;
             cursor: pointer;
         }
+/* Reposição automática diária */
+.modal-config-diaria {
+    width: min(760px, 92vw);
+    max-width: 92vw;
+    max-height: 86vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.tabela-diaria-wrap {
+    overflow: auto;
+    max-height: 52vh;
+    border-radius: 8px;
+}
+.tabela-diaria-wrap .tabela {
+    width: 100%;
+}
+.tabela-diaria-wrap .tabela thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+.input-qtd-diaria {
+    width: 110px;
+    min-width: 80px;
+}
+.tag-reposicao-diaria {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #efac4a;
+    color: #222;
+}
+
+/* Tela de estoque de líquidos e preparos */
+.liquidos-pagina { padding: 24px; max-width: 1500px; margin: 0 auto; }
+.liquidos-cabecalho { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.liquidos-cabecalho p, .liquidos-card > p { margin: 6px 0 0; }
+.liquidos-card { background: var(--cor-card, #202020); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+.liquidos-card h3 { margin: 0 0 16px; }
+.liquidos-form-grid { display: grid; grid-template-columns: minmax(180px, 1.5fr) minmax(130px, 1fr) minmax(130px, 1fr) auto; align-items: end; gap: 14px; }
+.liquidos-form-grid label { display: flex; flex-direction: column; gap: 6px; }
+.liquidos-form-grid .inp_m { width: 100%; box-sizing: border-box; }
+.liquidos-ajuda { opacity: .85; font-size: 13px; margin-top: 14px !important; }
+.liquidos-tabela-wrap { width: 100%; overflow: auto; margin-top: 16px; }
+.liquidos-tabela-wrap .tabela { width: 100%; min-width: 640px; }
+.liquidos-acoes { display: flex; gap: 8px; flex-wrap: wrap; }
+.liquido-qtd { width: 120px; min-width: 90px; }
+.btn-liquido-excluir { background: #8b2f2f !important; }
+@media (max-width: 900px) {
+    .liquidos-pagina { padding: 14px; }
+    .liquidos-cabecalho { align-items: flex-start; flex-direction: column; }
+    .liquidos-form-grid { grid-template-columns: 1fr; }
+}
+
+/* Modal integrado ao Estoque: não abre uma página separada. */
+.dialog-liquidos-estoque {
+    width: min(1240px, 96vw);
+    max-width: 96vw;
+    max-height: 94vh;
+    padding: 0;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 14px;
+    background: #171717;
+    color: #f5f5f5;
+    overflow: auto;
+}
+.dialog-liquidos-estoque::backdrop { background: rgba(0,0,0,.72); }
+.dialog-liquidos-estoque .modal-liquidos-conteudo {
+    position: relative;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    box-sizing: border-box;
+    padding: 28px;
+}
+.dialog-liquidos-estoque .liquidos-card { margin: 16px 0; }
+.dialog-liquidos-estoque .liquidos-form-grid { grid-template-columns: minmax(160px,1.4fr) minmax(120px,1fr) minmax(120px,1fr) auto; }
+.fechar-modal-liquidos {
+    float: right;
+    min-width: 36px;
+    min-height: 36px;
+    font-size: 24px;
+    line-height: 1;
+}
+.check-produto-ml {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 19px;
+    height: 19px;
+    margin: 0;
+    border: 2px solid #efac4a;
+    border-radius: 5px;
+    background: #fff8ec;
+    cursor: pointer;
+    vertical-align: middle;
+    display: inline-grid;
+    place-content: center;
+    transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.check-produto-ml:checked { background: #efac4a; border-color: #d9912d; }
+.check-produto-ml:checked::before {
+    content: "";
+    width: 9px;
+    height: 5px;
+    border-left: 2px solid #5b3510;
+    border-bottom: 2px solid #5b3510;
+    transform: rotate(-45deg) translate(1px, -1px);
+}
+.check-produto-ml:focus-visible { outline: 2px solid #efac4a; outline-offset: 3px; }
+@media (max-width: 900px) {
+    .dialog-liquidos-estoque .modal-liquidos-conteudo { padding: 16px; }
+    .dialog-liquidos-estoque .liquidos-form-grid { grid-template-columns: 1fr; }
+}
+.dialog-liquidos-estoque .liquidos-form-volume {
+    grid-template-columns: minmax(220px, 1.4fr) minmax(180px, 1fr) auto;
+    align-items: end;
+    margin-top: 22px;
+}
+.dialog-liquidos-estoque .liquidos-form-volume label {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    color: #f2d9b6;
+}
+.dialog-liquidos-estoque .liquidos-form-volume .inp_m {
+    width: 100%;
+    min-height: 42px;
+    box-sizing: border-box;
+}
+.dialog-liquidos-estoque #btnSalvarEstoqueMl {
+    min-height: 42px;
+    padding: 9px 16px;
+    border-radius: 8px;
+    background: #efac4a;
+    color: #241a10;
+    font-weight: 700;
+    white-space: nowrap;
+}
+@media (max-width: 900px) {
+    .dialog-liquidos-estoque .liquidos-form-volume { grid-template-columns: 1fr; }
+}
+
+
+/* Ajustes pontuais da tela Estoque */
+body.pagina-estoque .select-status-produto:has(option[value="1"]:checked) {
+    background: #efac4a !important;
+    border-color: #efac4a !important;
+    color: #241a10 !important;
+    font-weight: 700;
+}
+body.pagina-estoque .select-status-produto:has(option[value="0"]:checked) {
+    background: #343434;
+    border-color: #777;
+    color: #f2f2f2;
+}
+.produtos-selecionados-ml { display:flex; flex-wrap:wrap; gap:8px; margin:18px 0 4px; }
+.produto-selecionado-ml { border:1px solid #efac4a; border-radius:8px; padding:8px 12px; color:#f8d8a8; background:rgba(239,172,74,.10); font-weight:600; }
+.dialog-liquidos-estoque .liquidos-form-volume { grid-template-columns:minmax(220px,1fr) auto; }
+.dialog-liquidos-estoque .liquidos-form-volume label { color:#f2f2f2; }

@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const conexao = require('../db');
 const verificarToken = require('../middlewares/auth');
+const { consumirEstoqueProduto, garantirTabelasLiquidos } = require('../utils/estoqueLiquidos');
 
 // Função auxiliar para sanitizar o nome da forma de pagamento
 function limparFormaPagamento(valor) {
@@ -44,6 +45,8 @@ router.post("/pedidos", verificarToken, async (req, res) => {
     const conn = await conexao.getConnection();
 
     try {
+        // Cria as tabelas auxiliares antes da transação, evitando DDL dentro da venda.
+        await garantirTabelasLiquidos();
         await conn.beginTransaction();
 
         const {
@@ -114,26 +117,20 @@ router.post("/pedidos", verificarToken, async (req, res) => {
                 throw new Error("A comanda não possui itens.");
             }
 
-            // VALIDAÇÃO DE PRODUTOS INATIVOS E ESTOQUE
+            // Desconta unidades normais ou os insumos da receita (ex.: ml de café).
             for (const item of itensComanda) {
-                if (item.ativo === 0) {
-                    throw new Error(`Não é possível finalizar: o produto "${item.nome}" está INATIVO.`);
-                }
-
-                const novaQtd = Number(item.estoque) - Number(item.qtd);
-
-                if (novaQtd < 0) {
-                    throw new Error(`Estoque insuficiente para: ${item.nome}`);
-                }
-
-                if (novaQtd <= Number(item.qtd_min || 0)) {
-                    alertas.push(`O produto "${item.nome}" atingiu o estoque mínimo (${novaQtd} restantes).`);
-                }
-
-                await conn.query(
-                    `UPDATE produtos SET qtd = ? WHERE id_produto = ?`,
-                    [novaQtd, item.id_produto]
+                const resultadoEstoque = await consumirEstoqueProduto(
+                    conn,
+                    item.id_produto,
+                    item.qtd,
+                    item.nome
                 );
+
+                if (resultadoEstoque.qtdRestante <= resultadoEstoque.qtdMin) {
+                    alertas.push(resultadoEstoque.volume
+                        ? `O estoque compartilhado de ${resultadoEstoque.nome} atingiu o mínimo: ${resultadoEstoque.qtdRestante} ml restantes.`
+                        : `O produto "${resultadoEstoque.nome}" atingiu o estoque mínimo: ${resultadoEstoque.qtdRestante} unidade(s) restantes.`);
+                }
             }
 
             await conn.query(
@@ -171,37 +168,18 @@ router.post("/pedidos", verificarToken, async (req, res) => {
 
         if (itens && itens.length > 0) {
             for (const item of itens) {
-                // BUSCA O PRODUTO E VALIDA SE ESTÁ ATIVO
-                const [estoque] = await conn.query(
-                    `SELECT nome, qtd, qtd_min, ativo FROM produtos WHERE id_produto = ?`,
-                    [item.id_produto]
+                const resultadoEstoque = await consumirEstoqueProduto(
+                    conn,
+                    item.id_produto,
+                    item.qtd,
+                    `ID ${item.id_produto}`
                 );
 
-                if (estoque.length === 0) {
-                    throw new Error(`Produto não encontrado: ${item.id_produto}`);
+                if (resultadoEstoque.qtdRestante <= resultadoEstoque.qtdMin) {
+                    alertas.push(resultadoEstoque.volume
+                        ? `O estoque compartilhado de ${resultadoEstoque.nome} atingiu o mínimo: ${resultadoEstoque.qtdRestante} ml restantes.`
+                        : `O produto "${resultadoEstoque.nome}" atingiu o estoque mínimo: ${resultadoEstoque.qtdRestante} unidade(s) restantes.`);
                 }
-
-                const produtoDB = estoque[0];
-
-                // BLOQUEIO DE PRODUTO INATIVO
-                if (produtoDB.ativo === 0) {
-                    throw new Error(`O produto "${produtoDB.nome}" está inativo e não pode ser vendido.`);
-                }
-
-                const novaQtd = Number(produtoDB.qtd) - Number(item.qtd);
-
-                if (novaQtd < 0) {
-                    throw new Error(`Estoque insuficiente para: ${produtoDB.nome}`);
-                }
-
-                if (novaQtd <= Number(produtoDB.qtd_min || 0)) {
-                    alertas.push(`O produto "${produtoDB.nome}" atingiu o estoque mínimo (${novaQtd} restantes).`);
-                }
-
-                await conn.query(
-                    `UPDATE produtos SET qtd = ? WHERE id_produto = ?`,
-                    [novaQtd, item.id_produto]
-                );
 
                 await conn.query(
                     `INSERT INTO pedidos_itens (id_pedido, id_produto, qtd, preco_unitario)

@@ -28,6 +28,8 @@ LocaleConfig.locales['pt-br'] = {
 };
 LocaleConfig.defaultLocale = 'pt-br';
 
+import { BASE_URL } from '../../config';
+
 const CORES = {
   marromEscuro: '#341d04',
   marromDestaque: '#713b00',
@@ -43,9 +45,6 @@ const OPCOES_PAGAMENTO = [
   { id: 'CREDITO', label: 'Cartão de Crédito', icon: 'card-outline' },
   { id: 'DEBITO', label: 'Cartão de Débito', icon: 'card-outline' },
 ];
-
-const IP_SERVIDOR = "192.168.5.6"; 
-const URL_API = `http://${IP_SERVIDOR}:3000`;
 
 export default function ComprasScreen({ navigation }) {
   const [itensCarrinho, setItensCarrinho] = useState([]);
@@ -197,7 +196,7 @@ export default function ComprasScreen({ navigation }) {
       const totalNumerico = itensCarrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
       const quantidadeTotalItens = itensCarrinho.reduce((soma, item) => soma + item.qtd, 0);
 
-      const resposta = await fetch(`${URL_API}/comandas`, {
+      const resposta = await fetch(`${BASE_URL}/comandas`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
