@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 
 import { BASE_URL } from '../../config';
+import CampoSenhaProtegida from '../Components/CampoSenhaProtegida';
 export default function CadastroScreen() {
     // Hooks para todos os campos da imagem
     const [nome, setNome] = useState("");
@@ -85,19 +86,29 @@ export default function CadastroScreen() {
                 {/* SENHA */}
                 <View style={styles.inputArea}>
                     <Ionicons name="lock-closed-outline" size={24} color="#eeaf55" />
-                    <TextInput style={styles.inputInterno} placeholder="Senha" secureTextEntry={verSenha} onChangeText={setSenha} value={senha} />
-                    <TouchableOpacity onPress={() => setVerSenha(!verSenha)}>
-                        <Ionicons name={verSenha ? "eye-off-outline" : "eye-outline"} size={22} color="#888" />
-                    </TouchableOpacity>
+                    <CampoSenhaProtegida
+                        valor={senha}
+                        onChangeText={setSenha}
+                        placeholder="Senha"
+                        oculto={verSenha}
+                        setOculto={setVerSenha}
+                        inputStyle={[styles.inputInterno, { marginLeft: 0 }]}
+                        fontSize={16}
+                    />
                 </View>
 
                 {/* REPITA A SENHA */}
                 <View style={styles.inputArea}>
                     <Ionicons name="lock-closed-outline" size={24} color="#eeaf55" />
-                    <TextInput style={styles.inputInterno} placeholder="Repita a senha" secureTextEntry={verConfirma} onChangeText={setConfirmaSenha} value={confirmaSenha} />
-                    <TouchableOpacity onPress={() => setVerConfirma(!verConfirma)}>
-                        <Ionicons name={verConfirma ? "eye-off-outline" : "eye-outline"} size={22} color="#888" />
-                    </TouchableOpacity>
+                    <CampoSenhaProtegida
+                        valor={confirmaSenha}
+                        onChangeText={setConfirmaSenha}
+                        placeholder="Repita a senha"
+                        oculto={verConfirma}
+                        setOculto={setVerConfirma}
+                        inputStyle={[styles.inputInterno, { marginLeft: 0 }]}
+                        fontSize={16}
+                    />
                 </View>
 
                 <Botao texto="CADASTRAR" acao={CriarCadastro} tamFonte={22} styleExtra={{ marginTop: 10 }} />

@@ -3,7 +3,6 @@ import {
   StyleSheet, 
   Text, 
   View, 
-  SafeAreaView, 
   TouchableOpacity, 
   TextInput,
   ScrollView,
@@ -12,9 +11,12 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { File } from 'expo-file-system';
+import { fetch as expoFetch } from 'expo/fetch';
 
 import { BASE_URL } from '../../config';
 const CORES = {
@@ -88,7 +90,7 @@ export default function PerfilScreen() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.8,
@@ -136,18 +138,11 @@ export default function PerfilScreen() {
       formData.append("conf_senha", confirmarSenha);
 
       if (fotoUri) {
-        const filename = fotoUri.split('/').pop();
-        const match = /\.(\w+)$/.exec(filename);
-        const type = match ? `image/${match[1]}` : `image/jpeg`;
-
-        formData.append("imagem", {
-          uri: fotoUri,
-          name: filename || 'perfil.jpg',
-          type: type,
-        });
+        // O Expo SDK 57 exige um objeto File, não o objeto { uri, name, type } antigo.
+        formData.append("imagem", new File(fotoUri));
       }
 
-      const response = await fetch(`${BASE_URL}/perfil/atualizar`, {
+      const response = await expoFetch(`${BASE_URL}/perfil/atualizar`, {
         method: "PUT",
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -209,14 +204,16 @@ export default function PerfilScreen() {
 
   if (carregando) {
     return (
-      <SafeAreaView style={[styles.container, styles.containerCentro]}>
+      <SafeAreaView style={styles.safeAreaTopo}><View style={[styles.container, styles.containerCentro]}>
         <ActivityIndicator size="large" color={CORES.dourado} />
+      </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.safeAreaTopo}>
+      <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.containerAvatar}>
           <View style={styles.circuloAvatar}>{renderAvatar()}</View>
@@ -305,11 +302,13 @@ export default function PerfilScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeAreaTopo: { flex: 1, backgroundColor: CORES.dourado },
   container: { flex: 1, backgroundColor: CORES.fundo },
   containerCentro: { justifyContent: 'center', alignItems: 'center' },
   scrollContent: { padding: 20, paddingTop: 38, paddingBottom: 40 },

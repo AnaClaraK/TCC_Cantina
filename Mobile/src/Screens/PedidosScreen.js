@@ -3,7 +3,6 @@ import {
   StyleSheet, 
   Text, 
   View, 
-  SafeAreaView, 
   FlatList, 
   TouchableOpacity, 
   Modal, 
@@ -11,6 +10,7 @@ import {
   Alert 
 } from 'react-native';
 import { useFocusEffect } from "@react-navigation/native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
@@ -143,8 +143,8 @@ export default function PedidosScreen() {
   const itensDoModal = Array.isArray(pedidoSelecionado?.itens) ? pedidoSelecionado.itens : [];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.barraTituloTela} />
+    <SafeAreaView style={styles.safeAreaTopo}>
+      <View style={styles.container}>
 
       {carregando && (
         <ActivityIndicator size="large" color={CORES.dourado} style={styles.loadingStyle} />
@@ -229,19 +229,19 @@ export default function PedidosScreen() {
           </View>
         </View>
       </Modal>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeAreaTopo: {
+    flex: 1,
+    backgroundColor: CORES.dourado
+  },
   container: { 
     flex: 1, 
     backgroundColor: '#242628' 
-  },
-  barraTituloTela: { 
-    backgroundColor: CORES.dourado, 
-    paddingVertical: 15, 
-    alignItems: 'center' 
   },
   txtTituloTela: { 
     color: CORES.marromEscuro, 

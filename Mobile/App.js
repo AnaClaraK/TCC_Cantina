@@ -4,7 +4,14 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useFonts } from 'expo-font';
-import { LogBox, StatusBar, Alert, DeviceEventEmitter, Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native'; 
+import { LogBox, StatusBar, Alert, DeviceEventEmitter, Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context'; 
+
+// Silencia o aviso do InteractionManager
+LogBox.ignoreLogs(['InteractionManager']);
+
+// ÍCONES
+import { Ionicons, Feather } from '@expo/vector-icons'; 
 
 // Alertas personalizados da Grano Vita: evita as janelas brancas padrão do celular.
 const EVENTO_ALERTA_GRANO_VITA = 'grano-vita-alerta';
@@ -16,11 +23,6 @@ Alert.alert = (titulo, mensagem, botoes) => {
   });
 };
 
-// Silencia o aviso do InteractionManager
-LogBox.ignoreLogs(['InteractionManager']);
-
-// ÍCONES
-import { Ionicons, Feather } from '@expo/vector-icons'; 
 
 // IMPORTAÇÃO DAS TELAS
 import HomeScreen from './src/Screens/HomeScreen';
@@ -39,6 +41,7 @@ const Tab = createBottomTabNavigator();
 
 // --- 1. CONFIGURAÇÃO DO MENU DE ABAS (BOTTOM TABS) ---
 function TabNavigator() {
+  const insets = useSafeAreaInsets();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -80,9 +83,10 @@ function TabNavigator() {
         
         tabBarStyle: {
           backgroundColor: '#efac4a',
-          height: 65,
+          height: 65 + insets.bottom,
           borderTopWidth: 0,
           paddingTop: 8,
+          paddingBottom: insets.bottom,
         },
         
         tabBarIconStyle: {
@@ -156,6 +160,7 @@ export default function App() {
   const botoesAlerta = alertaSistema?.botoes?.length ? alertaSistema.botoes : [{ text: 'OK' }];
 
   return (
+    <SafeAreaProvider>
     <View style={stylesAplicativo.raiz}>
       <NavigationContainer>
       <StatusBar hidden={true} />
@@ -216,6 +221,7 @@ export default function App() {
         </View>
       </Modal>
     </View>
+    </SafeAreaProvider>
   );
 }
 

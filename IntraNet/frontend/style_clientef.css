@@ -8113,3 +8113,50 @@ body.fundo-escuro #modal_cliente .cliente-campo label {
 body.fundo-escuro #modal_cliente .cliente-form-secao-final {
     margin-top: 8px !important;
 }
+.fiado-notificacoes-wrap{display:flex;align-items:center;margin-left:auto;position:relative}
+.btn-notificacoes-fiado{position:relative;width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #1C1C1C;border-radius:12px;background:#1C1C1C;color:#efac4a;cursor:pointer;transition:background .18s,transform .18s}
+.btn-notificacoes-fiado:hover{background:#1C1C1C;transform:translateY(-1px)}
+.btn-notificacoes-fiado svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.contador-notificacoes-fiado{position:absolute;top:-6px;right:-6px;min-width:19px;height:19px;padding:0 4px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:#ef4c25;color:#fff;font-size:11px;font-weight:700;border:2px solid #21170e}
+.modal-notificacoes-fiado{width:min(520px,calc(100vw - 28px));max-width:calc(100vw - 28px);max-height:80dvh;padding:0;border:1px solid #1C1C1C;border-radius:16px;background:#21170e;color:#f7eee3;box-shadow:0 18px 55px #0008}
+.modal-notificacoes-fiado::backdrop{background:#0009;backdrop-filter:blur(2px)}
+.conteudo-notificacoes-fiado{position:relative;padding:24px;max-height:80dvh;overflow:auto}
+.conteudo-notificacoes-fiado h2{margin:0 38px 5px 0;color:#efac4a;font-size:23px}
+.subtitulo-notificacoes-fiado{margin:0 0 18px;color:#c8b8a6;font-size:13px}
+.fechar-notificacoes-fiado{position:absolute;right:14px;top:12px;border:0;background:transparent;color:#f7eee3;font-size:29px;cursor:pointer}
+.lista-notificacoes-fiado{display:flex;flex-direction:column;gap:10px}
+.notificacao-fiado-item{padding:14px;border:1px solid #59402a;border-radius:12px;background:#302215;display:flex;gap:12px;align-items:flex-start}
+.notificacao-fiado-item.nao-lida{border-color:#efac4a;background:#3b2917}
+.notificacao-fiado-ponto{width:9px;height:9px;flex:0 0 9px;margin-top:5px;border-radius:50%;background:#efac4a}
+.notificacao-fiado-texto{margin:0;font-size:14px;line-height:1.5}
+.notificacao-fiado-data{display:block;margin-top:6px;color:#c8b8a6;font-size:11px}
+.notificacoes-vazias{padding:24px 12px;text-align:center;color:#c8b8a6}
+@media(max-width:700px){.conteudo-notificacoes-fiado{padding:20px 16px}.btn-notificacoes-fiado{width:40px;height:40px}}
+
+/* Busca à esquerda do sininho: a caixa e o botão ficam juntos no lado direito. */
+.fiado-notificacoes-wrap {
+    margin-left: 0 !important;
+    flex: 0 0 44px !important;
+}
+.btn-notificacoes-fiado {
+    background: #1C1C1C;;
+    color: #efac4a;
+    border-color: #1C1C1C;
+}
+.btn-notificacoes-fiado:hover {
+    background: #1C1C1C;;
+}
+@media (max-width: 760px) {
+    body.fundo-escuro > .d_util > #d_inp {
+        flex: 1 1 180px !important;
+        width: auto !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        margin-left: auto !important;
+    }
+    body.fundo-escuro > .d_util > .fiado-notificacoes-wrap {
+        flex: 0 0 40px !important;
+        margin-left: 0 !important;
+    }
+    .btn-notificacoes-fiado { width: 40px; height: 40px; }
+}

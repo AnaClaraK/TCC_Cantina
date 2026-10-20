@@ -113,6 +113,17 @@
     </button>
 
 
+
+    <dialog id="modalNotificacoesFiado" class="modal-notificacoes-fiado">
+        <div class="conteudo-notificacoes-fiado">
+            <button type="button" id="fecharNotificacoesFiado" class="fechar-notificacoes-fiado" aria-label="Fechar">×</button>
+            <h2>Notificações</h2>
+            <p class="subtitulo-notificacoes-fiado">Avisos de compras parceladas concluídas.</p>
+            <div id="listaNotificacoesFiado" class="lista-notificacoes-fiado"><p class="notificacoes-vazias">Carregando notificações...</p></div>
+        </div>
+    </dialog>
+
+    
     <div id="notificacaoParcelasConcluidas" class="notificacao-parcela-pagina" aria-live="polite"></div>
 
 <div id="d_inp">
@@ -135,6 +146,12 @@
 
     </div>
 
+    <div class="fiado-notificacoes-wrap">
+        <button type="button" id="btnNotificacoesFiado" class="btn-notificacoes-fiado" aria-label="Abrir notificações" title="Notificações">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+            <span id="contadorNotificacoesFiado" class="contador-notificacoes-fiado" hidden>0</span>
+        </button>
+    </div>
 </div>
 
 <section id="sc_tabela" class="container mt-5">
@@ -1086,6 +1103,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnFecharComprasParceladas = document.getElementById("btnFecharComprasParceladas");
     const listaComprasParceladas = document.getElementById("listaComprasParceladas");
     const notificacaoParcelasConcluidas = document.getElementById("notificacaoParcelasConcluidas");
+    const btnNotificacoesFiado = document.getElementById("btnNotificacoesFiado");
+    const modalNotificacoesFiado = document.getElementById("modalNotificacoesFiado");
+    const fecharNotificacoesFiado = document.getElementById("fecharNotificacoesFiado");
+    const listaNotificacoesFiado = document.getElementById("listaNotificacoesFiado");
+    const contadorNotificacoesFiado = document.getElementById("contadorNotificacoesFiado");
+    let notificacoesFiadoCache = [];
     const btnFecharSimulacaoJuros = document.getElementById("btnFecharSimulacaoJuros");
     const btnCancelarSimulacaoJuros = document.getElementById("btnCancelarSimulacaoJuros");
 
@@ -1440,6 +1463,13 @@ const modalGerenciarHTML = `
 
         <button
           type="button"
+          id="alternar_bloqueio_cliente_consulta"
+          class="btn-secundario-cliente"
+          disabled
+        >Desbloquear cliente</button>
+
+        <button
+          type="button"
           id="editar_cliente_selecionado"
           class="btn-principal-cliente"
           disabled
@@ -1460,9 +1490,37 @@ const modalGerenciarHTML = `
     const selectGerenciarCliente = document.getElementById("select_cliente_gerenciar");
     const detalhesGerenciarCliente = document.getElementById("detalhes_cliente_gerenciar");
     const botaoEditarCliente = document.getElementById("editar_cliente_selecionado");
+    const botaoBloqueioConsulta = document.getElementById("alternar_bloqueio_cliente_consulta");
 
+    function atualizarBotaoBloqueioConsulta(c) {
+        if (!botaoBloqueioConsulta) return;
+        botaoBloqueioConsulta.disabled = !c;
+        botaoBloqueioConsulta.textContent = Number(c?.bloqueado || 0) === 1 ? "Desbloquear cliente" : "Bloquear cliente";
+        botaoBloqueioConsulta.classList.toggle("cliente-acao-desbloquear", Number(c?.bloqueado || 0) === 1);
+    }
 
-    
+    botaoBloqueioConsulta?.addEventListener("click", async () => {
+        const id = Number(selectGerenciarCliente.value);
+        const cliente = listaClientesGerenciar.find(c => Number(c.id_cliente) === id);
+        if (!cliente) return;
+        const novoBloqueio = Number(cliente.bloqueado || 0) === 1 ? 0 : 1;
+        try {
+            const resposta = await apiFetch(`/clientes-fiado/${id}/bloqueio`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ bloqueado: novoBloqueio })
+            });
+            const dados = await resposta.json();
+            if (!resposta.ok) throw new Error(dados.erro || "Não foi possível alterar o bloqueio.");
+            cliente.bloqueado = novoBloqueio;
+            atualizarBotaoBloqueioConsulta(cliente);
+            preencherDetalhesCliente(cliente);
+            exibirAviso(novoBloqueio ? "Cliente bloqueado para novas compras." : "Cliente desbloqueado para novas compras.");
+        } catch (erro) {
+            exibirAviso(erro.message || "Erro ao alterar o bloqueio do cliente.");
+        }
+    });
+
 function preencherDetalhesCliente(c) {
     if (!detalhesGerenciarCliente || !botaoEditarCliente) {
         console.error(
@@ -1475,6 +1533,7 @@ function preencherDetalhesCliente(c) {
         detalhesGerenciarCliente.hidden = true;
         detalhesGerenciarCliente.innerHTML = "";
         botaoEditarCliente.disabled = true;
+        atualizarBotaoBloqueioConsulta(null);
         return;
     }
 
@@ -1515,6 +1574,7 @@ function preencherDetalhesCliente(c) {
 
     detalhesGerenciarCliente.hidden = false;
     botaoEditarCliente.disabled = false;
+    atualizarBotaoBloqueioConsulta(c);
 }
 
 
@@ -1579,6 +1639,13 @@ function preencherDetalhesCliente(c) {
     )?.addEventListener(
         "click",
         () => {
+            clienteEmEdicao = null;
+            const titulo = document.querySelector("#modal_cliente .modal_titulo");
+            const subtitulo = document.querySelector("#modal_cliente .modal-subtitulo");
+            const botaoSalvar = document.getElementById("b_addf");
+            if (titulo) titulo.textContent = "Novo Cliente";
+            if (subtitulo) subtitulo.textContent = "Cadastre os dados do cliente para facilitar as próximas compras fiado.";
+            if (botaoSalvar) botaoSalvar.textContent = "Cadastrar cliente";
             modalCliente?.showModal();
         }
     );
@@ -3259,18 +3326,30 @@ function preencherDetalhesCliente(c) {
                         return null;
                     }
 
+                    const quantidade = Number(item.quantidade ?? item.qtd ?? 0);
+                    const valorUnitario = Number(item.valor_unitario ?? item.valor_unit ?? item.preco ?? 0);
+                    const valorBaseInformado = Number(item.valor_base);
+                    // Algumas respostas antigas trazem valor_base como 0 mesmo havendo quantidade e preço.
+                    const valorBase = Number.isFinite(valorBaseInformado) && valorBaseInformado > 0
+                        ? valorBaseInformado
+                        : valueRound(quantidade * valorUnitario);
+                    const valorAtualInformado = Number(item.valor_atual);
+                    const valorAtual = Number.isFinite(valorAtualInformado) && valorAtualInformado > 0
+                        ? valorAtualInformado
+                        : valorBase;
+
                     return {
                         idConta: Number(item.id_conta ?? conta?.id_conta ?? 0),
                         idProduto: Number(item.id_produto ?? item.id ?? 0),
                         nome: item.nome || item.produto || "Produto",
-                        quantidade: Number(item.quantidade ?? item.qtd ?? 0),
-                        valorUnitario: Number(item.valor_unitario ?? item.valor_unit ?? item.preco ?? 0),
-                        valorBase: Number(item.valor_base ?? ((item.quantidade ?? item.qtd ?? 0) * (item.valor_unitario ?? item.valor_unit ?? item.preco ?? 0))),
-                        jurosAtivo: Number(item.juros_ativo ?? 0) === 1,
+                        quantidade,
+                        valorUnitario,
+                        valorBase,
+                        jurosAtivo: Number(item.juros_ativo ?? 0) === 1 || item.juros_ativo === true,
                         taxa: Number(item.taxa_juros ?? 0),
                         tipo: item.tipo_juros || "",
                         valorJurosAtual: Number(item.valor_juros_atual ?? 0),
-                        valorAtual: Number(item.valor_atual ?? item.valor_base ?? 0),
+                        valorAtual,
                         statusPagamento: String(item.status_pagamento ?? "Pendente").trim(),
                         diasAtraso: Number(item.dias_atraso ?? 0),
                         dataVencimento: item.data_vencimento || conta?.data_vencimento || null,
@@ -4145,9 +4224,6 @@ function renderContasParaJuros() {
         return;
     }
 
-    listaContasJuros.querySelectorAll(".checkbox-produto-juros").forEach(checkbox => {
-        checkbox.addEventListener("change", () => limparResultadoSimulacao());
-    });
 }
 
 
@@ -4266,6 +4342,7 @@ btnSelecionarTodosJuros?.addEventListener(
             );
 
         limparResultadoSimulacao();
+        atualizarResumoSelecaoJuros();
     }
 );
 
@@ -4289,6 +4366,7 @@ btnDesmarcarTodosJuros?.addEventListener(
             );
 
         limparResultadoSimulacao();
+        atualizarResumoSelecaoJuros();
     }
 );
 
@@ -4297,24 +4375,31 @@ btnDesmarcarTodosJuros?.addEventListener(
    QUANDO ALTERAR UM PRODUTO
 ====================================================== */
 
+function atualizarResumoSelecaoJuros() {
+    const selecionados = obterProdutosSelecionadosJuros();
+    const valorOriginal = valueRound(selecionados.reduce((total, item) => {
+        const produto = item.produto;
+        const baseInformada = Number(produto.valorBase ?? produto.valor_base);
+        const quantidade = Number(produto.quantidade ?? produto.qtd ?? 0);
+        const unitario = Number(produto.valorUnitario ?? produto.valor_unitario ?? produto.valor_unit ?? produto.preco ?? 0);
+        const base = Number.isFinite(baseInformada) && baseInformada > 0
+            ? baseInformada
+            : quantidade * unitario;
+        return total + base;
+    }, 0));
+
+    if (jurosValorOriginal) jurosValorOriginal.innerText = `R$ ${formatarMoeda(valorOriginal)}`;
+    if (jurosValorCalculado) jurosValorCalculado.innerText = "R$ 0,00";
+    if (jurosValorFinal) jurosValorFinal.innerText = `R$ ${formatarMoeda(valorOriginal)}`;
+    if (resumoSimulacaoJuros) resumoSimulacaoJuros.style.display = selecionados.length ? "block" : "none";
+}
+
 listaContasJuros?.addEventListener(
     "change",
     event => {
-
-        if (
-            event.target.classList.contains(
-                "checkbox-produto-juros"
-            )
-        ) {
-
-            /*
-                A seleção mudou.
-
-                Portanto a simulação anterior
-                não pode continuar válida.
-            */
-
+        if (event.target.classList.contains("checkbox-produto-juros")) {
             limparResultadoSimulacao();
+            atualizarResumoSelecaoJuros();
         }
     }
 );
@@ -4359,17 +4444,12 @@ function calcularJurosProduto(
             produto.valor_base
         );
 
-
+    // O valor_base pode vir zerado mesmo quando o produto tem preço.
     if (
-        !Number.isFinite(
-            valorOriginal
-        ) ||
-        valorOriginal < 0
+        !Number.isFinite(valorOriginal) ||
+        valorOriginal <= 0
     ) {
-
-        valorOriginal =
-            quantidade *
-            valorUnitario;
+        valorOriginal = quantidade * valorUnitario;
     }
 
 
@@ -5219,7 +5299,13 @@ async function executarAplicacaoDeJuros() {
                 ? dados
                 : (Array.isArray(dados.compras) ? dados.compras : []);
 
-            comprasParceladasCache = compras;
+            // Mais recentes primeiro, independentemente da ordem retornada pela API.
+            comprasParceladasCache = compras.slice().sort((a, b) => {
+                const dataA = new Date(a.data_compra || a.data || 0).getTime() || 0;
+                const dataB = new Date(b.data_compra || b.data || 0).getTime() || 0;
+                if (dataA !== dataB) return dataB - dataA;
+                return Number(b.id_pedido || 0) - Number(a.id_pedido || 0);
+            });
 
             // As parcelas são atualizadas automaticamente pelo backend.
             // Não exibimos mais um aviso dizendo que elas precisam ser concluídas manualmente.
@@ -5234,6 +5320,84 @@ async function executarAplicacaoDeJuros() {
         }
     }
 
+    function escaparTextoNotificacao(valor) {
+        return String(valor ?? "").replace(/[&<>"']/g, caractere => ({
+            "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#039;"
+        }[caractere]));
+    }
+
+    function dataNotificacaoFiado(valor) {
+        if (!valor) return "";
+        const data = new Date(valor);
+        if (Number.isNaN(data.getTime())) return "";
+        return data.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+    }
+
+    async function carregarNotificacoesFiado() {
+        if (!listaNotificacoesFiado) return;
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${API}/contas-fiado/notificacoes`, {
+                headers: token ? { Authorization: `Bearer ${token}` } : {}
+            });
+            if (res.status === 401 || res.status === 403) { tratarSessaoExpirada(); return; }
+            const dados = await res.json();
+            if (!res.ok) throw new Error(dados.erro || "Falha ao carregar notificações.");
+            notificacoesFiadoCache = Array.isArray(dados.notificacoes) ? dados.notificacoes : [];
+            const naoLidas = notificacoesFiadoCache.filter(n => Number(n.lida) !== 1).length;
+            if (contadorNotificacoesFiado) {
+                contadorNotificacoesFiado.textContent = naoLidas > 99 ? "99+" : String(naoLidas);
+                contadorNotificacoesFiado.hidden = naoLidas === 0;
+            }
+            renderNotificacoesFiado();
+        } catch (erro) {
+            console.error("Erro ao carregar notificações:", erro);
+            if (!notificacoesFiadoCache.length) listaNotificacoesFiado.innerHTML = '<p class="notificacoes-vazias">Não foi possível carregar as notificações.</p>';
+        }
+    }
+
+    function renderNotificacoesFiado() {
+        if (!listaNotificacoesFiado) return;
+        if (!notificacoesFiadoCache.length) {
+            listaNotificacoesFiado.innerHTML = '<p class="notificacoes-vazias">Nenhuma notificação por enquanto.</p>';
+            return;
+        }
+        listaNotificacoesFiado.innerHTML = notificacoesFiadoCache.map(n => {
+            const lida = Number(n.lida) === 1;
+            return `<article class="notificacao-fiado-item ${lida ? "" : "nao-lida"}" data-notificacao-id="${Number(n.id_notificacao)}" data-pedido-id="${Number(n.id_pedido)}">
+                <span class="notificacao-fiado-ponto" ${lida ? 'style="opacity:.25"' : ""}></span>
+                <div><p class="notificacao-fiado-texto">${escaparTextoNotificacao(n.mensagem)}</p><small class="notificacao-fiado-data">${escaparTextoNotificacao(dataNotificacaoFiado(n.criado_em))} · Pedido #${Number(n.id_pedido)}</small></div>
+            </article>`;
+        }).join("");
+    }
+
+    async function marcarNotificacaoFiadoLida(id) {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${API}/contas-fiado/notificacoes/${encodeURIComponent(id)}/lida`, {
+            method: "PUT", headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
+        if (!res.ok) throw new Error("Não foi possível marcar a notificação como lida.");
+        notificacoesFiadoCache = notificacoesFiadoCache.map(n => Number(n.id_notificacao) === Number(id) ? { ...n, lida: 1 } : n);
+        const naoLidas = notificacoesFiadoCache.filter(n => Number(n.lida) !== 1).length;
+        if (contadorNotificacoesFiado) { contadorNotificacoesFiado.textContent = naoLidas > 99 ? "99+" : String(naoLidas); contadorNotificacoesFiado.hidden = naoLidas === 0; }
+        renderNotificacoesFiado();
+    }
+
+    btnNotificacoesFiado?.addEventListener("click", async () => {
+        if (!modalNotificacoesFiado.open) modalNotificacoesFiado.showModal();
+        await carregarNotificacoesFiado();
+    });
+    fecharNotificacoesFiado?.addEventListener("click", () => modalNotificacoesFiado.close());
+    modalNotificacoesFiado?.addEventListener("click", async event => {
+        const item = event.target.closest(".notificacao-fiado-item");
+        if (!item) return;
+        const id = Number(item.dataset.notificacaoId);
+        if (!id) return;
+        try { await marcarNotificacaoFiadoLida(id); }
+        catch (erro) { console.error(erro); }
+    });
+    modalNotificacoesFiado?.addEventListener("cancel", event => { event.preventDefault(); modalNotificacoesFiado.close(); });
+
     function renderComprasParceladas() {
         if (!listaComprasParceladas) return;
 
@@ -5246,8 +5410,8 @@ async function executarAplicacaoDeJuros() {
             const parcelas = Array.isArray(compra.parcelas) ? compra.parcelas : [];
             const totalParcelas = Number(compra.total_parcelas || parcelas.length || 0);
             const pagas = parcelas.filter(p => obterStatusParcela(p) === "pago").length;
-            const valor = Number(compra.valor_total || 0);
-            const valorCredito = Number(compra.valor_credito || valor || 0);
+            const valorCredito = Number(compra.valor_credito || 0);
+            const valor = Number(compra.valor_total ?? compra.valor ?? valorCredito ?? 0) || valorCredito;
             const valorParcela = Number(compra.valor_parcela || parcelas[0]?.valor || 0);
             const proxima = parcelas.find(p => obterStatusParcela(p) !== "pago");
             const progresso = `${pagas}/${totalParcelas}`;
@@ -5325,11 +5489,13 @@ async function executarAplicacaoDeJuros() {
     }
 
     carregarContasFiado();
-    carregarComprasParceladas(true);
+    carregarComprasParceladas(true).then(carregarNotificacoesFiado);
+    carregarNotificacoesFiado();
 
-    // Mantém o acompanhamento automático enquanto a tela estiver aberta.
-    setInterval(() => {
-        carregarComprasParceladas(true);
+    // Atualiza as compras parceladas e o contador do sininho automaticamente.
+    setInterval(async () => {
+        await carregarComprasParceladas(true);
+        await carregarNotificacoesFiado();
     }, 60000);
 
     // O fundo da página não rola enquanto o modal está aberto.
@@ -5349,6 +5515,7 @@ async function executarAplicacaoDeJuros() {
     window.tratarSessaoExpirada = tratarSessaoExpirada;
     window.carregarContasFiado = carregarContasFiado;
     window.carregarComprasParceladas = carregarComprasParceladas;
+    window.carregarNotificacoesFiado = carregarNotificacoesFiado;
 
     // Abre o modal de juros diretamente ao clicar no nome da conta.
     window.abrirClienteDiretoNoModal = async function (idCliente) {

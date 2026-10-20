@@ -11,4 +11,4 @@ const hostUri =
 
 const IP_SERVIDOR = hostUri ? hostUri.split(':')[0] : IP_SERVIDOR_PADRAO;
 
-export const BASE_URL = `http://${IP_SERVIDOR}:3000`;
+export const BASE_URL = `https://soft-knives-camp.loca.lt`;

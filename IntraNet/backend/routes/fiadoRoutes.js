@@ -85,58 +85,64 @@ function normalizarFormaPagamentoInterna(valor) {
         .trim();
 }
 function normalizarDataTexto(valor) {
-    if (!valor) return null;
+    if (valor === null || valor === undefined || valor === "") {
+        return null;
+    }
 
+    // O driver do MySQL pode retornar um Date.
     if (valor instanceof Date) {
-        if (Number.isNaN(valor.getTime())) {
-            return null;
-        }
+        if (Number.isNaN(valor.getTime())) return null;
 
+        // Datas SQL são datas de calendário; use os componentes locais
+        // para não deslocar o dia por conversão de fuso horário.
         const ano = valor.getFullYear();
-        const mes = String(
-            valor.getMonth() + 1
-        ).padStart(2, "0");
-        const dia = String(
-            valor.getDate()
-        ).padStart(2, "0");
-
+        const mes = String(valor.getMonth() + 1).padStart(2, "0");
+        const dia = String(valor.getDate()).padStart(2, "0");
         return `${ano}-${mes}-${dia}`;
     }
 
     const texto = String(valor).trim();
+    if (!texto) return null;
 
-    /*
-        Primeiro tenta YYYY-MM-DD.
-    */
-    const match =
-        texto.match(
-            /^(\d{4})-(\d{2})-(\d{2})/
-        );
+    // Aceita YYYY-MM-DD e timestamps SQL/ISO.
+    let partes = texto.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:$|[T\s])/);
 
-    if (match) {
-        return `${match[1]}-${match[2]}-${match[3]}`;
+    // Também aceita DD/MM/YYYY (formato comum em campos brasileiros).
+    if (!partes) {
+        const br = texto.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        if (br) partes = [br[0], br[3], br[2], br[1]];
     }
 
-    /*
-        Caso venha como data textual.
-    */
+    // Também aceita DD-MM-YYYY.
+    if (!partes) {
+        const brHifen = texto.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+        if (brHifen) partes = [brHifen[0], brHifen[3], brHifen[2], brHifen[1]];
+    }
+
+    if (partes) {
+        const ano = Number(partes[1]);
+        const mes = Number(partes[2]);
+        const dia = Number(partes[3]);
+        const data = new Date(ano, mes - 1, dia);
+
+        // Evita aceitar datas impossíveis, como 31/02.
+        if (
+            !Number.isInteger(ano) || ano < 1000 ||
+            mes < 1 || mes > 12 || dia < 1 || dia > 31 ||
+            data.getFullYear() !== ano ||
+            data.getMonth() !== mes - 1 ||
+            data.getDate() !== dia
+        ) return null;
+
+        return `${ano}-${String(mes).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+    }
+
+    // Última tentativa para outros formatos ISO válidos.
     const data = new Date(texto);
+    if (Number.isNaN(data.getTime())) return null;
 
-    if (Number.isNaN(data.getTime())) {
-        return null;
-    }
-
-    const ano = data.getFullYear();
-    const mes = String(
-        data.getMonth() + 1
-    ).padStart(2, "0");
-    const dia = String(
-        data.getDate()
-    ).padStart(2, "0");
-
-    return `${ano}-${mes}-${dia}`;
+    return `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, "0")}-${String(data.getDate()).padStart(2, "0")}`;
 }
-
 
 function dataSomenteLocal(valor) {
     const texto =
@@ -987,6 +993,62 @@ router.get(
 
 
 /* ======================================================
+   EDITAR CLIENTE FIADO (compatível com colunas existentes)
+====================================================== */
+router.put("/clientes-fiado/:id", verificarToken, async (req, res) => {
+    try {
+        const idCliente = Number(req.params.id);
+        if (!Number.isInteger(idCliente) || idCliente <= 0) {
+            return res.status(400).json({ erro: "Cliente inválido." });
+        }
+
+        const body = req.body || {};
+        const nome = String(body.nome_completo || "").trim();
+        const cpf = String(body.cpf || "").replace(/\D/g, "");
+        const telefone = String(body.telefone || "").replace(/\D/g, "");
+        const dia = Number(body.dia_vencimento);
+        if (nome.length < 3) return res.status(400).json({ erro: "Informe o nome completo." });
+        if (cpf.length !== 11) return res.status(400).json({ erro: "CPF inválido." });
+        if (telefone.length < 10 || telefone.length > 11) return res.status(400).json({ erro: "Telefone inválido." });
+        if (!Number.isInteger(dia) || dia < 1 || dia > 31) return res.status(400).json({ erro: "Dia de vencimento inválido." });
+
+        const [cols] = await conexao.query(
+            `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'clientes_fiado'`
+        );
+        const existentes = new Set(cols.map(c => c.COLUMN_NAME));
+        const valores = {
+            nome_completo: nome,
+            cpf,
+            telefone,
+            endereco: String(body.logradouro || body.endereco || "").trim() || null,
+            cep: body.cep ? String(body.cep).replace(/\D/g, "") || null : null,
+            numero: body.numero || null,
+            complemento: body.complemento || null,
+            bairro: body.bairro || null,
+            cidade: body.cidade || null,
+            estado: body.estado ? String(body.estado).trim().toUpperCase() : null,
+            data_nascimento: body.data_nascimento || null,
+            email: body.email || null,
+            setor: body.setor || null,
+            dia_vencimento: dia
+        };
+        const campos = Object.entries(valores).filter(([campo]) => existentes.has(campo));
+        if (!existentes.has("id_cliente")) return res.status(500).json({ erro: "Estrutura da tabela clientes_fiado inesperada." });
+        const [resultado] = await conexao.query(
+            `UPDATE clientes_fiado SET ${campos.map(([campo]) => `\`${campo}\` = ?`).join(", ")} WHERE id_cliente = ?`,
+            [...campos.map(([, valor]) => valor), idCliente]
+        );
+        const [cliente] = await conexao.query("SELECT * FROM clientes_fiado WHERE id_cliente = ?", [idCliente]);
+        if (!cliente.length) return res.status(404).json({ erro: "Cliente não encontrado." });
+        return res.json({ sucesso: true, cliente: cliente[0] });
+    } catch (err) {
+        console.error("Erro ao editar cliente fiado:", err);
+        return res.status(500).json({ erro: err.message || "Erro ao editar cliente." });
+    }
+});
+
+
+/* ======================================================
    BLOQUEAR / DESBLOQUEAR CLIENTE FIADO
 ====================================================== */
 
@@ -1129,17 +1191,9 @@ router.post(
             Não dependemos de dia_vencimento para
             criar a compra.
         */
-        const vencimentoFinal =
-            normalizarDataTexto(
-                vencimento
-            );
-
-        if (!vencimentoFinal) {
-            return res.status(400).json({
-                erro:
-                    "Data de vencimento inválida."
-            });
-        }
+        // A tela não envia uma data completa: o vencimento é definido
+        // pelo dia de vencimento cadastrado para o cliente.
+        let vencimentoFinal = normalizarDataTexto(vencimento);
 
         const conn =
             await conexao.getConnection();
@@ -1160,7 +1214,8 @@ router.post(
                     `
                     SELECT
                         id_cliente,
-                        bloqueado
+                        bloqueado,
+                        dia_vencimento
                     FROM clientes_fiado
                     WHERE id_cliente = ?
                     FOR UPDATE
@@ -1190,6 +1245,24 @@ router.post(
                 );
             }
 
+            // Se a requisição não trouxe uma data, calcula a próxima
+            // ocorrência do dia de vencimento definido no cadastro.
+            if (!vencimentoFinal) {
+                const diaVencimento = Number(cliente[0].dia_vencimento);
+                if (!Number.isInteger(diaVencimento) || diaVencimento < 1 || diaVencimento > 31) {
+                    throw new Error("O cliente não possui um dia de vencimento válido cadastrado.");
+                }
+
+                const hoje = new Date();
+                let ano = hoje.getFullYear();
+                let mes = hoje.getMonth();
+                const diaHoje = hoje.getDate();
+                if (diaVencimento < diaHoje) mes += 1;
+                const ultimoDia = new Date(ano, mes + 1, 0).getDate();
+                const diaFinal = Math.min(diaVencimento, ultimoDia);
+                const dataCalculada = new Date(ano, mes, diaFinal);
+                vencimentoFinal = `${dataCalculada.getFullYear()}-${String(dataCalculada.getMonth() + 1).padStart(2, "0")}-${String(dataCalculada.getDate()).padStart(2, "0")}`;
+            }
 
             /* ==================================================
                2. NORMALIZA OS PRODUTOS
@@ -3202,17 +3275,26 @@ router.put(
                 }
 
                 /*
-                    Valor original do produto.
+                    Só permite concluir o pagamento depois que os juros
+                    tiverem sido aplicados explicitamente ao produto.
+                    A validação fica no backend para não depender apenas
+                    do estado visual do modal.
                 */
+                if (
+                    Number(produto.juros_ativo) !== 1 ||
+                    !(Number(produto.valor_juros_inicio) > 0)
+                ) {
+                    throw new Error(
+                        `Aplique os juros ao produto "${produto.nome}" antes de concluir o pagamento.`
+                    );
+                }
 
+                /* Valor original do produto. */
                 const valorOriginal =
                     Number(produto.qtd || 0) *
                     Number(produto.valor_unit || 0);
 
-                /*
-                    Se houver juros aplicados, usamos
-                    o valor atualmente devido.
-                */
+                /* Se houver juros aplicados, usamos o valor devido. */
 
                 let valorFinal =
                     valorOriginal;
@@ -3819,6 +3901,17 @@ router.get(
         try {
             conn = await conexao.getConnection();
 
+            await conn.query(`
+                CREATE TABLE IF NOT EXISTS notificacoes_fiado (
+                    id_notificacao BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                    id_pedido INT NOT NULL,
+                    mensagem VARCHAR(500) NOT NULL,
+                    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    lida TINYINT(1) NOT NULL DEFAULT 0,
+                    UNIQUE KEY uq_notificacao_pedido (id_pedido)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            `);
+
             const hoje = dataHojeISO();
             const notificacoes = [];
 
@@ -3925,9 +4018,25 @@ router.get(
                         parcela.id_pedido
                     ]);
 
-                    notificacoes.push(
-                        `Compra concluída! O pedido #${parcela.num_pedido} foi enviado para o histórico de pedidos.`
+                    const [totalParcelasPedido] = await conn.query(
+                        `SELECT COUNT(*) AS total FROM conta_fiado_parcelas WHERE id_pedido = ?`,
+                        [parcela.id_pedido]
                     );
+                    const quantidadeParcelas = Number(totalParcelasPedido[0]?.total || parcela.total_parcelas || 0);
+                    const numeroPedido = parcela.num_pedido ?? parcela.id_pedido;
+                    const valorCompra = Number(parcela.valor_total || 0).toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                    const mensagemNotificacao = `A compra nº ${numeroPedido}, no valor de R$ ${valorCompra}, parcelada em ${quantidadeParcelas} ${quantidadeParcelas === 1 ? "parcela" : "parcelas"}, foi enviada para o histórico de pedidos.`;
+
+                    await conn.query(`
+                        INSERT INTO notificacoes_fiado (id_pedido, mensagem)
+                        VALUES (?, ?)
+                        ON DUPLICATE KEY UPDATE mensagem = VALUES(mensagem)
+                    `, [parcela.id_pedido, mensagemNotificacao]);
+
+                    notificacoes.push(mensagemNotificacao);
                 }
             }
 
@@ -4004,6 +4113,8 @@ router.get(
                     c.nome_completo
 
                 ORDER BY
+                    p.data DESC,
+                    p.id_pedido DESC,
                     proxima_parcela ASC
             `);
 
@@ -6548,4 +6659,57 @@ router.get(
         }
     }
 );
+router.get(
+    "/contas-fiado/notificacoes",
+    verificarToken,
+    async (req, res) => {
+        try {
+            await conexao.query(`
+                CREATE TABLE IF NOT EXISTS notificacoes_fiado (
+                    id_notificacao BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                    id_pedido INT NOT NULL,
+                    mensagem VARCHAR(500) NOT NULL,
+                    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    lida TINYINT(1) NOT NULL DEFAULT 0,
+                    UNIQUE KEY uq_notificacao_pedido (id_pedido)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            `);
+            const [notificacoes] = await conexao.query(`
+                SELECT id_notificacao, id_pedido, mensagem, criado_em, lida
+                FROM notificacoes_fiado
+                ORDER BY criado_em DESC, id_notificacao DESC
+                LIMIT 100
+            `);
+            return res.json({ sucesso: true, notificacoes });
+        } catch (erro) {
+            console.error("Erro ao buscar notificações do fiado:", erro);
+            return res.status(500).json({ sucesso: false, erro: "Não foi possível carregar as notificações." });
+        }
+    }
+);
+
+router.put(
+    "/contas-fiado/notificacoes/:id/lida",
+    verificarToken,
+    async (req, res) => {
+        try {
+            const id = Number(req.params.id);
+            if (!Number.isInteger(id) || id <= 0) {
+                return res.status(400).json({ sucesso: false, erro: "Notificação inválida." });
+            }
+            const [resultado] = await conexao.query(
+                `UPDATE notificacoes_fiado SET lida = 1 WHERE id_notificacao = ?`,
+                [id]
+            );
+            if (!resultado.affectedRows) {
+                return res.status(404).json({ sucesso: false, erro: "Notificação não encontrada." });
+            }
+            return res.json({ sucesso: true });
+        } catch (erro) {
+            console.error("Erro ao marcar notificação como lida:", erro);
+            return res.status(500).json({ sucesso: false, erro: "Não foi possível atualizar a notificação." });
+        }
+    }
+);
+
 module.exports = router;

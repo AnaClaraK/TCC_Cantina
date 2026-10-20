@@ -51,6 +51,9 @@ const CardapioItem = React.memo(({ item, temEstoque, adicionarAoCarrinho }) => {
           <Text style={styles.tituloProduto} numberOfLines={2}>
             {item.titulo}
           </Text>
+          <Text style={[styles.txtEstoqueCard, item.estoque > 0 ? styles.txtComEstoque : styles.txtSemEstoque]}>
+            {item.estoque > 0 ? `${item.estoque} em estoque` : 'Esgotado'}
+          </Text>
         </View>
       </View>
 
@@ -311,26 +314,23 @@ const styles = StyleSheet.create({
     backgroundColor: CORES.marromEscuro 
   },
   header: { 
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingLeft: 15,
-    paddingRight: 15,
-    paddingTop: 8,
-    paddingBottom: 8,
-    backgroundColor: '#efac4a'
+    flexDirection: 'row', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    paddingHorizontal: 15, 
+    paddingVertical: 10, 
+    backgroundColor: '#efac4a' 
   },
   logo: { 
-    width: 170, 
+    width: 190, 
     height: 49, 
-    resizeMode: 'contain', 
-    marginLeft: 0,
+    resizeMode: 'contain' 
   },
   botaoSair: { 
     padding: 5 
   },
   containerCategorias: { 
-    backgroundColor: CORES.marromEscuro, 
+    backgroundColor: CORES.dourado, 
     paddingVertical: 14, 
     paddingHorizontal: 2 
   },
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 0.5 
   },
   btnCategoriaAtiva: { 
-    backgroundColor: CORES.dourado 
+    backgroundColor: CORES.marromDestaque 
   },
   txtCategoria: { 
     color: CORES.branco, 
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
     textAlign: 'center' 
   },
   txtCategoriaAtiva: { 
-    color: CORES.marromEscuro 
+    color: CORES.branco 
   },
   listaConteudo: { 
     padding: 15, 
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
   txtEstoqueCard: {
     fontSize: 12,
     fontWeight: 'bold',
-    marginTop: 4
+    marginTop: 3
   },
   txtComEstoque: {
     color: '#ebd5a6'
