@@ -22,7 +22,7 @@
 
 <div class="d_util">
     <h2 class="h_ag">Estoque</h2>
-    <button type="button" id="btnEstoqueLiquidos">Configurar produtos selecionados em ml</button>
+    <button type="button" id="btnEstoqueLiquidos">Configurar ml</button>
     <button id="b_addq">
       <span id="s_addq">Adicionar quantidade</span></button>
     <div id="d_inp">
@@ -48,7 +48,7 @@
             <th>Quantidade</th>
             <th>Disponível</th>
             <th>Qtd Mínima</th>
-            <th>Status</th>
+            <th class="coluna-status">Status</th>
         </tr>
     </thead>
     <tbody id="tb_tbl_produtos"></tbody>
@@ -391,11 +391,28 @@ async function carregarProdutos() {
         tabela.innerHTML = "";
 
         const produtosOrdenados = [...produtos].sort((a, b) => {
-            const aSalgado = normalizarTexto(a.categoria_nome) === "salgados";
-            const bSalgado = normalizarTexto(b.categoria_nome) === "salgados";
-            if (aSalgado !== bSalgado) return aSalgado ? -1 : 1;
-            return normalizarTexto(a.nome).localeCompare(normalizarTexto(b.nome), "pt-BR", { numeric: true });
-        });
+    // Produtos ativos primeiro; inativos sempre no final.
+    const statusA = Number(a.ativo) === 1 ? 0 : 1;
+    const statusB = Number(b.ativo) === 1 ? 0 : 1;
+
+    if (statusA !== statusB) {
+        return statusA - statusB;
+    }
+
+    // Mantém a ordenação existente por categoria e nome.
+    const aSalgado = normalizarTexto(a.categoria_nome) === "salgados";
+    const bSalgado = normalizarTexto(b.categoria_nome) === "salgados";
+
+    if (aSalgado !== bSalgado) {
+        return aSalgado ? -1 : 1;
+    }
+
+    return normalizarTexto(a.nome).localeCompare(
+        normalizarTexto(b.nome),
+        "pt-BR",
+        { numeric: true }
+    );
+});
 
         produtosOrdenados.forEach(p => {
             tabela.innerHTML += `
@@ -408,12 +425,12 @@ async function carregarProdutos() {
                     <td>${p.estoque_em_ml ? `${Number(p.qtd || 0).toLocaleString("pt-BR")} ml` : (p.qtd || 0)}</td>
                     <td>${p.estoque_em_ml ? `${Number(p.quantidade_ml ?? p.qtd ?? 0).toLocaleString("pt-BR")} ml` : `${Number(p.disponivel ?? p.qtd ?? 0).toLocaleString("pt-BR")} un.`}</td>
                     <td>${p.estoque_em_ml ? `${Number(p.qtd_min ?? 100).toLocaleString("pt-BR")} ml` : (p.qtd_min || 0)}</td>
-                    <td>
-                        <select class="select-status-produto" data-id="${p.id_produto}">
-                            <option value="1" ${Number(p.ativo) === 1 ? "selected" : ""}>Ativo</option>
-                            <option value="0" ${Number(p.ativo) === 0 ? "selected" : ""}>Inativo</option>
-                        </select>
-                    </td>
+                    <td class="coluna-status">
+    <select class="select-status-produto" data-id="${p.id_produto}">
+        <option value="1" ${Number(p.ativo) === 1 ? "selected" : ""}>Ativo</option>
+        <option value="0" ${Number(p.ativo) === 0 ? "selected" : ""}>Inativo</option>
+    </select>
+</td>
                 </tr>
             `;
         });
