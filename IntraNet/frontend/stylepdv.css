@@ -5749,3 +5749,514 @@ dialog button {
     flex: 0 0 auto;
 }
 
+
+
+
+/* CORREÇÃO FINAL — PESQUISAR PRODUTO E BUSCAR COMANDA */
+
+#dialogBusca,
+#dialogComanda {
+    display: none;
+    width: max-content !important;
+    height: fit-content !important;
+    min-height: 0 !important;
+    max-width: calc(100vw - 32px) !important;
+    max-height: calc(100dvh - 32px) !important;
+    margin: auto !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Quando abertos pelo método showModal() */
+#dialogBusca[open],
+#dialogComanda[open] {
+    display: block;
+    overflow: visible !important;
+}
+
+#dialogBusca .modal_box,
+#dialogComanda .modal_box {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    width: max-content !important;
+    height: fit-content !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: calc(100vw - 32px) !important;
+    max-height: calc(100dvh - 32px) !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Evita que o tamanho seja forçado em telas menores */
+@media (max-width: 700px) {
+    #dialogBusca,
+    #dialogComanda {
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(100dvh - 24px) !important;
+    }
+
+    #dialogBusca .modal_box,
+    #dialogComanda .modal_box {
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(100dvh - 24px) !important;
+    }
+}
+
+/* ============================================================
+   AJUSTE FINAL — PESQUISAR PRODUTO
+   Tamanho fixo
+============================================================ */
+
+#dialogBusca {
+    width: 600px !important;
+    height: 500px !important;
+    min-width: 600px !important;
+    min-height: 500px !important;
+    max-width: calc(100vw - 32px) !important;
+    max-height: calc(100dvh - 32px) !important;
+
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+#dialogBusca .modal_box {
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+#listaSugestoes {
+    max-height: 240px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+
+/* ============================================================
+   AJUSTE FINAL — BUSCAR COMANDA
+   Modal maior
+============================================================ */
+
+#dialogComanda {
+    width: 600px !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 360px !important;
+    max-width: calc(100vw - 32px) !important;
+    max-height: calc(100dvh - 32px) !important;
+
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+#dialogComanda .modal_box {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 360px !important;
+    max-width: 100% !important;
+    max-height: calc(100dvh - 32px) !important;
+
+    padding: 36px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    gap: 22px !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+
+/* ============================================================
+   RESPONSIVIDADE
+============================================================ */
+
+@media (max-width: 640px) {
+    #dialogBusca {
+        width: calc(100vw - 32px) !important;
+        min-width: 0 !important;
+        height: min(500px, calc(100dvh - 32px)) !important;
+        min-height: 0 !important;
+    }
+
+    #dialogBusca .modal_box {
+        padding: 20px !important;
+    }
+
+    #dialogComanda {
+        width: calc(100vw - 32px) !important;
+        min-height: 0 !important;
+    }
+
+    #dialogComanda .modal_box {
+        min-height: 320px !important;
+        padding: 24px !important;
+        gap: 18px !important;
+    }
+}
+
+/* MODAL BUSCAR COMANDA — TAMANHO CONTROLADO */
+
+#dialogComanda {
+    width: 520px !important;
+    height: fit-content !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+
+    max-width: calc(100vw - 32px) !important;
+    max-height: calc(100dvh - 32px) !important;
+
+    padding: 0 !important;
+    margin: auto !important;
+    box-sizing: border-box !important;
+
+    border: 2px solid #efac4a !important;
+    border-radius: 16px !important;
+    background: #1c1c1c !important;
+    color: white !important;
+
+    overflow: visible !important;
+}
+
+#dialogComanda .modal_box {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    gap: 18px !important;
+
+    width: 100% !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+    padding: 30px !important;
+    box-sizing: border-box !important;
+
+    overflow: visible !important;
+}
+
+#dialogComanda .modal_titulo,
+#dialogComanda .modal_linha,
+#dialogComanda .modal_footer {
+    flex: 0 0 auto !important;
+}
+
+#dialogComanda #inputComanda {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+@media (max-width: 600px) {
+    #dialogComanda {
+        width: calc(100vw - 32px) !important;
+    }
+
+    #dialogComanda .modal_box {
+        padding: 22px !important;
+    }
+}
+
+/* AVISO "SEM ESTOQUE" — TAMANHO COMPACTO */
+
+#d_aviso:not(.aviso-estoque) {
+    width: 380px !important;
+    height: fit-content !important;
+
+    min-width: 0 !important;
+    min-height: 0 !important;
+
+    max-width: calc(100vw - 32px) !important;
+    max-height: calc(100dvh - 32px) !important;
+
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    padding: 20px !important;
+
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+#d_aviso:not(.aviso-estoque) .aviso_box {
+    width: 100% !important;
+    height: fit-content !important;
+
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: stretch !important;
+    gap: 16px !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+}
+
+#d_aviso:not(.aviso-estoque) #msg_aviso {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    text-align: center !important;
+}
+
+/* =========================================================
+   AJUSTE DOS MODAIS DE VENDA DO PDV
+   Venda Finalizada, Venda Fiada e Dividir Pagamento
+========================================================= */
+
+/* VENDA FINALIZADA */
+#d_modal[open] {
+    box-sizing: border-box !important;
+    width: min(620px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 32px) !important;
+    margin: auto !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+#d_modal[open] article {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 32px) !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+#d_modal[open] article > section {
+    flex: 0 1 auto !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
+#d_modal[open] article > footer {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* VENDA FIADA */
+#d_fiado[open] {
+    box-sizing: border-box !important;
+    width: min(450px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px) !important;
+    height: fit-content !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 32px) !important;
+    margin: auto !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+#d_fiado[open] .conteudo-fiado,
+#d_fiado[open] .modal-conteudo,
+#d_fiado[open] .modal_box {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 32px) !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
+/* DIVIDIR PAGAMENTO */
+#dialogDividirPagamento[open] {
+    box-sizing: border-box !important;
+    width: min(520px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px) !important;
+    height: fit-content !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 32px) !important;
+    margin: auto !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+#dialogDividirPagamento[open] .split-box,
+#dialogDividirPagamento[open] .conteudo-dividir {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 32px) !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
+/* IMPEDE ELEMENTOS INTERNOS DE FORÇAREM A LARGURA */
+#d_modal *,
+#d_fiado *,
+#dialogDividirPagamento * {
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+
+/* ============================================================
+   MODAL VENDA FINALIZADA — ALTURA ADAPTÁVEL
+============================================================ */
+
+#d_modal[open] {
+    box-sizing: border-box !important;
+
+    width: min(600px, calc(100vw - 32px)) !important;
+    height: fit-content !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 32px) !important;
+
+    margin: auto !important;
+    padding: 0 !important;
+
+    overflow: hidden !important;
+}
+
+/* Estrutura interna do modal */
+
+#d_modal[open] article {
+    display: flex !important;
+    flex-direction: column !important;
+
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 32px) !important;
+
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* Conteúdo: ocupa o espaço necessário e rola se necessário */
+
+#d_modal[open] article section {
+    flex: 0 1 auto !important;
+
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 120px) !important;
+
+    padding: clamp(14px, 2vw, 24px) !important;
+    gap: clamp(8px, 1.3vw, 14px) !important;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+}
+
+/* Rodapé e botão de nova venda */
+
+#d_modal[open] footer {
+    flex: 0 0 auto !important;
+
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+
+    padding: 16px 20px !important;
+
+    box-sizing: border-box !important;
+}
+
+/* Ajuste para celulares */
+
+@media (max-width: 600px) {
+    #d_modal[open] {
+        width: calc(100vw - 24px) !important;
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(100dvh - 24px) !important;
+    }
+
+    #d_modal[open] article {
+        max-height: calc(100dvh - 24px) !important;
+    }
+
+    #d_modal[open] article section {
+        max-height: calc(100dvh - 120px) !important;
+        padding: 16px !important;
+    }
+
+    #d_modal[open] footer {
+        padding: 12px 16px !important;
+    }
+}
+
+/* CENTRALIZAÇÃO DOS MODAIS DE PAGAMENTO */
+#dialogDinheiro[open],
+#dialogCredito[open] {
+    position: fixed !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-width: 100vw !important;
+    max-height: 100dvh !important;
+
+    margin: 0 !important;
+    padding: 16px !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+    overflow: auto !important;
+}
+
+#dialogDinheiro[open] .conteudo-dinheiro {
+    position: relative !important;
+    margin: auto !important;
+    flex: 0 1 430px !important;
+    width: 430px !important;
+    max-width: 100% !important;
+}
+
+#dialogCredito[open] .conteudo-credito {
+    position: relative !important;
+    margin: auto !important;
+    flex: 0 1 450px !important;
+    width: 450px !important;
+    max-width: 100% !important;
+}
