@@ -4,16 +4,42 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useFonts } from 'expo-font';
-import { LogBox, StatusBar, Alert, DeviceEventEmitter, Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { 
+  LogBox, 
+  StatusBar, 
+  Alert, 
+  DeviceEventEmitter, 
+  Modal, 
+  View, 
+  Text, 
+  TouchableOpacity, 
+  StyleSheet,
+  NativeModules 
+} from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context'; 
 
-// Silencia o aviso do InteractionManager
-LogBox.ignoreLogs(['InteractionManager']);
+// --- CORREÇÃO DO INTERACTIONMANAGER (SDK 58) ---
+// Polyfill temporário para bibliotecas antigas que ainda tentam chamar InteractionManager
+if (!NativeModules.InteractionManager) {
+  NativeModules.InteractionManager = {
+    runAfterInteractions: (task) => {
+      if (typeof task === 'function') {
+        setTimeout(task, 0);
+      }
+      return { cancel: () => {} };
+    },
+    createInteractionHandle: () => 1,
+    clearInteractionHandle: () => {},
+  };
+}
+
+// Silencia avisos residuais no console
+LogBox.ignoreLogs(['InteractionManager', 'Invariant Violation: InteractionManager']);
 
 // ÍCONES
 import { Ionicons, Feather } from '@expo/vector-icons'; 
 
-// Alertas personalizados da Grano Vita: evita as janelas brancas padrão do celular.
+// Alertas personalizados da Grano Vita
 const EVENTO_ALERTA_GRANO_VITA = 'grano-vita-alerta';
 Alert.alert = (titulo, mensagem, botoes) => {
   DeviceEventEmitter.emit(EVENTO_ALERTA_GRANO_VITA, {
@@ -22,7 +48,6 @@ Alert.alert = (titulo, mensagem, botoes) => {
     botoes: Array.isArray(botoes) && botoes.length ? botoes : [{ text: 'OK' }],
   });
 };
-
 
 // IMPORTAÇÃO DAS TELAS
 import HomeScreen from './src/Screens/HomeScreen';
@@ -45,7 +70,6 @@ function TabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        // 🛠️ MUDANÇA AQUI: Remove a faixa preta superior das abas
         headerShown: false, 
 
         tabBarIcon: ({ focused, color, size }) => {
@@ -105,8 +129,6 @@ function TabNavigator() {
           overflow: 'visible',
         },
 
-        // Nota: As configurações de estilo de cabeçalho abaixo se tornam obsoletas
-        // agora que definimos 'headerShown: false' acima.
         headerStyle: { backgroundColor: '#242628' },
         headerTintColor: '#efac4a',
         headerTitleAlign: 'center',
@@ -161,66 +183,66 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-    <View style={stylesAplicativo.raiz}>
-      <NavigationContainer>
-      <StatusBar hidden={true} />
-      <PilhasTelas.Navigator 
-        initialRouteName="SplashScreen" 
-        screenOptions={{ headerShown: false }}
-      >
-        <PilhasTelas.Screen name="SplashScreen" component={SplashScreen} />
-        <PilhasTelas.Screen name="HomeScreen" component={HomeScreen} />
-        <PilhasTelas.Screen name="CadastroScreen" component={CadastroScreen} />
-        <PilhasTelas.Screen name="LoginScreen" component={LoginScreen} />
-        <PilhasTelas.Screen name="MainApp" component={TabNavigator} />
-        <PilhasTelas.Screen name="RecuperarScreen" component={RecuperarScreen} />
-      </PilhasTelas.Navigator>
-      </NavigationContainer>
+      <View style={stylesAplicativo.raiz}>
+        <NavigationContainer>
+          <StatusBar hidden={true} />
+          <PilhasTelas.Navigator 
+            initialRouteName="SplashScreen" 
+            screenOptions={{ headerShown: false }}
+          >
+            <PilhasTelas.Screen name="SplashScreen" component={SplashScreen} />
+            <PilhasTelas.Screen name="HomeScreen" component={HomeScreen} />
+            <PilhasTelas.Screen name="CadastroScreen" component={CadastroScreen} />
+            <PilhasTelas.Screen name="LoginScreen" component={LoginScreen} />
+            <PilhasTelas.Screen name="MainApp" component={TabNavigator} />
+            <PilhasTelas.Screen name="RecuperarScreen" component={RecuperarScreen} />
+          </PilhasTelas.Navigator>
+        </NavigationContainer>
 
-      <Modal
-        visible={!!alertaSistema}
-        transparent
-        animationType="fade"
-        onRequestClose={() => fecharAlertaSistema(botoesAlerta.find(b => b.style === 'cancel') || botoesAlerta[0])}
-      >
-        <View style={stylesAplicativo.fundoAlerta}>
-          <View style={stylesAplicativo.caixaAlerta}>
-            <Text style={stylesAplicativo.tituloAlerta}>{alertaSistema?.titulo}</Text>
-            {!!alertaSistema?.mensagem && (
-              <Text style={stylesAplicativo.mensagemAlerta}>{alertaSistema.mensagem}</Text>
-            )}
-            <View style={[
-              stylesAplicativo.acoesAlerta,
-              botoesAlerta.length === 1 && stylesAplicativo.acaoUnicaAlerta,
-            ]}>
-              {botoesAlerta.map((botao, indice) => {
-                const cancelar = botao.style === 'cancel';
-                const destrutivo = botao.style === 'destructive';
-                return (
-                  <TouchableOpacity
-                    key={`${botao.text || 'acao'}-${indice}`}
-                    style={[
-                      stylesAplicativo.botaoAlerta,
-                      cancelar && stylesAplicativo.botaoCancelarAlerta,
-                      destrutivo && stylesAplicativo.botaoDestrutivoAlerta,
-                      botoesAlerta.length === 1 && stylesAplicativo.botaoUnicoAlerta,
-                    ]}
-                    onPress={() => fecharAlertaSistema(botao)}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={[
-                      stylesAplicativo.textoBotaoAlerta,
-                      cancelar && stylesAplicativo.textoCancelarAlerta,
-                      destrutivo && stylesAplicativo.textoDestrutivoAlerta,
-                    ]}>{botao.text || 'OK'}</Text>
-                  </TouchableOpacity>
-                );
-              })}
+        <Modal
+          visible={!!alertaSistema}
+          transparent
+          animationType="fade"
+          onRequestClose={() => fecharAlertaSistema(botoesAlerta.find(b => b.style === 'cancel') || botoesAlerta[0])}
+        >
+          <View style={stylesAplicativo.fundoAlerta}>
+            <View style={stylesAplicativo.caixaAlerta}>
+              <Text style={stylesAplicativo.tituloAlerta}>{alertaSistema?.titulo}</Text>
+              {!!alertaSistema?.mensagem && (
+                <Text style={stylesAplicativo.mensagemAlerta}>{alertaSistema.mensagem}</Text>
+              )}
+              <View style={[
+                stylesAplicativo.acoesAlerta,
+                botoesAlerta.length === 1 && stylesAplicativo.acaoUnicaAlerta,
+              ]}>
+                {botoesAlerta.map((botao, indice) => {
+                  const cancelar = botao.style === 'cancel';
+                  const destrutivo = botao.style === 'destructive';
+                  return (
+                    <TouchableOpacity
+                      key={`${botao.text || 'acao'}-${indice}`}
+                      style={[
+                        stylesAplicativo.botaoAlerta,
+                        cancelar && stylesAplicativo.botaoCancelarAlerta,
+                        destrutivo && stylesAplicativo.botaoDestrutivoAlerta,
+                        botoesAlerta.length === 1 && stylesAplicativo.botaoUnicoAlerta,
+                      ]}
+                      onPress={() => fecharAlertaSistema(botao)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={[
+                        stylesAplicativo.textoBotaoAlerta,
+                        cancelar && stylesAplicativo.textoCancelarAlerta,
+                        destrutivo && stylesAplicativo.textoDestrutivoAlerta,
+                      ]}>{botao.text || 'OK'}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
-    </View>
+        </Modal>
+      </View>
     </SafeAreaProvider>
   );
 }
