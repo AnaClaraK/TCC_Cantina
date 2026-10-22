@@ -31,10 +31,11 @@
       "expo-asset",
       "expo-status-bar"
     ],
-    "extra": {
-      "eas": {
-        "projectId": "fb30c80d-6388-4532-b0e2-ae15ea491cbc"
-      }
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/fb30c80d-6388-4532-b0e2-ae15ea491cbc"
     }
   }
 }
