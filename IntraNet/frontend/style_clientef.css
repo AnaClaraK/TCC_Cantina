@@ -8160,3 +8160,55 @@ body.fundo-escuro #modal_cliente .cliente-form-secao-final {
     }
     .btn-notificacoes-fiado { width: 40px; height: 40px; }
 }
+
+/* Aproximar a lupa do placeholder — Contas Fiado */
+body.fundo-escuro > .d_util #d_inp .busca-box {
+    width: 80% !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
+
+body.fundo-escuro > .d_util #d_inp .busca-box img.icone-busca {
+    margin-right: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+body.fundo-escuro > .d_util #d_inp .busca-box #inputBusca {
+    flex: 1 !important;
+    min-width: 0 !important;
+    padding-left: 0 !important;
+    text-indent: 0 !important;
+}
+
+/* Correção direta do campo Buscar cliente */
+#d_inp .busca-box {
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+#d_inp .busca-box img.icone-busca {
+    position: static !important;
+    margin: 0 !important;
+    flex: 0 0 16px !important;
+    
+}
+
+#d_inp .busca-box input#inputBusca {
+    position: static !important;
+    flex: 1 1 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 4px 0 !important;
+    text-align: left !important;
+    text-indent: 0 !important;
+    transform: none !important;
+}
+
+#d_inp .busca-box input#inputBusca::placeholder {
+    text-align: left !important;
+    text-indent: 0 !important;
+}

@@ -4211,3 +4211,953 @@ body.pagina-historico #sc_tabela .tabela td {
         width: 98%;
     }
 }
+
+
+/* =========================================================
+   HISTÓRICO DE PEDIDOS — RESPONSIVIDADE E ESTILIZAÇÃO
+========================================================= */
+
+/* CONTAINER SUPERIOR */
+body.pagina-historico .topo-cabecalho {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 14px !important;
+
+    width: 97% !important;
+    max-width: 100% !important;
+    margin: 20px auto !important;
+    box-sizing: border-box !important;
+}
+
+/* GRUPO DA ESQUERDA */
+body.pagina-historico .grupo-esquerda {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 12px !important;
+
+    flex: 0 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+}
+
+/* TÍTULO E BOTÃO DE PRODUTOS MAIS VENDIDOS */
+body.pagina-historico .titulo-historico {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 12px !important;
+
+    width: auto !important;
+    min-width: 0 !important;
+}
+
+/* TÍTULO HISTÓRICO DE PEDIDOS */
+body.pagina-historico .h_ag {
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+
+    font-size: clamp(20px, 1.6vw, 30px) !important;
+    white-space: nowrap !important;
+}
+
+/* PRODUTOS MAIS VENDIDOS */
+body.pagina-historico #btnRankingProdutos,
+body.pagina-historico .btn-ranking {
+    flex: 0 1 auto !important;
+    width: auto !important;
+    min-width: max-content !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+    padding: 8px 12px !important;
+
+    font-family: "Roca One", sans-serif !important;
+    font-size: 24px !important;
+    color: #f8c471 !important;
+
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+}
+
+/* PAINEL DE MÉTRICAS */
+body.pagina-historico #painel_metricas {
+    display: flex !important;
+    flex: 0 1 auto !important;
+    align-items: center !important;
+
+    width: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+}
+
+/* GRUPO DA DIREITA: FATURAMENTO, BUSCA E BOTÕES */
+body.pagina-historico .grupo-direita {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+}
+
+/* FATURAMENTO */
+body.pagina-historico .total-faturado-box {
+    display: flex !important;
+    flex: 0 1 auto !important;
+    align-items: center !important;
+
+    width: auto !important;
+    min-width: max-content !important;
+    margin: 0 !important;
+
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+}
+
+/* CAMPO DE PESQUISA */
+body.pagina-historico .busca-box {
+    display: flex !important;
+    flex: 1 1 180px !important;
+    align-items: center !important;
+
+    width: auto !important;
+    min-width: 120px !important;
+    max-width: 260px !important;
+    margin: 0 !important;
+}
+
+body.pagina-historico #inputBusca {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* BOTÕES BAIXAR PDF E LIMPAR */
+body.pagina-historico #btnExportarPDF,
+body.pagina-historico .btn-baixar-pdf,
+body.pagina-historico #btnLimparBackup,
+body.pagina-historico .btn-limpar-historico {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: auto !important;
+    min-width: max-content !important;
+    max-width: none !important;
+    margin: 0 !important;
+
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+}
+
+/* FONTE DO BOTÃO BAIXAR PDF */
+body.pagina-historico #btnExportarPDF,
+body.pagina-historico .btn-baixar-pdf {
+    font-family: "Roca One", sans-serif !important;
+    font-size: 18px !important;
+}
+
+/* =========================================================
+   RESPONSIVIDADE — TELAS MÉDIAS
+========================================================= */
+
+@media (max-width: 1400px) and (min-width: 1101px) {
+    body.pagina-historico .topo-cabecalho {
+        gap: 8px !important;
+        width: 99% !important;
+    }
+
+    body.pagina-historico .grupo-esquerda,
+    body.pagina-historico .titulo-historico,
+    body.pagina-historico .grupo-direita {
+        gap: 7px !important;
+    }
+
+    body.pagina-historico .h_ag {
+        font-size: clamp(18px, 1.45vw, 25px) !important;
+    }
+
+    body.pagina-historico #btnRankingProdutos,
+    body.pagina-historico .btn-ranking {
+        font-size: 20px !important;
+        padding: 7px 8px !important;
+    }
+
+    body.pagina-historico #btnExportarPDF,
+    body.pagina-historico .btn-baixar-pdf {
+        font-size: 16px !important;
+    }
+
+    body.pagina-historico .busca-box {
+        min-width: 100px !important;
+        max-width: 190px !important;
+    }
+}
+
+/* =========================================================
+   RESPONSIVIDADE — TABLETS E JANELAS MENORES
+========================================================= */
+
+@media (max-width: 1100px) {
+    body.pagina-historico .topo-cabecalho {
+        flex-wrap: wrap !important;
+        justify-content: flex-start !important;
+        gap: 12px !important;
+        width: 96% !important;
+    }
+
+    body.pagina-historico .grupo-esquerda {
+        flex-wrap: wrap !important;
+        flex: 1 1 100% !important;
+        width: 100% !important;
+    }
+
+    body.pagina-historico .titulo-historico {
+        flex-wrap: wrap !important;
+        width: 100% !important;
+    }
+
+    body.pagina-historico .h_ag {
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    body.pagina-historico #btnRankingProdutos,
+    body.pagina-historico .btn-ranking {
+        max-width: 100% !important;
+        white-space: normal !important;
+        font-size: 22px !important;
+    }
+
+    body.pagina-historico #painel_metricas {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+    }
+
+    body.pagina-historico .grupo-direita {
+        flex-wrap: wrap !important;
+        justify-content: flex-start !important;
+        flex: 1 1 100% !important;
+        width: 100% !important;
+    }
+
+    body.pagina-historico .busca-box {
+        flex: 1 1 200px !important;
+        max-width: none !important;
+    }
+}
+
+/* =========================================================
+   RESPONSIVIDADE — CELULARES
+========================================================= */
+
+@media (max-width: 600px) {
+    body.pagina-historico .topo-cabecalho {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 14px !important;
+        width: 94% !important;
+        margin: 14px auto !important;
+    }
+
+    body.pagina-historico .grupo-esquerda,
+    body.pagina-historico .titulo-historico,
+    body.pagina-historico .grupo-direita {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 100% !important;
+        gap: 10px !important;
+    }
+
+    body.pagina-historico .h_ag {
+        font-size: clamp(21px, 6vw, 28px) !important;
+        white-space: normal !important;
+    }
+
+    body.pagina-historico #btnRankingProdutos,
+    body.pagina-historico .btn-ranking {
+        width: 100% !important;
+        min-width: 0 !important;
+        font-size: 20px !important;
+        text-align: center !important;
+    }
+
+    body.pagina-historico #painel_metricas,
+    body.pagina-historico .total-faturado-box,
+    body.pagina-historico .busca-box {
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0 !important;
+    }
+
+    body.pagina-historico #inputBusca {
+        width: 100% !important;
+    }
+
+    body.pagina-historico #btnExportarPDF,
+    body.pagina-historico .btn-baixar-pdf,
+    body.pagina-historico #btnLimparBackup,
+    body.pagina-historico .btn-limpar-historico {
+        width: 100% !important;
+        min-width: 0 !important;
+        font-size: 16px !important;
+    }
+}
+
+/* =========================================================
+   TABELA / LISTAGEM DO HISTÓRICO
+========================================================= */
+
+@media (max-width: 768px) {
+    body.pagina-historico .tabela-container,
+    body.pagina-historico .table-container,
+    body.pagina-historico .historico-container {
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    body.pagina-historico table {
+        max-width: 100% !important;
+    }
+
+    body.pagina-historico th,
+    body.pagina-historico td {
+        white-space: nowrap;
+    }
+}
+
+/* =========================================================
+   AJUSTE DA BUSCA — REMOVER ESPAÇO APÓS A LUPA
+========================================================= */
+
+body.pagina-historico .busca-box {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0 !important;
+    column-gap: 0 !important;
+}
+
+body.pagina-historico .busca-box i,
+body.pagina-historico .busca-box svg,
+body.pagina-historico .busca-box .fa,
+body.pagina-historico .busca-box .fas,
+body.pagina-historico .busca-box .bi-search {
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+body.pagina-historico .busca-box input,
+body.pagina-historico #inputBusca {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+}
+
+/* =========================================================
+   BOTÃO PRODUTOS MAIS VENDIDOS
+========================================================= */
+
+body.pagina-historico #btnRankingProdutos,
+body.pagina-historico .btn-ranking {
+    font-family: "Roca One", sans-serif !important;
+    font-size: 24px !important;
+    color: #f8c471 !important;
+
+    width: auto !important;
+    min-width: max-content !important;
+    max-width: none !important;
+
+    white-space: nowrap !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-historico #btnRankingProdutos.btn-ranking {
+    font-weight: bold !important;
+}
+
+
+/* ============================================
+   REPOSIÇÃO — AJUSTES FINAIS
+   ============================================ */
+
+/* Evita que os elementos ultrapassem a tela */
+body.pagina-reposicao {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    overflow-x: hidden !important;
+}
+
+body.pagina-reposicao *,
+body.pagina-reposicao *::before,
+body.pagina-reposicao *::after {
+    box-sizing: border-box;
+}
+
+/* ============================================
+   CABEÇALHO RESPONSIVO
+   ============================================ */
+
+body.pagina-reposicao .d_util {
+    width: 95%;
+    max-width: 100%;
+    margin: 30px auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+body.pagina-reposicao .header-acoes {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+body.pagina-reposicao .h_ag {
+    flex-shrink: 0;
+    max-width: 100%;
+}
+
+body.pagina-reposicao #d_inp {
+    flex: 1 1 220px;
+    min-width: 0;
+    max-width: 100%;
+    margin-left: auto;
+}
+
+body.pagina-reposicao .busca-box {
+    width: 315px;
+    max-width: 100%;
+    min-width: 0;
+}
+
+body.pagina-reposicao #inputBusca {
+    width: 100%;
+    min-width: 0;
+}
+
+/* ============================================
+   BOTÕES — MANTÉM O DESIGN ORIGINAL
+   ============================================ */
+
+body.pagina-reposicao #b_addq,
+body.pagina-reposicao #b_apagar_prod,
+body.pagina-reposicao #b_limpar_lista {
+    font-family: "Roca One", sans-serif !important;
+    font-size: 24px !important;
+    color: #f8c471 !important;
+    max-width: 100%;
+    white-space: normal;
+}
+
+body.pagina-reposicao #b_addq span,
+body.pagina-reposicao #b_apagar_prod span,
+body.pagina-reposicao #b_limpar_lista span {
+    font-family: "Roca One", sans-serif !important;
+    font-size: 24px !important;
+    color: #f8c471 !important;
+}
+
+/* Baixar Lista: mesmo design, somente fonte menor */
+
+body.pagina-reposicao #b_imprimir_lista {
+    font-family: "Roca One", sans-serif !important;
+    font-size: 18px !important;
+    color: #f8c471 !important;
+    background-color: #1c1c1c;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    width: auto;
+    min-height: 45px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s;
+    white-space: normal;
+    max-width: 100%;
+}
+
+body.pagina-reposicao #b_imprimir_lista span {
+    font-family: "Roca One", sans-serif !important;
+    font-size: 18px !important;
+    color: #f8c471 !important;
+}
+
+body.pagina-reposicao #b_imprimir_lista:hover {
+    filter: brightness(1.2);
+}
+
+/* ============================================
+   TABELA — SOMENTE REMOVER SCROLL HORIZONTAL
+   Não altera cores, bordas, fontes ou linhas
+   ============================================ */
+
+body.pagina-reposicao #sc_tabela {
+    width: 90% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
+body.pagina-reposicao #sc_tabela .tabela {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: auto;
+}
+
+/* Permite que o texto se ajuste à largura disponível */
+body.pagina-reposicao #sc_tabela .tabela th,
+body.pagina-reposicao #sc_tabela .tabela td {
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+/* ============================================
+   NOTEBOOKS E TABLETS
+   ============================================ */
+
+@media screen and (max-width: 1100px) {
+    body.pagina-reposicao .d_util {
+        width: 96%;
+        gap: 12px;
+    }
+
+    body.pagina-reposicao .header-acoes {
+        flex: 1 1 100%;
+        justify-content: flex-start;
+    }
+
+    body.pagina-reposicao #b_addq,
+    body.pagina-reposicao #b_apagar_prod,
+    body.pagina-reposicao #b_limpar_lista {
+        width: auto;
+        flex: 1 1 180px;
+    }
+
+    body.pagina-reposicao #d_inp {
+        flex: 1 1 250px;
+        margin-left: 0;
+    }
+
+    body.pagina-reposicao #b_imprimir_lista {
+        flex: 0 1 auto;
+    }
+
+    body.pagina-reposicao #sc_tabela {
+        width: 96% !important;
+    }
+}
+
+/* ============================================
+   CELULARES
+   ============================================ */
+
+@media screen and (max-width: 700px) {
+    body.pagina-reposicao .d_util {
+        width: 94%;
+        margin: 16px auto 12px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    body.pagina-reposicao .header-acoes {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    body.pagina-reposicao .h_ag {
+        width: 100%;
+        text-align: center;
+        font-size: 26px;
+    }
+
+    body.pagina-reposicao #b_addq,
+    body.pagina-reposicao #b_apagar_prod,
+    body.pagina-reposicao #b_limpar_lista {
+        width: 100%;
+        min-height: 45px;
+        flex: none;
+    }
+
+    body.pagina-reposicao #d_inp {
+        width: 100%;
+        flex: none;
+        margin: 0;
+    }
+
+    body.pagina-reposicao .busca-box {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    body.pagina-reposicao #b_imprimir_lista {
+        width: 100%;
+        min-height: 45px;
+    }
+
+    body.pagina-reposicao #sc_tabela {
+        width: 96% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    body.pagina-reposicao #sc_tabela .tabela {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    body.pagina-reposicao #sc_tabela .tabela th,
+    body.pagina-reposicao #sc_tabela .tabela td {
+        padding: 8px 5px;
+        font-size: 12px;
+        overflow-wrap: anywhere;
+    }
+}
+
+/* ============================================
+   CELULARES ESTREITOS
+   ============================================ */
+
+@media screen and (max-width: 380px) {
+    body.pagina-reposicao .h_ag {
+        font-size: 23px;
+        padding: 10px;
+    }
+
+    body.pagina-reposicao #b_addq,
+    body.pagina-reposicao #b_apagar_prod,
+    body.pagina-reposicao #b_limpar_lista {
+        padding: 10px;
+        font-size: 21px !important;
+    }
+
+    body.pagina-reposicao #b_addq span,
+    body.pagina-reposicao #b_apagar_prod span,
+    body.pagina-reposicao #b_limpar_lista span {
+        font-size: 21px !important;
+    }
+
+    body.pagina-reposicao #sc_tabela .tabela th,
+    body.pagina-reposicao #sc_tabela .tabela td {
+        padding: 6px 3px;
+        font-size: 11px;
+    }
+}
+
+
+/* Responsividade da tela de reposição */
+body.pagina-reposicao {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+body.pagina-reposicao .d_util,
+body.pagina-reposicao #sc_tabela {
+    width: 95%;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+body.pagina-reposicao .d_util *,
+body.pagina-reposicao #sc_tabela * {
+    box-sizing: border-box;
+}
+
+body.pagina-reposicao .header-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+body.pagina-reposicao #d_inp {
+    min-width: 0;
+    max-width: 100%;
+}
+
+body.pagina-reposicao .busca-box {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+body.pagina-reposicao #inputBusca {
+    width: 100%;
+    min-width: 0;
+}
+
+body.pagina-reposicao #sc_tabela {
+    overflow-x: hidden;
+}
+
+body.pagina-reposicao #sc_tabela .tabela {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+}
+
+body.pagina-reposicao #sc_tabela th,
+body.pagina-reposicao #sc_tabela td {
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+/* Tablets */
+@media (max-width: 900px) {
+    body.pagina-reposicao .d_util,
+    body.pagina-reposicao #sc_tabela {
+        width: 96%;
+    }
+
+    body.pagina-reposicao .header-acoes > * {
+        max-width: 100%;
+    }
+
+    body.pagina-reposicao #sc_tabela th,
+    body.pagina-reposicao #sc_tabela td {
+        padding: 6px;
+    }
+}
+
+/* Celulares */
+@media (max-width: 600px) {
+    body.pagina-reposicao .d_util,
+    body.pagina-reposicao #sc_tabela {
+        width: 94%;
+    }
+
+    body.pagina-reposicao .header-acoes {
+        width: 100%;
+    }
+
+    body.pagina-reposicao .header-acoes button,
+    body.pagina-reposicao #b_imprimir_lista {
+        max-width: 100%;
+    }
+
+    body.pagina-reposicao #d_inp {
+        width: 100%;
+    }
+
+    body.pagina-reposicao #sc_tabela th,
+    body.pagina-reposicao #sc_tabela td {
+        padding: 4px 3px;
+        font-size: 12px;
+    }
+}
+
+/* Largura do botão Apagar produto */
+body.pagina-reposicao #b_apagar_prod {
+    width: 218px;
+}
+
+/* Largura do botão Apagar lista */
+body.pagina-reposicao #b_limpar_lista {
+    width: 180px;
+}
+
+/* Largura do botão Adicionar produto */
+body.pagina-reposicao #b_addq {
+    width: 250px;
+}
+
+
+/* REPOSIÇÃO — BUSCA E RESPONSIVIDADE */
+
+/* Busca um pouco menor */
+body.pagina-reposicao .busca-box {
+    width: 270px;
+    max-width: 100%;
+}
+
+body.pagina-reposicao #d_inp {
+    flex: 0 1 270px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+body.pagina-reposicao #inputBusca {
+    width: 100%;
+    min-width: 0;
+}
+
+/* Evita que os elementos ultrapassem a tela */
+body.pagina-reposicao {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+body.pagina-reposicao .d_util {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    width: 95%;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+body.pagina-reposicao .header-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+body.pagina-reposicao .header-acoes > *,
+body.pagina-reposicao #b_imprimir_lista {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Tabela dentro da largura disponível */
+body.pagina-reposicao #sc_tabela {
+    width: 95%;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    overflow-x: hidden;
+}
+
+body.pagina-reposicao #sc_tabela .tabela {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+}
+
+body.pagina-reposicao #sc_tabela th,
+body.pagina-reposicao #sc_tabela td {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+/* Tablets */
+@media screen and (max-width: 900px) {
+    body.pagina-reposicao .d_util,
+    body.pagina-reposicao #sc_tabela {
+        width: 96%;
+    }
+
+    body.pagina-reposicao .header-acoes {
+        gap: 8px;
+    }
+
+    body.pagina-reposicao #d_inp {
+        flex: 1 1 220px;
+    }
+
+    body.pagina-reposicao .busca-box {
+        width: 100%;
+    }
+}
+
+/* Celulares */
+@media screen and (max-width: 600px) {
+    body.pagina-reposicao .d_util {
+        width: 94%;
+        gap: 10px;
+    }
+
+    body.pagina-reposicao .header-acoes {
+        width: 100%;
+    }
+
+    body.pagina-reposicao #d_inp {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+
+    body.pagina-reposicao .busca-box {
+        width: 100%;
+    }
+
+    body.pagina-reposicao #b_imprimir_lista {
+        width: 100%;
+    }
+
+    body.pagina-reposicao #sc_tabela {
+        width: 96%;
+    }
+
+    body.pagina-reposicao #sc_tabela th,
+    body.pagina-reposicao #sc_tabela td {
+        padding: 5px 3px;
+        font-size: 12px;
+    }
+}
+
+
+/* Aumentar o input da coluna Local */
+body.pagina-reposicao .input-local {
+    width: 100%;
+    min-width: 150px;
+    box-sizing: border-box;
+}
+
+/* Largura da coluna Concluir */
+body.pagina-reposicao #sc_tabela .tabela th:nth-child(6),
+body.pagina-reposicao #sc_tabela .tabela td:nth-child(6) {
+    width: 9%!important;
+}
+
+/* Corrigir o corte do texto no campo de busca */
+body.pagina-reposicao .busca-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+body.pagina-reposicao .icone-busca {
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+}
+
+body.pagina-reposicao #inputBusca {
+    flex: 1;
+    width: 0;
+    min-width: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-overflow: clip;
+}
