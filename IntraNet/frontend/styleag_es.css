@@ -3,9 +3,7 @@
     background-color: #efac4a !important ;
     margin: 0;
 }
-/* ============================================================
-   TOPO / UTILIDADES
-   ============================================================ */
+/* TOPO / UTILIDADES */
 .d_util{
     width: 95%;
     margin: 30px auto 10px auto;
@@ -23,9 +21,7 @@
     margin-bottom: 0px;
 }
 
-/* ============================================================
-   TÍTULO
-   ============================================================ */
+/* TÍTULO */
 .h_ag{
     background-color: #1c1c1c;
     color: #f8c471;
@@ -34,9 +30,7 @@
     font-size: 32px;
 }
 
-/* ============================================================
-   BOTÕES DO TOPO
-   ============================================================ */
+/* BOTÕES DO TOPO */
    #b_addq,
    #b_nova_compra,
    #b_apagar_prod,
@@ -62,7 +56,7 @@
 #b_nova_compra:hover,
 #b_apagar_prod:hover,
 #b_limpar_lista:hover{
-    filter: brightness(1.2);
+    filter: none;
 }
 
 #s_addq{
@@ -72,9 +66,7 @@
     
 }
 
-/* ============================================================
-   ÁREA DE BUSCA
-   ============================================================ */
+/* ÁREA DE BUSCA */
 #d_inp{
     margin-left: auto;
     margin-bottom: 0px;
@@ -114,9 +106,7 @@
     opacity: 0.85;
     text-align: center;
 }
-/* ============================================================
-   ÁREA DA TABELA
-   ============================================================ */
+/* ÁREA DA TABELA */
 
 #sc_tabela{
     width: 90%;
@@ -131,9 +121,7 @@
     box-sizing: border-box;
 }
 
-/* ============================================================
-   TABELA
-   ============================================================ */
+/* TABELA */
 
 #sc_tabela .tabela{
     width: max-content;
@@ -145,9 +133,7 @@
     margin: 0 !important;
 }
 
-/* ============================================================
-   CABEÇALHO FIXO
-   ============================================================ */
+/* CABEÇALHO FIXO */
 
 #sc_tabela .tabela thead th{
     position: sticky;
@@ -165,9 +151,7 @@
     white-space: nowrap;
 }
 
-/* ============================================================
-   LINHAS
-   ============================================================ */
+/* LINHAS */
 
 #sc_tabela .tabela tbody td{
     padding: 10px;
@@ -175,9 +159,7 @@
     white-space: nowrap;
 }
 
-/* ============================================================
-   ZEBRA
-   ============================================================ */
+/* ZEBRA */
 
 #sc_tabela .tabela tbody tr:nth-child(even){
     background-color: #ddad6a;
@@ -187,9 +169,7 @@
     background-color: #f2c57c;
 }
 
-/* ============================================================
-   BORDAS
-   ============================================================ */
+/* BORDAS */
 
 #sc_tabela .tabela th,
 #sc_tabela .tabela td{
@@ -203,17 +183,13 @@
     text-align: left;
 }
 
-/* ============================================================
-   HOVER
-   ============================================================ */
+/* HOVER */
 
 #sc_tabela .tabela tbody tr:hover{
     filter: brightness(90%);
 }
 
-/* ============================================================
-   SCROLL DA TABELA
-   ============================================================ */
+/* SCROLL DA TABELA */
 
 #sc_tabela::-webkit-scrollbar{
     width: 10px;
@@ -237,19 +213,19 @@
     background: #1c1c1c;
 }
 
-/* ============================================================
-   MODAL
-   ============================================================ */
+/* Modal */
 #d_modal{
     border: 2px solid #efac4a;
     border-radius: 16px;
     padding: 0;
-    width: 600px;
-    height: 800px;
-    max-width: 95%;
+    width: min(560px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    height: auto;
+    max-height: calc(100dvh - 32px);
     background: #1c1c1c;
-    box-shadow: 0 10px 50px rgba(0,0,0,0.7);
-    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+    overflow: visible;
+    position: relative;
     color: #f8c471;
 }
 
@@ -262,14 +238,14 @@
     background: #1c1c1c;
     color: #f8c471;
     padding: 30px;
-    padding-bottom: 20px;
     border-radius: 16px;
     display: flex;
     flex-direction: column;
     gap: 15px;
-    height: 100%;
+    height: auto;
     position: relative;
-    overflow-y: auto;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 /* TÍTULO */
@@ -423,9 +399,7 @@ input[type=number]{
 
 
 
-/* ============================================================
-   LISTA DE SUGESTÕES
-   ============================================================ */
+/* LISTA DE SUGESTÕES */
 #lista_sugestoes{
     width: 100%;
     background: #1c1c1c;
@@ -466,9 +440,7 @@ input[type=number]{
     margin: 0;
 }
 
-/* ============================================================
-   SCROLL GLOBAL
-   ============================================================ */
+/* SCROLL GLOBAL */
 ::-webkit-scrollbar{
     width: 18px;
 }
@@ -491,9 +463,7 @@ input[type=number]{
     background-clip: content-box;
 }
 
-/* ============================================================
-   SCROLL DA LISTA
-   ============================================================ */
+/* SCROLL DA LISTA */
 #lista_sugestoes::-webkit-scrollbar{
     width: 15px;
 }
@@ -518,31 +488,10 @@ input[type=number]{
     background-clip: content-box;
 }
 
-/* ============================================================
-   BOTÃO FECHAR MODAL
-   ============================================================ */
-#b_close_modal{
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    background: transparent;
-    border: none;
-    color: #efac4a;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    line-height: 1;
-}
-
-#b_close_modal:hover{
-    color: #f8c471;
-    transform: scale(1.1);
-}
+/* Scroll da lista */
 
 
-/* ============================================================
-   ESTILO DO MODAL DE AVISO 
-   ============================================================ */
+/* ESTILO DO MODAL DE AVISO */
    #d_aviso {
     border: 3px solid #efac4a;
     border-radius: 12px;
@@ -604,7 +553,7 @@ input[type=number]{
 }
 
 #b_confirmar_aviso:hover {
-    filter: brightness(1.2);
+    filter: none;
 }
 
 
@@ -697,9 +646,7 @@ td:last-child {
     background: #1f1f1f;
     color: white;
 }
-/* =========================================================
-MODAL NOVO CLIENTE AJUSTADO
-========================================================= */
+/* MODAL NOVO CLIENTE AJUSTADO */
 
 #modal_cliente{
     border: 2px solid #efac4a;
@@ -726,9 +673,7 @@ MODAL NOVO CLIENTE AJUSTADO
     overflow-x: hidden;
 }
 
-/* =========================================================
-MODAL FIADO
-========================================================= */
+/* MODAL FIADO */
 
 #d_modal_fiado,
 #d_modal_produtos{
@@ -762,9 +707,7 @@ MODAL FIADO
     width: 100%;
 }
 
-/* =========================================================
-INPUTS MENORES
-========================================================= */
+/* INPUTS MENORES */
 
 #inp_busca_cliente,
 #inp_busca_produto,
@@ -774,9 +717,7 @@ INPUTS MENORES
     display: block;
 }
 
-/* =========================================================
-LISTA CLIENTES
-========================================================= */
+/* LISTA CLIENTES */
 
 #lista_clientes{
     position: absolute;
@@ -818,9 +759,7 @@ LISTA CLIENTES
     color: #1c1c1c;
 }
 
-/* =========================================================
-LISTA PRODUTOS
-========================================================= */
+/* LISTA PRODUTOS */
 
 
 #lista_produtos li:hover{
@@ -828,9 +767,7 @@ LISTA PRODUTOS
     color: #1c1c1c;
 }
 
-/* =========================================================
-ÁREA PRODUTOS FIXA
-========================================================= */
+/* ÁREA PRODUTOS FIXA */
 
 #area_produtos_modal,
 #produtos_selecionados{
@@ -860,9 +797,7 @@ LISTA PRODUTOS
     height: 210px;
 }
 
-/* =========================================================
-ITEM PRODUTO
-========================================================= */
+/* ITEM PRODUTO */
 
 .produto_item_modal{
     width: 100%;
@@ -886,9 +821,7 @@ ITEM PRODUTO
     color: #f8c471;
 }
 
-/* =========================================================
-QTD
-========================================================= */
+/* QTD */
 
 .controles_qtd{
     display: flex;
@@ -926,9 +859,7 @@ QTD
     font-size: 18px;
 }
 
-/* =========================================================
-BOTÕES
-========================================================= */
+/* BOTÕES */
 
 #b_abrir_produtos,
 #b_salvar_fiado,
@@ -954,9 +885,7 @@ BOTÕES
     justify-content: center;
 }
 
-/* =========================================================
-REMOVE BARRA HORIZONTAL
-========================================================= */
+/* REMOVE BARRA HORIZONTAL */
 
 .modal_box,
 #d_modal_fiado,
@@ -965,9 +894,7 @@ REMOVE BARRA HORIZONTAL
     overflow-x: hidden !important;
 }
 
-/* =========================================================
-SCROLL MAIS FINO
-========================================================= */
+/* SCROLL MAIS FINO */
 
 #lista_clientes::-webkit-scrollbar,
 #lista_produtos::-webkit-scrollbar,
@@ -991,48 +918,54 @@ SCROLL MAIS FINO
     border-radius: 20px;
 }
 
-/* =========================================================
-X FECHAR MODAIS
-========================================================= */
-
+/* Botão de fechar padronizado ("X") */
 #b_close_modal,
 #b_close_produtos,
-#b_close_modal_cliente{
-    position: absolute;
-    top: 12px;
-    right: 15px;
+#b_close_modal_cliente,
+#b_close_ranking,
+#btnFecharModalLiquidos,
+.fechar-modal-liquidos {
+    position: absolute !important;
+    top: 12px !important;
+    right: 15px !important;
+    z-index: 100 !important;
 
-    width: 38px;
-    height: 38px;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
 
-    border: none;
-    border-radius: 8px;
+    border: none !important;
+    border-radius: 8px !important;
 
-    background: #efac4a;
-    color: #1c1c1c;
+    background: #efac4a !important;
+    color: #1c1c1c !important;
 
-    font-size: 22px;
-    font-weight: bold;
+    font-family: Arial, sans-serif !important;
+    font-size: 22px !important;
+    font-weight: bold !important;
 
-    cursor: pointer;
+    cursor: pointer !important;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    transition: .2s;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
 }
 
 #b_close_modal:hover,
 #b_close_produtos:hover,
-#b_close_modal_cliente:hover{
-    transform: scale(1.05);
-    filter: brightness(1.1);
+#b_close_modal_cliente:hover,
+#b_close_ranking:hover,
+#btnFecharModalLiquidos:hover,
+.fechar-modal-liquidos:hover {
+    transform: none !important;
+    filter: none !important;
+    background: #efac4a !important;
+    color: #1c1c1c !important;
 }
 
-/* =========================================================
-NOVO CLIENTE CENTRALIZADO
-========================================================= */
+/* NOVO CLIENTE CENTRALIZADO */
 
 #modal_cliente{
     border: 2px solid #efac4a;
@@ -1059,9 +992,7 @@ NOVO CLIENTE CENTRALIZADO
     overflow-x: hidden;
 }
 
-/* =========================================================
-INPUTS MAIS PROPORCIONAIS
-========================================================= */
+/* INPUTS MAIS PROPORCIONAIS */
 
 #inp_busca_cliente,
 #inp_busca_produto,
@@ -1072,9 +1003,7 @@ INPUTS MAIS PROPORCIONAIS
     display: block;
 }
 
-/* =========================================================
-LISTA CLIENTES ESCONDIDA
-========================================================= */
+/* LISTA CLIENTES ESCONDIDA */
 
 #lista_clientes{
     display: none;
@@ -1104,9 +1033,7 @@ LISTA CLIENTES ESCONDIDA
     max-height: 145px;
 }
 
-/* =========================================================
-LISTA PRODUTOS
-========================================================= */
+/* LISTA PRODUTOS */
 
 #lista_produtos{
     width: 88%;
@@ -1151,9 +1078,7 @@ LISTA PRODUTOS
     color: #1c1c1c;
 }
 
-/* =========================================================
-ÁREA PRODUTOS
-========================================================= */
+/* ÁREA PRODUTOS */
 
 #area_produtos_modal,
 #produtos_selecionados{
@@ -1184,9 +1109,7 @@ LISTA PRODUTOS
     height: 255px;
 }
 
-/* =========================================================
-BOTÕES
-========================================================= */
+/* BOTÕES */
 
 #b_abrir_produtos,
 #b_salvar_fiado,
@@ -1259,7 +1182,6 @@ BOTÕES
 }
 
 .btn_filtro:hover{
-    background:#3a3a3a;
 }
 
 .btn_filtro.ativo{
@@ -1290,8 +1212,7 @@ BOTÕES
 }
 
 #btnFiltro:hover #img_funil{
-    opacity:1;
-    transform:scale(1.08);
+    transform:none;
 }
 
 #menuFiltro{
@@ -1470,8 +1391,6 @@ BOTÕES
         }
 
         .btn-baixar-pdf:hover {
-            background-color: #efac4a;
-            color: #1c1c1c;
             box-shadow: none !important;
             filter: none !important;
         }
@@ -1488,12 +1407,9 @@ BOTÕES
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            transition: background-color 0.2s, color 0.2s;
         }
 
         .btn-limpar-historico:hover {
-            background-color: #e74c3c;
-            color: #ffffff;
             box-shadow: none !important;
             filter: none !important;
         }
@@ -1523,13 +1439,11 @@ BOTÕES
 
     font-family:'Roca One',serif;
 
-    transition:.2s;
-
 }
 
 .btn-ranking:hover{
 
-    transform:scale(1.04);
+    transform:none;
 
 }
 
@@ -1803,10 +1717,7 @@ BOTÕES
     z-index: 3;
 }
 
-/* =========================================================
-   SELECT DE PRIORIDADE
-   MESMO ESTILO DO SELECT DE CATEGORIA
-   ========================================================= */
+/* SELECT DE PRIORIDADE - MESMO ESTILO DO SELECT DE CATEGORIA */
 
 .select-prioridade {
     position: relative;
@@ -1962,9 +1873,7 @@ BOTÕES
     box-shadow: none !important;
 }
 
-/* =========================================================
-   TEXTO DAS CAIXINHAS - MODAL ADICIONAR PRODUTOS
-   ========================================================= */
+/* TEXTO DAS CAIXINHAS - MODAL ADICIONAR PRODUTOS */
 
 /* Caixa de busca */
 #d_modal_produtos #inp_busca_produto {
@@ -2042,18 +1951,10 @@ BOTÕES
             letter-spacing: 0;
         }
 
-/* ============================================================
-   ESTOQUE — RESPONSIVIDADE / LAYOUT ESPECÍFICO DA TELA
-   Estas regras estão escopadas em .pagina-estoque para não alterar
-   outras páginas que também utilizam styleag_es.css.
-============================================================ */
+/* ESTOQUE — RESPONSIVIDADE / LAYOUT ESPECÍFICO DA TELA - Estas regras estão escopadas em .pagina-estoque para não alterar - outras páginas que também utilizam styleag_es.css. */
 
 
-/* ============================================================
-   ESTOQUE — RESPONSIVIDADE / LAYOUT ESPECÍFICO DA TELA
-   Estas regras estão escopadas em .pagina-estoque para não alterar
-   outras páginas que também utilizam styleag_es.css.
-============================================================ */
+/* ESTOQUE — RESPONSIVIDADE / LAYOUT ESPECÍFICO DA TELA - Estas regras estão escopadas em .pagina-estoque para não alterar - outras páginas que também utilizam styleag_es.css. */
 
 body.pagina-estoque {
     height: 100dvh;
@@ -2327,10 +2228,7 @@ body.pagina-estoque #d_aviso {
     }
 }
 
-/* ============================================================
-   TABELAS DAS DEMAIS PÁGINAS
-   MESMO PADRÃO DA TABELA DE ESTOQUE
-   ============================================================ */
+/* TABELAS DAS DEMAIS PÁGINAS - MESMO PADRÃO DA TABELA DE ESTOQUE */
 
 /* Impede que a página crie uma rolagem desnecessária */
 body:not(.pagina-estoque) {
@@ -2371,10 +2269,7 @@ body:not(.pagina-estoque) #sc_tabela .tabela thead th {
     z-index: 20 !important;
 }
 
-/* ============================================================
-   SCROLLBAR DA TABELA
-   MESMO PADRÃO DO ESTOQUE
-   ============================================================ */
+/* SCROLLBAR DA TABELA - MESMO PADRÃO DO ESTOQUE */
 
 body:not(.pagina-estoque) #sc_tabela::-webkit-scrollbar {
     width: 18px;
@@ -2406,10 +2301,7 @@ body:not(.pagina-estoque) #sc_tabela::-webkit-scrollbar-corner {
 }
 
 
-/* ============================================================
-   ALTURAS MENORES
-   MESMO COMPORTAMENTO DO ESTOQUE
-   ============================================================ */
+/* ALTURAS MENORES - MESMO COMPORTAMENTO DO ESTOQUE */
 
 @media (min-width: 701px) and (max-height: 950px) {
 
@@ -2423,9 +2315,7 @@ body:not(.pagina-estoque) #sc_tabela::-webkit-scrollbar-corner {
 }
 
 
-/* ============================================================
-   CELULAR
-   ============================================================ */
+/* CELULAR */
 
 @media (max-width: 700px) {
 
@@ -2476,10 +2366,7 @@ body:not(.pagina-estoque) #sc_tabela::-webkit-scrollbar-corner {
         }
 
 
-        /* ============================================================
-           SUGESTÕES DO MODAL "ADICIONAR PRODUTO"
-           Nome à esquerda e código de barras no canto superior direito.
-        ============================================================ */
+        /* SUGESTÕES DO MODAL "ADICIONAR PRODUTO" - Nome à esquerda e código de barras no canto superior direito. */
         #d_modal .autocomplete-box {
             position: relative;
             z-index: 100;
@@ -2660,19 +2547,24 @@ body:not(.pagina-estoque) #sc_tabela::-webkit-scrollbar-corner {
     .liquidos-form-grid { grid-template-columns: 1fr; }
 }
 
-/* Modal integrado ao Estoque: não abre uma página separada. */
+/* Modal Configurar ML (Líquidos) */
 .dialog-liquidos-estoque {
-    width: min(1240px, 96vw);
-    max-width: 96vw;
-    max-height: 94vh;
+    width: min(560px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    max-height: calc(100dvh - 32px);
     padding: 0;
-    border: 1px solid rgba(255,255,255,.18);
-    border-radius: 14px;
-    background: #171717;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    background: #1c1c1c;
     color: #f5f5f5;
-    overflow: auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+    overflow: visible;
+    position: relative;
 }
-.dialog-liquidos-estoque::backdrop { background: rgba(0,0,0,.72); }
+.dialog-liquidos-estoque::backdrop {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+}
 .dialog-liquidos-estoque .modal-liquidos-conteudo {
     position: relative;
     width: 100%;
@@ -2680,17 +2572,21 @@ body:not(.pagina-estoque) #sc_tabela::-webkit-scrollbar-corner {
     max-height: none;
     overflow: visible;
     box-sizing: border-box;
-    padding: 28px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
-.dialog-liquidos-estoque .liquidos-card { margin: 16px 0; }
-.dialog-liquidos-estoque .liquidos-form-grid { grid-template-columns: minmax(160px,1.4fr) minmax(120px,1fr) minmax(120px,1fr) auto; }
-.fechar-modal-liquidos {
-    float: right;
-    min-width: 36px;
-    min-height: 36px;
+.dialog-liquidos-estoque h2,
+.dialog-liquidos-estoque .modal_titulo {
+    color: #efac4a;
+    font-family: 'Roca One', serif;
     font-size: 24px;
-    line-height: 1;
+    margin: 0 0 15px 0;
+    text-align: center;
 }
+.dialog-liquidos-estoque .liquidos-card { margin: 12px 0; }
+.dialog-liquidos-estoque .liquidos-form-grid { grid-template-columns: minmax(160px,1.4fr) minmax(120px,1fr) minmax(120px,1fr) auto; }
 .check-produto-ml {
     appearance: none;
     -webkit-appearance: none;
@@ -2768,9 +2664,7 @@ body.pagina-estoque .select-status-produto:has(option[value="0"]:checked) {
 .dialog-liquidos-estoque .liquidos-form-volume label { color:#f2f2f2; }
 
 
-/* =========================================================
-   TELA ESTOQUE — AJUSTES FINAIS
-   ========================================================= */
+/* TELA ESTOQUE — AJUSTES FINAIS */
 
 /* Evita rolagem horizontal na página */
 html:has(body.pagina-estoque) {
@@ -2874,9 +2768,7 @@ body.pagina-estoque #inputBusca {
     box-sizing: border-box;
 }
 
-/* =========================================================
-   TABELA RESPONSIVA — SEM SCROLL HORIZONTAL
-   ========================================================= */
+/* TABELA RESPONSIVA — SEM SCROLL HORIZONTAL */
 
 body.pagina-estoque #sc_tabela {
     width: 95%;
@@ -2962,9 +2854,7 @@ body.pagina-estoque .select-status-produto option {
     color: #efac4a;
 }
 
-/* =========================================================
-   RESPONSIVIDADE PARA TABLETS E CELULARES
-   ========================================================= */
+/* RESPONSIVIDADE PARA TABLETS E CELULARES */
 
 @media (max-width: 900px) {
     body.pagina-estoque .d_util {
@@ -3110,9 +3000,7 @@ body.pagina-estoque .select-status-produto option {
     }
 }
 
-/* ============================================================
-   ESTOQUE — AJUSTES FINAIS
-============================================================ */
+/* ESTOQUE — AJUSTES FINAIS */
 
 /* Aumenta um pouco a coluna antes de Código. */
 body.pagina-estoque #sc_tabela .tabela thead th:first-child,
@@ -3325,10 +3213,7 @@ body.pagina-estoque #btnConfigurarML {
 }
 
 
-/* =========================================
-   AGENDAMENTO — RESPONSIVIDADE DA TABELA
-   Sem alterar tamanhos de fonte
-   ========================================= */
+/* AGENDAMENTO — RESPONSIVIDADE DA TABELA - Sem alterar tamanhos de fonte */
 
 body.pagina-agendamento {
     overflow-x: hidden;
@@ -3386,10 +3271,7 @@ body.pagina-agendamento #sc_tabela .tabela thead th {
 
 
 
-/* =========================================================
-   HISTÓRICO DE PEDIDOS — RESPONSIVIDADE E PADRONIZAÇÃO
-   Regras limitadas à tela de histórico
-   ========================================================= */
+/* HISTÓRICO DE PEDIDOS — RESPONSIVIDADE E PADRONIZAÇÃO - Regras limitadas à tela de histórico */
 
 /* Fonte Roca One */
 @font-face {
@@ -3413,9 +3295,7 @@ body.pagina-historico *::after {
     box-sizing: border-box;
 }
 
-/* =========================================================
-   BOTÃO PRODUTOS MAIS VENDIDOS
-   ========================================================= */
+/* BOTÃO PRODUTOS MAIS VENDIDOS */
 
 body.pagina-historico .btn-ranking {
     font-family: "Roca One", serif !important;
@@ -3432,9 +3312,7 @@ body.pagina-historico .btn-ranking:focus-visible {
     color: #f8c471 !important;
 }
 
-/* =========================================================
-   BOTÃO BAIXAR PDF
-   ========================================================= */
+/* BOTÃO BAIXAR PDF */
 
 body.pagina-historico .btn-baixar-pdf {
     font-size: 18px !important;
@@ -3449,9 +3327,7 @@ body.pagina-historico .btn-baixar-pdf:focus-visible {
     color: #f8c471 !important;
 }
 
-/* =========================================================
-   CABEÇALHO RESPONSIVO
-   ========================================================= */
+/* CABEÇALHO RESPONSIVO */
 
 body.pagina-historico .topo-cabecalho {
     width: 95%;
@@ -3499,9 +3375,7 @@ body.pagina-historico .total-faturado-box {
     max-width: 100%;
 }
 
-/* =========================================================
-   TABELA — COMPUTADOR
-   ========================================================= */
+/* TABELA — COMPUTADOR */
 
 body.pagina-historico #sc_tabela {
     width: 90%;
@@ -3545,9 +3419,7 @@ body.pagina-historico #sc_tabela .tabela td {
     box-sizing: border-box;
 }
 
-/* =========================================================
-   TABLETS E JANELAS MENORES
-   ========================================================= */
+/* TABLETS E JANELAS MENORES */
 
 @media (min-width: 701px) and (max-width: 1100px) {
     body.pagina-historico .topo-cabecalho {
@@ -3563,9 +3435,7 @@ body.pagina-historico #sc_tabela .tabela td {
     }
 }
 
-/* =========================================================
-   CELULARES
-   ========================================================= */
+/* CELULARES */
 
 @media (max-width: 700px) {
     body.pagina-historico .topo-cabecalho {
@@ -3641,7 +3511,7 @@ body.pagina-historico #sc_tabela .tabela td {
 }
 
 
-/* ===== HISTÓRICO DE PEDIDOS ===== */
+/* HISTÓRICO DE PEDIDOS */
 
 body.pagina-historico {
     overflow-x: hidden;
@@ -3784,9 +3654,7 @@ body.pagina-historico #sc_tabela .tabela td {
     }
 }
 
-/* =========================================================
-   HISTÓRICO DE PEDIDOS — RESPONSIVIDADE CONSOLIDADA
-   ========================================================= */
+/* HISTÓRICO DE PEDIDOS — RESPONSIVIDADE CONSOLIDADA */
 
 body.pagina-historico {
     margin: 0;
@@ -3930,10 +3798,7 @@ body.pagina-historico #sc_tabela .tabela thead th {
 /* Conteúdo: não forçar palavras a ficarem estre
 
 
-/* =========================================================
-   HISTÓRICO DE PEDIDOS — AJUSTES FINAIS
-   Responsividade e padronização dos botões
-   ========================================================= */
+/* HISTÓRICO DE PEDIDOS — AJUSTES FINAIS - Responsividade e padronização dos botões */
 
 body.pagina-historico {
     width: 100%;
@@ -3948,9 +3813,7 @@ body.pagina-historico *::after {
     box-sizing: border-box;
 }
 
-/* =========================================================
-   BOTÃO PRODUTOS MAIS VENDIDOS
-   ========================================================= */
+/* BOTÃO PRODUTOS MAIS VENDIDOS */
 
 body.pagina-historico #btnRankingProdutos {
     font-family: "Roca One", serif !important;
@@ -3967,9 +3830,7 @@ body.pagina-historico #btnRankingProdutos:focus-visible {
     color: #f8c471 !important;
 }
 
-/* =========================================================
-   BOTÃO BAIXAR PDF
-   ========================================================= */
+/* BOTÃO BAIXAR PDF */
 
 body.pagina-historico #btnExportarPDF {
     font-size: 18px !important;
@@ -3983,9 +3844,7 @@ body.pagina-historico #btnExportarPDF:focus-visible {
     color: #f8c471 !important;
 }
 
-/* =========================================================
-   CABEÇALHO RESPONSIVO
-   ========================================================= */
+/* CABEÇALHO RESPONSIVO */
 
 body.pagina-historico .topo-cabecalho {
     width: 95%;
@@ -4051,9 +3910,7 @@ body.pagina-historico #inputBusca {
     min-width: 0;
 }
 
-/* =========================================================
-   TABELA RESPONSIVA
-   ========================================================= */
+/* TABELA RESPONSIVA */
 
 body.pagina-historico #sc_tabela {
     display: block;
@@ -4101,9 +3958,7 @@ body.pagina-historico #sc_tabela .tabela td {
     vertical-align: middle;
 }
 
-/* =========================================================
-   TABLETS
-   ========================================================= */
+/* TABLETS */
 
 @media (min-width: 701px) and (max-width: 1100px) {
     body.pagina-historico .topo-cabecalho {
@@ -4119,9 +3974,7 @@ body.pagina-historico #sc_tabela .tabela td {
     }
 }
 
-/* =========================================================
-   CELULARES
-   ========================================================= */
+/* CELULARES */
 
 @media (max-width: 700px) {
     body.pagina-historico .topo-cabecalho {
@@ -4194,9 +4047,7 @@ body.pagina-historico #sc_tabela .tabela td {
     }
 }
 
-/* =========================================================
-   CELULARES PEQUENOS
-   ========================================================= */
+/* CELULARES PEQUENOS */
 
 @media (max-width: 400px) {
     body.pagina-historico .h_ag {
@@ -4213,9 +4064,7 @@ body.pagina-historico #sc_tabela .tabela td {
 }
 
 
-/* =========================================================
-   HISTÓRICO DE PEDIDOS — RESPONSIVIDADE E ESTILIZAÇÃO
-========================================================= */
+/* HISTÓRICO DE PEDIDOS — RESPONSIVIDADE E ESTILIZAÇÃO */
 
 /* CONTAINER SUPERIOR */
 body.pagina-historico .topo-cabecalho {
@@ -4369,9 +4218,7 @@ body.pagina-historico .btn-baixar-pdf {
     font-size: 18px !important;
 }
 
-/* =========================================================
-   RESPONSIVIDADE — TELAS MÉDIAS
-========================================================= */
+/* RESPONSIVIDADE — TELAS MÉDIAS */
 
 @media (max-width: 1400px) and (min-width: 1101px) {
     body.pagina-historico .topo-cabecalho {
@@ -4406,9 +4253,7 @@ body.pagina-historico .btn-baixar-pdf {
     }
 }
 
-/* =========================================================
-   RESPONSIVIDADE — TABLETS E JANELAS MENORES
-========================================================= */
+/* RESPONSIVIDADE — TABLETS E JANELAS MENORES */
 
 @media (max-width: 1100px) {
     body.pagina-historico .topo-cabecalho {
@@ -4459,9 +4304,7 @@ body.pagina-historico .btn-baixar-pdf {
     }
 }
 
-/* =========================================================
-   RESPONSIVIDADE — CELULARES
-========================================================= */
+/* RESPONSIVIDADE — CELULARES */
 
 @media (max-width: 600px) {
     body.pagina-historico .topo-cabecalho {
@@ -4516,9 +4359,7 @@ body.pagina-historico .btn-baixar-pdf {
     }
 }
 
-/* =========================================================
-   TABELA / LISTAGEM DO HISTÓRICO
-========================================================= */
+/* TABELA / LISTAGEM DO HISTÓRICO */
 
 @media (max-width: 768px) {
     body.pagina-historico .tabela-container,
@@ -4539,9 +4380,7 @@ body.pagina-historico .btn-baixar-pdf {
     }
 }
 
-/* =========================================================
-   AJUSTE DA BUSCA — REMOVER ESPAÇO APÓS A LUPA
-========================================================= */
+/* AJUSTE DA BUSCA — REMOVER ESPAÇO APÓS A LUPA */
 
 body.pagina-historico .busca-box {
     display: flex !important;
@@ -4568,9 +4407,7 @@ body.pagina-historico #inputBusca {
     flex: 1 1 auto !important;
 }
 
-/* =========================================================
-   BOTÃO PRODUTOS MAIS VENDIDOS
-========================================================= */
+/* BOTÃO PRODUTOS MAIS VENDIDOS */
 
 body.pagina-historico #btnRankingProdutos,
 body.pagina-historico .btn-ranking {
@@ -4592,9 +4429,7 @@ body.pagina-historico #btnRankingProdutos.btn-ranking {
 }
 
 
-/* ============================================
-   REPOSIÇÃO — AJUSTES FINAIS
-   ============================================ */
+/* REPOSIÇÃO — AJUSTES FINAIS */
 
 /* Evita que os elementos ultrapassem a tela */
 body.pagina-reposicao {
@@ -4610,9 +4445,7 @@ body.pagina-reposicao *::after {
     box-sizing: border-box;
 }
 
-/* ============================================
-   CABEÇALHO RESPONSIVO
-   ============================================ */
+/* CABEÇALHO RESPONSIVO */
 
 body.pagina-reposicao .d_util {
     width: 95%;
@@ -4658,9 +4491,7 @@ body.pagina-reposicao #inputBusca {
     min-width: 0;
 }
 
-/* ============================================
-   BOTÕES — MANTÉM O DESIGN ORIGINAL
-   ============================================ */
+/* BOTÕES — MANTÉM O DESIGN ORIGINAL */
 
 body.pagina-reposicao #b_addq,
 body.pagina-reposicao #b_apagar_prod,
@@ -4709,13 +4540,10 @@ body.pagina-reposicao #b_imprimir_lista span {
 }
 
 body.pagina-reposicao #b_imprimir_lista:hover {
-    filter: brightness(1.2);
+    filter: none;
 }
 
-/* ============================================
-   TABELA — SOMENTE REMOVER SCROLL HORIZONTAL
-   Não altera cores, bordas, fontes ou linhas
-   ============================================ */
+/* TABELA — SOMENTE REMOVER SCROLL HORIZONTAL - Não altera cores, bordas, fontes ou linhas */
 
 body.pagina-reposicao #sc_tabela {
     width: 90% !important;
@@ -4738,9 +4566,7 @@ body.pagina-reposicao #sc_tabela .tabela td {
     overflow-wrap: break-word;
 }
 
-/* ============================================
-   NOTEBOOKS E TABLETS
-   ============================================ */
+/* NOTEBOOKS E TABLETS */
 
 @media screen and (max-width: 1100px) {
     body.pagina-reposicao .d_util {
@@ -4774,9 +4600,7 @@ body.pagina-reposicao #sc_tabela .tabela td {
     }
 }
 
-/* ============================================
-   CELULARES
-   ============================================ */
+/* CELULARES */
 
 @media screen and (max-width: 700px) {
     body.pagina-reposicao .d_util {
@@ -4843,9 +4667,7 @@ body.pagina-reposicao #sc_tabela .tabela td {
     }
 }
 
-/* ============================================
-   CELULARES ESTREITOS
-   ============================================ */
+/* CELULARES ESTREITOS */
 
 @media screen and (max-width: 380px) {
     body.pagina-reposicao .h_ag {
@@ -5162,25 +4984,28 @@ body.pagina-reposicao #inputBusca {
     text-overflow: clip;
 }
 
-/* ============================================================
-   1. MODAL ADICIONAR QUANTIDADE — CENTRALIZADO E RESPONSIVO
-   ============================================================ */
-
+/* Modal Adicionar Quantidade */
 body.pagina-estoque dialog#d_modal {
     position: fixed !important;
     inset: 0 !important;
     margin: auto !important;
     transform: none !important;
 
-    width: min(600px, calc(100vw - 32px)) !important;
+    width: min(560px, calc(100vw - 32px)) !important;
     max-width: calc(100vw - 32px) !important;
 
     height: fit-content !important;
     max-height: calc(100dvh - 32px) !important;
     min-height: 0 !important;
 
+    border: 2px solid #efac4a !important;
+    border-radius: 16px !important;
+    background: #1c1c1c !important;
+    color: #f8c471 !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7) !important;
+
     box-sizing: border-box !important;
-    overflow: hidden !important;
+    overflow: visible !important;
 }
 
 body.pagina-estoque #d_modal .modal_box {
@@ -5191,8 +5016,11 @@ body.pagina-estoque #d_modal .modal_box {
 
     padding: 30px !important;
     box-sizing: border-box !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
+    overflow: visible !important;
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 15px !important;
 }
 
 body.pagina-estoque #d_modal .inp_m {
@@ -5220,6 +5048,7 @@ body.pagina-estoque #d_modal .modal_footer {
         max-width: calc(100vw - 20px) !important;
         max-height: calc(100dvh - 20px) !important;
     }
+}
 
     body.pagina-estoque #d_modal .modal_box {
         padding: 18px !important;
@@ -5254,9 +5083,7 @@ body.pagina-estoque #d_modal .modal_footer {
 }
 
 
-/* ============================================================
-   2. CAMPO DE BUSCA — TEXTO AO LADO DA LUPA
-   ============================================================ */
+/* 2. CAMPO DE BUSCA — TEXTO AO LADO DA LUPA */
 
 body.pagina-estoque .busca-box {
     display: flex !important;
@@ -5292,9 +5119,7 @@ body.pagina-estoque #inputBusca::placeholder {
 }
 
 
-/* ============================================================
-   3. COLUNA STATUS — ALINHAMENTO À ESQUERDA
-   ============================================================ */
+/* 3. COLUNA STATUS — ALINHAMENTO À ESQUERDA */
 
 body.pagina-estoque #sc_tabela .tabela thead th.coluna-status,
 body.pagina-estoque #sc_tabela .tabela tbody td.coluna-status {
@@ -5309,9 +5134,7 @@ body.pagina-estoque #sc_tabela .tabela td.coluna-status .select-status-produto {
     text-align: left !important;
 }
 
-/* ============================================================
-   ESTOQUE — MODAL SEM SCROLL INTERNO
-   ============================================================ */
+/* ESTOQUE — MODAL SEM SCROLL INTERNO */
 
 body.pagina-estoque dialog#d_modal {
     overflow: visible !important;
@@ -5324,9 +5147,7 @@ body.pagina-estoque #d_modal .modal_box {
 }
 
 
-/* ============================================================
-   ESTOQUE — DIMINUIR CÓDIGO E MANTER PRODUTO EM UMA LINHA
-   ============================================================ */
+/* ESTOQUE — DIMINUIR CÓDIGO E MANTER PRODUTO EM UMA LINHA */
 
 /* Coluna Código */
 body.pagina-estoque #sc_tabela .tabela th:nth-child(2),
@@ -5349,9 +5170,7 @@ body.pagina-estoque #sc_tabela .tabela td:nth-child(3) {
     overflow-wrap: normal !important;
 }
 
-/* ============================================================
-   ESTOQUE — AJUSTE DAS COLUNAS PRODUTO, CATEGORIA E CÓDIGO
-   ============================================================ */
+/* ESTOQUE — AJUSTE DAS COLUNAS PRODUTO, CATEGORIA E CÓDIGO */
 
 /* Código — números centralizados */
 body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(2) {
@@ -5417,61 +5236,8 @@ body.pagina-estoque #sc_tabela .tabela td:nth-child(5) {
     box-sizing: border-box;
 }
 
-/* REPOSIÇÃO — MODAL ADICIONAR PRODUTO SEM SCROLL */
-body.pagina-estoque dialog#d_modal {
-    width: min(600px, calc(100vw - 32px)) !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
-}
 
-body.pagina-estoque #d_modal .modal_box {
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
-    overflow-y: visible !important;
-    padding: 20px 30px !important;
-    gap: 10px !important;
-}
-
-body.pagina-estoque #d_modal .modal_box > div[style] {
-    margin-top: 8px !important;
-}
-
-body.pagina-estoque #d_modal .pm {
-    margin: 6px 0 !important;
-}
-
-body.pagina-estoque #d_modal #b_addf {
-    margin: 8px auto !important;
-}
-
-@media (max-width: 560px) {
-    body.pagina-estoque #d_modal .modal_box {
-        padding: 16px !important;
-        gap: 8px !important;
-    }
-}
-
-/* CORREÇÃO DO SCROLL — MODAL ADICIONAR PRODUTO */
-#d_modal {
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-}
-
-#d_modal .modal_box {
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-    overflow-y: visible !important;
-}
-
-/* =========================================
-   AGENDAMENTO — AJUSTE DAS LARGURAS DAS COLUNAS
-   ========================================= */
+/* AGENDAMENTO — AJUSTE DAS LARGURAS DAS COLUNAS */
 
 body.pagina-agendamento #sc_tabela .tabela {
     table-layout: fixed !important;

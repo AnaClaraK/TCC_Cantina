@@ -94,8 +94,8 @@ form button, .btn-form {
 }
 
 form button:hover, .btn-form:hover {
-    opacity: 0.85;
-    transform: translateY(-2px);
+    transform: none;
+    opacity: 1;
 }
 
 /* INPUT FILE CUSTOM */
@@ -254,27 +254,116 @@ h2 { margin: 5px 0; font-size: 22px; }
     border: 4px solid transparent;
     background-clip: content-box;
 }
-/* BOTÃO FECHAR (X) */
-#b_close_modal {
-    position: absolute;
-    top: 15px;
-    right: 20px;
+/* Botão fechar padronizado (X) */
+#b_close_modal,
+#b_close_categoria {
+    position: absolute !important;
+    top: 12px !important;
+    right: 15px !important;
+    z-index: 100 !important;
 
-    background: transparent;
-    border: none;
-    color: #efac4a;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
 
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
+    border: none !important;
+    border-radius: 8px !important;
 
-    line-height: 1;
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+
+    font-family: Arial, sans-serif !important;
+    font-size: 22px !important;
+    font-weight: bold !important;
+
+    cursor: pointer !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    line-height: 1 !important;
 }
 
-/* HOVER */
-#b_close_modal:hover {
+#b_close_modal:hover,
+#b_close_categoria:hover {
+    transform: none !important;
+    filter: none !important;
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+}
+
+/* Modal Nova Categoria */
+#modalNovaCategoria {
+    width: min(480px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    max-height: calc(100dvh - 32px);
+    padding: 0;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    background: #1c1c1c;
+    color: #f5f5f5;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+    position: relative;
+    overflow: visible;
+}
+
+#modalNovaCategoria .modal-categoria-box {
+    position: relative;
+    padding: 30px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#modalNovaCategoria h2 {
+    color: #efac4a;
+    font-family: 'Roca One', serif;
+    font-size: 24px;
+    margin: 0;
+    text-align: center;
+}
+
+#modalNovaCategoria p {
     color: #f8c471;
-    transform: scale(1.1);
+    font-size: 14px;
+    margin: 0;
+    text-align: center;
+}
+
+#modalNovaCategoria .modal-categoria-acoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+#modalNovaCategoria #btnCancelarCategoria {
+    background: #242628;
+    border: 2px solid #efac4a;
+    color: #efac4a;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#modalNovaCategoria #btnSalvarCategoria {
+    background: #efac4a;
+    border: 2px solid #efac4a;
+    color: #1c1c1c;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#modalNovaCategoria #btnCancelarCategoria:hover,
+#modalNovaCategoria #btnSalvarCategoria:hover {
+    transform: none;
+    filter: none;
 }
 #formPerfil {
     background-color: #fed89d;
@@ -355,9 +444,7 @@ h2 { margin: 5px 0; font-size: 22px; }
     }
 }
 
-/* ============================================================
-   ESTILO DO MODAL DE AVISO 
-   ============================================================ */
+/* ESTILO DO MODAL DE AVISO */
    #d_aviso {
     border: 3px solid #efac4a;
     border-radius: 12px;
@@ -415,11 +502,9 @@ h2 { margin: 5px 0; font-size: 22px; }
 }
 
 #b_confirmar_aviso:hover {
-    filter: brightness(1.2);
+    filter: none;
 }
-/* =========================================================
-   SELECT PERSONALIZADO DE CATEGORIA
-   ========================================================= */
+/* SELECT PERSONALIZADO DE CATEGORIA */
 
 .select-categoria {
     position: relative;
@@ -569,14 +654,9 @@ h2 { margin: 5px 0; font-size: 22px; }
 #inputImagem:disabled + * {
     cursor: not-allowed;
 }
-/* =========================================================
-   EDITAR PRODUTO
-   Regras específicas para não afetar a tela de cadastro
-   ========================================================= */
+/* EDITAR PRODUTO - Regras específicas para não afetar a tela de cadastro */
 
-/* =========================================================
-   TROCAR IMAGEM - EDITAR PRODUTO
-   ========================================================= */
+/* TROCAR IMAGEM - EDITAR PRODUTO */
 
 /* Desabilitado: cinza e não clicável */
 .file-label-editar {
@@ -606,14 +686,9 @@ h2 { margin: 5px 0; font-size: 22px; }
     background-color: #333 !important;
 }
 
-/* =========================================================
-   LISTA DE PRODUTOS - EDITAR
-   ========================================================= */
+/* LISTA DE PRODUTOS - EDITAR */
 
-/* =========================================================
-   LISTA DE PRODUTOS - EDITAR
-   FICA SOBRE OS OUTROS ELEMENTOS
-   ========================================================= */
+/* LISTA DE PRODUTOS - EDITAR - FICA SOBRE OS OUTROS ELEMENTOS */
 
 /* Primeira coluna serve como referência para a lista */
 .container-flex > .coluna:first-child {
@@ -699,9 +774,7 @@ h2 { margin: 5px 0; font-size: 22px; }
 }
 
 
-/* =========================================================
-   BOTÕES DO EDITAR PRODUTO
-   ========================================================= */
+/* BOTÕES DO EDITAR PRODUTO */
 
 #formProduto .botoes-fileira {
     width: 100%;
@@ -718,9 +791,7 @@ h2 { margin: 5px 0; font-size: 22px; }
     width: 150px;
     flex: none;
 }
-/* =========================================================
-   BUSCAR PRODUTO - TAMANHO DO TEXTO
-   ========================================================= */
+/* BUSCAR PRODUTO - TAMANHO DO TEXTO */
 
 #inp_busca_editar {
     font-size: 16px !important;
@@ -732,9 +803,7 @@ h2 { margin: 5px 0; font-size: 22px; }
     font-size: 16px !important;
     color: #555;
 }
-/* =========================================================
-   PRODUTO SELECIONADO
-   ========================================================= */
+/* PRODUTO SELECIONADO */
 
 .selecionado-produto {
     margin-top: 100px;
@@ -786,7 +855,7 @@ h2 { margin: 5px 0; font-size: 22px; }
 
 .btn-trocar:hover {
 	background-color: #292929;
-	transform: translateY(-1px);
+	transform: none;
 }
 
 .btn-trocar:active {
@@ -809,10 +878,7 @@ h2 { margin: 5px 0; font-size: 22px; }
 }
 
 
-/* =========================================
-   GRANO VITA — ESTILO DO CADASTRO DE PRODUTOS
-   Utiliza as classes existentes no HTML
-========================================= */
+/* GRANO VITA — ESTILO DO CADASTRO DE PRODUTOS - Utiliza as classes existentes no HTML */
 
 /* Fundo da tela */
 html,
@@ -1058,12 +1124,7 @@ input[type="file"]::file-selector-button {
     }
 }
 
-/* =========================================================
-   AJUSTE DE ÁREA — CADASTRO DE PRODUTO
-   Não altera cores, campos ou aparência do cadastro.
-   Corrige somente a área disponível da página para que
-   o formulário caiba também em zoom elevado.
-   ========================================================= */
+/* AJUSTE DE ÁREA — CADASTRO DE PRODUTO - Não altera cores, campos ou aparência do cadastro. - Corrige somente a área disponível da página para que - o formulário caiba também em zoom elevado. */
 
 body:has(#form_cadastrar_produto) {
     box-sizing: border-box;
@@ -1110,11 +1171,7 @@ body:has(#form_cadastrar_produto) .form-container {
 }
 
 
-/* =========================================================
-   EDITAR PRODUTO — AJUSTE FINAL
-   Escopo exclusivo de páginas que possuem #formProduto.
-   O CSS existente do Cadastro acima permanece intacto.
-   ========================================================= */
+/* EDITAR PRODUTO — AJUSTE FINAL - Escopo exclusivo de páginas que possuem #formProduto. - O CSS existente do Cadastro acima permanece intacto. */
 
 /* BODY DO EDITAR — sem rolagem da página */
 body:has(#formProduto) {
@@ -1405,9 +1462,7 @@ body:has(#formProduto) #formProduto .botoes-fileira .btn-p:hover {
     opacity: 1 !important;
 }
 
-/* =========================================================
-   EDITAR — TELAS/ZOOM QUE REDUZEM MUITO A ÁREA
-   ========================================================= */
+/* EDITAR — TELAS/ZOOM QUE REDUZEM MUITO A ÁREA */
 
 @media (max-height: 700px) {
     body:has(#formProduto) .form-container {
@@ -1480,9 +1535,7 @@ body:has(#formProduto) #formProduto .botoes-fileira .btn-p:hover {
     }
 }
 
-/* =========================================================
-   EDITAR — CELULAR
-   ========================================================= */
+/* EDITAR — CELULAR */
 
 @media (max-width: 650px) {
     body:has(#formProduto) .form-container {
@@ -1527,11 +1580,7 @@ body:has(#formProduto) #formProduto .botoes-fileira .btn-p:hover {
     }
 }
 
-/* =========================================================
-   AJUSTE FINAL — EDITAR PRODUTO
-   Fundo escuro por fora + quadro laranja claro por dentro
-   Sem rolagem do formulário e com lista abaixo da busca
-   ========================================================= */
+/* AJUSTE FINAL — EDITAR PRODUTO - Fundo escuro por fora + quadro laranja claro por dentro - Sem rolagem do formulário e com lista abaixo da busca */
 
 /* O fundo da página continua escuro */
 body:has(#formProduto) {
@@ -1659,10 +1708,7 @@ body:has(#formProduto) #formProduto::-webkit-scrollbar {
     height: 0 !important;
 }
 
-/* =========================================================
-   F11 + ZOOM 125% E ACIMA
-   Comprime somente o EDITAR para manter tudo dentro da tela
-   ========================================================= */
+/* F11 + ZOOM 125% E ACIMA - Comprime somente o EDITAR para manter tudo dentro da tela */
 
 @media (min-resolution: 120dpi), (min-resolution: 1.25dppx) {
     body:has(#formProduto) .form-container {
@@ -1795,10 +1841,7 @@ body:has(#formProduto) #formProduto::-webkit-scrollbar {
     }
 }
 
-/* =========================================================
-   AJUSTE FINAL — EDITAR PRODUTO
-   Fora = escuro / Dentro = claro
-   ========================================================= */
+/* AJUSTE FINAL — EDITAR PRODUTO - Fora = escuro / Dentro = claro */
 
 /* O bloco externo do Editar fica no laranja mais escuro */
 body:has(#formProduto) .form-container {
@@ -1867,9 +1910,7 @@ body:has(#formProduto) #formProduto .imagem-info * {
     font-size: 13px !important;
 }
 
-/* =========================================================
-   BOTÕES — VERDE PARA SALVAR / VERMELHO PARA CANCELAR
-   ========================================================= */
+/* BOTÕES — VERDE PARA SALVAR / VERMELHO PARA CANCELAR */
 
 body:has(#formProduto) #formProduto .botoes .btn-submit,
 body:has(#formProduto) #formProduto .botoes-fileira .btn-submit,
@@ -1907,9 +1948,7 @@ body:has(#formProduto) #formProduto #b_cancelar_edicao:hover {
     opacity: 1 !important;
 }
 
-/* =========================================================
-   MODAL DO EDITAR — UM POUCO MAIOR
-   ========================================================= */
+/* MODAL DO EDITAR — UM POUCO MAIOR */
 
 body:has(#formProduto) #d_aviso {
     width: min(440px, calc(100vw - 40px)) !important;
@@ -1957,10 +1996,7 @@ body:has(#formProduto) #d_aviso #b_cancelar_aviso:hover {
     opacity: 1 !important;
 }
 
-/* =========================================================
-   ZOOM 125%+ / F11 — mantém a aparência, mas compacta apenas
-   quando a altura realmente não comportar o formulário.
-   ========================================================= */
+/* ZOOM 125%+ / F11 — mantém a aparência, mas compacta apenas - quando a altura realmente não comportar o formulário. */
 @media (min-resolution: 120dpi), (min-resolution: 1.25dppx) {
     body:has(#formProduto) #formProduto h2 {
         font-size: 20px !important;
@@ -1991,10 +2027,7 @@ body:has(#formProduto) #d_aviso #b_cancelar_aviso:hover {
     }
 }
 
-/* =========================================================
-   V4 — AJUSTES FINAIS DO EDITAR PRODUTO
-   Somente regras do #formProduto / sem alterar o Cadastro
-   ========================================================= */
+/* V4 — AJUSTES FINAIS DO EDITAR PRODUTO - Somente regras do #formProduto / sem alterar o Cadastro */
 
 /* Remove totalmente o aviso "Produto selecionado".
    O espaço também desaparece. */
@@ -2102,10 +2135,7 @@ body:has(#formProduto) #d_aviso #b_cancelar_aviso {
     border-radius: 7px !important;
 }
 
-/* =========================================================
-   ZOOM 125%+ / F11
-   Mantém a imagem maior sem voltar a deformar a tela.
-   ========================================================= */
+/* ZOOM 125%+ / F11 - Mantém a imagem maior sem voltar a deformar a tela. */
 @media (min-resolution: 120dpi), (min-resolution: 1.25dppx) {
     body:has(#formProduto) #formProduto .busca-container + .form-row,
     body:has(#formProduto) #formProduto .busca-container + .container-flex,

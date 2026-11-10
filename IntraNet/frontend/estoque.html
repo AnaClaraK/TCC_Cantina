@@ -57,12 +57,14 @@
 
 <dialog id="d_modal">
     <div class="modal_box">
-        <button id="b_close_modal">x</button>
+        <button id="b_close_modal" aria-label="Fechar">✕</button>
 
-        <h2>Atualizar Quantidade</h2>
+        <h2 class="modal_titulo">Adicionar Quantidade</h2>
 
-        <input type="text" class="inp_m" id="inp_busca_modal" placeholder="Código ou nome">
-        <ul id="lista_sugestoes"></ul>
+        <div class="autocomplete-box">
+            <input type="text" class="inp_m" id="inp_busca_modal" placeholder="Código ou nome" autocomplete="off">
+            <ul id="lista_sugestoes"></ul>
+        </div>
 
         <p class="pm">Selecionado: <span id="s_produto">---</span></p>
         <p class="pm">Quantidade atual: <span id="s_qtda">0</span></p>
@@ -79,8 +81,8 @@
 
 <dialog id="d_modal_liquidos" class="dialog-liquidos dialog-liquidos-estoque">
     <div class="modal_box modal-liquidos-conteudo">
-        <button type="button" id="btnFecharModalLiquidos" class="fechar-modal-liquidos" aria-label="Fechar">×</button>
-        <h2>Estoque de líquidos</h2>
+        <button type="button" id="btnFecharModalLiquidos" class="fechar-modal-liquidos" aria-label="Fechar">✕</button>
+        <h2 class="modal_titulo">Configurar ml</h2>
         <div id="produtosSelecionadosMl" class="produtos-selecionados-ml"></div>
         <div class="liquidos-form-grid liquidos-form-volume">
             <label>Quantidade disponível (ml)
@@ -565,7 +567,6 @@ inpBuscaModal.addEventListener("input", () => {
     });
 });
 
-// --- ENGENHARIA DO ACESSÓRIO DE REMOÇÃO DO ZERO ---
 inpAddQtd.addEventListener("focus", () => {
     if (inpAddQtd.value === "0") {
         inpAddQtd.value = "";
@@ -582,15 +583,30 @@ const b_close_modal_btn = document.getElementById("b_close_modal");
 b_close_modal_btn.addEventListener("click", () => {
     modal.close();
 });
+modal.addEventListener("close", limparModal);
 
-
-// ============================================================
-// ESTOQUE DE LÍQUIDOS: usa o produto já cadastrado e sua quantidade
-// ============================================================
+// Estoque de liquidos
 const modalLiquidos = document.getElementById("d_modal_liquidos");
 const btnAbrirLiquidos = document.getElementById("btnEstoqueLiquidos");
 const btnFecharLiquidos = document.getElementById("btnFecharModalLiquidos");
 const API_LIQUIDOS = "http://localhost:3000";
+
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+        if (aviso && aviso.open) {
+            aviso.close();
+            return;
+        }
+        if (modalLiquidos && modalLiquidos.open) {
+            modalLiquidos.close();
+            return;
+        }
+        if (modal && modal.open) {
+            modal.close();
+            return;
+        }
+    }
+});
 
 async function apiLiquidos(url, options = {}) {
     const headers = { ...(options.headers || {}), Authorization: `Bearer ${localStorage.getItem("token")}` };

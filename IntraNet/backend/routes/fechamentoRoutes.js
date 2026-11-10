@@ -8,11 +8,8 @@ const conexao = require('../db');
 const verificarToken = require('../middlewares/auth');
 
 
-/* =========================================================
-   GARANTE A ESTRUTURA DA TABELA DE FECHAMENTOS
-   Corrige bancos que já possuem a tabela antiga, mas não
-   possuem as colunas usadas pela versão atual da rota.
-========================================================= */
+// ESTRUTURA DA TABELA DE FECHAMENTOS
+ 
 
 async function garantirEstruturaFechamentos(conn = conexao) {
 
@@ -78,9 +75,7 @@ async function garantirEstruturaFechamentos(conn = conexao) {
 }
 
 
-/* =========================================================
-   IDENTIFICA O USUÁRIO LOGADO
-========================================================= */
+//IDENTIFICA O USUÁRIO LOGADO
 
 function obterUsuarioId(req) {
 
@@ -93,9 +88,7 @@ function obterUsuarioId(req) {
 }
 
 
-/* =========================================================
-   VALIDAÇÃO DE DATA
-========================================================= */
+// VALIDAÇÃO DE DATA
 
 function validarData(data) {
 
@@ -119,9 +112,7 @@ function validarData(data) {
 }
 
 
-/* =========================================================
-   FORMAS DE PAGAMENTO
-========================================================= */
+// FORMAS DE PAGAMENTO
 
 function normalizarForma(texto) {
 
@@ -210,14 +201,8 @@ function extrairPagamentos(
     }
 
 
-    /*
-        Pagamento dividido.
+    //Pagamento dividido
 
-        Exemplo:
-
-        Dinheiro=2.00,
-        Cartão de Crédito=5.00
-    */
     if (
         texto.includes('=')
     ) {
@@ -349,9 +334,8 @@ function extrairPagamentos(
 }
 
 
-/* =========================================================
-   DATA ATUAL DO BANCO
-========================================================= */
+// DATA ATUAL DO BANCO
+
 
 async function obterHojeBanco(
     conn = conexao
@@ -372,9 +356,7 @@ async function obterHojeBanco(
 }
 
 
-/* =========================================================
-   RESUMO DAS VENDAS DO DIA
-========================================================= */
+// RESUMO DAS VENDAS DO DIA
 
 async function buscarResumoDia(
     conn,
@@ -483,9 +465,7 @@ async function buscarResumoDia(
 }
 
 
-/* =========================================================
-   BUSCA O ÚLTIMO TROCO FECHADO ANTERIOR
-========================================================= */
+// BUSCA O ÚLTIMO TROCO FECHADO ANTERIOR
 
 async function buscarTrocoAnterior(
     conn,
@@ -545,9 +525,8 @@ async function buscarTrocoAnterior(
 }
 
 
-/* =========================================================
-   BUSCA DIA PENDENTE
-========================================================= */
+// BUSCA DIA PENDENTE
+
 
 async function buscarPendencia(
     conn,
@@ -587,28 +566,15 @@ async function buscarPendencia(
 }
 
 
-/* =========================================================
-   BACKUP DO BANCO
-   DESTINO:
-   backend/config/backups
-========================================================= */
+// BACKUP DO BANCO
+
 
 async function criarBackupBanco(
     conn,
     dataReferencia
 ) {
 
-    /*
-        Este arquivo fica em:
-
-        backend/routes/fechamentoRoutes.js
-
-        Portanto:
-
-        ..        = backend
-        config    = backend/config
-        backups   = backend/config/backups
-    */
+    //Este arquivo fica em: backend/routes/fechamentoRoutes.js
 
     const pastaBackup =
         path.resolve(
@@ -750,9 +716,7 @@ async function criarBackupBanco(
         const views = [];
 
 
-        /* =====================================================
-           TABELAS
-        ===================================================== */
+        // TABELAS
 
         for (
             const tabela of tabelas
@@ -882,9 +846,7 @@ async function criarBackupBanco(
         }
 
 
-        /* =====================================================
-           VIEWS
-        ===================================================== */
+        // VIEWS
 
         for (
             const nomeView of views
@@ -942,9 +904,8 @@ async function criarBackupBanco(
             'SET FOREIGN_KEY_CHECKS = 1;\n';
 
 
-        /*
-            Primeiro cria .tmp
-        */
+        // Primeiro cria .tmp
+
         await fs.writeFile(
             caminhoTemporario,
             sql,
@@ -952,9 +913,8 @@ async function criarBackupBanco(
         );
 
 
-        /*
-            Depois renomeia para .sql
-        */
+        // Depois renomeia para .sql
+
         await fs.rename(
             caminhoTemporario,
             caminhoFinal
@@ -991,9 +951,8 @@ async function criarBackupBanco(
 }
 
 
-/* =========================================================
-   STATUS INICIAL
-========================================================= */
+//STATUS INICIAL
+
 
 router.get(
     '/fechamentos-diarios/status-inicial',
@@ -1070,9 +1029,7 @@ router.get(
 );
 
 
-/* =========================================================
-   CONSULTAR FECHAMENTO DE UMA DATA
-========================================================= */
+// CONSULTAR FECHAMENTO DE UMA DATA
 
 router.get(
     '/fechamentos-diarios/:data',
@@ -1199,10 +1156,7 @@ router.get(
 );
 
 
-/* =========================================================
-   ABERTURA DO CAIXA
-   AGORA ACEITA HOJE OU QUALQUER DIA ANTERIOR
-========================================================= */
+// ABERTURA DO CAIXA
 
 router.post(
     '/fechamentos-diarios/abertura',
@@ -1230,21 +1184,8 @@ router.post(
                 await obterHojeBanco();
 
 
-            /*
-                CORREÇÃO PRINCIPAL:
+            // CORREÇÃO
 
-                Antes:
-                    data !== hoje -> erro
-
-                Agora:
-                    data > hoje -> erro
-
-                Portanto:
-                    hoje       -> permitido
-                    ontem      -> permitido
-                    dias atrás -> permitido
-                    futuro     -> bloqueado
-            */
             if (
                 data > hoje
             ) {
@@ -1306,10 +1247,8 @@ router.post(
                 );
 
 
-            /*
-                Se já está FECHADO,
-                não pode abrir novamente.
-            */
+            // Se já está FECHADO,não pode abrir novamente.
+        
             if (
                 existente.length &&
                 existente[0].status ===
@@ -1328,10 +1267,8 @@ router.post(
             }
 
 
-            /*
-                Busca a origem do troco,
-                caso exista um fechamento anterior.
-            */
+            // Busca a origem do troco,caso exista um fechamento anterior.
+
             const aberturaAnterior =
                 await buscarTrocoAnterior(
                     conn,
@@ -1339,10 +1276,8 @@ router.post(
                 );
 
 
-            /*
-                Se já existe registro ABERTO,
-                apenas atualiza o troco informado.
-            */
+            // Se já existe registro ABERTO, apenas atualiza o troco informado.
+
             if (
                 existente.length
             ) {
@@ -1372,12 +1307,8 @@ router.post(
 
             } else {
 
-                /*
-                    Cria a abertura para a data escolhida.
+                // Cria a abertura para a data escolhida.Isso agora funciona também para dias anteriores.
 
-                    Isso agora funciona também para
-                    dias anteriores.
-                */
                 await conn.query(
                     `
                     INSERT INTO
@@ -1468,9 +1399,8 @@ router.post(
 );
 
 
-/* =========================================================
-   FECHAR DIA + BACKUP
-========================================================= */
+// FECHAR DIA + BACKUP
+
 
 router.post(
     '/fechamentos-diarios',
@@ -1581,11 +1511,7 @@ router.post(
             }
 
 
-            /*
-                Datas anteriores podem ser fechadas manualmente.
-                Não bloqueamos o fechamento só porque já existe
-                outro fechamento posterior no banco.
-            */
+            // Datas anteriores podem ser fechadas manualmente.Não bloqueamos o fechamento só porque já existe outro fechamento posterior no banco.
 
             const resumo =
                 await buscarResumoDia(
@@ -1635,9 +1561,7 @@ router.post(
                 );
 
 
-            /* =====================================================
-               SALVA O FECHAMENTO
-            ===================================================== */
+            // SALVA O FECHAMENTO
 
             if (
                 existente.length
@@ -1807,11 +1731,8 @@ router.post(
             }
 
 
-            /*
-                Primeiro confirma o fechamento no banco.
-                Assim, um problema no backup não desfaz
-                o fechamento que já foi salvo.
-            */
+            // Primeiro confirma o fechamento no banco. Assim, um problema no backup não desfaz o fechamento que já foi salvo.
+
             await conn.commit();
 
 
