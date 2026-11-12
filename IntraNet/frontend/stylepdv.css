@@ -6260,3 +6260,127 @@ dialog button {
     width: 450px !important;
     max-width: 100% !important;
 }
+
+/* ============================================================
+   BUSCA E AUTOCOMPLETE DE CLIENTES — MODAL VENDA FIADO
+============================================================ */
+
+#d_fiado .campo-busca-cliente-fiado {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+#d_fiado #inp_cliente_fiado {
+    display: block;
+    width: 100%;
+    height: 48px;
+    margin: 0;
+    padding: 0 12px;
+
+    color: #1c1c1c;
+    background: #f8c471;
+
+    border: 2px solid #efac4a;
+    border-radius: 9px;
+
+    outline: none;
+
+    font-family: "Roca One", sans-serif !important;
+    font-size: 1rem;
+}
+
+#d_fiado #inp_cliente_fiado::placeholder {
+    color: #5b4325;
+    opacity: .85;
+}
+
+#d_fiado #inp_cliente_fiado:focus {
+    border-color: #ffd58a;
+    box-shadow: 0 0 0 3px rgba(239, 172, 74, .22);
+}
+
+/* Select original fica oculto */
+#d_fiado #sl_cliente[hidden] {
+    display: none !important;
+}
+
+/* Lista de resultados */
+#d_fiado .lista-clientes-fiado {
+    position: absolute;
+    z-index: 1000;
+
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+
+    max-height: 220px;
+
+    margin: 0;
+    padding: 5px;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    list-style: none;
+
+    color: #1c1c1c;
+    background: #f8c471;
+
+    border: 2px solid #efac4a;
+    border-radius: 9px;
+
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .35);
+}
+
+/* Esconde a lista quando necessário */
+#d_fiado .lista-clientes-fiado[hidden] {
+    display: none !important;
+}
+
+/* Opções de clientes */
+#d_fiado .opcao-cliente-fiado,
+#d_fiado .cliente-fiado-vazio {
+    padding: 11px 12px;
+
+    border-radius: 6px;
+
+    font-family: "Roca One", sans-serif;
+    font-size: 1rem;
+
+    overflow-wrap: anywhere;
+}
+
+/* Interação com as opções */
+#d_fiado .opcao-cliente-fiado {
+    cursor: pointer;
+}
+
+#d_fiado .opcao-cliente-fiado:hover,
+#d_fiado .opcao-cliente-fiado:focus {
+    color: #f8c471;
+    background: #2b1f14;
+}
+
+/* Mensagem quando não encontrar clientes */
+#d_fiado .cliente-fiado-vazio {
+    color: #5b4325;
+    text-align: center;
+    cursor: default;
+}
+
+/* Lista de seleção de clientes do Fiado */
+#d_fiado .lista-clientes-fiado {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+#d_fiado .opcao-cliente-fiado {
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+#d_fiado .cliente-selecionado {
+    background-color: #f1b869;
+    color: #2b1f14;
+}

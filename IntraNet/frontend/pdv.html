@@ -147,18 +147,57 @@
 </div>
 <dialog id="d_fiado">
     <div class="modal_titulo">
-        <button type="button" id="b_fechar_fiado" aria-label="Fechar modal" class="fechar-modal-pagamento" onclick="fecharModalFiadoPagamento();">×</button>
+
+        <button
+            type="button"
+            id="b_fechar_fiado"
+            aria-label="Fechar modal"
+            class="fechar-modal-pagamento"
+            onclick="fecharModalFiadoPagamento();"
+        >×</button>
+
         <h2>Venda Fiado</h2>
-        <select id="sl_cliente" class="inp_m"></select>
+
+        <div class="campo-busca-cliente-fiado">
+            <input
+                type="text"
+                id="inp_cliente_fiado"
+                class="inp_m"
+                placeholder="Selecione ou digite para buscar um cliente..."
+                autocomplete="off"
+                aria-label="Buscar e selecionar cliente"
+                aria-controls="lista_clientes_fiado"
+                aria-expanded="false"
+            >
+
+            <ul
+                id="lista_clientes_fiado"
+                class="lista-clientes-fiado"
+                role="listbox"
+                hidden
+            ></ul>
+        </div>
+
+        <!-- Select oculto para manter a integração com o código existente -->
+        <select
+            id="sl_cliente"
+            class="inp_m"
+            hidden
+            aria-hidden="true"
+            tabindex="-1"
+        ></select>
+
         <input
             type="date"
             id="inp_vencimento"
             class="inp_m"
         >
+
         <button id="b_confirmar_fiado">
             Confirmar
-        </button> 
-    </div>   
+        </button>
+
+    </div>
 </dialog>
 
 <dialog id="dialogDividirPagamento">
@@ -1301,17 +1340,21 @@ document.querySelectorAll(".pagamento").forEach(botao => {
             );
 
             const dFiado =
-                document.getElementById("d_fiado");
+    document.getElementById("d_fiado");
 
-            if (dFiado) {
+if (dFiado) {
 
-                inp_vencimento.value =
-                    new Date()
-                        .toISOString()
-                        .split("T")[0];
+    // Limpa o cliente selecionado anteriormente
+    limparSelecaoClienteFiado();
 
-                dFiado.showModal();
-            }
+    // Mantém a data exatamente como já estava
+    inp_vencimento.value =
+        new Date()
+            .toISOString()
+            .split("T")[0];
+
+    dFiado.showModal();
+}
 
             return;
         }
@@ -2087,26 +2130,291 @@ function confirmarCancelamento() {
     atualizarRelogio();
     setInterval(atualizarRelogio, 1000);
 
-    async function carregarClientesFiado(){
+const inpClienteFiado = document.getElementById("inp_cliente_fiado");
+const listaClientesFiado = document.getElementById("lista_clientes_fiado");
+
+let indiceClienteSelecionado = -1;
+
+inp_cliente_fiado.addEventListener("keydown", (e) => {
+    const opcoes = lista_clientes_fiado.querySelectorAll(".opcao-cliente-fiado");
+
+    if (!opcoes.length) return;
+
+    if (e.key === "ArrowDown") {
+        e.preventDefault();
+        indiceClienteSelecionado = Math.min(
+            indiceClienteSelecionado + 1,
+            opcoes.length - 1
+        );
+    } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        indiceClienteSelecionado = Math.max(
+            indiceClienteSelecionado - 1,
+            0
+        );
+    } else if (e.key === "Enter" && indiceClienteSelecionado >= 0) {
+        e.preventDefault();
+        opcoes[indiceClienteSelecionado].click();
+        indiceClienteSelecionado = -1;
+        return;
+    } else {
+        return;
+    }
+
+    opcoes.forEach((opcao, index) => {
+        opcao.classList.toggle(
+            "cliente-selecionado",
+            index === indiceClienteSelecionado
+        );
+    });
+
+    // Mostra no campo o nome destacado pelas setas
+inpClienteFiado.value =
+    opcoes[indiceClienteFiadoSelecionado].textContent.trim();
+
+    opcoes[indiceClienteSelecionado].scrollIntoView({
+        block: "nearest"
+    });
+});
+
+let clientesFiadoCarregados = [];
+
+let indiceClienteFiadoSelecionado = -1;
+
+function normalizarBuscaCliente(valor) {
+    return String(valor ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLocaleLowerCase("pt-BR")
+        .trim();
+}
+
+function fecharListaClientesFiado() {
+    listaClientesFiado.hidden = true;
+    inpClienteFiado.setAttribute("aria-expanded", "false");
+}
+
+function renderizarClientesFiado(termo = "") {
+    const busca = normalizarBuscaCliente(termo);
+
+    const filtrados = clientesFiadoCarregados.filter(cliente => {
+        const textoBusca = normalizarBuscaCliente(
+            Object.values(cliente)
+                .filter(valor => valor !== null && typeof valor !== "object")
+                .join(" ")
+        );
+
+        return !busca || textoBusca.includes(busca);
+    });
+
+    listaClientesFiado.innerHTML = "";
+
+    indiceClienteFiadoSelecionado = -1;
+
+    if (!filtrados.length) {
+        const vazio = document.createElement("li");
+
+        vazio.className = "cliente-fiado-vazio";
+        vazio.textContent = "Nenhum cliente encontrado.";
+
+        listaClientesFiado.appendChild(vazio);
+
+    } else {
+        filtrados.forEach(cliente => {
+            const item = document.createElement("li");
+
+            item.className = "opcao-cliente-fiado";
+            item.textContent = cliente.nome_completo || "Cliente sem nome";
+            item.setAttribute("role", "option");
+
+            item.addEventListener("mousedown", event => {
+                event.preventDefault();
+                selecionarClienteFiado(cliente);
+            });
+
+            listaClientesFiado.appendChild(item);
+        });
+    }
+
+    listaClientesFiado.hidden = false;
+    inpClienteFiado.setAttribute("aria-expanded", "true");
+}
+
+function selecionarClienteFiado(cliente) {
+    sl_cliente.value = String(cliente.id_cliente);
+
+    inpClienteFiado.value = cliente.nome_completo || "";
+
+    fecharListaClientesFiado();
+}
+
+function limparSelecaoClienteFiado() {
+    sl_cliente.value = "";
+    sl_cliente.selectedIndex = -1;
+
+    inpClienteFiado.value = "";
+
+    fecharListaClientesFiado();
+}
+
+// Abre a lista ao clicar no campo
+inpClienteFiado.addEventListener("focus", () => {
+    renderizarClientesFiado(inpClienteFiado.value);
+});
+
+// Pesquisa em tempo real
+inpClienteFiado.addEventListener("input", () => {
+
+    // Obriga o usuário a selecionar novamente após alterar o texto
+    sl_cliente.value = "";
+    sl_cliente.selectedIndex = -1;
+
+    renderizarClientesFiado(inpClienteFiado.value);
+});
+
+// Navegação pelo teclado
+inpClienteFiado.addEventListener("keydown", event => {
+
+    if (event.key === "Escape") {
+        fecharListaClientesFiado();
+        return;
+    }
+
+    const opcoes = Array.from(
+        listaClientesFiado.querySelectorAll(".opcao-cliente-fiado")
+    );
+
+    if (listaClientesFiado.hidden || opcoes.length === 0) return;
+
+    if (event.key === "ArrowDown") {
+        event.preventDefault();
+
+        indiceClienteFiadoSelecionado =
+            (indiceClienteFiadoSelecionado + 1) % opcoes.length;
+
+    } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+
+        indiceClienteFiadoSelecionado =
+            indiceClienteFiadoSelecionado <= 0
+                ? opcoes.length - 1
+                : indiceClienteFiadoSelecionado - 1;
+
+    } else if (event.key === "Enter") {
+        event.preventDefault();
+
+        if (indiceClienteFiadoSelecionado === -1) {
+            indiceClienteFiadoSelecionado = 0;
+        }
+
+        opcoes[indiceClienteFiadoSelecionado].dispatchEvent(
+            new MouseEvent("mousedown", { bubbles: true })
+        );
+
+        indiceClienteFiadoSelecionado = -1;
+        return;
+
+    } else {
+        return;
+    }
+
+    opcoes.forEach((opcao, index) => {
+        opcao.classList.toggle(
+            "cliente-selecionado",
+            index === indiceClienteFiadoSelecionado
+        );
+    });
+
+    const opcaoAtiva = opcoes[indiceClienteFiadoSelecionado];
+
+    // Exibe o nome destacado no campo
+    inpClienteFiado.value = opcaoAtiva.textContent.trim();
+
+    // Aguarda o Enter para confirmar o cliente
+    sl_cliente.value = "";
+    sl_cliente.selectedIndex = -1;
+
+    opcaoAtiva.scrollIntoView({
+        block: "nearest"
+    });
+});
+
+// Fecha a lista ao clicar fora dela
+document.addEventListener("click", event => {
+
+    if (!event.target.closest(".campo-busca-cliente-fiado")) {
+        fecharListaClientesFiado();
+    }
+
+});
+
+// Carrega os clientes da API
+async function carregarClientesFiado() {
+
+    try {
+
         const res = await apiFetch(
             "http://localhost:3000/clientes-fiado",
             {
-                headers:{
+                headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`
                 }
             }
         );
+
+        if (!res.ok) {
+            throw new Error("Não foi possível carregar os clientes.");
+        }
+
         const clientes = await res.json();
+
+        clientesFiadoCarregados = Array.isArray(clientes)
+            ? clientes
+            : [];
+
+        // Limpa o select oculto
         sl_cliente.innerHTML = "";
-        clientes.forEach(c => {
+
+        // Opção vazia: nenhum cliente começa selecionado
+        const opcaoVazia = document.createElement("option");
+
+        opcaoVazia.value = "";
+        opcaoVazia.textContent = "";
+
+        sl_cliente.appendChild(opcaoVazia);
+
+        sl_cliente.value = "";
+
+        // Adiciona os clientes ao select oculto
+        clientesFiadoCarregados.forEach(cliente => {
+
             const option = document.createElement("option");
-            option.value = c.id_cliente;
-            option.textContent = c.nome_completo;
-            option.dataset.bloqueado = Number(c.bloqueado) === 1 ? "1" : "0";
+
+            option.value = cliente.id_cliente;
+            option.textContent = cliente.nome_completo;
+
+            // Mantém a verificação de cliente bloqueado
+            option.dataset.bloqueado =
+                Number(cliente.bloqueado) === 1 ? "1" : "0";
+
             sl_cliente.appendChild(option);
+
         });
+
+        limparSelecaoClienteFiado();
+
+    } catch (erro) {
+
+        console.error("Erro ao carregar clientes do fiado:", erro);
+
+        exibirAviso(
+            "Não foi possível carregar a lista de clientes do fiado."
+        );
+
     }
-    carregarClientesFiado();
+}
+
+carregarClientesFiado();
 
     document.getElementById("b_confirmar_fiado").addEventListener("click", async () => {
         const totalReal = carrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);

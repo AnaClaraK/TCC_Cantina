@@ -1335,8 +1335,23 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        msgAviso.innerHTML =
-            mensagem;
+        const textoAviso = String(mensagem);
+
+const avisoCpfDuplicado =
+    /cpf/i.test(textoAviso) &&
+    (
+        /(já|ja)\s+cadastrad/i.test(textoAviso) ||
+        /duplicate entry/i.test(textoAviso)
+    );
+
+modalAviso.classList.toggle(
+    "aviso-cpf-duplicado",
+    avisoCpfDuplicado
+);
+
+msgAviso.textContent = avisoCpfDuplicado
+    ? "Este CPF já está cadastrado! Verifique o número informado ou consulte o cliente existente."
+    : textoAviso;
 
         bCancelarAviso.style.display =
             mostrarCancelar
