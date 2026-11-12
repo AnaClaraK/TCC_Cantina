@@ -21,6 +21,7 @@ console.log(
 require('dotenv').config();
 
 const conexao = require('./db.js');
+const { zerarEstoqueCafeDiario } = require('./utils/estoqueLiquidos');
 
 const app = express();
 
@@ -374,13 +375,23 @@ app.post(
    START SERVER
 ===================================================== */
 
-app.listen(
-    porta,
-    () => {
+async function iniciarServidor() {
+    try {
+        const resultadoReset = await zerarEstoqueCafeDiario();
 
-        console.log(
-            `Servidor rodando em http://localhost:${porta}`
-        );
+        if (resultadoReset.zerado) {
+            console.log(`Estoque compartilhado de café zerado em ${resultadoReset.data}.`);
+        } else {
+            console.log(`Estoque compartilhado de café já foi zerado hoje (${resultadoReset.data}).`);
+        }
 
+        app.listen(porta, () => {
+            console.log(`Servidor rodando em http://localhost:${porta}`);
+        });
+    } catch (erro) {
+        console.error('Não foi possível preparar o estoque diário de café. Servidor não iniciado:', erro);
+        process.exit(1);
     }
-);
+}
+
+iniciarServidor();

@@ -18,6 +18,10 @@
 <body class="fundo-escuro pagina-agendamento">
     <div class="d_util">
         <h2 class="h_ag">Agendamento</h2>
+        <button type="button" id="b_clientes_app">
+            Clientes do app
+            <span id="badge_clientes_app" hidden>0</span>
+        </button>
         <div id="d_inp">
             <div class="busca-box">
                 <img src="../backend/imagens/lupa.png" class="icone-busca" alt="Buscar">
@@ -50,6 +54,32 @@
         </table>
     </section>
 
+    <dialog id="d_clientes_app" class="dlg-clientes-app">
+        <section class="clientes-app-modal">
+            <header class="clientes-app-cabecalho">
+                <div>
+                    <h3>Clientes cadastrados no app</h3>
+                    <p>Pedidos continuam nesta lista quando passam do horário de retirada e não são finalizados.</p>
+                </div>
+                <button type="button" id="b_fechar_clientes_app" aria-label="Fechar">×</button>
+            </header>
+
+            <div class="clientes-app-filtros">
+                <label for="dias_nao_retirado">
+                    Mostrar pedido não retirado após
+                    <select id="dias_nao_retirado">
+                        <option value="2" selected>2 dias</option>
+                        <option value="1">1 dia</option>
+                    </select>
+                </label>
+                <input type="search" id="busca_clientes_app" placeholder="Buscar cliente por nome ou e-mail...">
+            </div>
+
+            <p id="resumo_clientes_app" class="clientes-app-resumo">Carregando clientes...</p>
+            <div id="lista_clientes_app" class="clientes-app-lista"></div>
+        </section>
+    </dialog>
+
     <dialog id="d_aviso">
         <div class="aviso_box">
             <p id="msg_aviso"></p>
@@ -67,7 +97,17 @@ const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
 const bCancelarAviso = document.getElementById("b_cancelar_aviso");
 const inputBusca = document.getElementById("inputBusca");
 const filtroData = document.getElementById("filtroData");
+const modalClientesApp = document.getElementById("d_clientes_app");
+const botaoClientesApp = document.getElementById("b_clientes_app");
+const botaoFecharClientesApp = document.getElementById("b_fechar_clientes_app");
+const listaClientesApp = document.getElementById("lista_clientes_app");
+const resumoClientesApp = document.getElementById("resumo_clientes_app");
+const buscaClientesApp = document.getElementById("busca_clientes_app");
+const diasNaoRetirado = document.getElementById("dias_nao_retirado");
+const badgeClientesApp = document.getElementById("badge_clientes_app");
 
+let clientesAppCache = [];
+let pedidosNaoRetiradosCache = [];
 let contadorOrdenacao = 0;
 
 function aplicarOrdenacaoTabela(idTbody, colunasIgnoradas = []) {
@@ -391,6 +431,198 @@ function filtrarAgendamentos() {
 
 inputBusca.addEventListener("input", filtrarAgendamentos);
 filtroData.addEventListener("change", filtrarAgendamentos);
+
+function escaparHtml(valor) {
+    return String(valor ?? "").replace(/[&<>"']/g, caractere => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[caractere]);
+}
+
+function formatarDataCliente(valor) {
+    if (!valor) return "Data não informada";
+    const data = new Date(String(valor).replace(" ", "T"));
+    if (Number.isNaN(data.getTime())) return escaparHtml(valor);
+    return data.toLocaleString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+function formatarValorCliente(valor) {
+    return Number(valor || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+    });
+}
+
+async function carregarClientesApp() {
+    listaClientesApp.innerHTML = '<p class="clientes-app-vazio">Carregando clientes...</p>';
+    resumoClientesApp.textContent = "Consultando clientes e pedidos do aplicativo...";
+
+    try {
+        const dias = Number(diasNaoRetirado.value) === 1 ? 1 : 2;
+        const resposta = await fetch(`http://localhost:3000/agendamento/clientes-app?dias=${dias}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+
+        const dados = await resposta.json().catch(() => ({}));
+        if (!resposta.ok) {
+            throw new Error(dados.erro || `Erro HTTP: ${resposta.status}`);
+        }
+
+        clientesAppCache = Array.isArray(dados.clientes) ? dados.clientes : [];
+        pedidosNaoRetiradosCache = Array.isArray(dados.pedidos_nao_retirados)
+            ? dados.pedidos_nao_retirados
+            : [];
+
+        badgeClientesApp.textContent = String(pedidosNaoRetiradosCache.length);
+        badgeClientesApp.hidden = pedidosNaoRetiradosCache.length === 0;
+
+        resumoClientesApp.textContent =
+            `${clientesAppCache.length} cliente(s) cadastrado(s) · ` +
+            `${pedidosNaoRetiradosCache.length} pedido(s) não retirado(s) após ${dias} dia(s).`;
+
+        renderizarClientesApp();
+    } catch (erro) {
+        console.error("Erro ao carregar clientes do app:", erro);
+        resumoClientesApp.textContent = "Não foi possível carregar os clientes.";
+        listaClientesApp.innerHTML = `<p class="clientes-app-erro">${escaparHtml(erro.message || "Erro ao carregar os dados.")}</p>`;
+    }
+}
+
+function renderizarClientesApp() {
+    const termo = normalizarTexto(buscaClientesApp.value);
+    const clientes = clientesAppCache
+        .filter(cliente =>
+            normalizarTexto(`${cliente.nome || ""} ${cliente.email || ""}`).includes(termo)
+        )
+        .sort((a, b) => {
+            const atrasadosA = pedidosNaoRetiradosCache.filter(
+                p => Number(p.id_user) === Number(a.id_user)
+            );
+            const atrasadosB = pedidosNaoRetiradosCache.filter(
+                p => Number(p.id_user) === Number(b.id_user)
+            );
+
+            // 1. Quem tem pedido atrasado sobe para o topo
+            if (atrasadosA.length > 0 && atrasadosB.length === 0) return -1;
+            if (atrasadosA.length === 0 && atrasadosB.length > 0) return 1;
+
+            // 2. Entre dois clientes atrasados, quem tem mais dias de atraso aparece primeiro
+            if (atrasadosA.length > 0 && atrasadosB.length > 0) {
+                const maxDiasA = Math.max(...atrasadosA.map(p => Number(p.dias_atraso || 0)));
+                const maxDiasB = Math.max(...atrasadosB.map(p => Number(p.dias_atraso || 0)));
+                if (maxDiasB !== maxDiasA) return maxDiasB - maxDiasA;
+            }
+
+            // 3. Desempate por ordem alfabética do nome
+            return (a.nome || "").localeCompare(b.nome || "", "pt-BR");
+        });
+
+    if (clientes.length === 0) {
+        listaClientesApp.innerHTML = '<p class="clientes-app-vazio">Nenhum cliente encontrado.</p>';
+        return;
+    }
+
+    listaClientesApp.innerHTML = clientes.map(cliente => {
+        const idUser = Number(cliente.id_user);
+        const pedidosCliente = pedidosNaoRetiradosCache.filter(
+            pedido => Number(pedido.id_user) === idUser
+        );
+        const bloqueado = Number(cliente.bloqueado_app) === 1;
+        const cadastradoEm = cliente.data_criacao
+            ? formatarDataCliente(cliente.data_criacao).split(" ")[0]
+            : "-";
+
+        const pedidosHtml = pedidosCliente.length > 0
+            ? `<div class="clientes-app-pedidos">
+                ${pedidosCliente.map(pedido => `
+                    <article class="cliente-app-pedido">
+                        <div class="cliente-app-pedido-topo">
+                            <strong>Pedido #${escaparHtml(pedido.num_pedido)}</strong>
+                            <span>${Number(pedido.dias_atraso || 0)} dia(s) de atraso</span>
+                        </div>
+                        <p><b>Retirada marcada:</b> ${escaparHtml(formatarDataCliente(pedido.data_ag))}</p>
+                        <p><b>Produtos:</b> ${escaparHtml(pedido.produtos || "-")}</p>
+                        <p><b>Total:</b> ${escaparHtml(formatarValorCliente(pedido.valor_total))}</p>
+                    </article>
+                `).join("")}
+            </div>`
+            : '<p class="cliente-app-sem-pendencia">Nenhum pedido não retirado.</p>';
+
+        let acao = '<span class="cliente-app-status cliente-app-status-ok">Sem pendências</span>';
+        if (bloqueado) {
+            acao = '<span class="cliente-app-status cliente-app-status-bloqueado">Compras pelo app bloqueadas até regularizar</span>';
+        } else if (pedidosCliente.length > 0) {
+            acao = `<button type="button" class="b_bloquear_cliente_app" data-id-user="${idUser}">Bloquear compras pelo app</button>`;
+        }
+
+        return `
+            <article class="cliente-app-card">
+                <div class="cliente-app-identificacao">
+                    <div>
+                        <h4>${escaparHtml(cliente.nome || "Cliente")}</h4>
+                        <p>${escaparHtml(cliente.email || "E-mail não informado")}</p>
+                        <small>Cadastro: ${escaparHtml(cadastradoEm)}</small>
+                    </div>
+                    ${acao}
+                </div>
+                ${pedidosHtml}
+            </article>
+        `;
+    }).join("");
+}
+botaoFecharClientesApp.addEventListener("click", () => modalClientesApp.close());
+
+diasNaoRetirado.addEventListener("change", carregarClientesApp);
+buscaClientesApp.addEventListener("input", renderizarClientesApp);
+
+listaClientesApp.addEventListener("click", event => {
+    const botao = event.target.closest(".b_bloquear_cliente_app");
+    if (!botao) return;
+
+    const idUser = Number(botao.dataset.idUser);
+    const cliente = clientesAppCache.find(item => Number(item.id_user) === idUser);
+    const nome = cliente?.nome || "este cliente";
+
+    exibirAviso(
+        `Bloquear as compras de ${nome} pelo aplicativo até que todos os pedidos não retirados sejam regularizados?`,
+        async () => {
+            botao.disabled = true;
+            try {
+                const resposta = await fetch(`http://localhost:3000/agendamento/clientes-app/${idUser}/bloqueio`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                    }
+                });
+
+                const resultado = await resposta.json().catch(() => ({}));
+                if (!resposta.ok) {
+                    throw new Error(resultado.erro || `Erro HTTP: ${resposta.status}`);
+                }
+
+                await carregarClientesApp();
+                exibirAviso(resultado.mensagem || "Cliente bloqueado com sucesso.");
+            } catch (erro) {
+                console.error("Erro ao bloquear cliente:", erro);
+                botao.disabled = false;
+                exibirAviso(erro.message || "Não foi possível bloquear este cliente.");
+            }
+        },
+        true
+    );
+});
 
 window.addEventListener("load", carregarAgendamentos);
 </script>

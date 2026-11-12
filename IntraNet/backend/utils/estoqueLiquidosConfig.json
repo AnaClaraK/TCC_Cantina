@@ -1,11 +1,12 @@
 {
   "grupos": [
     {
-      "id": "ml_cafe_coado",
+      "id": "ml_1794492731635_2",
       "ids": [
-        1,
-        2
+        2,
+        1
       ]
     }
-  ]
+  ],
+  "ultima_data_zeramento_cafe": "2026-11-12"
 }
