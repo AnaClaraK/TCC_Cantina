@@ -20,7 +20,6 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
       "package": "com.anabanana7.cantina"
     },
     "web": {
@@ -30,12 +29,6 @@
       "expo-font",
       "expo-asset",
       "expo-status-bar"
-    ],
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/fb30c80d-6388-4532-b0e2-ae15ea491cbc"
-    }
+    ]
   }
 }
