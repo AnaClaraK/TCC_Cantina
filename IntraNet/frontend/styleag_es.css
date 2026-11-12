@@ -2396,20 +2396,20 @@ body:not(.pagina-estoque) #sc_tabela::-webkit-scrollbar-corner {
         }
 
         #d_modal #lista_sugestoes li {
-            position: relative;
-            min-height: 52px;
-            width: 100%;
-            margin: 0;
-            padding: 16px 150px 12px 14px;
+    position: relative;
+    min-height: 40px;
+    width: 100%;
+    margin: 0;
+    padding: 8px 150px 6px 14px;
 
-            color: #f8c471;
-            background: #242424;
-            border-bottom: 1px solid #49382b;
+    color: #f8c471;
+    background: #242424;
+    border-bottom: 1px solid #49382b;
 
-            cursor: pointer;
-            overflow: hidden;
-            text-align: left;
-        }
+    cursor: pointer;
+    overflow: hidden;
+    text-align: left;
+}
 
         #d_modal #lista_sugestoes li:last-child {
             border-bottom: none;
