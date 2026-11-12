@@ -385,9 +385,9 @@ async function iniciarServidor() {
             console.log(`Estoque compartilhado de café já foi zerado hoje (${resultadoReset.data}).`);
         }
 
-        app.listen(porta, () => {
-            console.log(`Servidor rodando em http://localhost:${porta}`);
-        });
+        app.listen(3000, "0.0.0.0", () => {
+    console.log("Servidor rodando na rede na porta 3000");
+});
     } catch (erro) {
         console.error('Não foi possível preparar o estoque diário de café. Servidor não iniciado:', erro);
         process.exit(1);

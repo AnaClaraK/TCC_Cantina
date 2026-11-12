@@ -27,7 +27,8 @@
     "plugins": [
       "expo-font",
       "expo-asset",
-      "expo-status-bar"
+      "expo-status-bar",
+      "expo-build-properties"
     ],
     "extra": {
       "eas": {
