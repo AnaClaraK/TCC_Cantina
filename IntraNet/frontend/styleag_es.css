@@ -5704,3 +5704,1061 @@ body.pagina-agendamento #sc_tabela .tabela th:nth-child(7),
 body.pagina-agendamento #sc_tabela .tabela td:nth-child(7) {
     width: 8% !important;
 }
+
+/* ============================================================
+   ESTOQUE — MODAL DE ML NO MESMO PADRÃO DOS OUTROS MODAIS
+============================================================ */
+body.pagina-estoque #d_modal_liquidos {
+    width: min(600px, calc(100vw - 32px));
+    max-width: 95%;
+    height: auto;
+    max-height: calc(100dvh - 32px);
+    padding: 0;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    background: #1c1c1c;
+    color: #f8c471;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, .7);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+body.pagina-estoque #d_modal_liquidos::backdrop {
+    background: rgba(0, 0, 0, .85);
+    backdrop-filter: blur(4px);
+}
+
+body.pagina-estoque #d_modal_liquidos .modal_box {
+    width: 100%;
+    height: auto;
+    max-height: calc(100dvh - 36px);
+    padding: 30px;
+    padding-bottom: 20px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+body.pagina-estoque #d_modal_liquidos .modal_titulo {
+    margin-top: 8px;
+    padding-right: 28px;
+}
+
+body.pagina-estoque #d_modal_liquidos .fechar-modal-liquidos {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    float: none;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #efac4a;
+    font-size: 27px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+body.pagina-estoque #d_modal_liquidos .pmf {
+    margin: 0;
+}
+
+body.pagina-estoque #d_modal_liquidos .produtos-selecionados-ml {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+}
+
+body.pagina-estoque #d_modal_liquidos .produto-selecionado-ml {
+    border: 1px solid #efac4a;
+    border-radius: 8px;
+    padding: 8px 12px;
+    background: rgba(239, 172, 74, .10);
+    color: #f8d8a8;
+    font-weight: 600;
+}
+
+body.pagina-estoque #d_modal_liquidos .liquidos-form-volume {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+body.pagina-estoque #d_modal_liquidos .liquidos-form-volume label {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    color: #efac4a;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+body.pagina-estoque #d_modal_liquidos .liquidos-form-volume .inp_m {
+    width: 100%;
+    min-height: 42px;
+    box-sizing: border-box;
+}
+
+body.pagina-estoque #d_modal_liquidos #btnSalvarEstoqueMl {
+    min-height: 42px;
+    white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+    body.pagina-estoque #d_modal_liquidos .modal_box {
+        padding: 22px 18px;
+    }
+
+    body.pagina-estoque #d_modal_liquidos .liquidos-form-volume {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* AJUSTES FINAIS — TABELA SEM A COLUNA VAZIA E MODAL MAIS COMPACTO */
+body.pagina-estoque #sc_tabela {
+    width: 90% !important;
+    max-width: 90% !important;
+    margin-top: 30px !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela {
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+}
+
+/* Código */
+body.pagina-estoque #sc_tabela .tabela th:nth-child(1),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(1) {
+    width: 75px !important;
+    min-width: 75px !important;
+    max-width: 75px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+}
+
+/* Produto */
+body.pagina-estoque #sc_tabela .tabela th:nth-child(2),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(2) {
+    min-width: 200px !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+}
+
+/* Categoria */
+body.pagina-estoque #sc_tabela .tabela th:nth-child(3),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(3) {
+    width: 100px !important;
+    min-width: 100px !important;
+    max-width: 100px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    box-sizing: border-box !important;
+}
+
+/* Preço */
+body.pagina-estoque #sc_tabela .tabela th:nth-child(4),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(4) {
+    width: 85px !important;
+    min-width: 85px !important;
+    max-width: 85px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    box-sizing: border-box !important;
+}
+
+@media (max-width: 768px) {
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(8) {
+        grid-column: 1 / -1;
+    }
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(8)::before {
+        content: "Status: ";
+        font-weight: 700;
+    }
+}
+
+body.pagina-estoque #d_modal_liquidos {
+    width: min(540px, calc(100vw - 32px));
+}
+
+body.pagina-estoque #d_modal_liquidos .modal_box {
+    padding: 18px 24px 16px;
+}
+
+body.pagina-estoque #d_modal_liquidos .modal_titulo {
+    margin-top: 2px;
+    margin-bottom: 8px;
+}
+
+body.pagina-estoque #d_modal_liquidos .pmf {
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+body.pagina-estoque #d_modal_liquidos .produtos-selecionados-ml {
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+body.pagina-estoque #d_modal_liquidos .produto-selecionado-ml {
+    padding: 6px 10px;
+}
+
+body.pagina-estoque #d_modal_liquidos .liquidos-form-volume {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 9px;
+    margin-top: 0;
+}
+
+body.pagina-estoque #d_modal_liquidos .liquidos-form-volume label {
+    gap: 5px;
+}
+
+body.pagina-estoque #d_modal_liquidos .liquidos-form-volume .inp_m,
+body.pagina-estoque #d_modal_liquidos #btnSalvarEstoqueMl {
+    min-height: 38px;
+}
+
+body.pagina-estoque #d_modal_liquidos #btnSalvarEstoqueMl {
+    width: 100%;
+}
+
+@media (max-width: 600px) {
+    body.pagina-estoque #d_modal_liquidos .modal_box {
+        padding: 16px 18px;
+    }
+}
+
+/* ============================================================
+   ESTOQUE — REMOÇÃO DEFINITIVA DA COLUNA DE SELEÇÃO ANTIGA
+   A tabela atual começa diretamente pela coluna Código.
+============================================================ */
+body.pagina-estoque #sc_tabela .tabela {
+    table-layout: fixed !important;
+    width: 100% !important;
+}
+
+/* Larguras proporcionais das oito colunas atuais */
+body.pagina-estoque #sc_tabela .tabela th:nth-child(1),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(1) {
+    width: 8% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+}
+
+/* Força o alinhamento à esquerda especificamente na coluna 2 (Produto) */
+body.pagina-estoque #sc_tabela .tabela thead th:nth-child(2),
+body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(2) {
+    text-align: left !important;
+    justify-content: flex-start !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(3),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(3) {
+    width: 11% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(4),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(4) {
+    width: 9% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(5),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(5),
+body.pagina-estoque #sc_tabela .tabela th:nth-child(6),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(6) {
+    width: 12% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(7),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(7) {
+    width: 10% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(8),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(8) {
+    width: 8% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Corrige os rótulos no modo celular para a tabela sem checkbox */
+@media (max-width: 768px) {
+    body.pagina-estoque #sc_tabela .tabela tbody td:first-child {
+        grid-column: auto !important;
+        text-align: left !important;
+    }
+
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(1)::before { content: "Código: " !important; }
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(2)::before { content: "Produto: " !important; }
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(3)::before { content: "Categoria: " !important; }
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(4)::before { content: "Preço: " !important; }
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(5)::before { content: "Quantidade: " !important; }
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(6)::before { content: "Disponível: " !important; }
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(7)::before { content: "Qtd. mínima: " !important; }
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(8) {
+        grid-column: 1 / -1 !important;
+    }
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(8)::before {
+        content: "Status: " !important;
+        font-weight: 700;
+    }
+}
+/* ============================================================
+   MODAL "CONFIGURAR ML" — COMPACTO E SEM ALTURA EXCESSIVA
+   ============================================================ */
+
+body.pagina-estoque dialog#d_modal_liquidos[open] {
+    display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    margin: auto !important;
+    width: min(460px, calc(100vw - 32px)) !important;
+    height: fit-content !important;
+    min-height: 0 !important;
+    max-height: fit-content !important;
+    padding: 0 !important;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    background: #1c1c1c;
+    color: #f8c471;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.7);
+    overflow: visible !important;
+}
+
+body.pagina-estoque #d_modal_liquidos::backdrop {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+}
+
+body.pagina-estoque dialog#d_modal_liquidos .modal_box.modal-liquidos-conteudo {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 16px 20px !important;
+    gap: 8px !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-estoque #d_modal_liquidos .fechar-modal-liquidos {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: transparent;
+    border: none;
+    color: #efac4a;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+body.pagina-estoque #d_modal_liquidos .modal_titulo {
+    font-size: 19px !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+    padding-right: 28px !important;
+    text-align: left !important;
+}
+
+body.pagina-estoque #d_modal_liquidos .pmf {
+    font-size: 13px !important;
+    line-height: 1.3 !important;
+    margin: 0 !important;
+}
+
+body.pagina-estoque #d_modal_liquidos .produtos-selecionados-ml {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    margin: 2px 0 !important;
+}
+
+body.pagina-estoque #d_modal_liquidos .produto-selecionado-ml {
+    border: 1px solid #efac4a;
+    border-radius: 8px;
+    background: rgba(239, 172, 74, 0.10);
+    color: #f8d8a8;
+    font-weight: 600;
+    padding: 4px 10px !important;
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+}
+
+body.pagina-estoque #d_modal_liquidos .liquidos-form-volume {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    margin: 0 !important;
+}
+
+body.pagina-estoque #d_modal_liquidos .liquidos-form-volume label {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    margin: 0 !important;
+    color: #efac4a;
+    font-size: 13px !important;
+    font-weight: 600;
+}
+
+body.pagina-estoque #d_modal_liquidos .liquidos-form-volume .inp_m {
+    width: 100% !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    font-size: 16px !important;
+    padding: 4px 10px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-estoque #d_modal_liquidos #btnSalvarEstoqueMl {
+    width: 100% !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    margin: 4px 0 0 0 !important;
+    padding: 0 14px !important;
+    border-radius: 8px;
+    background: #efac4a;
+    color: #241a10;
+    font-weight: 700;
+    font-size: 15px !important;
+    cursor: pointer;
+}
+/* ======================================================
+   AGENDAMENTO — CLIENTES DO APP / PEDIDOS NÃO RETIRADOS
+====================================================== */
+body.pagina-agendamento .clientes-app-toolbar {
+    width: 90%;
+    max-width: 100%;
+    margin: 10px auto 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+body.pagina-agendamento #b_clientes_app {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 40px;
+    padding: 9px 16px;
+    border: 1px solid #efac4a;
+    border-radius: 7px;
+    background: #713b00;
+    color: #fff1d6;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .18s ease, transform .18s ease;
+}
+
+body.pagina-agendamento #b_clientes_app:hover {
+    background: #8a4b05;
+    transform: translateY(-1px);
+}
+
+body.pagina-agendamento #badge_clientes_app {
+    display: inline-flex;
+    min-width: 21px;
+    height: 21px;
+    padding: 0 6px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    background: #efac4a;
+    color: #341d04;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+body.pagina-agendamento #badge_clientes_app[hidden] {
+    display: none !important;
+}
+
+body.pagina-agendamento dialog#d_clientes_app {
+    width: min(920px, calc(100vw - 30px));
+    max-width: 920px;
+    max-height: calc(100vh - 34px);
+    margin: auto;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #efac4a;
+    border-radius: 12px;
+    background: #241608;
+    color: #f7e7c8;
+    box-shadow: 0 18px 55px rgba(0, 0, 0, .55);
+}
+
+body.pagina-agendamento dialog#d_clientes_app::backdrop {
+    background: rgba(0, 0, 0, .72);
+    backdrop-filter: blur(3px);
+}
+
+body.pagina-agendamento .clientes-app-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-height: calc(100vh - 34px);
+    padding: 20px;
+    box-sizing: border-box;
+    background: #241608;
+}
+
+body.pagina-agendamento .clientes-app-cabecalho {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0;
+    padding: 0 0 12px;
+    border-bottom: 1px solid rgba(239, 172, 74, .38);
+}
+
+body.pagina-agendamento .clientes-app-cabecalho h3 {
+    margin: 0 0 5px;
+    color: #efac4a;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+body.pagina-agendamento .clientes-app-cabecalho p {
+    margin: 0;
+    color: #ddc7a3;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+body.pagina-agendamento #b_fechar_clientes_app {
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid #efac4a;
+    border-radius: 7px;
+    background: #713b00;
+    color: #fff1d6;
+    font-size: 25px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+body.pagina-agendamento .clientes-app-filtros {
+    display: grid;
+    grid-template-columns: minmax(220px, .7fr) minmax(250px, 1.3fr);
+    gap: 12px;
+    align-items: end;
+}
+
+body.pagina-agendamento .clientes-app-filtros label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    color: #f1dfbf;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+body.pagina-agendamento .clientes-app-filtros select,
+body.pagina-agendamento .clientes-app-filtros input {
+    min-height: 39px;
+    width: 100%;
+    padding: 8px 10px;
+    box-sizing: border-box;
+    border: 1px solid #8b5a22;
+    border-radius: 7px;
+    outline: none;
+    background: #342313;
+    color: #fff1d6;
+    font: inherit;
+    font-size: 13px;
+}
+
+body.pagina-agendamento .clientes-app-filtros select {
+    width: auto;
+    min-width: 95px;
+}
+
+body.pagina-agendamento .clientes-app-filtros input:focus,
+body.pagina-agendamento .clientes-app-filtros select:focus {
+    border-color: #efac4a;
+    box-shadow: 0 0 0 2px rgba(239, 172, 74, .15);
+}
+
+body.pagina-agendamento .clientes-app-resumo {
+    margin: 0;
+    color: #efac4a;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+body.pagina-agendamento .clientes-app-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 90px;
+    max-height: min(55vh, 560px);
+    padding: 2px 5px 2px 0;
+    overflow-y: auto;
+}
+
+body.pagina-agendamento .cliente-app-card {
+    padding: 13px 14px;
+    border: 1px solid rgba(239, 172, 74, .35);
+    border-radius: 9px;
+    background: #321f0d;
+}
+
+body.pagina-agendamento .cliente-app-identificacao {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+body.pagina-agendamento .cliente-app-identificacao h4 {
+    margin: 0 0 3px;
+    color: #fff0d4;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+body.pagina-agendamento .cliente-app-identificacao p {
+    margin: 0 0 3px;
+    color: #dfc8a5;
+    font-size: 12px;
+}
+
+body.pagina-agendamento .cliente-app-identificacao small {
+    color: #bfa986;
+    font-size: 11px;
+}
+
+body.pagina-agendamento .b_bloquear_cliente_app {
+    flex: 0 0 auto;
+    padding: 9px 12px;
+    border: 1px solid #e7a045;
+    border-radius: 7px;
+    background: #713b00;
+    color: #fff0d4;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+body.pagina-agendamento .b_bloquear_cliente_app:hover {
+    background: #8a4b05;
+}
+
+body.pagina-agendamento .cliente-app-status {
+    display: inline-block;
+    max-width: 270px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+}
+
+body.pagina-agendamento .cliente-app-status-ok {
+    background: rgba(90, 135, 83, .17);
+    color: #b9d6a4;
+}
+
+body.pagina-agendamento .cliente-app-status-bloqueado {
+    background: rgba(188, 65, 48, .18);
+    color: #ffb0a4;
+}
+
+body.pagina-agendamento .clientes-app-pedidos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 8px;
+    margin-top: 11px;
+}
+
+body.pagina-agendamento .cliente-app-pedido {
+    padding: 10px;
+    border: 1px solid rgba(239, 172, 74, .28);
+    border-radius: 7px;
+    background: #24180d;
+}
+
+body.pagina-agendamento .cliente-app-pedido p {
+    margin: 5px 0 0;
+    color: #e7d5b8;
+    font-size: 12px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+body.pagina-agendamento .cliente-app-pedido-topo {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px;
+    color: #efac4a;
+    font-size: 12px;
+}
+
+body.pagina-agendamento .cliente-app-pedido-topo span {
+    color: #ffb0a4;
+}
+
+body.pagina-agendamento .cliente-app-sem-pendencia,
+body.pagina-agendamento .clientes-app-vazio {
+    margin: 10px 0 0;
+    color: #bfa986;
+    font-size: 12px;
+}
+
+body.pagina-agendamento .clientes-app-erro {
+    margin: 10px 0 0;
+    color: #ffb0a4;
+    font-size: 13px;
+}
+
+@media (max-width: 650px) {
+    body.pagina-agendamento .clientes-app-toolbar {
+        width: 94%;
+    }
+
+    body.pagina-agendamento .clientes-app-modal {
+        gap: 11px;
+        padding: 14px;
+    }
+
+    body.pagina-agendamento .clientes-app-filtros {
+        grid-template-columns: 1fr;
+    }
+
+    body.pagina-agendamento .cliente-app-identificacao {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    body.pagina-agendamento .cliente-app-status {
+        max-width: 100%;
+    }
+}
+/* ============================================================
+   ESTOQUE — TAMANHO DE FONTE E CABEÇALHO IGUAIS ÀS OUTRAS TELAS
+   ============================================================ */
+
+/* Cabeçalho da tabela: fonte 20px e altura maior */
+body.pagina-estoque #sc_tabela .tabela thead th {
+    font-size: 20px !important;
+    padding: 14px 10px !important;
+    line-height: 1.25 !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+}
+
+/* Corpo da tabela: fonte 16px (padrão das outras telas) */
+body.pagina-estoque #sc_tabela .tabela tbody td {
+    font-size: 16px !important;
+    padding: 12px 10px !important;
+    line-height: 1.3 !important;
+}
+
+/* Ajuste leve no seletor de Status para acompanhar o novo tamanho */
+body.pagina-estoque #sc_tabela .select-status-produto {
+    height: 32px !important;
+    min-height: 32px !important;
+    font-size: 14px !important;
+}
+
+/* Ajuste das larguras proporcionais para os títulos de 20px não cortarem */
+body.pagina-estoque #sc_tabela .tabela th:nth-child(1),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(1) {
+    width: 9% !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(2),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(2) {
+    width: 24% !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(3),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(3) {
+    width: 12% !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(4),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(4) {
+    width: 9% !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(5),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(5),
+body.pagina-estoque #sc_tabela .tabela th:nth-child(6),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(6) {
+    width: 12% !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(7),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(7) {
+    width: 13% !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(8),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(8) {
+    width: 9% !important;
+}
+/* ============================================================
+   AGENDAMENTO — BOTÃO E MODAL NO MESMO MODELO DO ESTOQUE
+   ============================================================ */
+
+/* Barra superior alinhada como no Estoque */
+body.pagina-agendamento .d_util {
+    width: 90%;
+    margin: 24px auto 12px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* Botão "Clientes do app" idêntico aos botões do Estoque */
+body.pagina-agendamento #b_clientes_app {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    height: 45px !important;
+    padding: 0 20px !important;
+    border: none !important;
+    border-radius: 5px !important;
+    background-color: #1c1c1c !important;
+    color: #f8c471 !important;
+    font-family: "Roca One", sans-serif !important;
+    font-size: 20px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    transition: 0.2s !important;
+}
+
+body.pagina-agendamento #b_clientes_app:hover {
+    filter: brightness(1.2) !important;
+    transform: none !important;
+    background-color: #1c1c1c !important;
+}
+
+body.pagina-agendamento #badge_clientes_app {
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+    font-family: Arial, sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+}
+
+/* Modal de Clientes do App no padrão #1c1c1c + #efac4a do Estoque */
+body.pagina-agendamento dialog#d_clientes_app {
+    width: min(760px, calc(100vw - 32px)) !important;
+    max-width: 95% !important;
+    max-height: calc(100dvh - 32px) !important;
+    padding: 0 !important;
+    border: 2px solid #efac4a !important;
+    border-radius: 16px !important;
+    background: #1c1c1c !important;
+    color: #f8c471 !important;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.75) !important;
+    overflow: hidden !important;
+}
+
+body.pagina-agendamento dialog#d_clientes_app::backdrop {
+    background: rgba(0, 0, 0, 0.85) !important;
+    backdrop-filter: blur(4px) !important;
+}
+
+body.pagina-agendamento .clientes-app-modal {
+    background: #1c1c1c !important;
+    color: #f8c471 !important;
+    padding: 22px 26px !important;
+    gap: 12px !important;
+}
+
+body.pagina-agendamento .clientes-app-cabecalho {
+    border-bottom: 1px solid rgba(239, 172, 74, 0.35) !important;
+    padding-bottom: 10px !important;
+}
+
+body.pagina-agendamento .clientes-app-cabecalho h3 {
+    color: #f8c471 !important;
+    font-size: 22px !important;
+    text-transform: uppercase !important;
+}
+
+body.pagina-agendamento .clientes-app-cabecalho p {
+    color: #efac4a !important;
+    font-size: 13px !important;
+}
+
+/* Botão fechar (X) igual ao #b_close_modal do Estoque */
+body.pagina-agendamento #b_fechar_clientes_app {
+    background: transparent !important;
+    border: none !important;
+    color: #efac4a !important;
+    font-size: 28px !important;
+    font-weight: bold !important;
+    width: auto !important;
+    height: auto !important;
+}
+
+body.pagina-agendamento #b_fechar_clientes_app:hover {
+    color: #f8c471 !important;
+    transform: scale(1.1) !important;
+}
+
+/* Inputs e Select no padrão .inp_m (#fed89d + borda #efac4a) */
+body.pagina-agendamento .clientes-app-filtros label {
+    color: #efac4a !important;
+    font-size: 14px !important;
+}
+
+body.pagina-agendamento .clientes-app-filtros select,
+body.pagina-agendamento .clientes-app-filtros input {
+    background-color: #fed89d !important;
+    color: #1c1c1c !important;
+    border: 3px solid #efac4a !important;
+    border-radius: 10px !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    height: 40px !important;
+}
+
+body.pagina-agendamento .clientes-app-filtros input::placeholder {
+    color: #573e1c !important;
+}
+
+body.pagina-agendamento .clientes-app-resumo {
+    color: #f8c471 !important;
+    font-size: 14px !important;
+}
+
+/* Cards internos dos clientes e pedidos */
+body.pagina-agendamento .cliente-app-card {
+    background: #242424 !important;
+    border: 1px solid #efac4a !important;
+    border-radius: 10px !important;
+}
+
+body.pagina-agendamento .cliente-app-identificacao h4 {
+    color: #f8c471 !important;
+    font-size: 16px !important;
+}
+
+body.pagina-agendamento .cliente-app-identificacao p {
+    color: #e0d0b8 !important;
+}
+
+body.pagina-agendamento .cliente-app-identificacao small {
+    color: #bfae96 !important;
+}
+
+body.pagina-agendamento .cliente-app-pedido {
+    background: #181818 !important;
+    border: 1px solid rgba(239, 172, 74, 0.4) !important;
+    border-radius: 8px !important;
+}
+
+body.pagina-agendamento .cliente-app-pedido-topo {
+    color: #efac4a !important;
+}
+
+body.pagina-agendamento .cliente-app-pedido p {
+    color: #f5eee5 !important;
+}
+
+/* Botão de bloquear cliente no padrão .b_addf do Estoque */
+body.pagina-agendamento .b_bloquear_cliente_app {
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: bold !important;
+    font-size: 13px !important;
+    padding: 9px 14px !important;
+}
+
+body.pagina-agendamento .b_bloquear_cliente_app:hover {
+    filter: brightness(1.1) !important;
+    background: #efac4a !important;
+}
+
+/* Scrollbar da lista no padrão do Estoque */
+body.pagina-agendamento .clientes-app-lista::-webkit-scrollbar {
+    width: 8px !important;
+}
+
+body.pagina-agendamento .clientes-app-lista::-webkit-scrollbar-track {
+    background: #1c1c1c !important;
+}
+
+body.pagina-agendamento .clientes-app-lista::-webkit-scrollbar-thumb {
+    background: #dbb57c !important;
+    border-radius: 8px !important;
+}
+/* Garante que a bolinha de notificação apareça quando não estiver [hidden] */
+body.pagina-agendamento #badge_clientes_app:not([hidden]) {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 24px !important;
+    height: 24px !important;
+    padding: 0 7px !important;
+    border-radius: 999px !important;
+    background-color: #efac4a !important;
+    color: #1c1c1c !important;
+    font-family: Arial, sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    margin-left: 4px !important;
+}
+
+/* Garante abertura e centralização correta do modal */
+body.pagina-agendamento dialog#d_clientes_app[open] {
+    display: flex !important;
+    flex-direction: column !important;
+    position: fixed !important;
+    inset: 0 !important;
+    margin: auto !important;
+    z-index: 99999 !important;
+}

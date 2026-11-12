@@ -12,7 +12,7 @@ async function lerConfiguracao() {
     try {
         const texto = await fs.promises.readFile(ARQUIVO_CONFIG, 'utf8');
         const dados = JSON.parse(texto);
-        return { grupos: Array.isArray(dados.grupos) ? dados.grupos : [] };
+        return { ...dados, grupos: Array.isArray(dados.grupos) ? dados.grupos : [] };
     } catch (erro) {
         if (erro.code === 'ENOENT') return { grupos: [] };
         throw new Error(`Não foi possível ler a configuração de estoque líquido: ${erro.message}`);
@@ -20,7 +20,7 @@ async function lerConfiguracao() {
 }
 
 async function gravarConfiguracao(config) {
-    filaGravacao = filaGravacao.then(async () => {
+    filaGravacao = filaGravacao.catch(() => {}).then(async () => {
         const temporario = `${ARQUIVO_CONFIG}.tmp`;
         await fs.promises.writeFile(temporario, JSON.stringify(config, null, 2), 'utf8');
         await fs.promises.rename(temporario, ARQUIVO_CONFIG);
@@ -60,7 +60,7 @@ async function configurarGrupoLiquido(idsProdutos) {
     }
     const novoGrupo = { id: `ml_${Date.now()}_${ids[0]}`, ids };
     gruposRestantes.push(novoGrupo);
-    await gravarConfiguracao({ grupos: gruposRestantes });
+    await gravarConfiguracao({ ...config, grupos: gruposRestantes });
     return novoGrupo;
 }
 
@@ -148,6 +148,88 @@ async function consumirEstoqueProduto(conn, idProduto, quantidade, nomeFallback 
     return { nome: produtoNormal.nome, qtdRestante: novoSaldo, qtdMin: Number(produtoNormal.qtd_min || 0), mapeado: false, volume: false };
 }
 
+
+// Zera o reservatório compartilhado dos dois cafés uma única vez por dia.
+// A data é registrada no próprio JSON para continuar válida após reinicializações.
+function obterDataAtualSaoPaulo() {
+    const partes = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).formatToParts(new Date());
+
+    const valores = Object.fromEntries(partes.map(parte => [parte.type, parte.value]));
+    return `${valores.year}-${valores.month}-${valores.day}`;
+}
+
+async function zerarEstoqueCafeDiario() {
+    const conn = await conexaoPadrao.getConnection();
+    const nomeLock = 'grano_vita_zerar_estoque_cafe_diario';
+    let lockObtido = false;
+    let transacaoIniciada = false;
+
+    try {
+        const [locks] = await conn.query('SELECT GET_LOCK(?, 15) AS lock_obtido', [nomeLock]);
+        lockObtido = Number(locks?.[0]?.lock_obtido) === 1;
+        if (!lockObtido) {
+            throw new Error('Não foi possível obter o bloqueio para zerar o estoque diário de café.');
+        }
+
+        const config = await lerConfiguracao();
+        const dataHoje = obterDataAtualSaoPaulo();
+
+        if (config.ultima_data_zeramento_cafe === dataHoje) {
+            return { zerado: false, data: dataHoje };
+        }
+
+        const grupoCafe = config.grupos.find(grupo => grupo.id === 'ml_cafe_coado');
+        const ids = [...new Set((grupoCafe?.ids || [])
+            .map(Number)
+            .filter(id => Number.isInteger(id) && id > 0))];
+
+        // Evita zerar produtos errados se a configuração deixar de ser a esperada.
+        if (ids.length !== 2) {
+            throw new Error('O grupo ml_cafe_coado precisa conter exatamente os dois produtos de café.');
+        }
+
+        await conn.beginTransaction();
+        transacaoIniciada = true;
+
+        const [produtos] = await conn.query(
+            'SELECT id_produto FROM produtos WHERE id_produto IN (?) ORDER BY id_produto FOR UPDATE',
+            [ids]
+        );
+
+        if (produtos.length !== 2) {
+            throw new Error('Não foi possível localizar os dois produtos configurados para o estoque de café.');
+        }
+
+        await conn.query(
+            'UPDATE produtos SET qtd = 0 WHERE id_produto IN (?)',
+            [ids]
+        );
+
+        await conn.commit();
+        transacaoIniciada = false;
+
+        config.ultima_data_zeramento_cafe = dataHoje;
+        await gravarConfiguracao(config);
+
+        return { zerado: true, data: dataHoje, ids_produtos: ids };
+    } catch (erro) {
+        if (transacaoIniciada) {
+            try { await conn.rollback(); } catch (_) {}
+        }
+        throw erro;
+    } finally {
+        if (lockObtido) {
+            try { await conn.query('SELECT RELEASE_LOCK(?)', [nomeLock]); } catch (_) {}
+        }
+        conn.release();
+    }
+}
+
 // Mantido apenas para compatibilidade com rotas antigas. Não executa DDL.
 async function garantirTabelasLiquidos() { return true; }
 
@@ -157,5 +239,6 @@ module.exports = {
     consumirEstoqueProduto,
     obterVolumeVendaMl,
     obterGrupoLiquido,
-    configurarGrupoLiquido
+    configurarGrupoLiquido,
+    zerarEstoqueCafeDiario
 };

@@ -13,25 +13,9 @@ import {
   View, 
   Text, 
   TouchableOpacity, 
-  StyleSheet,
-  NativeModules 
+  StyleSheet 
 } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context'; 
-
-// --- CORREÇÃO DO INTERACTIONMANAGER (SDK 58) ---
-// Polyfill temporário para bibliotecas antigas que ainda tentam chamar InteractionManager
-if (!NativeModules.InteractionManager) {
-  NativeModules.InteractionManager = {
-    runAfterInteractions: (task) => {
-      if (typeof task === 'function') {
-        setTimeout(task, 0);
-      }
-      return { cancel: () => {} };
-    },
-    createInteractionHandle: () => 1,
-    clearInteractionHandle: () => {},
-  };
-}
 
 // Silencia avisos residuais no console
 LogBox.ignoreLogs(['InteractionManager', 'Invariant Violation: InteractionManager']);

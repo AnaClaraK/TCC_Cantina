@@ -40,7 +40,6 @@
 <table class="tabela">
     <thead>
         <tr>
-            <th aria-label="Selecionar produto"></th>
             <th>Código</th>
             <th>Produto</th>
             <th>Categoria</th>
@@ -80,13 +79,14 @@
 <dialog id="d_modal_liquidos" class="dialog-liquidos dialog-liquidos-estoque">
     <div class="modal_box modal-liquidos-conteudo">
         <button type="button" id="btnFecharModalLiquidos" class="fechar-modal-liquidos" aria-label="Fechar">×</button>
-        <h2>Estoque de líquidos</h2>
+        <h2 class="modal_titulo">Estoque de líquidos</h2>
+        <p class="pmf">Os dois produtos de café compartilham o mesmo reservatório.</p>
         <div id="produtosSelecionadosMl" class="produtos-selecionados-ml"></div>
-        <div class="liquidos-form-grid liquidos-form-volume">
-            <label>Quantidade disponível (ml)
-                <input id="quantidadeEstoqueMl" class="inp_m" type="number" min="0" step="1" placeholder="2000">
+        <div class="liquidos-form-volume">
+            <label for="quantidadeEstoqueMl">Quantidade disponível (ml)
+                <input id="quantidadeEstoqueMl" class="inp_m" type="number" min="0" step="1" placeholder="Digite a quantidade">
             </label>
-            <button type="button" id="btnSalvarEstoqueMl">Salvar quantidade</button>
+            <button type="button" class="b_addf" id="btnSalvarEstoqueMl">Salvar quantidade</button>
         </div>
     </div>
 </dialog>
@@ -160,8 +160,8 @@ inputBusca.addEventListener("input", () => {
     const linhas = document.querySelectorAll("#tb_tbl_produtos tr");
 
     linhas.forEach(linha => {
-        const codigo = normalizarTexto(linha.children[1].innerText);
-        const nome = normalizarTexto(linha.children[2].innerText);
+        const codigo = normalizarTexto(linha.children[0].innerText);
+        const nome = normalizarTexto(linha.children[1].innerText);
 
         if (codigo.includes(termo) || nome.includes(termo)) {
             linha.style.display = "";
@@ -417,7 +417,6 @@ async function carregarProdutos() {
         produtosOrdenados.forEach(p => {
             tabela.innerHTML += `
                 <tr data-id-produto="${p.id_produto}">
-                    <td><input type="checkbox" class="check-produto-ml" value="${p.id_produto}" aria-label="Selecionar ${String(p.nome || "produto").replace(/"/g, '&quot;')}"></td>
                     <td>${p.codigo_barras || ""}</td>
                     <td>${p.nome || ""}</td>
                     <td>${p.categoria_nome || ""}</td>
@@ -603,22 +602,43 @@ async function apiLiquidos(url, options = {}) {
 
 let produtosMlSelecionados = [];
 
-// Mantém os produtos marcados sincronizados com o modal.
-tabela.addEventListener("change", (evento) => {
-    if (!evento.target.matches(".check-produto-ml")) return;
-    const idsMarcados = Array.from(tabela.querySelectorAll(".check-produto-ml:checked"))
-        .map(chk => String(chk.value));
-    preencherProdutosMl(idsMarcados);
-});
+// Os produtos configurados no grupo ml_cafe_coado são fixos.
+// A tela não permite mais escolher ou desmarcar produtos manualmente.
+function preencherProdutosMl() {
+    produtosMlSelecionados = produtosCache.filter(p => Number(p.estoque_em_ml) === 1);
+
+    if (produtosMlSelecionados.length !== 2) {
+        produtosMlSelecionados = [];
+        return false;
+    }
+
+    const container = document.getElementById("produtosSelecionadosMl");
+    container.innerHTML = "";
+
+    produtosMlSelecionados.forEach(p => {
+        const item = document.createElement("div");
+        item.className = "produto-selecionado-ml";
+        item.textContent = p.nome;
+        container.appendChild(item);
+    });
+
+    // O saldo é compartilhado; ambos os produtos devem apresentar o mesmo valor.
+    const quantidade = Number(
+        produtosMlSelecionados[0].quantidade_ml ??
+        produtosMlSelecionados[0].qtd ??
+        0
+    );
+
+    document.getElementById("quantidadeEstoqueMl").value = quantidade > 0 ? quantidade : "";
+    return true;
+}
 
 btnAbrirLiquidos.addEventListener("click", () => {
-    const idsMarcados = Array.from(tabela.querySelectorAll(".check-produto-ml:checked"))
-        .map(chk => String(chk.value));
-    if (!idsMarcados.length) {
-        exibirAviso("Selecione os produtos que compartilharão o estoque em ml.");
+    if (!preencherProdutosMl()) {
+        exibirAviso("Os dois produtos de café não foram encontrados na configuração do estoque compartilhado.");
         return;
     }
-    preencherProdutosMl(idsMarcados);
+
     if (!modalLiquidos.open) modalLiquidos.showModal();
 });
 
@@ -630,46 +650,27 @@ modalLiquidos.addEventListener("click", (evento) => {
     if (evento.target === modalLiquidos) modalLiquidos.close();
 });
 
-function preencherProdutosMl(selecionados = []) {
-    const ids = selecionados.length
-        ? selecionados
-        : produtosCache.filter(p => p.estoque_em_ml).map(p => String(p.id_produto));
-    produtosMlSelecionados = produtosCache.filter(p => ids.includes(String(p.id_produto)));
-    const container = document.getElementById("produtosSelecionadosMl");
-    container.innerHTML = "";
-
-    produtosMlSelecionados.forEach(p => {
-        const item = document.createElement("div");
-        item.className = "produto-selecionado-ml";
-        item.textContent = p.nome;
-        container.appendChild(item);
-    });
-
-    const quantidades = produtosMlSelecionados
-        .filter(p => p.estoque_em_ml)
-        .map(p => Number(p.quantidade_ml ?? p.qtd ?? 0));
-    const campo = document.getElementById("quantidadeEstoqueMl");
-    campo.value = quantidades.length && quantidades.every(q => q === quantidades[0])
-        ? quantidades[0]
-        : "";
-}
-
 document.getElementById("btnSalvarEstoqueMl").addEventListener("click", async () => {
     const ids = produtosMlSelecionados.map(p => Number(p.id_produto));
     const campo = document.getElementById("quantidadeEstoqueMl");
     const quantidade = Number(campo.value);
-    if (!ids.length) return exibirAviso("Selecione pelo menos um produto.");
-    if (campo.value === "" || !Number.isFinite(quantidade) || quantidade < 0) return exibirAviso("Informe uma quantidade em ml igual ou maior que zero.");
+
+    if (ids.length !== 2) {
+        return exibirAviso("Os dois produtos de café precisam estar configurados.");
+    }
+
+    if (campo.value === "" || !Number.isFinite(quantidade) || quantidade < 0) {
+        return exibirAviso("Informe uma quantidade em ml igual ou maior que zero.");
+    }
+
     try {
         await apiLiquidos(`${API_LIQUIDOS}/estoque-liquidos/produtos`, {
             method: "PUT",
             body: JSON.stringify({ ids_produtos: ids, quantidade })
         });
+
         await carregarProdutos();
-        document.querySelectorAll(".check-produto-ml").forEach(chk => {
-            chk.checked = ids.includes(Number(chk.value));
-        });
-        preencherProdutosMl(ids.map(String));
+        preencherProdutosMl();
         exibirAviso("Estoque compartilhado em ml atualizado.");
     } catch (e) {
         exibirAviso(e.message || "Não foi possível atualizar o estoque em ml.");

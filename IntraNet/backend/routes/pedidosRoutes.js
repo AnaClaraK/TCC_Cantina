@@ -4,6 +4,12 @@ const router = express.Router();
 const conexao = require('../db');
 const verificarToken = require('../middlewares/auth');
 const { consumirEstoqueProduto, garantirTabelasLiquidos } = require('../utils/estoqueLiquidos');
+const {
+    garantirTabelaControleApp,
+    obterIdUsuarioToken,
+    obterBloqueioApp,
+    regularizarPedidoApp
+} = require('../utils/controlePedidosApp');
 
 // Função auxiliar para sanitizar o nome da forma de pagamento
 function limparFormaPagamento(valor) {
@@ -47,6 +53,7 @@ router.post("/pedidos", verificarToken, async (req, res) => {
     try {
         // Cria as tabelas auxiliares antes da transação, evitando DDL dentro da venda.
         await garantirTabelasLiquidos();
+        await garantirTabelaControleApp(conexao);
         await conn.beginTransaction();
 
         const {
@@ -139,6 +146,9 @@ router.post("/pedidos", verificarToken, async (req, res) => {
                  WHERE id_pedido = ?`,
                 [status, valor_total, qtd_total, form_pag, data, id_pedido]
             );
+
+            // Se esta comanda era uma pendência por não retirada, encerra o bloqueio.
+            await regularizarPedidoApp(id_pedido, conn);
 
             await conn.commit();
 
@@ -295,8 +305,10 @@ router.delete("/historico-pedidos/limpar", verificarToken, async (req, res) => {
 router.post("/comandas",verificarToken, async (req, res) => {
     const { id_user, carrinho, valor_total, qtd_total, status, forma_pagamento, form_pag } = req.body;
     const pagamentoSelecionado = forma_pagamento || form_pag;
+    // Usa o ID do token quando disponível; o ID enviado pelo aplicativo fica como compatibilidade.
+    const idUserPedido = obterIdUsuarioToken(req);
 
-    if (!id_user || !carrinho || carrinho.length === 0) {
+    if (!Number.isInteger(idUserPedido) || idUserPedido <= 0 || !carrinho || carrinho.length === 0) {
         return res.status(400).json({ sucesso: false, erro: "Dados incompletos ou carrinho vazio." });
     }
 
@@ -307,6 +319,17 @@ router.post("/comandas",verificarToken, async (req, res) => {
     let conn;
 
     try {
+        // O bloqueio é validado no servidor, mesmo antes da integração visual no APP.
+        await garantirTabelaControleApp(conexao);
+        const bloqueioApp = await obterBloqueioApp(idUserPedido, conexao);
+        if (bloqueioApp.bloqueado) {
+            return res.status(403).json({
+                sucesso: false,
+                bloqueado: true,
+                erro: "Você possui um pedido agendado que ainda não foi retirado. Procure a cantina para retirá-lo e regularizar sua situação antes de fazer novas compras pelo aplicativo."
+            });
+        }
+
         conn = await conexao.getConnection();
         await conn.beginTransaction();
 // ============================================================
@@ -358,7 +381,7 @@ for (const item of carrinho) {
         `;
 
         const [resultadoPedido] = await conn.execute(queryPedido, [
-            id_user, proximoNumero, codigo_comanda, dataAgFormatada, status || "Pendente",
+            idUserPedido, proximoNumero, codigo_comanda, dataAgFormatada, status || "Pendente",
             valor_total, qtd_total, pagamentoSelecionado
         ]);
 
