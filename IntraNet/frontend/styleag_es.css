@@ -2372,28 +2372,29 @@ body:not(.pagina-estoque) #sc_tabela::-webkit-scrollbar-corner {
             z-index: 100;
         }
 
-        #d_modal #lista_sugestoes {
-            position: absolute;
-            top: calc(100% + 6px);
-            left: 0;
-            right: 0;
-            z-index: 9999;
+       #d_modal #lista_sugestoes {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 9999;
 
-            width: 100%;
-            max-height: 360px;
-            margin: 0;
-            padding: 0;
+    width: 100%;
+    height: 145px;
+    max-height: 145px;
+    margin: 0;
+    padding: 0;
 
-            overflow-y: auto;
-            overflow-x: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 
-            background: #1c1c1c;
-            border: 2px solid #efac4a;
-            border-radius: 10px;
+    background: #1c1c1c;
+    border: 2px solid #efac4a;
+    border-radius: 10px;
 
-            list-style: none;
-            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
-        }
+    list-style: none;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+}
 
         #d_modal #lista_sugestoes li {
     position: relative;
@@ -5069,7 +5070,7 @@ body.pagina-estoque #d_modal .modal_footer {
         font-size: 16px !important;
         padding: 12px !important;
     }
-}
+
 
 @media (max-height: 550px) {
     body.pagina-estoque #d_modal .modal_box {
