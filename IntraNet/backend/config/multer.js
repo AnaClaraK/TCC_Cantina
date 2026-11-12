@@ -2,9 +2,8 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-// =====================================================
 // MULTER PARA PRODUTOS
-// =====================================================
+
 
 const pastaProdutos = path.join(__dirname, "../../frontend/images");
 
@@ -39,9 +38,7 @@ const uploadProdutos = multer({
 });
 
 
-// =====================================================
 // MULTER PARA FOTO DE PERFIL
-// =====================================================
 
 // config/multer.js está dentro de:
 // backend/config/
@@ -78,9 +75,7 @@ const uploadPerfil = multer({
 });
 
 
-// =====================================================
 // EXPORTAÇÃO
-// =====================================================
 
 module.exports = {
     uploadProdutos,

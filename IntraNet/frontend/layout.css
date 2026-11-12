@@ -234,11 +234,10 @@ body.sidebar-open .user-name {
     background-color: var(--cor-principal);
     border-radius: 20px;
     text-decoration: none;
-    transition: transform 0.3s ease;
 }
 
 .a_btn:hover {
-    transform: translateY(-5px);
+    transform: none;
 }
 
 .a_btn img {
@@ -306,9 +305,7 @@ body.fundo-laranja .nav-link.ativo { background: #f0d0a6; }
 
 #icon_edp, #icon_cadp, #icon_comp { width: 48px; }
 
-/* =====================================================
-   BOTÃO ESPECIAL DO HEADER
-   ===================================================== */
+/* Botão especial do header */
 .acoes-especiais-header {
     position: fixed !important;
     top: 0 !important;
@@ -357,12 +354,128 @@ body.fundo-laranja .nav-link.ativo { background: #f0d0a6; }
     object-position: center center !important;
 }
 
-.header-acao-especial:hover img { transform: scale(1.04); }
-.header-acao-especial:active img { transform: scale(0.97); }
+.header-acao-especial:hover img { transform: none; }
+.header-acao-especial:active img { transform: none; }
 
-/* ============================================================
-   RESPONSIVIDADE INTELIGENTE PARA ZOOM (125%) E F11
-============================================================ */
+/* Botões estáticos - sem efeito hover */
+button,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+.a_btn,
+.btn {
+    transition: none !important;
+}
+
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover,
+.a_btn:hover,
+.btn:hover {
+    transform: none !important;
+    filter: none !important;
+}
+
+/* Padronização de modais */
+dialog {
+    background: #1c1c1c;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    color: #f5f5f5;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+}
+
+/* Botão de fechar ("X") padronizado em todos os modais */
+.fechar-modal,
+.fechar-modal-pagamento,
+.fechar-modal-liquidos,
+.fechamento-fechar,
+.fechar-notificacoes-fiado,
+#b_close_modal,
+#b_close_produtos,
+#b_close_modal_cliente,
+#b_close_busca,
+#b_close_comanda,
+#b_close_ranking,
+#b_close_categoria,
+#btnFecharModalLiquidos,
+#fecharModalComprasCliente,
+#fecharNotificacoesFiado,
+#btnFecharSimulacaoJuros,
+#btnFecharComprasParceladas,
+#fecharDetalhesContaFiado,
+#fechar_modal_gerenciar_cliente,
+#b_fechar_dinheiro,
+#b_fechar_credito,
+#b_fechar_dividir,
+#b_fechar_dividir_pagamento,
+#b_fechar_fiado,
+#btnFecharFechamento {
+    position: absolute !important;
+    top: 12px !important;
+    right: 15px !important;
+    z-index: 100 !important;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: none !important;
+    border-radius: 8px !important;
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+    font-family: Arial, sans-serif !important;
+    font-size: 22px !important;
+    font-weight: bold !important;
+    line-height: 1 !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+    transform: none !important;
+    filter: none !important;
+}
+
+.fechar-modal:hover,
+.fechar-modal-pagamento:hover,
+.fechar-modal-liquidos:hover,
+.fechamento-fechar:hover,
+.fechar-notificacoes-fiado:hover,
+#b_close_modal:hover,
+#b_close_produtos:hover,
+#b_close_modal_cliente:hover,
+#b_close_busca:hover,
+#b_close_comanda:hover,
+#b_close_ranking:hover,
+#b_close_categoria:hover,
+#btnFecharModalLiquidos:hover,
+#fecharModalComprasCliente:hover,
+#fecharNotificacoesFiado:hover,
+#btnFecharSimulacaoJuros:hover,
+#btnFecharComprasParceladas:hover,
+#fecharDetalhesContaFiado:hover,
+#fechar_modal_gerenciar_cliente:hover,
+#b_fechar_dinheiro:hover,
+#b_fechar_credito:hover,
+#b_fechar_dividir:hover,
+#b_fechar_dividir_pagamento:hover,
+#b_fechar_fiado:hover,
+#btnFecharFechamento:hover {
+    transform: none !important;
+    filter: none !important;
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+}
+
+/* Responsividade para zoom e telas menores */
 @media (min-width: 701px) and (max-height: 1000px) {
     :root {
         --header-height: clamp(62px, 7vh, 72px);

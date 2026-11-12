@@ -5,9 +5,7 @@ const util = require("util");
 
 const execFileAsync = util.promisify(execFile);
 
-// =====================================================
 // CONFIGURAÇÃO
-// =====================================================
 
 // Pasta onde os backups serão salvos
 const pastaBackups = path.join(__dirname, "backups");
@@ -20,9 +18,7 @@ if (!fs.existsSync(pastaBackups)) {
 // Caminho do mysqldump instalado junto com o MariaDB
 const executavel = "C:\\Program Files\\MariaDB 13.0\\bin\\mysqldump.exe";
 
-// =====================================================
 // BACKUP DO BANCO
-// =====================================================
 
 async function fazerBackupBanco() {
     try {

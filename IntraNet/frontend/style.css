@@ -82,11 +82,10 @@ main, .conteudo-principal {
     font-family: 'Roca One', serif;
     font-size: 20px;
     display: block;
-    transition: transform 0.2s ease;
 }
 
 .btn-agenda-footer:hover {
-    transform: scale(1.05);
+    transform: none;
 }
 
 .corpo-agenda {
@@ -333,10 +332,7 @@ main, .conteudo-principal {
     color: #efac4a;
 }
 
-/* ============================================================
-   TRANSFERÊNCIA DOS ESTILOS INLINE EXISTENTES
-   (mantém exatamente os valores visuais originais)
-============================================================ */
+/* Estilos do calendario */
 
 #nome-mes-js {
     margin: 0;
@@ -369,11 +365,7 @@ main, .conteudo-principal {
     padding-left: 22px;
 }
 
-/* ============================================================
-   RESPONSIVIDADE — INDEX
-   Em 1920px mantém os tamanhos originais.
-   Com 125% de zoom, a viewport cai e os cards reduzem juntos.
-============================================================ */
+/* Responsividade - Index */
 
 .s_btn {
     --tamanho-card-index: clamp(180px, 15.625vw, 300px);
@@ -499,10 +491,7 @@ main, .conteudo-principal {
     padding: min(10px, 0.925926vh);
 }
 
-/* ============================================================
-   MODAL DE AVISO
-   O modal normal continua pequeno; o de estoque fica mais largo.
-============================================================ */
+/* Modal de aviso */
 
 #d_aviso {
     box-sizing: border-box;
@@ -612,10 +601,7 @@ main, .conteudo-principal {
 #calendario-numeros {
     min-height: min(200px, 18.518519vh);
 }
-/* ============================================================
-   REGRAS BASE - MODAL DE AVISO (#d_aviso)
-   Centralização fixa na tela para impedir que estique até ao fim.
-============================================================ */
+/* Regras base - modal de aviso */
 
 dialog#d_aviso {
     position: fixed !important;
@@ -689,9 +675,7 @@ dialog#d_aviso::backdrop {
     padding: 0 !important;
 }
 
-/* ============================================================
-   LISTA DE PRODUTOS (COM SCROLL INTERNO SE FOR GRANDE)
-============================================================ */
+/* Lista de produtos no aviso */
 
 #d_aviso #msg_aviso .lista-estoque-aviso {
     width: 100% !important;
@@ -747,9 +731,7 @@ dialog#d_aviso::backdrop {
     border-radius: 8px !important;
 }
 
-/* ============================================================
-   ÁREA DOS BOTÕES DE AÇÃO
-============================================================ */
+/* Botões de ação do aviso */
 
 #d_aviso .aviso_botoes {
     width: 100% !important;
@@ -791,7 +773,8 @@ dialog#d_aviso::backdrop {
 }
 
 #d_aviso #b_confirmar_aviso:hover {
-    background: #f8c471 !important;
+    background: #efac4a !important;
+    color: #1c1c1c !important;
 }
 
 #d_aviso #b_cancelar_aviso {
@@ -801,13 +784,11 @@ dialog#d_aviso::backdrop {
 }
 
 #d_aviso #b_cancelar_aviso:hover {
-    background: #303336 !important;
-    color: #f8c471 !important;
+    background: #242628 !important;
+    color: #efac4a !important;
 }
 
-/* ============================================================
-   RESPONSIVIDADE E TELAS MENORES (ZOOM / F11)
-============================================================ */
+/* Responsividade e telas menores */
 
 @media (max-width: 800px) {
     dialog#d_aviso:has(.lista-estoque-aviso) {
