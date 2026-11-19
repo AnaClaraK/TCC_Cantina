@@ -6529,3 +6529,131 @@ body.pagina-agendamento dialog#d_clientes_app[open] {
     margin: auto !important;
     z-index: 99999 !important;
 }
+
+/* ============================================================
+   AGENDAMENTO — EXIBIR NOME E PRODUTOS COMPLETOS NO HOVER
+   Não altera a largura das colunas nem o tamanho da tabela.
+   ============================================================ */
+
+body.pagina-agendamento #sc_tabela .tabela tbody td:nth-child(1),
+body.pagina-agendamento #sc_tabela .tabela tbody td:nth-child(2) {
+    position: relative;
+}
+
+/* Mantém o texto cortado dentro da largura atual da célula */
+body.pagina-agendamento #sc_tabela .texto-completo-tabela {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: help;
+}
+
+/* Ao passar o mouse, permite que o balão apareça fora da célula */
+body.pagina-agendamento #sc_tabela .tabela tbody td:nth-child(1):has(.texto-completo-tabela:hover),
+body.pagina-agendamento #sc_tabela .tabela tbody td:nth-child(2):has(.texto-completo-tabela:hover) {
+    overflow: visible !important;
+    z-index: 40;
+}
+
+/* Balão com o texto completo */
+body.pagina-agendamento #sc_tabela .texto-completo-tabela:hover::after {
+    content: attr(data-texto);
+    position: absolute;
+    left: 0;
+    top: calc(100% + 5px);
+    z-index: 9999;
+    display: block;
+    width: max-content;
+    max-width: min(420px, 70vw);
+    padding: 9px 12px;
+    border: 1px solid #1c1c1c;
+    border-radius: 6px;
+    background: #1c1c1c;
+    color: #f8c471;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.4;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-4px);
+    animation: mostrarTextoCompletoTabela 0.18s ease forwards;
+}
+
+@keyframes mostrarTextoCompletoTabela {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================
+   HOVER — IMPEDIR QUE AS LINHAS DE BAIXO APAREÇAM ATRÁS DO BALÃO
+   ============================================================ */
+
+/* Coloca a linha selecionada acima das demais */
+body.pagina-agendamento #sc_tabela .tabela tbody tr:has(.texto-completo-tabela:hover) {
+    position: relative;
+    z-index: 100;
+}
+
+/* Mantém o bloco preto na frente das outras linhas */
+body.pagina-agendamento #sc_tabela .texto-completo-tabela:hover::after {
+    z-index: 99999;
+}
+
+body.pagina-agendamento .cliente-app-identificacao {
+    align-items: center;
+}
+
+body.pagina-agendamento .b_bloquear_cliente_app {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid #efac4a;
+    border-radius: 8px;
+    background: #713b00;
+    color: #fff0d4;
+    font-size: 19px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background .18s ease, transform .18s ease;
+}
+
+body.pagina-agendamento .b_bloquear_cliente_app:hover {
+    background: #a65312;
+    transform: scale(1.05);
+}
+
+body.pagina-agendamento .b_bloquear_cliente_app:disabled {
+    opacity: .55;
+    cursor: wait;
+    transform: none;
+}
+
+@media (max-width: 650px) {
+    body.pagina-agendamento .cliente-app-identificacao {
+        align-items: flex-start;
+    }
+}
+
+body.pagina-agendamento #busca_clientes_app {
+    width: 100%;
+    min-width: 450px;
+    box-sizing: border-box;
+}
+
+body.pagina-historico #sc_tabela .tabela tbody td {
+    font-size: 14px !important;
+    white-space: nowrap !important;
+}
