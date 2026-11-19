@@ -65,14 +65,8 @@
             </header>
 
             <div class="clientes-app-filtros">
-                <label for="dias_nao_retirado">
-                    Mostrar pedido não retirado após
-                    <select id="dias_nao_retirado">
-                        <option value="2" selected>2 dias</option>
-                        <option value="1">1 dia</option>
-                    </select>
-                </label>
-                <input type="search" id="busca_clientes_app" placeholder="Buscar cliente por nome ou e-mail...">
+                
+                <input type="search" id="busca_clientes_app" placeholder="Buscar cliente por nome ou e-mail">
             </div>
 
             <p id="resumo_clientes_app" class="clientes-app-resumo">Carregando clientes...</p>
@@ -103,7 +97,6 @@ const botaoFecharClientesApp = document.getElementById("b_fechar_clientes_app");
 const listaClientesApp = document.getElementById("lista_clientes_app");
 const resumoClientesApp = document.getElementById("resumo_clientes_app");
 const buscaClientesApp = document.getElementById("busca_clientes_app");
-const diasNaoRetirado = document.getElementById("dias_nao_retirado");
 const badgeClientesApp = document.getElementById("badge_clientes_app");
 
 let clientesAppCache = [];
@@ -290,17 +283,19 @@ async function carregarAgendamentos() {
                 }
             }
 
-            const produtosLista = Array.isArray(item.produtos) 
-                ? item.produtos.map(p => p.nome).join(", ") 
-                : "-";
+            const produtosLista = Array.isArray(item.produtos)
+    ? item.produtos.map(p => escaparHtml(p.nome || "")).join(", ")
+    : "-";
 
-            const tr = document.createElement("tr");
+const nomeCliente = escaparHtml(item.cliente_nome || "Cliente");
+
+const tr = document.createElement("tr");
             tr.setAttribute("data-id", item.id_pedido);
             tr.setAttribute("data-data", dataRaw || "");
 
             tr.innerHTML = `
-                <td>${item.cliente_nome || "Cliente"}</td>
-                <td>${produtosLista}</td>
+                  <td><span class="texto-completo-tabela" data-texto="${nomeCliente}">${nomeCliente}</span></td>
+    <td><span class="texto-completo-tabela" data-texto="${produtosLista}">${produtosLista}</span></td>
                 <td>R$ ${Number(item.valor_total || 0).toFixed(2).replace(".", ",")}</td>
                 <td>${item.qtd_total || 0}</td>
                 <td>${item.origem || "-"}</td>
@@ -467,7 +462,7 @@ async function carregarClientesApp() {
     resumoClientesApp.textContent = "Consultando clientes e pedidos do aplicativo...";
 
     try {
-        const dias = Number(diasNaoRetirado.value) === 1 ? 1 : 2;
+        const dias = 1;
         const resposta = await fetch(`http://localhost:3000/agendamento/clientes-app?dias=${dias}`, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -559,12 +554,25 @@ function renderizarClientesApp() {
             </div>`
             : '<p class="cliente-app-sem-pendencia">Nenhum pedido não retirado.</p>';
 
-        let acao = '<span class="cliente-app-status cliente-app-status-ok">Sem pendências</span>';
-        if (bloqueado) {
-            acao = '<span class="cliente-app-status cliente-app-status-bloqueado">Compras pelo app bloqueadas até regularizar</span>';
-        } else if (pedidosCliente.length > 0) {
-            acao = `<button type="button" class="b_bloquear_cliente_app" data-id-user="${idUser}">Bloquear compras pelo app</button>`;
-        }
+        let acao = "";
+
+if (bloqueado) {
+    acao = `
+        <span class="cliente-app-status cliente-app-status-bloqueado">
+            Compras pelo app bloqueadas
+        </span>
+    `;
+} else {
+    acao = `
+        <button
+            type="button"
+            class="b_bloquear_cliente_app"
+            data-id-user="${idUser}"
+            title="Bloquear compras deste cliente pelo app"
+            aria-label="Bloquear compras de ${escaparHtml(cliente.nome || "cliente")} pelo aplicativo"
+        >&#128274;</button>
+    `;
+}
 
         return `
             <article class="cliente-app-card">
@@ -581,9 +589,22 @@ function renderizarClientesApp() {
         `;
     }).join("");
 }
+
+botaoClientesApp.addEventListener("click", async () => {
+    if (!modalClientesApp.open) {
+        modalClientesApp.showModal();
+    }
+
+    await carregarClientesApp();
+});
+
+botaoFecharClientesApp.addEventListener("click", () => {
+    modalClientesApp.close();
+});
+
 botaoFecharClientesApp.addEventListener("click", () => modalClientesApp.close());
 
-diasNaoRetirado.addEventListener("change", carregarClientesApp);
+
 buscaClientesApp.addEventListener("input", renderizarClientesApp);
 
 listaClientesApp.addEventListener("click", event => {
@@ -624,7 +645,10 @@ listaClientesApp.addEventListener("click", event => {
     );
 });
 
-window.addEventListener("load", carregarAgendamentos);
+window.addEventListener("load", () => {
+    carregarAgendamentos();
+    carregarClientesApp();
+});
 </script>
 </body>
 </html>

@@ -6,7 +6,7 @@ const conexaoPadrao = require('../db');
 // Assim, a tabela produtos permanece intacta: qtd/qtd_min são ml apenas
 // para os produtos listados nos grupos abaixo.
 const ARQUIVO_CONFIG = path.join(__dirname, 'estoqueLiquidosConfig.json');
-let filaGravacao = Promise.resolve();
+let fila_gravacao = Promise.resolve();
 
 async function lerConfiguracao() {
     try {
@@ -20,12 +20,12 @@ async function lerConfiguracao() {
 }
 
 async function gravarConfiguracao(config) {
-    filaGravacao = filaGravacao.catch(() => {}).then(async () => {
+    fila_gravacao = fila_gravacao.catch(() => {}).then(async () => {
         const temporario = `${ARQUIVO_CONFIG}.tmp`;
         await fs.promises.writeFile(temporario, JSON.stringify(config, null, 2), 'utf8');
         await fs.promises.rename(temporario, ARQUIVO_CONFIG);
     });
-    await filaGravacao;
+    await fila_gravacao;
 }
 
 function obterVolumeVendaMl(nome) {
@@ -58,7 +58,7 @@ async function configurarGrupoLiquido(idsProdutos) {
         const restantes = (grupo.ids || []).map(Number).filter(id => !ids.includes(id));
         if (restantes.length) gruposRestantes.push({ ...grupo, ids: restantes });
     }
-    const novoGrupo = { id: `ml_${Date.now()}_${ids[0]}`, ids };
+    const novoGrupo = { id: ids.length === 2 && ids.includes(1) && ids.includes(2) ? 'ml_cafe_coado' : `ml_${Date.now()}_${ids[0]}`, ids };
     gruposRestantes.push(novoGrupo);
     await gravarConfiguracao({ ...config, grupos: gruposRestantes });
     return novoGrupo;
@@ -183,7 +183,11 @@ async function zerarEstoqueCafeDiario() {
             return { zerado: false, data: dataHoje };
         }
 
-        const grupoCafe = config.grupos.find(grupo => grupo.id === 'ml_cafe_coado');
+        const grupoCafe = config.grupos.find(grupo => grupo.id === 'ml_cafe_coado')
+            || config.grupos.find(grupo => {
+                const idsGrupo = (grupo.ids || []).map(Number);
+                return idsGrupo.length === 2 && idsGrupo.includes(1) && idsGrupo.includes(2);
+            });
         const ids = [...new Set((grupoCafe?.ids || [])
             .map(Number)
             .filter(id => Number.isInteger(id) && id > 0))];
@@ -242,3 +246,4 @@ module.exports = {
     configurarGrupoLiquido,
     zerarEstoqueCafeDiario
 };
+
