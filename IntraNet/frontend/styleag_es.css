@@ -6652,3 +6652,8 @@ body.pagina-agendamento #busca_clientes_app {
     min-width: 450px;
     box-sizing: border-box;
 }
+
+body.pagina-historico #sc_tabela .tabela tbody td {
+    font-size: 14px !important;
+    white-space: nowrap !important;
+}
