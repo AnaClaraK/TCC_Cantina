@@ -143,7 +143,7 @@ export default function PedidosScreen() {
   const itensDoModal = Array.isArray(pedidoSelecionado?.itens) ? pedidoSelecionado.itens : [];
 
   return (
-    <SafeAreaView style={styles.safeAreaTopo}>
+    <SafeAreaView style={styles.safeAreaTopo} edges={['top']}>
       <View style={styles.container}>
 
       {carregando && (

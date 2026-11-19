@@ -46,7 +46,7 @@
                     <th scope="col">Preço</th>
                     <th scope="col">Qtd</th>
                     <th scope="col">Origem</th>
-                    <th scope="col">Data</th>
+                    <th scope="col">Comanda</th>
                     <th scope="col">Concluir</th>
                 </tr>
             </thead>
@@ -142,11 +142,18 @@ function aplicarOrdenacaoTabela(idTbody, colunasIgnoradas = []) {
 
         novoTh.addEventListener("click", () => {
             const estadoAtual = novoTh.dataset.ordem || "none";
-            const novoEstado = estadoAtual === "none"
-                ? "asc"
-                : estadoAtual === "asc"
+            const eColunaComanda = novoTh.cellIndex === 5;
+            const novoEstado = eColunaComanda
+                ? estadoAtual === "none"
                     ? "desc"
-                    : "none";
+                    : estadoAtual === "desc"
+                        ? "asc"
+                        : "none"
+                : estadoAtual === "none"
+                    ? "asc"
+                    : estadoAtual === "asc"
+                        ? "desc"
+                        : "none";
 
             novoTh.dataset.ordem = novoEstado;
             novoTh.classList.remove("sort-asc", "sort-desc");
@@ -257,7 +264,7 @@ async function carregarAgendamentos() {
         dados.sort((a, b) => {
             const dataA = new Date(a.data_ag || a.data);
             const dataB = new Date(b.data_ag || b.data);
-            return dataA - dataB;
+            return dataB - dataA;
         });
 
         tbody.innerHTML = "";
@@ -304,7 +311,7 @@ async function carregarAgendamentos() {
                 <td>R$ ${Number(item.valor_total || 0).toFixed(2).replace(".", ",")}</td>
                 <td>${item.qtd_total || 0}</td>
                 <td>${item.origem || "-"}</td>
-                <td>${dataFormatada}</td>
+                <td>${item.num_pedido ?? item.id_pedido ?? "-"}</td>
                 <td>
                     <input 
                         type="checkbox" class="chk-concluido" onchange="concluirAgendamento(${item.id_pedido}, this)"

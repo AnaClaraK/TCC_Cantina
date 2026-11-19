@@ -1,20 +1,21 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput, Alert, Image, TouchableOpacity, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; 
+import { Ionicons } from '@expo/vector-icons';
 import { Botao } from '../Components/Botoes';
 import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 
 import { BASE_URL } from '../../config';
 import CampoSenhaProtegida from '../Components/CampoSenhaProtegida';
+
 export default function CadastroScreen() {
-    // Hooks para todos os campos da imagem
+    // Hooks para todos os campos
     const [nome, setNome] = useState("");
     const [cpf, setCpf] = useState("");
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
     const [confirmaSenha, setConfirmaSenha] = useState("");
-    
+
     const [verSenha, setVerSenha] = useState(true);
     const [verConfirma, setVerConfirma] = useState(true);
 
@@ -39,9 +40,9 @@ export default function CadastroScreen() {
                     senha: senha
                 })
             });
-    
+
             const resultado = await resposta.json();
-    
+
             if (resultado.resposta == "true" || resultado.resposta == true) {
                 Alert.alert("Sucesso", "Cadastro realizado com sucesso!");
                 navigation.navigate("LoginScreen");
@@ -54,10 +55,9 @@ export default function CadastroScreen() {
     }
 
     return (
-        // ScrollView é importante para telas com muitos inputs (o teclado não tampa o botão)
         <ScrollView contentContainerStyle={styles.container}>
             <StatusBar style="light" />
-            
+
             <View style={styles.header}>
                 <Image source={require('../../assets/images/logo.png')} style={styles.imagemLogo} />
                 <Text style={styles.texto}>CANTINA</Text>
@@ -68,19 +68,38 @@ export default function CadastroScreen() {
                 {/* NOME */}
                 <View style={styles.inputArea}>
                     <Ionicons name="person-outline" size={24} color="#eeaf55" />
-                    <TextInput style={styles.inputInterno} placeholder="Nome completo" onChangeText={setNome} value={nome} />
+                    <TextInput
+                        style={styles.inputInterno}
+                        placeholder="Nome completo"
+                        placeholderTextColor="#777777"
+                        onChangeText={setNome}
+                        value={nome}
+                    />
                 </View>
 
                 {/* CPF */}
                 <View style={styles.inputArea}>
                     <Ionicons name="document-text-outline" size={24} color="#eeaf55" />
-                    <TextInput style={styles.inputInterno} placeholder="CPF" keyboardType="numeric" onChangeText={setCpf} value={cpf} />
+                    <TextInput
+                        style={styles.inputInterno}
+                        placeholder="CPF"
+                        placeholderTextColor="#777777"
+                        keyboardType="numeric"
+                        onChangeText={setCpf}
+                        value={cpf}
+                    />
                 </View>
 
                 {/* EMAIL */}
                 <View style={styles.inputArea}>
                     <Ionicons name="mail-outline" size={24} color="#eeaf55" />
-                    <TextInput style={styles.inputInterno} placeholder="E-mail" onChangeText={setEmail} value={email} />
+                    <TextInput
+                        style={styles.inputInterno}
+                        placeholder="E-mail"
+                        placeholderTextColor="#777777"
+                        onChangeText={setEmail}
+                        value={email}
+                    />
                 </View>
 
                 {/* SENHA */}
@@ -94,6 +113,7 @@ export default function CadastroScreen() {
                         setOculto={setVerSenha}
                         inputStyle={[styles.inputInterno, { marginLeft: 0 }]}
                         fontSize={16}
+                        placeholderTextColor="#777777"
                     />
                 </View>
 
@@ -108,14 +128,25 @@ export default function CadastroScreen() {
                         setOculto={setVerConfirma}
                         inputStyle={[styles.inputInterno, { marginLeft: 0 }]}
                         fontSize={16}
+                        placeholderTextColor="#777777"
                     />
                 </View>
 
-                <Botao texto="CADASTRAR" acao={CriarCadastro} tamFonte={22} styleExtra={{ marginTop: 10 }} />
+                <Botao
+                    texto="CADASTRAR"
+                    acao={CriarCadastro}
+                    tamFonte={22}
+                    styleExtra={{ marginTop: 10 }}
+                />
             </View>
 
-            <TouchableOpacity onPress={() => navigation.navigate("LoginScreen")} style={{ marginTop: 20 }}>
-                <Text style={{ color: '#efac4a', fontFamily: 'Montserrat' }}>Já tem uma conta? Faça login</Text>
+            <TouchableOpacity
+                onPress={() => navigation.navigate("LoginScreen")}
+                style={{ marginTop: 20 }}
+            >
+                <Text style={{ color: '#efac4a', fontFamily: 'Montserrat' }}>
+                    Já tem uma conta? Faça login
+                </Text>
             </TouchableOpacity>
         </ScrollView>
     );
@@ -129,10 +160,27 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingVertical: 40
     },
-    header: { alignItems: 'center', marginBottom: 15 },
-    texto: { color: '#efac4a', fontFamily: 'BebasNeue-Regular', fontSize: 70, lineHeight: 75 },
-    imagemTopo: { height: 60, width: 250, resizeMode: 'contain', marginTop: -10 },
-    imagemLogo: { height: 100, width: 100, resizeMode: 'contain' },
+    header: {
+        alignItems: 'center',
+        marginBottom: 15
+    },
+    texto: {
+        color: '#efac4a',
+        fontFamily: 'BebasNeue-Regular',
+        fontSize: 70,
+        lineHeight: 75
+    },
+    imagemTopo: {
+        height: 60,
+        width: 250,
+        resizeMode: 'contain',
+        marginTop: -10
+    },
+    imagemLogo: {
+        height: 100,
+        width: 100,
+        resizeMode: 'contain'
+    },
     quadrado: {
         backgroundColor: '#b0aead',
         width: '90%',

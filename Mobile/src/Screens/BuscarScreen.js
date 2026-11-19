@@ -180,8 +180,8 @@ export default function BuscarScreen() {
           preco: parseFloat(p.preco || 0).toFixed(2).replace(".", ","),
           precoNumerico: parseFloat(p.preco || 0),
           detalheTitulo: "Descrição:",
-          info: p.descricao && p.descricao.trim() !== "" ? p.descricao : "Sem descrição cadastrada.",
-          imagem: { uri: urlFinal },
+          info: p.descricao && p.descricao.trim() !== "" ? p.descricao : "Sem descrição",
+          imagem: { uri: urlFinal, cache: 'force-cache' },
         };
       });
 
@@ -275,7 +275,7 @@ export default function BuscarScreen() {
   ), [adicionarAoCarrinho]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       
       {/* Barra Superior de Busca */}
       <View style={styles.containerBarraBusca}>
@@ -354,7 +354,7 @@ export default function BuscarScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: CORES.dourado,
+    backgroundColor: CORES.marromEscuro,
   },
   containerBarraBusca: {
     backgroundColor: CORES.dourado,

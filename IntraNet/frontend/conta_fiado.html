@@ -5302,16 +5302,41 @@ async function executarAplicacaoDeJuros() {
     }
 
     async function marcarNotificacaoFiadoLida(id) {
-        const token = localStorage.getItem("token");
-        const res = await fetch(`${API}/contas-fiado/notificacoes/${encodeURIComponent(id)}/lida`, {
-            method: "PUT", headers: token ? { Authorization: `Bearer ${token}` } : {}
-        });
-        if (!res.ok) throw new Error("Não foi possível marcar a notificação como lida.");
-        notificacoesFiadoCache = notificacoesFiadoCache.map(n => Number(n.id_notificacao) === Number(id) ? { ...n, lida: 1 } : n);
-        const naoLidas = notificacoesFiadoCache.filter(n => Number(n.lida) !== 1).length;
-        if (contadorNotificacoesFiado) { contadorNotificacoesFiado.textContent = naoLidas > 99 ? "99+" : String(naoLidas); contadorNotificacoesFiado.hidden = naoLidas === 0; }
-        renderNotificacoesFiado();
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+        `${API}/contas-fiado/notificacoes/${encodeURIComponent(id)}/lida`,
+        {
+            method: "PUT",
+            headers: token
+                ? { Authorization: `Bearer ${token}` }
+                : {}
+        }
+    );
+
+    if (!res.ok) {
+        throw new Error("Não foi possível remover a notificação.");
     }
+
+    // Remove a notificação da lista
+  const [resultado] = await conexao.query(
+    `DELETE FROM notificacoes_fiado WHERE id_notificacao = ?`,
+    [id]
+);
+
+    // Atualiza o contador
+    const naoLidas = notificacoesFiadoCache.length;
+
+    if (contadorNotificacoesFiado) {
+        contadorNotificacoesFiado.textContent =
+            naoLidas > 99 ? "99+" : String(naoLidas);
+
+        contadorNotificacoesFiado.hidden = naoLidas === 0;
+    }
+
+    // Atualiza o modal
+    renderNotificacoesFiado();
+}
 
     btnNotificacoesFiado?.addEventListener("click", async () => {
         if (!modalNotificacoesFiado.open) modalNotificacoesFiado.showModal();

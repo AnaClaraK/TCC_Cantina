@@ -204,15 +204,16 @@ export default function PerfilScreen() {
 
   if (carregando) {
     return (
-      <SafeAreaView style={styles.safeAreaTopo}><View style={[styles.container, styles.containerCentro]}>
-        <ActivityIndicator size="large" color={CORES.dourado} />
-      </View>
+      <SafeAreaView style={styles.safeAreaTopo} edges={['top']}>
+        <View style={[styles.container, styles.containerCentro]}>
+          <ActivityIndicator size="large" color={CORES.dourado} />
+        </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeAreaTopo}>
+    <SafeAreaView style={styles.safeAreaTopo} edges={['top']}>
       <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.containerAvatar}>

@@ -13,24 +13,21 @@ const verificarToken =
 require('../middlewares/auth');
 const SECRET = process.env.API_SEGREDO;
 
-router.post("/cadastrar", verificarToken, async (req, res) => {
+router.post("/cadastrar", async (req, res) => {
     const { nome, cpf, email, senha } = req.body;
 
-    if(email.length <= 3){
-        return res.json({"mensagem":"Preencha o e-mail!"})
+    if (!email || email.length <= 3) {
+        return res.json({ "resposta": "false", "mensagem": "Preencha o e-mail!" });
     }
-    if(nome.length <= 3){
-        return res.json({"mensagem":"Preencha o nome completo!"})
+    if (!nome || nome.length <= 3) {
+        return res.json({ "resposta": "false", "mensagem": "Preencha o nome completo!" });
     }
-    if(cpf.length < 11){
-        return res.json({"mensagem":"Preencha o CPF!"})
+    if (!cpf || cpf.length < 11) {
+        return res.json({ "resposta": "false", "mensagem": "Preencha o CPF!" });
     }
-
-    if(senha.length <= 3){
-        return res.json({"mensagem":"Preencha uma senha com no mínimo 7 caracteres"})
+    if (!senha || senha.length < 5) {
+        return res.json({ "resposta": "false", "mensagem": "A senha deve ter no mínimo 5 caracteres!" });
     }
-
-
 
     try {
         const novaSenha = await bcrypt.hash(senha, 10);
@@ -39,20 +36,19 @@ router.post("/cadastrar", verificarToken, async (req, res) => {
             [nome, cpf, email, novaSenha]
         );
 
-        res.json({
+        return res.json({
             "resposta": "true", 
             "mensagem": "Usuário inserido com sucesso"
         });
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ 
+        return res.status(500).json({ 
             "resposta": "false", 
             "mensagem": "Erro interno no servidor" 
         });
     }
 });
-
 router.post("/logar", async (req, res) => {
     const { email, senha } = req.body;
     try {

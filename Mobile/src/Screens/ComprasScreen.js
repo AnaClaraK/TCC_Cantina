@@ -93,6 +93,30 @@ export default function ComprasScreen({ navigation }) {
     await AsyncStorage.setItem('@carrinho', JSON.stringify(atualizado));
   };
 
+  const ajustarMinutosItem = async (id, deltaMinutos) => {
+    const atualizado = itensCarrinho.map(item => {
+      if (item.id_produto === id) {
+        let horaAtual = (item.horario_retirada || '10:00').trim();
+        const partes = horaAtual.split(':');
+        let h = parseInt(partes[0], 10);
+        let m = parseInt(partes[1], 10);
+        if (isNaN(h)) h = 10;
+        if (isNaN(m)) m = 0;
+
+        let totalMin = h * 60 + m + deltaMinutos;
+        if (totalMin < 0) totalMin += 24 * 60;
+        totalMin = totalMin % (24 * 60);
+
+        const novoH = String(Math.floor(totalMin / 60)).padStart(2, '0');
+        const novoM = String(totalMin % 60).padStart(2, '0');
+        return { ...item, horario_retirada: `${novoH}:${novoM}` };
+      }
+      return item;
+    });
+    setItensCarrinho(atualizado);
+    await AsyncStorage.setItem('@carrinho', JSON.stringify(atualizado));
+  };
+
   const selecionarDataProduto = (day) => {
     if (!itemSelecionadoParaData) return;
 
@@ -247,17 +271,35 @@ export default function ComprasScreen({ navigation }) {
             </Text>
           </TouchableOpacity>
 
-          {/* Campo de Horário */}
+          {/* Campo de Horário com setinhas de 30 em 30 min */}
           <View style={styles.boxInputHorario}>
             <Ionicons name="time-outline" size={16} color={CORES.dourado} style={{ marginRight: 4 }} />
             <Text style={styles.labelHorario}>Hora:</Text>
+
+            <TouchableOpacity 
+              style={styles.btnSetaHorario} 
+              onPress={() => ajustarMinutosItem(item.id_produto, -30)}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="chevron-back" size={18} color={CORES.dourado} />
+            </TouchableOpacity>
+
             <TextInput
               style={styles.inputHorario}
-              placeholder="Ex: 10:15"
+              placeholder="10:00"
               placeholderTextColor={CORES.cinza}
               value={item.horario_retirada}
               onChangeText={(texto) => mudarHorarioItem(item.id_produto, texto)}
+              keyboardType="numbers-and-punctuation"
             />
+
+            <TouchableOpacity 
+              style={styles.btnSetaHorario} 
+              onPress={() => ajustarMinutosItem(item.id_produto, 30)}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="chevron-forward" size={18} color={CORES.dourado} />
+            </TouchableOpacity>
           </View>
 
           <View style={styles.linhaPrecoQuantidade}>
@@ -461,9 +503,10 @@ const styles = StyleSheet.create({
   boxSeletorData: { flexDirection: 'row', alignItems: 'center', marginTop: 6, backgroundColor: 'rgba(0,0,0,0.3)', padding: 6, borderRadius: 8, gap: 6 },
   txtDataAgendada: { color: CORES.creme, fontSize: 12, fontWeight: 'bold' },
 
-  boxInputHorario: { flexDirection: 'row', alignItems: 'center', marginTop: 6, backgroundColor: 'rgba(0,0,0,0.2)', padding: 6, borderRadius: 8 },
-  labelHorario: { color: CORES.creme, fontSize: 12, marginRight: 6 },
-  inputHorario: { flex: 1, color: CORES.dourado, fontSize: 13, fontWeight: 'bold', paddingVertical: 0, height: 22, borderBottomWidth: 1, borderBottomColor: CORES.dourado },
+  boxInputHorario: { flexDirection: 'row', alignItems: 'center', marginTop: 6, backgroundColor: 'rgba(0,0,0,0.2)', paddingHorizontal: 6, paddingVertical: 4, borderRadius: 8 },
+  labelHorario: { color: CORES.creme, fontSize: 12, marginRight: 4 },
+  btnSetaHorario: { paddingHorizontal: 6, paddingVertical: 2, justifyContent: 'center', alignItems: 'center' },
+  inputHorario: { color: CORES.dourado, fontSize: 13, fontWeight: 'bold', paddingVertical: 0, height: 22, minWidth: 46, textAlign: 'center', borderBottomWidth: 1, borderBottomColor: CORES.dourado },
   
   linhaPrecoQuantidade: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
   controladorQtd: { flexDirection: 'row', backgroundColor: CORES.branco, borderRadius: 8, alignItems: 'center', paddingHorizontal: 4, height: 30 },
