@@ -5,6 +5,7 @@ import {
   View, 
   Image, 
   FlatList, 
+  ScrollView,
   TouchableOpacity,
   Alert,
   ActivityIndicator
@@ -13,10 +14,9 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from "@react-navigation/native";
 import NotificacaoModal from '../Components/Modal'; 
-const MODO_DEV = true; 
+import { BASE_URL } from '../../config';
 
-const IP_SERVIDOR = "192.168.5.6"; 
-const URL_API = `http://${IP_SERVIDOR}:3000`;
+const MODO_DEV = true; 
 
 const CORES = {
   marromEscuro: '#341d04',
@@ -71,24 +71,34 @@ const CardapioItem = React.memo(({ item, temEstoque, adicionarAoCarrinho }) => {
               />
             )}
           </View>
-          
+
           <Text 
             style={styles.descricaoSabor} 
             numberOfLines={expandido ? undefined : 1}
           >
             {item.info}
           </Text>
-          
+
           {podeExpandir && !expandido && (
             <Text style={styles.txtVerMais}>... Ver mais</Text>
           )}
         </TouchableOpacity>
 
         <View style={styles.containerPrecoCarrinho}>
-          <View style={styles.badgePreco}>
-            <Text style={styles.textoPreco}>R$ {item.preco}</Text>
+          <View style={styles.containerPrecoEstoque}>
+            <View style={styles.badgePreco}>
+              <Text style={styles.textoPreco}>R$ {item.preco}</Text>
+            </View>
+            <Text
+              style={[
+                styles.txtEstoqueCard,
+                item.estoque <= 0 ? styles.txtSemEstoque : styles.txtComEstoque
+              ]}
+            >
+              {item.estoque > 0 ? `${item.estoque} em estoque` : 'Esgotado'}
+            </Text>
           </View>
-          
+
           <TouchableOpacity 
             style={[styles.botaoAdicionarCarrinho, !temEstoque && styles.btnBloqueado]}
             onPress={() => adicionarAoCarrinho(item)}
@@ -108,11 +118,33 @@ const CardapioItem = React.memo(({ item, temEstoque, adicionarAoCarrinho }) => {
 });
 
 export default function CardapioScreen() {
- 
+
   const [todosOsProdutos, setTodosOsProdutos] = useState([]); 
   const [carregando, setCarregando] = useState(true); 
   const [categoriaAtiva, setCategoriaAtiva] = useState('Marmitas');
-  
+
+  const [larguraContainer, setLarguraContainer] = useState(0);
+  const [larguraConteudo, setLarguraConteudo] = useState(0);
+  const [posicaoScroll, setPosicaoScroll] = useState(0);
+
+  const temRolagem = larguraContainer > 0 && larguraConteudo > larguraContainer;
+
+  const percentualBarra = temRolagem
+    ? Math.min(Math.max((larguraContainer / larguraConteudo) * 100, 30), 85)
+    : 55;
+
+  const deslocamentoMax = Math.max(larguraConteudo - larguraContainer, 1);
+
+  const percentualEsquerda = temRolagem
+    ? Math.min(
+        Math.max(
+          (posicaoScroll / deslocamentoMax) * (100 - percentualBarra),
+          0
+        ),
+        100 - percentualBarra
+      )
+    : 0;
+
   const categoriasApp = ['Marmitas', 'Bebidas', 'Doces', 'Salgados', 'Lanches'];
   const navigation = useNavigation();
 
@@ -130,31 +162,31 @@ export default function CardapioScreen() {
   const carregarProdutosDoBanco = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
-      const resposta = await fetch(`${URL_API}/produtos`, {
+      const resposta = await fetch(`${BASE_URL}/produtos`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
-  
+
       if (!resposta.ok) throw new Error(`Erro HTTP: ${resposta.status}`);
       const dados = await resposta.json();
-  
+
       const produtosFormatados = dados.map((p) => {
         const qtdDisponivel = parseInt(p.qtd !== undefined ? p.qtd : 0, 10);
         let imagemDefinida;
         const img = p.img ? String(p.img).trim() : "";
-  
+
         let nomeArquivo = img
           .replace(/^.*(images|imagens|uploads)\//, '')
           .replace(/^\/+/, '')
           .trim();
-        
+
         const nomeSemExt = nomeArquivo.replace(/\.(png|jpg|jpeg|webp)$/i, '');
-        const urlFinal = `${URL_API}/images/${encodeURIComponent(nomeSemExt)}`;
-        
-        imagemDefinida = { uri: urlFinal };
+        const urlFinal = `${BASE_URL}/images/${encodeURIComponent(nomeSemExt)}`;
+
+        imagemDefinida = { uri: urlFinal, cache: 'force-cache' };
 
         return {
           id_produto: p.id_produto,
@@ -164,12 +196,12 @@ export default function CardapioScreen() {
           estoque: qtdDisponivel,
           preco: parseFloat(p.preco || 0).toFixed(2).replace(".", ","),
           precoNumerico: parseFloat(p.preco || 0),
-          detalheTitulo: "Sabor do dia:",
-          info: p.descricao && p.descricao.trim() !== "" ? p.descricao : "Sem descrição cadastrada.",
+          detalheTitulo: "Descrição:",
+          info: p.descricao && p.descricao.trim() !== "" ? p.descricao : "Sem descrição",
           imagem: imagemDefinida,
         };
       });
-  
+
       setTodosOsProdutos(produtosFormatados);
     } catch (erro) {
       console.error("❌ Erro ao buscar produtos:", erro);
@@ -207,7 +239,7 @@ export default function CardapioScreen() {
       const carrinhoAtual = await AsyncStorage.getItem('@carrinho');
       let itens = carrinhoAtual ? JSON.parse(carrinhoAtual) : [];
       const index = itens.findIndex(i => i.id_produto === produto.id_produto);
-      
+
       if (index > -1) {
         if (itens[index].qtd >= produto.estoque) {
           Alert.alert("Limite Máximo", `Estoque máximo atingido.`);
@@ -223,7 +255,7 @@ export default function CardapioScreen() {
           qtd: 1,
           estoque: produto.estoque,
           imagem: produto.imagem,
-          categoria: produto.categoria, // 💡 Adicione essa linha aqui!
+          categoria: produto.categoria,
           origem: "App"
         });
       }
@@ -245,27 +277,53 @@ export default function CardapioScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View style={{ width: 40 }} /> 
         <Image source={require('../../assets/images/logo_m.png')} style={styles.logo} />
-        <TouchableOpacity onPress={fazerLogout} style={styles.botaoSair}>
-          <Ionicons name="log-out-outline" size={30} color={CORES.marromEscuro} />
-        </TouchableOpacity>
       </View>
 
-      <View style={styles.containerCategorias}>
-        <View style={styles.rowCategorias}>
+      <View
+        style={styles.containerCategorias}
+        onLayout={(e) => setLarguraContainer(e.nativeEvent.layout.width)}
+      >
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          onContentSizeChange={(w) => setLarguraConteudo(w)}
+          onScroll={(e) => setPosicaoScroll(e.nativeEvent.contentOffset.x)}
+          scrollEventThrottle={16}
+          contentContainerStyle={styles.rowCategorias}
+        >
           {categoriasApp.map((cat) => (
-            <TouchableOpacity 
-              key={cat} 
+            <TouchableOpacity
+              key={cat}
               onPress={() => setCategoriaAtiva(cat)}
-              style={[styles.btnCategoria, categoriaAtiva === cat && styles.btnCategoriaAtiva]}
+              style={[
+                styles.btnCategoria,
+                categoriaAtiva === cat && styles.btnCategoriaAtiva
+              ]}
               activeOpacity={1}
             >
-              <Text style={[styles.txtCategoria, categoriaAtiva === cat && styles.txtCategoriaAtiva]}>
+              <Text
+                style={[
+                  styles.txtCategoria,
+                  categoriaAtiva === cat && styles.txtCategoriaAtiva
+                ]}
+              >
                 {cat}
               </Text>
             </TouchableOpacity>
           ))}
+        </ScrollView>
+
+        <View style={styles.trilhoScroll}>
+          <View
+            style={[
+              styles.indicadorScroll,
+              {
+                width: `${percentualBarra}%`,
+                left: `${percentualEsquerda}%`,
+              },
+            ]}
+          />
         </View>
       </View>
 
@@ -307,42 +365,61 @@ const styles = StyleSheet.create({
   },
   header: { 
     flexDirection: 'row', 
-    justifyContent: 'space-between', 
+    justifyContent: 'center', 
     alignItems: 'center', 
     paddingHorizontal: 15, 
     paddingVertical: 10, 
     backgroundColor: '#efac4a' 
   },
   logo: { 
-    width: 170, 
+    width: 190, 
     height: 49, 
-    resizeMode: 'contain', 
-    marginLeft: -220 
+    resizeMode: 'contain' 
   },
   botaoSair: { 
     padding: 5 
   },
-  containerCategorias: { 
-    backgroundColor: CORES.marromDestaque, 
-    paddingVertical: 14, 
-    paddingHorizontal: 2 
+  containerCategorias: {
+    backgroundColor: CORES.dourado,
+    paddingTop: 10,
+    paddingBottom: 4,
+    paddingHorizontal: 4,
   },
-  rowCategorias: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    width: '100%' 
+  rowCategorias: {
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingBottom: 6,
   },
-  btnCategoria: { 
-    flex: 1, 
-    paddingVertical: 8, 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    borderRadius: 6, 
-    marginHorizontal: 0.5 
+  trilhoScroll: {
+    height: 5,
+    backgroundColor: 'rgba(52, 29, 4, 0.22)',
+    borderRadius: 3,
+    marginHorizontal: 8,
+    marginTop: 2,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  indicadorScroll: {
+    height: '100%',
+    backgroundColor: CORES.marromEscuro,
+    borderRadius: 3,
+    position: 'absolute',
+    top: 0,
+  },
+  btnCategoria: {
+    flexGrow: 0,
+    flexShrink: 0,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 6,
+    marginHorizontal: 2,
   },
   btnCategoriaAtiva: { 
-    backgroundColor: 'rgba(235, 213, 166, 0.2)' 
+    backgroundColor: CORES.marromDestaque
   },
   txtCategoria: { 
     color: CORES.branco, 
@@ -456,6 +533,20 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
     justifyContent: 'space-between', 
     width: '100%' 
+  },
+  containerPrecoEstoque: {
+    alignItems: 'flex-start'
+  },
+  txtEstoqueCard: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginTop: 4
+  },
+  txtComEstoque: {
+    color: '#ebd5a6'
+  },
+  txtSemEstoque: {
+    color: '#ff4d4d'
   },
   badgePreco: { 
     backgroundColor: '#1a1002', 

@@ -3,7 +3,7 @@
   "info": {
     "title": "API Geral - SITE (Funcionários) / APP (Clientes)",
     "version": "3.0.0",
-    "description": "Documentação geral da API do sistema. SITE = Funcionários. APP = Clientes. Os schemas são definidos diretamente em cada endpoint."
+    "description": "Documentação da API do Sistema para Gestão de Cantina, atualizada a partir dos arquivos de rotas do backend e das rotas declaradas diretamente no app.js. Para endpoints com schema genérico, consulte a implementação da rota para os campos exatos."
   },
   "servers": [
     {
@@ -58,6 +58,26 @@
     {
       "name": "COMPARTILHADO — Imagens",
       "description": "Recursos de imagens utilizados pelo SITE e APP."
+    },
+    {
+      "name": "SITE — Funcionários — Produtos",
+      "description": "Cadastro, consulta, busca, edição e status dos produtos e categorias."
+    },
+    {
+      "name": "SITE — Funcionários — Estoque",
+      "description": "Consulta e atualização de estoque."
+    },
+    {
+      "name": "SITE — Funcionários — Fechamento",
+      "description": "Abertura e fechamento diário do caixa."
+    },
+    {
+      "name": "SITE — Funcionários — Clientes Fiado",
+      "description": "Cadastro e gerenciamento de clientes de fiado."
+    },
+    {
+      "name": "SITE — Funcionários — Monitor",
+      "description": "Estado do monitor do PDV/cardápio."
     }
   ],
   "components": {
@@ -212,6 +232,28 @@
             }
           }
         }
+      },
+      "get": {
+        "summary": "Consultar/listar agendamento",
+        "tags": [
+          "APP — Clientes — Agendamentos"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/agendamento/{id}/cancelar": {
@@ -2501,6 +2543,1306 @@
             }
           }
         }
+      }
+    },
+    "/monitor/status": {
+      "get": {
+        "summary": "Consultar estado do monitor do PDV",
+        "description": "Rota definida diretamente no app.js.",
+        "tags": [
+          "SITE — Funcionários — Monitor"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        }
+      },
+      "post": {
+        "summary": "Atualizar estado do monitor do PDV",
+        "description": "Rota definida diretamente no app.js.",
+        "tags": [
+          "SITE — Funcionários — Monitor"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        }
+      }
+    },
+    "/produtos": {
+      "get": {
+        "summary": "Consultar/listar produtos",
+        "tags": [
+          "SITE — Funcionários — Estoque"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Criar/registrar produtos",
+        "tags": [
+          "SITE — Funcionários — Produtos"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/produtos/cod/{codigo}/add": {
+      "put": {
+        "summary": "Atualizar/processar produtos — cod — codigo — add",
+        "tags": [
+          "SITE — Funcionários — Estoque"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/estoque-liquidos/produtos": {
+      "put": {
+        "summary": "Atualizar/processar estoque liquidos — produtos",
+        "tags": [
+          "SITE — Funcionários — Estoque"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/estoque-liquidos/produtos/{id}": {
+      "put": {
+        "summary": "Atualizar/processar estoque liquidos — produtos — id",
+        "tags": [
+          "SITE — Funcionários — Estoque"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/fechamentos-diarios/status-inicial": {
+      "get": {
+        "summary": "Consultar/listar fechamentos diarios — status inicial",
+        "tags": [
+          "SITE — Funcionários — Fechamento"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/fechamentos-diarios/{data}": {
+      "get": {
+        "summary": "Consultar/listar fechamentos diarios — data",
+        "tags": [
+          "SITE — Funcionários — Fechamento"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "data",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/fechamentos-diarios/abertura": {
+      "post": {
+        "summary": "Criar/registrar fechamentos diarios — abertura",
+        "tags": [
+          "SITE — Funcionários — Fechamento"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fechamentos-diarios": {
+      "post": {
+        "summary": "Criar/registrar fechamentos diarios",
+        "tags": [
+          "SITE — Funcionários — Fechamento"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clientes-fiado": {
+      "post": {
+        "summary": "Criar/registrar clientes fiado",
+        "tags": [
+          "SITE — Funcionários — Clientes Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Consultar/listar clientes fiado",
+        "tags": [
+          "SITE — Funcionários — Clientes Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/clientes-fiado/{id}": {
+      "put": {
+        "summary": "Atualizar/processar clientes fiado — id",
+        "tags": [
+          "SITE — Funcionários — Clientes Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/clientes-fiado/{id}/bloqueio": {
+      "put": {
+        "summary": "Atualizar/processar clientes fiado — id — bloqueio",
+        "tags": [
+          "SITE — Funcionários — Clientes Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/clientes-fiado/pendentes": {
+      "get": {
+        "summary": "Consultar/listar clientes fiado — pendentes",
+        "tags": [
+          "SITE — Funcionários — Clientes Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/contas-fiado": {
+      "post": {
+        "summary": "Criar/registrar contas fiado",
+        "tags": [
+          "SITE — Funcionários — Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Consultar/listar contas fiado",
+        "tags": [
+          "SITE — Funcionários — Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/contas-fiado/cliente/{id}": {
+      "get": {
+        "summary": "Consultar/listar contas fiado — cliente — id",
+        "tags": [
+          "SITE — Funcionários — Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/contas-fiado/simular-juros": {
+      "post": {
+        "summary": "Criar/registrar contas fiado — simular juros",
+        "tags": [
+          "SITE — Funcionários — Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contas-fiado/aplicar-juros": {
+      "put": {
+        "summary": "Atualizar/processar contas fiado — aplicar juros",
+        "tags": [
+          "SITE — Funcionários — Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contas-fiado/itens/finalizar": {
+      "put": {
+        "summary": "Atualizar/processar contas fiado — itens — finalizar",
+        "tags": [
+          "SITE — Funcionários — Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contas-fiado/cliente/{id}/finalizar": {
+      "put": {
+        "summary": "Atualizar/processar contas fiado — cliente — id — finalizar",
+        "tags": [
+          "SITE — Funcionários — Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/contas-fiado/item/{idConta}/{idProduto}/pagar": {
+      "put": {
+        "summary": "Atualizar/processar contas fiado — item — idConta — idProduto — pagar",
+        "tags": [
+          "SITE — Funcionários — Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "idConta",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "idProduto",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/contas-fiado/parceladas": {
+      "get": {
+        "summary": "Consultar/listar contas fiado — parceladas",
+        "tags": [
+          "SITE — Funcionários — Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/credito-parcelado-pdv": {
+      "post": {
+        "summary": "Criar/registrar credito parcelado pdv",
+        "tags": [
+          "SITE — Funcionários — Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contas-fiado/itens/credito-parcelado": {
+      "post": {
+        "summary": "Criar/registrar contas fiado — itens — credito parcelado",
+        "tags": [
+          "SITE — Funcionários — Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/contas-fiado/{id}/finalizar": {
+      "put": {
+        "summary": "Atualizar/processar contas fiado — id — finalizar",
+        "tags": [
+          "SITE — Funcionários — Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/contas-fiado/notificacoes": {
+      "get": {
+        "summary": "Consultar/listar contas fiado — notificacoes",
+        "tags": [
+          "SITE — Funcionários — Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/contas-fiado/notificacoes/{id}/lida": {
+      "put": {
+        "summary": "Atualizar/processar contas fiado — notificacoes — id — lida",
+        "tags": [
+          "SITE — Funcionários — Fiado"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/produtos/proximo-codigo": {
+      "get": {
+        "summary": "Consultar/listar produtos — proximo codigo",
+        "tags": [
+          "SITE — Funcionários — Produtos"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/categorias": {
+      "get": {
+        "summary": "Consultar/listar categorias",
+        "tags": [
+          "SITE — Funcionários — Produtos"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Criar/registrar categorias",
+        "tags": [
+          "SITE — Funcionários — Produtos"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/produtos/busca": {
+      "get": {
+        "summary": "Consultar/listar produtos — busca",
+        "tags": [
+          "SITE — Funcionários — Produtos"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/produtos/cod/{codigo}": {
+      "get": {
+        "summary": "Consultar/listar produtos — cod — codigo",
+        "tags": [
+          "SITE — Funcionários — Produtos"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/produtos/id/{id}": {
+      "get": {
+        "summary": "Consultar/listar produtos — id — id",
+        "tags": [
+          "SITE — Funcionários — Produtos"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/produtos/cod/{id}": {
+      "put": {
+        "summary": "Atualizar/processar produtos — cod — id",
+        "tags": [
+          "SITE — Funcionários — Produtos"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/produtos/id/{id}/status": {
+      "put": {
+        "summary": "Atualizar/processar produtos — id — id — status",
+        "tags": [
+          "SITE — Funcionários — Produtos"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso."
+          },
+          "400": {
+            "description": "Requisição inválida ou dados insuficientes."
+          },
+          "500": {
+            "description": "Erro interno do servidor."
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Informe os campos esperados pela operação conforme a implementação da rota."
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
       }
     }
   }

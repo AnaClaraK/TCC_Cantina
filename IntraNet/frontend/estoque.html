@@ -22,6 +22,7 @@
 
 <div class="d_util">
     <h2 class="h_ag">Estoque</h2>
+    <button type="button" id="btnEstoqueLiquidos">Configurar ml</button>
     <button id="b_addq">
       <span id="s_addq">Adicionar quantidade</span></button>
     <div id="d_inp">
@@ -46,7 +47,7 @@
             <th>Quantidade</th>
             <th>Disponível</th>
             <th>Qtd Mínima</th>
-            <th>Status</th>
+            <th class="coluna-status">Status</th>
         </tr>
     </thead>
     <tbody id="tb_tbl_produtos"></tbody>
@@ -55,12 +56,14 @@
 
 <dialog id="d_modal">
     <div class="modal_box">
-        <button id="b_close_modal">x</button>
+        <button id="b_close_modal" aria-label="Fechar">✕</button>
 
-        <h2>Atualizar Quantidade</h2>
+        <h2 class="modal_titulo">Adicionar Quantidade</h2>
 
-        <input type="text" class="inp_m" id="inp_busca_modal" placeholder="Código ou nome">
-        <ul id="lista_sugestoes"></ul>
+        <div class="autocomplete-box">
+            <input type="text" class="inp_m" id="inp_busca_modal" placeholder="Código ou nome" autocomplete="off">
+            <ul id="lista_sugestoes"></ul>
+        </div>
 
         <p class="pm">Selecionado: <span id="s_produto">---</span></p>
         <p class="pm">Quantidade atual: <span id="s_qtda">0</span></p>
@@ -71,6 +74,21 @@
 
         <div class="modal_footer">
             <p class="pmf">Use as setas ↑ ↓ e Enter para selecionar</p>
+        </div>
+    </div>
+</dialog>
+
+<dialog id="d_modal_liquidos" class="dialog-liquidos dialog-liquidos-estoque">
+    <div class="modal_box modal-liquidos-conteudo">
+        <button type="button" id="btnFecharModalLiquidos" class="fechar-modal-liquidos" aria-label="Fechar">×</button>
+        <h2 class="modal_titulo">Estoque de líquidos</h2>
+        <p class="pmf">Os dois produtos de café compartilham o mesmo reservatório.</p>
+        <div id="produtosSelecionadosMl" class="produtos-selecionados-ml"></div>
+        <div class="liquidos-form-volume">
+            <label for="quantidadeEstoqueMl">Quantidade disponível (ml)
+                <input id="quantidadeEstoqueMl" class="inp_m" type="number" min="0" step="1" placeholder="Digite a quantidade">
+            </label>
+            <button type="button" class="b_addf" id="btnSalvarEstoqueMl">Salvar quantidade</button>
         </div>
     </div>
 </dialog>
@@ -159,7 +177,7 @@ b_addq.addEventListener("click", () => {
     limparModal();
 
     const produtosBaixoEstoque = produtosCache
-        .filter(p => Number(p.ativo) === 1 && (p.qtd || 0) <= 10)
+        .filter(p => Number(p.ativo) === 1 && !p.estoque_em_ml && Number(p.estoque_por_receita) !== 1 && Number(p.estoque_por_volume) !== 1 && (p.qtd || 0) <= 10)
         .sort((a, b) => (a.qtd || 0) - (b.qtd || 0));
 
     lista.innerHTML = "";
@@ -366,7 +384,7 @@ function aplicarOrdenacaoTabela(idTbody, colunasIgnoradas = []) {
 
 async function carregarProdutos() {
     try {
-        const res = await apiFetch("http://localhost:3000/produtos", {
+        const res = await apiFetch("http://localhost:3000/produtos?modo=estoque", {
             headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
         });
         const produtos = await res.json();
@@ -374,22 +392,46 @@ async function carregarProdutos() {
         produtosCache = produtos;
         tabela.innerHTML = "";
 
-        produtos.forEach(p => {
+        const produtosOrdenados = [...produtos].sort((a, b) => {
+    // Produtos ativos primeiro; inativos sempre no final.
+    const statusA = Number(a.ativo) === 1 ? 0 : 1;
+    const statusB = Number(b.ativo) === 1 ? 0 : 1;
+
+    if (statusA !== statusB) {
+        return statusA - statusB;
+    }
+
+    // Mantém a ordenação existente por categoria e nome.
+    const aSalgado = normalizarTexto(a.categoria_nome) === "salgados";
+    const bSalgado = normalizarTexto(b.categoria_nome) === "salgados";
+
+    if (aSalgado !== bSalgado) {
+        return aSalgado ? -1 : 1;
+    }
+
+    return normalizarTexto(a.nome).localeCompare(
+        normalizarTexto(b.nome),
+        "pt-BR",
+        { numeric: true }
+    );
+});
+
+        produtosOrdenados.forEach(p => {
             tabela.innerHTML += `
-                <tr>
+                <tr data-id-produto="${p.id_produto}">
                     <td>${p.codigo_barras || ""}</td>
                     <td>${p.nome || ""}</td>
                     <td>${p.categoria_nome || ""}</td>
                     <td>R$ ${parseFloat(p.preco || 0).toFixed(2).replace(".", ",")}</td>
-                    <td>${p.qtd || 0}</td>
-                    <td>${p.disponivel || 0}</td>
-                    <td>${p.qtd_min || 0}</td>
-                    <td>
-                        <select class="select-status-produto" data-id="${p.id_produto}">
-                            <option value="1" ${Number(p.ativo) === 1 ? "selected" : ""}>Ativo</option>
-                            <option value="0" ${Number(p.ativo) === 0 ? "selected" : ""}>Inativo</option>
-                        </select>
-                    </td>
+                    <td>${p.estoque_em_ml ? `${Number(p.qtd || 0).toLocaleString("pt-BR")} ml` : (p.qtd || 0)}</td>
+                    <td>${p.estoque_em_ml ? `${Number(p.quantidade_ml ?? p.qtd ?? 0).toLocaleString("pt-BR")} ml` : `${Number(p.disponivel ?? p.qtd ?? 0).toLocaleString("pt-BR")} un.`}</td>
+                    <td>${p.estoque_em_ml ? `${Number(p.qtd_min ?? 100).toLocaleString("pt-BR")} ml` : (p.qtd_min || 0)}</td>
+                    <td class="coluna-status">
+    <select class="select-status-produto" data-id="${p.id_produto}">
+        <option value="1" ${Number(p.ativo) === 1 ? "selected" : ""}>Ativo</option>
+        <option value="0" ${Number(p.ativo) === 0 ? "selected" : ""}>Inativo</option>
+    </select>
+</td>
                 </tr>
             `;
         });
@@ -524,7 +566,6 @@ inpBuscaModal.addEventListener("input", () => {
     });
 });
 
-// --- ENGENHARIA DO ACESSÓRIO DE REMOÇÃO DO ZERO ---
 inpAddQtd.addEventListener("focus", () => {
     if (inpAddQtd.value === "0") {
         inpAddQtd.value = "";
@@ -540,6 +581,116 @@ inpAddQtd.addEventListener("blur", () => {
 const b_close_modal_btn = document.getElementById("b_close_modal");
 b_close_modal_btn.addEventListener("click", () => {
     modal.close();
+});
+modal.addEventListener("close", limparModal);
+
+// Estoque de liquidos
+const modalLiquidos = document.getElementById("d_modal_liquidos");
+const btnAbrirLiquidos = document.getElementById("btnEstoqueLiquidos");
+const btnFecharLiquidos = document.getElementById("btnFecharModalLiquidos");
+const API_LIQUIDOS = "http://localhost:3000";
+
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+        if (aviso && aviso.open) {
+            aviso.close();
+            return;
+        }
+        if (modalLiquidos && modalLiquidos.open) {
+            modalLiquidos.close();
+            return;
+        }
+        if (modal && modal.open) {
+            modal.close();
+            return;
+        }
+    }
+});
+
+async function apiLiquidos(url, options = {}) {
+    const headers = { ...(options.headers || {}), Authorization: `Bearer ${localStorage.getItem("token")}` };
+    if (options.body && !headers["Content-Type"]) headers["Content-Type"] = "application/json";
+    const response = await fetch(url, { ...options, headers });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.erro || data.resposta || `Erro ${response.status}`);
+    return data;
+}
+
+let produtosMlSelecionados = [];
+
+// Os produtos configurados no grupo ml_cafe_coado são fixos.
+// A tela não permite mais escolher ou desmarcar produtos manualmente.
+function preencherProdutosMl() {
+    produtosMlSelecionados = produtosCache.filter(p => Number(p.estoque_em_ml) === 1);
+
+    if (produtosMlSelecionados.length !== 2) {
+        produtosMlSelecionados = [];
+        return false;
+    }
+
+    const container = document.getElementById("produtosSelecionadosMl");
+    container.innerHTML = "";
+
+    produtosMlSelecionados.forEach(p => {
+        const item = document.createElement("div");
+        item.className = "produto-selecionado-ml";
+        item.textContent = p.nome;
+        container.appendChild(item);
+    });
+
+    // O saldo é compartilhado; ambos os produtos devem apresentar o mesmo valor.
+    const quantidade = Number(
+        produtosMlSelecionados[0].quantidade_ml ??
+        produtosMlSelecionados[0].qtd ??
+        0
+    );
+
+    document.getElementById("quantidadeEstoqueMl").value = quantidade > 0 ? quantidade : "";
+    return true;
+}
+
+btnAbrirLiquidos.addEventListener("click", () => {
+    if (!preencherProdutosMl()) {
+        exibirAviso("Os dois produtos de café não foram encontrados na configuração do estoque compartilhado.");
+        return;
+    }
+
+    if (!modalLiquidos.open) modalLiquidos.showModal();
+});
+
+btnFecharLiquidos.addEventListener("click", () => {
+    if (modalLiquidos.open) modalLiquidos.close();
+});
+
+modalLiquidos.addEventListener("click", (evento) => {
+    if (evento.target === modalLiquidos) modalLiquidos.close();
+});
+
+document.getElementById("btnSalvarEstoqueMl").addEventListener("click", async () => {
+    const ids = produtosMlSelecionados.map(p => Number(p.id_produto));
+    const campo = document.getElementById("quantidadeEstoqueMl");
+    const quantidade = Number(campo.value);
+
+    if (ids.length !== 2) {
+        return exibirAviso("Os dois produtos de café precisam estar configurados.");
+    }
+
+    if (campo.value === "" || !Number.isFinite(quantidade) || quantidade < 0) {
+        return exibirAviso("Informe uma quantidade em ml igual ou maior que zero.");
+    }
+
+    try {
+        await apiLiquidos(`${API_LIQUIDOS}/estoque-liquidos/produtos`, {
+            method: "PUT",
+            body: JSON.stringify({ ids_produtos: ids, quantidade })
+        });
+
+        await carregarProdutos();
+        preencherProdutosMl();
+        exibirAviso("Estoque compartilhado em ml atualizado.");
+    } catch (e) {
+        exibirAviso(e.message || "Não foi possível atualizar o estoque em ml.");
+    }
 });
 
 document.addEventListener("DOMContentLoaded", carregarProdutos);

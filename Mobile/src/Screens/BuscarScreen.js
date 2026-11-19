@@ -15,12 +15,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from "@react-navigation/native";
-import Constants from 'expo-constants'; // 1. IMPORTADO O CONSTANTS
 
-// 2. DETECÇÃO DINÂMICA DO IP DA SUA MÁQUINA VIA EXPO
-const hostUri = Constants.expoConfig?.hostUri || Constants.manifest2?.extra?.expoGo?.developer?.manifest?.debuggerHost;
-const IP_SERVIDOR = hostUri ? hostUri.split(':')[0] : '192.168.5.6'; // Fallback se não detectar
-const URL_API = `http://${IP_SERVIDOR}:3000`;
+import { BASE_URL } from '../../config';
 
 const CORES = {
   marromEscuro: '#341d04',
@@ -67,7 +63,10 @@ const CardProdutoBusca = React.memo(({ item, temEstoque, adicionarAoCarrinho }) 
         </View>
 
         <View style={styles.containerTextoTop}>
-          <Text style={styles.categoriaTag}>{item.categoria.toUpperCase()}</Text>
+          <View style={styles.linhaCategoriaEstoque}>
+            <Text style={styles.categoriaTag}>{item.categoria.toUpperCase()}</Text>
+            <Text style={styles.txtEstoque}>Estoque: {item.estoque}</Text>
+          </View>
           <Text style={styles.tituloProduto} numberOfLines={2}>
             {item.titulo}
           </Text>
@@ -148,7 +147,7 @@ export default function BuscarScreen() {
     try {
       setCarregando(true);
       const token = await AsyncStorage.getItem("token");
-      const resposta = await fetch(`${URL_API}/produtos`, {
+      const resposta = await fetch(`${BASE_URL}/produtos`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -169,7 +168,7 @@ export default function BuscarScreen() {
           .trim();
         
         const nomeSemExt = nomeArquivo.replace(/\.(png|jpg|jpeg|webp)$/i, '');
-        const urlFinal = `${URL_API}/images/${encodeURIComponent(nomeSemExt)}`;
+        const urlFinal = `${BASE_URL}/images/${encodeURIComponent(nomeSemExt)}`;
 
         return {
           id_produto: p.id_produto,
@@ -180,9 +179,9 @@ export default function BuscarScreen() {
           vendas: parseInt(p.vendas || p.total_vendas || p.qtd_vendida || 0, 10),
           preco: parseFloat(p.preco || 0).toFixed(2).replace(".", ","),
           precoNumerico: parseFloat(p.preco || 0),
-          detalheTitulo: "Sabor / Detalhes:",
-          info: p.descricao && p.descricao.trim() !== "" ? p.descricao : "Sem descrição cadastrada.",
-          imagem: { uri: urlFinal },
+          detalheTitulo: "Descrição:",
+          info: p.descricao && p.descricao.trim() !== "" ? p.descricao : "Sem descrição",
+          imagem: { uri: urlFinal, cache: 'force-cache' },
         };
       });
 
@@ -276,7 +275,7 @@ export default function BuscarScreen() {
   ), [adicionarAoCarrinho]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       
       {/* Barra Superior de Busca */}
       <View style={styles.containerBarraBusca}>
@@ -284,7 +283,7 @@ export default function BuscarScreen() {
           <Ionicons name="search-outline" size={20} color={CORES.dourado} style={styles.iconeBusca} />
           
           <TextInput
-            style={styles.inputBusca}
+            style={[styles.inputBusca, { textAlign: 'center' }]}
             placeholder="Buscar por prato, bebida..."
             placeholderTextColor="#8e8e93"
             value={termoBusca}
@@ -341,7 +340,7 @@ export default function BuscarScreen() {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.containerVazio}>
-              <Ionicons name="search-disagree" size={50} color={CORES.dourado} style={{ marginBottom: 10 }} />
+              <Ionicons name="search-outline" size={50} color={CORES.dourado} style={{ marginBottom: 10 }} />
               <Text style={styles.txtVazio}>Nenhum produto encontrado.</Text>
               <Text style={styles.subtxtVazio}>Tente pesquisar com outros termos ou categorias.</Text>
             </View>
@@ -358,7 +357,7 @@ const styles = StyleSheet.create({
     backgroundColor: CORES.marromEscuro,
   },
   containerBarraBusca: {
-    backgroundColor: CORES.marromDestaque,
+    backgroundColor: CORES.dourado,
     paddingHorizontal: 15,
     paddingTop: 12,
     paddingBottom: 6,
@@ -388,7 +387,7 @@ const styles = StyleSheet.create({
 
   /* --- CATEGORIAS ESTILO CARDÁPIO (COMPACTO) --- */
   containerCategorias: { 
-    backgroundColor: CORES.marromDestaque, 
+    backgroundColor: CORES.marromEscuro, 
     paddingVertical: 6, 
     paddingHorizontal: 10,
     borderBottomWidth: 1,
@@ -403,11 +402,11 @@ const styles = StyleSheet.create({
     paddingVertical: 5, 
     paddingHorizontal: 10, 
     alignItems: 'center', 
-    justify: 'center', 
+    justifyContent: 'center', 
     borderRadius: 6, 
   },
   btnCategoriaAtiva: { 
-    backgroundColor: 'rgba(235, 213, 166, 0.2)',
+    backgroundColor: CORES.marromDestaque,
   },
   txtCategoria: { 
     color: CORES.branco, 
@@ -417,11 +416,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   txtCategoriaAtiva: { 
-    color: CORES.dourado,
+    color: CORES.branco,
   },
 
   /* --- LISTA E CARDS --- */
   listaConteudo: {
+    backgroundColor: CORES.marromEscuro,
     padding: 15,
     paddingBottom: 90,
   },
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: CORES.cinza,
-    justify: 'center',
+    justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
     position: 'relative',
@@ -476,14 +476,28 @@ const styles = StyleSheet.create({
   containerTextoTop: {
     flex: 1,
     marginLeft: 14,
-    justify: 'center',
+    justifyContent: 'center',
+  },
+  linhaCategoriaEstoque: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 6,
+    marginBottom: 2,
   },
   categoriaTag: {
     color: CORES.dourado,
     fontSize: 11,
     fontWeight: 'bold',
-    marginBottom: 2,
     letterSpacing: 1,
+    flexShrink: 1,
+  },
+  txtEstoque: {
+    color: CORES.creme,
+    fontSize: 11,
+    fontWeight: '600',
+    textAlign: 'right',
+    flexShrink: 0,
   },
   tituloProduto: {
     color: CORES.branco,
@@ -503,7 +517,7 @@ const styles = StyleSheet.create({
   },
   headerSabor: {
     flexDirection: 'row',
-    justify: 'space-between',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 4,
   },
@@ -528,7 +542,7 @@ const styles = StyleSheet.create({
   containerPrecoCarrinho: {
     flexDirection: 'row',
     alignItems: 'center',
-    justify: 'space-between',
+    justifyContent: 'space-between',
     width: '100%',
   },
   badgePreco: {
@@ -549,7 +563,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    justify: 'center',
+    justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: CORES.branco,
@@ -560,7 +574,7 @@ const styles = StyleSheet.create({
   },
   containerLoading: {
     flex: 1,
-    justify: 'center',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   txtLoading: {
@@ -570,7 +584,7 @@ const styles = StyleSheet.create({
   },
   containerVazio: {
     alignItems: 'center',
-    justify: 'center',
+    justifyContent: 'center',
     paddingTop: 60,
   },
   txtVazio: {

@@ -12,24 +12,22 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from '@expo/vector-icons'; 
-import Constants from 'expo-constants';
 import { Botao } from '../Components/Botoes';
+import { BASE_URL } from '../../config';
+import CampoSenhaProtegida from '../Components/CampoSenhaProtegida';
 
-// IP Dinâmico do Expo Go
-const hostUri = Constants.expoConfig?.hostUri || Constants.manifest2?.extra?.expoGo?.developer?.manifest?.debuggerHost;
-const IP_SERVIDOR = hostUri ? hostUri.split(':')[0] : '192.168.5.6';
-const URL_API = `http://${IP_SERVIDOR}:3000`;
 
 export default function LoginScreen() {
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
     const [verSenha, setVerSenha] = useState(true);
     const [carregando, setCarregando] = useState(false);
+    const [senhaEmFoco, setSenhaEmFoco] = useState(false);
 
     const navigation = useNavigation();
 
     const FazerLogin = async () => {
-        const urlAPI = `${URL_API}/logar`;
+        const urlAPI = `${BASE_URL}/logar`;
         
         console.log("\n========================================");
         console.log("🚀 [LOGIN] Botão clicado!");
@@ -64,12 +62,22 @@ export default function LoginScreen() {
             if (dados.resposta === "true") {
                 console.log("✅ Login realizado com sucesso! Gravando sessão...");
                 
+                const idLogado = dados.id_user ? String(dados.id_user) : "";
+                const donoFotoSalva = await AsyncStorage.getItem("foto_owner_id");
+
+                if (dados.foto) {
+                    await AsyncStorage.setItem("foto_user", dados.foto);
+                    if (idLogado) await AsyncStorage.setItem("foto_owner_id", idLogado);
+                } else if (idLogado && donoFotoSalva && donoFotoSalva !== idLogado) {
+                    // Não mostra a foto do usuário anterior se outra conta entrar no mesmo aparelho.
+                    await AsyncStorage.multiRemove(["foto_user", "foto_owner_id"]);
+                }
+
                 if (dados.token) await AsyncStorage.setItem("token", dados.token); 
-                if (dados.id_user) await AsyncStorage.setItem("id_user", String(dados.id_user));
+                if (idLogado) await AsyncStorage.setItem("id_user", idLogado);
                 if (dados.nome) await AsyncStorage.setItem("nome_user", dados.nome);
                 await AsyncStorage.setItem("email_user", dados.email || email);
                 await AsyncStorage.setItem("senha_user", String(senha));
-                if (dados.foto) await AsyncStorage.setItem("foto_user", dados.foto);
                 const emailSalvo = await AsyncStorage.getItem("email_user");
 const senhaSalva = await AsyncStorage.getItem("senha_user");
 
@@ -119,23 +127,19 @@ if (senhaSalva) setSenha(senhaSalva);
                 </View>
 
                 {/* Campo Senha */}
-                <View style={styles.inputArea}>
+                <View style={[styles.inputArea, senhaEmFoco && styles.inputAreaFoco]}>
                     <Ionicons name="lock-closed-outline" size={28} color="#eeaf55" />
-                    <TextInput 
-                        style={styles.inputInterno} 
-                        placeholder="Senha"
-                        placeholderTextColor="#888"
+                    <CampoSenhaProtegida
+                        valor={senha}
                         onChangeText={setSenha}
-                        value={senha}
-                        secureTextEntry={verSenha}
+                        placeholder="Senha"
+                        oculto={verSenha}
+                        setOculto={setVerSenha}
+                        inputStyle={[styles.inputInterno, { marginLeft: 0 }]}
+                        fontSize={18}
+                        onFocus={() => setSenhaEmFoco(true)}
+                        onBlur={() => setSenhaEmFoco(false)}
                     />
-                    <TouchableOpacity onPress={() => setVerSenha(!verSenha)}>
-                        <Ionicons 
-                            name={verSenha ? "eye-off-outline" : "eye-outline"} 
-                            size={24} 
-                            color="#888" 
-                        />
-                    </TouchableOpacity>
                 </View>
 
                 {/* Botão Esqueceu a Senha */}
@@ -208,7 +212,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    inputArea: {
+    inputAreaFoco: { borderColor: "#efac4a", borderWidth: 2 },
+  inputArea: {
         flexDirection: 'row',
         backgroundColor: '#FFFFFF',
         width: '100%',

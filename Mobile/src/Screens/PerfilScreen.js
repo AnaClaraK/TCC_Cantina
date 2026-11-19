@@ -3,7 +3,6 @@ import {
   StyleSheet, 
   Text, 
   View, 
-  SafeAreaView, 
   TouchableOpacity, 
   TextInput,
   ScrollView,
@@ -12,12 +11,14 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { File } from 'expo-file-system';
+import { fetch as expoFetch } from 'expo/fetch';
 
-const BASE_URL = 'http://10.0.2.2:3000'; 
-
+import { BASE_URL } from '../../config';
 const CORES = {
   fundo: '#242628',
   marromEscuro: '#341d04',
@@ -89,7 +90,7 @@ export default function PerfilScreen() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.8,
@@ -137,18 +138,11 @@ export default function PerfilScreen() {
       formData.append("conf_senha", confirmarSenha);
 
       if (fotoUri) {
-        const filename = fotoUri.split('/').pop();
-        const match = /\.(\w+)$/.exec(filename);
-        const type = match ? `image/${match[1]}` : `image/jpeg`;
-
-        formData.append("imagem", {
-          uri: fotoUri,
-          name: filename || 'perfil.jpg',
-          type: type,
-        });
+        // O Expo SDK 57 exige um objeto File, não o objeto { uri, name, type } antigo.
+        formData.append("imagem", new File(fotoUri));
       }
 
-      const response = await fetch(`${BASE_URL}/perfil/atualizar`, {
+      const response = await expoFetch(`${BASE_URL}/perfil/atualizar`, {
         method: "PUT",
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -205,23 +199,22 @@ export default function PerfilScreen() {
       const caminho = fotoServidor.startsWith('/') ? fotoServidor : '/' + fotoServidor;
       return <Image source={{ uri: `${BASE_URL}${caminho}` }} style={styles.imagemAvatar} />;
     }
-    return <Ionicons name="person-outline" size={50} color={CORES.marromEscuro} />;
+    return <Ionicons name="person-outline" size={50} color={CORES.marromEscuro} style={{ alignSelf: 'center' }} />;
   };
 
   if (carregando) {
     return (
-      <SafeAreaView style={[styles.container, styles.containerCentro]}>
-        <ActivityIndicator size="large" color={CORES.dourado} />
+      <SafeAreaView style={styles.safeAreaTopo} edges={['top']}>
+        <View style={[styles.container, styles.containerCentro]}>
+          <ActivityIndicator size="large" color={CORES.dourado} />
+        </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.barraTituloTela}>
-        <Text style={styles.txtTituloTela}>EDITAR MEU PERFIL</Text>
-      </View>
-
+    <SafeAreaView style={styles.safeAreaTopo} edges={['top']}>
+      <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.containerAvatar}>
           <View style={styles.circuloAvatar}>{renderAvatar()}</View>
@@ -310,20 +303,20 @@ export default function PerfilScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeAreaTopo: { flex: 1, backgroundColor: CORES.dourado },
   container: { flex: 1, backgroundColor: CORES.fundo },
   containerCentro: { justifyContent: 'center', alignItems: 'center' },
-  barraTituloTela: { backgroundColor: CORES.marromDestaque, paddingVertical: 15, alignItems: 'center' },
-  txtTituloTela: { color: CORES.branco, fontWeight: 'bold', fontSize: 20, letterSpacing: 2 },
-  scrollContent: { padding: 20, paddingBottom: 40 },
+  scrollContent: { padding: 20, paddingTop: 38, paddingBottom: 40 },
   containerAvatar: { alignItems: 'center', marginBottom: 20 },
   circuloAvatar: {
     width: 100, height: 100, borderRadius: 50, backgroundColor: CORES.dourado,
-    justify: 'center', alignItems: 'center', overflow: 'hidden', marginBottom: 10,
+    justifyContent: 'center', alignItems: 'center', overflow: 'hidden', marginBottom: 10,
     borderWidth: 2, borderColor: CORES.dourado,
   },
   imagemAvatar: { width: '100%', height: '100%' },

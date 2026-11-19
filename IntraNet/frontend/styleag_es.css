@@ -3,9 +3,7 @@
     background-color: #efac4a !important ;
     margin: 0;
 }
-/* ============================================================
-   TOPO / UTILIDADES
-   ============================================================ */
+/* TOPO / UTILIDADES */
 .d_util{
     width: 95%;
     margin: 30px auto 10px auto;
@@ -23,9 +21,7 @@
     margin-bottom: 0px;
 }
 
-/* ============================================================
-   TÍTULO
-   ============================================================ */
+/* TÍTULO */
 .h_ag{
     background-color: #1c1c1c;
     color: #f8c471;
@@ -34,9 +30,7 @@
     font-size: 32px;
 }
 
-/* ============================================================
-   BOTÕES DO TOPO
-   ============================================================ */
+/* BOTÕES DO TOPO */
    #b_addq,
    #b_nova_compra,
    #b_apagar_prod,
@@ -62,7 +56,7 @@
 #b_nova_compra:hover,
 #b_apagar_prod:hover,
 #b_limpar_lista:hover{
-    filter: brightness(1.2);
+    filter: none;
 }
 
 #s_addq{
@@ -72,9 +66,7 @@
     
 }
 
-/* ============================================================
-   ÁREA DE BUSCA
-   ============================================================ */
+/* ÁREA DE BUSCA */
 #d_inp{
     margin-left: auto;
     margin-bottom: 0px;
@@ -114,9 +106,7 @@
     opacity: 0.85;
     text-align: center;
 }
-/* ============================================================
-   ÁREA DA TABELA
-   ============================================================ */
+/* ÁREA DA TABELA */
 
 #sc_tabela{
     width: 90%;
@@ -131,9 +121,7 @@
     box-sizing: border-box;
 }
 
-/* ============================================================
-   TABELA
-   ============================================================ */
+/* TABELA */
 
 #sc_tabela .tabela{
     width: max-content;
@@ -145,9 +133,7 @@
     margin: 0 !important;
 }
 
-/* ============================================================
-   CABEÇALHO FIXO
-   ============================================================ */
+/* CABEÇALHO FIXO */
 
 #sc_tabela .tabela thead th{
     position: sticky;
@@ -165,9 +151,7 @@
     white-space: nowrap;
 }
 
-/* ============================================================
-   LINHAS
-   ============================================================ */
+/* LINHAS */
 
 #sc_tabela .tabela tbody td{
     padding: 10px;
@@ -175,9 +159,7 @@
     white-space: nowrap;
 }
 
-/* ============================================================
-   ZEBRA
-   ============================================================ */
+/* ZEBRA */
 
 #sc_tabela .tabela tbody tr:nth-child(even){
     background-color: #ddad6a;
@@ -187,9 +169,7 @@
     background-color: #f2c57c;
 }
 
-/* ============================================================
-   BORDAS
-   ============================================================ */
+/* BORDAS */
 
 #sc_tabela .tabela th,
 #sc_tabela .tabela td{
@@ -203,17 +183,13 @@
     text-align: left;
 }
 
-/* ============================================================
-   HOVER
-   ============================================================ */
+/* HOVER */
 
 #sc_tabela .tabela tbody tr:hover{
     filter: brightness(90%);
 }
 
-/* ============================================================
-   SCROLL DA TABELA
-   ============================================================ */
+/* SCROLL DA TABELA */
 
 #sc_tabela::-webkit-scrollbar{
     width: 10px;
@@ -237,19 +213,19 @@
     background: #1c1c1c;
 }
 
-/* ============================================================
-   MODAL
-   ============================================================ */
+/* Modal */
 #d_modal{
     border: 2px solid #efac4a;
     border-radius: 16px;
     padding: 0;
-    width: 600px;
-    height: 800px;
-    max-width: 95%;
+    width: min(560px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    height: auto;
+    max-height: calc(100dvh - 32px);
     background: #1c1c1c;
-    box-shadow: 0 10px 50px rgba(0,0,0,0.7);
-    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+    overflow: visible;
+    position: relative;
     color: #f8c471;
 }
 
@@ -262,14 +238,14 @@
     background: #1c1c1c;
     color: #f8c471;
     padding: 30px;
-    padding-bottom: 20px;
     border-radius: 16px;
     display: flex;
     flex-direction: column;
     gap: 15px;
-    height: 100%;
+    height: auto;
     position: relative;
-    overflow-y: auto;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 /* TÍTULO */
@@ -423,9 +399,7 @@ input[type=number]{
 
 
 
-/* ============================================================
-   LISTA DE SUGESTÕES
-   ============================================================ */
+/* LISTA DE SUGESTÕES */
 #lista_sugestoes{
     width: 100%;
     background: #1c1c1c;
@@ -466,9 +440,7 @@ input[type=number]{
     margin: 0;
 }
 
-/* ============================================================
-   SCROLL GLOBAL
-   ============================================================ */
+/* SCROLL GLOBAL */
 ::-webkit-scrollbar{
     width: 18px;
 }
@@ -491,9 +463,7 @@ input[type=number]{
     background-clip: content-box;
 }
 
-/* ============================================================
-   SCROLL DA LISTA
-   ============================================================ */
+/* SCROLL DA LISTA */
 #lista_sugestoes::-webkit-scrollbar{
     width: 15px;
 }
@@ -518,31 +488,10 @@ input[type=number]{
     background-clip: content-box;
 }
 
-/* ============================================================
-   BOTÃO FECHAR MODAL
-   ============================================================ */
-#b_close_modal{
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    background: transparent;
-    border: none;
-    color: #efac4a;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    line-height: 1;
-}
-
-#b_close_modal:hover{
-    color: #f8c471;
-    transform: scale(1.1);
-}
+/* Scroll da lista */
 
 
-/* ============================================================
-   ESTILO DO MODAL DE AVISO 
-   ============================================================ */
+/* ESTILO DO MODAL DE AVISO */
    #d_aviso {
     border: 3px solid #efac4a;
     border-radius: 12px;
@@ -604,7 +553,7 @@ input[type=number]{
 }
 
 #b_confirmar_aviso:hover {
-    filter: brightness(1.2);
+    filter: none;
 }
 
 
@@ -697,9 +646,7 @@ td:last-child {
     background: #1f1f1f;
     color: white;
 }
-/* =========================================================
-MODAL NOVO CLIENTE AJUSTADO
-========================================================= */
+/* MODAL NOVO CLIENTE AJUSTADO */
 
 #modal_cliente{
     border: 2px solid #efac4a;
@@ -726,9 +673,7 @@ MODAL NOVO CLIENTE AJUSTADO
     overflow-x: hidden;
 }
 
-/* =========================================================
-MODAL FIADO
-========================================================= */
+/* MODAL FIADO */
 
 #d_modal_fiado,
 #d_modal_produtos{
@@ -762,9 +707,7 @@ MODAL FIADO
     width: 100%;
 }
 
-/* =========================================================
-INPUTS MENORES
-========================================================= */
+/* INPUTS MENORES */
 
 #inp_busca_cliente,
 #inp_busca_produto,
@@ -774,9 +717,7 @@ INPUTS MENORES
     display: block;
 }
 
-/* =========================================================
-LISTA CLIENTES
-========================================================= */
+/* LISTA CLIENTES */
 
 #lista_clientes{
     position: absolute;
@@ -818,9 +759,7 @@ LISTA CLIENTES
     color: #1c1c1c;
 }
 
-/* =========================================================
-LISTA PRODUTOS
-========================================================= */
+/* LISTA PRODUTOS */
 
 
 #lista_produtos li:hover{
@@ -828,9 +767,7 @@ LISTA PRODUTOS
     color: #1c1c1c;
 }
 
-/* =========================================================
-ÁREA PRODUTOS FIXA
-========================================================= */
+/* ÁREA PRODUTOS FIXA */
 
 #area_produtos_modal,
 #produtos_selecionados{
@@ -860,9 +797,7 @@ LISTA PRODUTOS
     height: 210px;
 }
 
-/* =========================================================
-ITEM PRODUTO
-========================================================= */
+/* ITEM PRODUTO */
 
 .produto_item_modal{
     width: 100%;
@@ -886,9 +821,7 @@ ITEM PRODUTO
     color: #f8c471;
 }
 
-/* =========================================================
-QTD
-========================================================= */
+/* QTD */
 
 .controles_qtd{
     display: flex;
@@ -926,9 +859,7 @@ QTD
     font-size: 18px;
 }
 
-/* =========================================================
-BOTÕES
-========================================================= */
+/* BOTÕES */
 
 #b_abrir_produtos,
 #b_salvar_fiado,
@@ -954,9 +885,7 @@ BOTÕES
     justify-content: center;
 }
 
-/* =========================================================
-REMOVE BARRA HORIZONTAL
-========================================================= */
+/* REMOVE BARRA HORIZONTAL */
 
 .modal_box,
 #d_modal_fiado,
@@ -965,9 +894,7 @@ REMOVE BARRA HORIZONTAL
     overflow-x: hidden !important;
 }
 
-/* =========================================================
-SCROLL MAIS FINO
-========================================================= */
+/* SCROLL MAIS FINO */
 
 #lista_clientes::-webkit-scrollbar,
 #lista_produtos::-webkit-scrollbar,
@@ -991,48 +918,54 @@ SCROLL MAIS FINO
     border-radius: 20px;
 }
 
-/* =========================================================
-X FECHAR MODAIS
-========================================================= */
-
+/* Botão de fechar padronizado ("X") */
 #b_close_modal,
 #b_close_produtos,
-#b_close_modal_cliente{
-    position: absolute;
-    top: 12px;
-    right: 15px;
+#b_close_modal_cliente,
+#b_close_ranking,
+#btnFecharModalLiquidos,
+.fechar-modal-liquidos {
+    position: absolute !important;
+    top: 12px !important;
+    right: 15px !important;
+    z-index: 100 !important;
 
-    width: 38px;
-    height: 38px;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
 
-    border: none;
-    border-radius: 8px;
+    border: none !important;
+    border-radius: 8px !important;
 
-    background: #efac4a;
-    color: #1c1c1c;
+    background: #efac4a !important;
+    color: #1c1c1c !important;
 
-    font-size: 22px;
-    font-weight: bold;
+    font-family: Arial, sans-serif !important;
+    font-size: 22px !important;
+    font-weight: bold !important;
 
-    cursor: pointer;
+    cursor: pointer !important;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    transition: .2s;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
 }
 
 #b_close_modal:hover,
 #b_close_produtos:hover,
-#b_close_modal_cliente:hover{
-    transform: scale(1.05);
-    filter: brightness(1.1);
+#b_close_modal_cliente:hover,
+#b_close_ranking:hover,
+#btnFecharModalLiquidos:hover,
+.fechar-modal-liquidos:hover {
+    transform: none !important;
+    filter: none !important;
+    background: #efac4a !important;
+    color: #1c1c1c !important;
 }
 
-/* =========================================================
-NOVO CLIENTE CENTRALIZADO
-========================================================= */
+/* NOVO CLIENTE CENTRALIZADO */
 
 #modal_cliente{
     border: 2px solid #efac4a;
@@ -1059,9 +992,7 @@ NOVO CLIENTE CENTRALIZADO
     overflow-x: hidden;
 }
 
-/* =========================================================
-INPUTS MAIS PROPORCIONAIS
-========================================================= */
+/* INPUTS MAIS PROPORCIONAIS */
 
 #inp_busca_cliente,
 #inp_busca_produto,
@@ -1072,9 +1003,7 @@ INPUTS MAIS PROPORCIONAIS
     display: block;
 }
 
-/* =========================================================
-LISTA CLIENTES ESCONDIDA
-========================================================= */
+/* LISTA CLIENTES ESCONDIDA */
 
 #lista_clientes{
     display: none;
@@ -1104,9 +1033,7 @@ LISTA CLIENTES ESCONDIDA
     max-height: 145px;
 }
 
-/* =========================================================
-LISTA PRODUTOS
-========================================================= */
+/* LISTA PRODUTOS */
 
 #lista_produtos{
     width: 88%;
@@ -1151,9 +1078,7 @@ LISTA PRODUTOS
     color: #1c1c1c;
 }
 
-/* =========================================================
-ÁREA PRODUTOS
-========================================================= */
+/* ÁREA PRODUTOS */
 
 #area_produtos_modal,
 #produtos_selecionados{
@@ -1184,9 +1109,7 @@ LISTA PRODUTOS
     height: 255px;
 }
 
-/* =========================================================
-BOTÕES
-========================================================= */
+/* BOTÕES */
 
 #b_abrir_produtos,
 #b_salvar_fiado,
@@ -1259,7 +1182,6 @@ BOTÕES
 }
 
 .btn_filtro:hover{
-    background:#3a3a3a;
 }
 
 .btn_filtro.ativo{
@@ -1290,8 +1212,7 @@ BOTÕES
 }
 
 #btnFiltro:hover #img_funil{
-    opacity:1;
-    transform:scale(1.08);
+    transform:none;
 }
 
 #menuFiltro{
@@ -1470,8 +1391,6 @@ BOTÕES
         }
 
         .btn-baixar-pdf:hover {
-            background-color: #efac4a;
-            color: #1c1c1c;
             box-shadow: none !important;
             filter: none !important;
         }
@@ -1488,12 +1407,9 @@ BOTÕES
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            transition: background-color 0.2s, color 0.2s;
         }
 
         .btn-limpar-historico:hover {
-            background-color: #e74c3c;
-            color: #ffffff;
             box-shadow: none !important;
             filter: none !important;
         }
@@ -1523,13 +1439,11 @@ BOTÕES
 
     font-family:'Roca One',serif;
 
-    transition:.2s;
-
 }
 
 .btn-ranking:hover{
 
-    transform:scale(1.04);
+    transform:none;
 
 }
 
@@ -1803,10 +1717,7 @@ BOTÕES
     z-index: 3;
 }
 
-/* =========================================================
-   SELECT DE PRIORIDADE
-   MESMO ESTILO DO SELECT DE CATEGORIA
-   ========================================================= */
+/* SELECT DE PRIORIDADE - MESMO ESTILO DO SELECT DE CATEGORIA */
 
 .select-prioridade {
     position: relative;
@@ -1962,9 +1873,7 @@ BOTÕES
     box-shadow: none !important;
 }
 
-/* =========================================================
-   TEXTO DAS CAIXINHAS - MODAL ADICIONAR PRODUTOS
-   ========================================================= */
+/* TEXTO DAS CAIXINHAS - MODAL ADICIONAR PRODUTOS */
 
 /* Caixa de busca */
 #d_modal_produtos #inp_busca_produto {
@@ -2042,18 +1951,10 @@ BOTÕES
             letter-spacing: 0;
         }
 
-/* ============================================================
-   ESTOQUE — RESPONSIVIDADE / LAYOUT ESPECÍFICO DA TELA
-   Estas regras estão escopadas em .pagina-estoque para não alterar
-   outras páginas que também utilizam styleag_es.css.
-============================================================ */
+/* ESTOQUE — RESPONSIVIDADE / LAYOUT ESPECÍFICO DA TELA - Estas regras estão escopadas em .pagina-estoque para não alterar - outras páginas que também utilizam styleag_es.css. */
 
 
-/* ============================================================
-   ESTOQUE — RESPONSIVIDADE / LAYOUT ESPECÍFICO DA TELA
-   Estas regras estão escopadas em .pagina-estoque para não alterar
-   outras páginas que também utilizam styleag_es.css.
-============================================================ */
+/* ESTOQUE — RESPONSIVIDADE / LAYOUT ESPECÍFICO DA TELA - Estas regras estão escopadas em .pagina-estoque para não alterar - outras páginas que também utilizam styleag_es.css. */
 
 body.pagina-estoque {
     height: 100dvh;
@@ -2066,7 +1967,7 @@ body.pagina-estoque {
 body.pagina-estoque .d_util {
     width: 95%;
     margin: clamp(18px, 2.777778vh, 30px) auto clamp(8px, 0.925926vh, 10px);
-    gap: clamp(18px, 5.555556vh, 60px);
+    gap: clamp(10px, 1.35vw, 24px);
     align-items: center;
     flex-wrap: nowrap;
     box-sizing: border-box;
@@ -2080,7 +1981,8 @@ body.pagina-estoque .h_ag {
 }
 
 body.pagina-estoque #b_addq,
-body.pagina-estoque #btnExportarPDF {
+body.pagina-estoque #btnExportarPDF,
+body.pagina-estoque #btnEstoqueLiquidos {
     flex: 0 0 auto;
     width: clamp(190px, 27.777778vh, 300px);
     height: clamp(36px, 4.166667vh, 45px);
@@ -2088,6 +1990,28 @@ body.pagina-estoque #btnExportarPDF {
     font-size: clamp(17px, 2.222222vh, 24px);
     white-space: nowrap;
     box-sizing: border-box;
+}
+
+body.pagina-estoque #btnEstoqueLiquidos {
+    flex: 0 1 auto;
+    width: clamp(180px, 18vw, 245px);
+    min-width: 170px;
+    height: clamp(36px, 4.166667vh, 45px);
+    padding: 6px 12px;
+    border: 1px solid #efac4a;
+    border-radius: 8px;
+    background: #2b241b;
+    color: #ffd28d;
+    font: inherit;
+    font-size: clamp(12px, 1.3vh, 14px);
+    line-height: 1.15;
+    white-space: normal;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+body.pagina-estoque #btnEstoqueLiquidos:hover {
+    background: #efac4a;
+    color: #21180e;
 }
 
 body.pagina-estoque #s_addq {
@@ -2151,6 +2075,33 @@ body.pagina-estoque #sc_tabela .tabela thead th {
     position: sticky;
     top: 0;
     z-index: 20;
+}
+
+/* Status ativo/inativo legível na tabela de estoque. */
+body.pagina-estoque .select-status-produto {
+    min-width: 92px;
+    padding: 6px 24px 6px 9px;
+    border: 1px solid #8d785e;
+    border-radius: 7px;
+    background-color: #26231f;
+    color: #f5eee5;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+body.pagina-estoque .select-status-produto:has(option[value="1"]:checked) {
+    border-color: #62a879;
+    background-color: #1f3929;
+    color: #baf0c8;
+}
+body.pagina-estoque .select-status-produto:has(option[value="0"]:checked) {
+    border-color: #b96a5f;
+    background-color: #402522;
+    color: #ffc0b8;
+}
+body.pagina-estoque .select-status-produto option {
+    background: #26231f;
+    color: #f5eee5;
 }
 
 /* Scrollbar da tabela no mesmo padrão do scroll global da tela.
@@ -2277,175 +2228,4432 @@ body.pagina-estoque #d_aviso {
     }
 }
 
+/* TABELAS DAS DEMAIS PÁGINAS - MESMO PADRÃO DA TABELA DE ESTOQUE */
 
-/* ============================================================
-   REPOSIÇÃO — AJUSTES EXCLUSIVOS DA BUSCA DE PRODUTOS
-   NÃO altera as outras telas que usam o styleag_es.css.
-   ============================================================ */
+/* Impede que a página crie uma rolagem desnecessária */
+body:not(.pagina-estoque) {
+    min-height: 100dvh;
+    box-sizing: border-box;
+}
 
-body.pagina-reposicao #d_modal #lista_sugestoes {
-    position: absolute !important;
-    top: calc(100% + 6px) !important;
-    left: 0 !important;
-    right: 0 !important;
+/* Área da tabela */
+body:not(.pagina-estoque) #sc_tabela {
+    width: 90% !important;
 
-    width: 100% !important;
-    max-height: 320px !important;
-    margin: 0 !important;
+    height: calc(100dvh - var(--header-height) - 125px) !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - var(--header-height) - 125px) !important;
+
+    margin: 0 auto 20px !important;
     padding: 0 !important;
 
-    overflow-x: hidden !important;
+    overflow-x: auto !important;
     overflow-y: auto !important;
 
-    z-index: 999999 !important;
     box-sizing: border-box !important;
 }
 
-body.pagina-reposicao #d_modal #lista_sugestoes li {
-    position: relative !important;
-
-    width: 100% !important;
-    min-height: 38px !important;
-    height: 38px !important;
+/* Tabela */
+body:not(.pagina-estoque) #sc_tabela .tabela {
+    min-width: 100% !important;
+    width: max-content !important;
 
     margin: 0 !important;
-    padding: 6px 145px 6px 12px !important;
-
-    display: flex !important;
-    align-items: center !important;
-
-    box-sizing: border-box !important;
-
-    color: #f8c471 !important;
-    background: #242424 !important;
-
-    border-bottom: 1px solid #49382b !important;
-
-    font-size: 15px !important;
-    line-height: 1.1 !important;
-
-    overflow: hidden !important;
-    text-align: left !important;
 }
 
-body.pagina-reposicao #d_modal #lista_sugestoes li:last-child {
+/* Cabeçalho fixo */
+body:not(.pagina-estoque) #sc_tabela .tabela thead th {
+    position: sticky !important;
+    top: 0 !important;
+
+    z-index: 20 !important;
+}
+
+/* SCROLLBAR DA TABELA - MESMO PADRÃO DO ESTOQUE */
+
+body:not(.pagina-estoque) #sc_tabela::-webkit-scrollbar {
+    width: 18px;
+    height: 18px;
+}
+
+body:not(.pagina-estoque) #sc_tabela::-webkit-scrollbar-track {
+    background: #ffff;
+}
+
+body:not(.pagina-estoque) #sc_tabela::-webkit-scrollbar-thumb {
+    background: #dbb57c;
+    border-radius: 10px;
+
+    border: 4px solid transparent;
+    background-clip: content-box;
+}
+
+body:not(.pagina-estoque) #sc_tabela::-webkit-scrollbar-thumb:hover {
+    background: #c2904b;
+    border-radius: 10px;
+
+    border: 4px solid transparent;
+    background-clip: content-box;
+}
+
+body:not(.pagina-estoque) #sc_tabela::-webkit-scrollbar-corner {
+    background: #ffff;
+}
+
+
+/* ALTURAS MENORES - MESMO COMPORTAMENTO DO ESTOQUE */
+
+@media (min-width: 701px) and (max-height: 950px) {
+
+    body:not(.pagina-estoque) #sc_tabela {
+        height: calc(100dvh - var(--header-height) - 115px) !important;
+
+        max-height: calc(100dvh - var(--header-height) - 115px) !important;
+
+        margin-bottom: 15px !important;
+    }
+}
+
+
+/* CELULAR */
+
+@media (max-width: 700px) {
+
+    body:not(.pagina-estoque) {
+        overflow: auto !important;
+    }
+
+    body:not(.pagina-estoque) #sc_tabela {
+        width: 94% !important;
+
+        height: calc(100dvh - var(--header-height) - 175px) !important;
+
+        max-height: calc(100dvh - var(--header-height) - 175px) !important;
+
+        margin-bottom: 15px !important;
+    }
+}
+
+ /* Estilos visuais para indicação de ordenação nas colunas */
+        table thead th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 34px !important;
+        }
+
+        table thead th.sortable::after {
+            content: "↑↓";
+            display: inline-block;
+            white-space: nowrap;
+            margin-left: 7px;
+            font-size: 0.78em;
+            letter-spacing: -2px;
+            opacity: 0.38;
+            font-weight: normal;
+        }
+
+        table thead th.sort-asc::after {
+            content: "↑";
+            opacity: 1;
+            letter-spacing: 0;
+        }
+
+        table thead th.sort-desc::after {
+            content: "↓";
+            opacity: 1;
+            letter-spacing: 0;
+        }
+
+
+        /* SUGESTÕES DO MODAL "ADICIONAR PRODUTO" - Nome à esquerda e código de barras no canto superior direito. */
+        #d_modal .autocomplete-box {
+            position: relative;
+            z-index: 100;
+        }
+
+       #d_modal #lista_sugestoes {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 9999;
+
+    width: 100%;
+    height: 145px;
+    max-height: 145px;
+    margin: 0;
+    padding: 0;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    background: #1c1c1c;
+    border: 2px solid #efac4a;
+    border-radius: 10px;
+
+    list-style: none;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+}
+
+        #d_modal #lista_sugestoes li {
+    position: relative;
+    min-height: 40px;
+    width: 100%;
+    margin: 0;
+    padding: 8px 150px 6px 14px;
+
+    color: #f8c471;
+    background: #242424;
+    border-bottom: 1px solid #49382b;
+
+    cursor: pointer;
+    overflow: hidden;
+    text-align: left;
+}
+
+        #d_modal #lista_sugestoes li:last-child {
+            border-bottom: none;
+        }
+
+        #d_modal #lista_sugestoes li:hover,
+        #d_modal #lista_sugestoes li.ativo {
+            color: #1c1c1c;
+            background: #efac4a;
+        }
+
+        #d_modal #lista_sugestoes .sugestao-produto-nome {
+            display: block;
+            min-width: 0;
+
+            color: inherit;
+            font-weight: 700;
+            line-height: 1.2;
+            overflow-wrap: anywhere;
+        }
+
+        #d_modal #lista_sugestoes .sugestao-produto-codigo {
+            position: absolute;
+            top: 7px;
+            right: 10px;
+
+            max-width: 135px;
+
+            color: #bfae96;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.1;
+            text-align: right;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #d_modal #lista_sugestoes li:hover .sugestao-produto-codigo,
+        #d_modal #lista_sugestoes li.ativo .sugestao-produto-codigo {
+            color: #4d351e;
+        }
+
+        #d_modal #lista_sugestoes .sem-resultado-busca {
+            padding: 16px 14px !important;
+            color: #bfae96 !important;
+            background: #242424 !important;
+            cursor: default !important;
+        }
+
+        #d_modal #lista_sugestoes::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #d_modal #lista_sugestoes::-webkit-scrollbar-track {
+            background: #1c1c1c;
+        }
+
+        #d_modal #lista_sugestoes::-webkit-scrollbar-thumb {
+            background: #dbb57c;
+            border-radius: 8px;
+        }
+
+        #d_modal #lista_sugestoes::-webkit-scrollbar-thumb:hover {
+            background: #c2904b;
+        }
+
+        /* Botão Baixar Lista seguindo o mesmo padrão dos botões do topo. */
+        #b_imprimir_lista {
+            color: #2b1f14;
+            background: #f1b869;
+            border: none;
+            border-radius: 8px;
+
+            font-family: "Roca One", sans-serif !important;
+            font-weight: bold;
+            cursor: pointer;
+        }
+/* Reposição automática diária */
+.modal-config-diaria {
+    width: min(760px, 92vw);
+    max-width: 92vw;
+    max-height: 86vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.tabela-diaria-wrap {
+    overflow: auto;
+    max-height: 52vh;
+    border-radius: 8px;
+}
+.tabela-diaria-wrap .tabela {
+    width: 100%;
+}
+.tabela-diaria-wrap .tabela thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+.input-qtd-diaria {
+    width: 110px;
+    min-width: 80px;
+}
+.tag-reposicao-diaria {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #efac4a;
+    color: #222;
+}
+
+/* Tela de estoque de líquidos e preparos */
+.liquidos-pagina { padding: 24px; max-width: 1500px; margin: 0 auto; }
+.liquidos-cabecalho { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.liquidos-cabecalho p, .liquidos-card > p { margin: 6px 0 0; }
+.liquidos-card { background: var(--cor-card, #202020); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+.liquidos-card h3 { margin: 0 0 16px; }
+.liquidos-form-grid { display: grid; grid-template-columns: minmax(180px, 1.5fr) minmax(130px, 1fr) minmax(130px, 1fr) auto; align-items: end; gap: 14px; }
+.liquidos-form-grid label { display: flex; flex-direction: column; gap: 6px; }
+.liquidos-form-grid .inp_m { width: 100%; box-sizing: border-box; }
+.liquidos-ajuda { opacity: .85; font-size: 13px; margin-top: 14px !important; }
+.liquidos-tabela-wrap { width: 100%; overflow: auto; margin-top: 16px; }
+.liquidos-tabela-wrap .tabela { width: 100%; min-width: 640px; }
+.liquidos-acoes { display: flex; gap: 8px; flex-wrap: wrap; }
+.liquido-qtd { width: 120px; min-width: 90px; }
+.btn-liquido-excluir { background: #8b2f2f !important; }
+@media (max-width: 900px) {
+    .liquidos-pagina { padding: 14px; }
+    .liquidos-cabecalho { align-items: flex-start; flex-direction: column; }
+    .liquidos-form-grid { grid-template-columns: 1fr; }
+}
+
+/* Modal Configurar ML (Líquidos) */
+.dialog-liquidos-estoque {
+    width: min(560px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    max-height: calc(100dvh - 32px);
+    padding: 0;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    background: #1c1c1c;
+    color: #f5f5f5;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+    overflow: visible;
+    position: relative;
+}
+.dialog-liquidos-estoque::backdrop {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+}
+.dialog-liquidos-estoque .modal-liquidos-conteudo {
+    position: relative;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    overflow: visible;
+    box-sizing: border-box;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.dialog-liquidos-estoque h2,
+.dialog-liquidos-estoque .modal_titulo {
+    color: #efac4a;
+    font-family: 'Roca One', serif;
+    font-size: 24px;
+    margin: 0 0 15px 0;
+    text-align: center;
+}
+.dialog-liquidos-estoque .liquidos-card { margin: 12px 0; }
+.dialog-liquidos-estoque .liquidos-form-grid { grid-template-columns: minmax(160px,1.4fr) minmax(120px,1fr) minmax(120px,1fr) auto; }
+.check-produto-ml {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 19px;
+    height: 19px;
+    margin: 0;
+    border: 2px solid #efac4a;
+    border-radius: 5px;
+    background: #fff8ec;
+    cursor: pointer;
+    vertical-align: middle;
+    display: inline-grid;
+    place-content: center;
+    transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.check-produto-ml:checked { background: #efac4a; border-color: #d9912d; }
+.check-produto-ml:checked::before {
+    content: "";
+    width: 9px;
+    height: 5px;
+    border-left: 2px solid #5b3510;
+    border-bottom: 2px solid #5b3510;
+    transform: rotate(-45deg) translate(1px, -1px);
+}
+.check-produto-ml:focus-visible { outline: 2px solid #efac4a; outline-offset: 3px; }
+@media (max-width: 900px) {
+    .dialog-liquidos-estoque .modal-liquidos-conteudo { padding: 16px; }
+    .dialog-liquidos-estoque .liquidos-form-grid { grid-template-columns: 1fr; }
+}
+.dialog-liquidos-estoque .liquidos-form-volume {
+    grid-template-columns: minmax(220px, 1.4fr) minmax(180px, 1fr) auto;
+    align-items: end;
+    margin-top: 22px;
+}
+.dialog-liquidos-estoque .liquidos-form-volume label {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    color: #f2d9b6;
+}
+.dialog-liquidos-estoque .liquidos-form-volume .inp_m {
+    width: 100%;
+    min-height: 42px;
+    box-sizing: border-box;
+}
+.dialog-liquidos-estoque #btnSalvarEstoqueMl {
+    min-height: 42px;
+    padding: 9px 16px;
+    border-radius: 8px;
+    background: #efac4a;
+    color: #241a10;
+    font-weight: 700;
+    white-space: nowrap;
+}
+@media (max-width: 900px) {
+    .dialog-liquidos-estoque .liquidos-form-volume { grid-template-columns: 1fr; }
+}
+
+
+/* Ajustes pontuais da tela Estoque */
+body.pagina-estoque .select-status-produto:has(option[value="1"]:checked) {
+    background: #efac4a !important;
+    border-color: #efac4a !important;
+    color: #241a10 !important;
+    font-weight: 700;
+}
+body.pagina-estoque .select-status-produto:has(option[value="0"]:checked) {
+    background: #343434;
+    border-color: #777;
+    color: #f2f2f2;
+}
+.produtos-selecionados-ml { display:flex; flex-wrap:wrap; gap:8px; margin:18px 0 4px; }
+.produto-selecionado-ml { border:1px solid #efac4a; border-radius:8px; padding:8px 12px; color:#f8d8a8; background:rgba(239,172,74,.10); font-weight:600; }
+.dialog-liquidos-estoque .liquidos-form-volume { grid-template-columns:minmax(220px,1fr) auto; }
+.dialog-liquidos-estoque .liquidos-form-volume label { color:#f2f2f2; }
+
+
+/* TELA ESTOQUE — AJUSTES FINAIS */
+
+/* Evita rolagem horizontal na página */
+html:has(body.pagina-estoque) {
+    overflow-x: hidden !important;
+}
+
+body.pagina-estoque {
+    max-width: 100%;
+    overflow-x: hidden !important;
+    box-sizing: border-box;
+}
+
+/* Área superior */
+body.pagina-estoque .d_util {
+    width: 95%;
+    max-width: 100%;
+    margin: 18px auto 8px;
+    padding: 0;
+    gap: 10px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+}
+
+/* Botões superiores padronizados */
+body.pagina-estoque #b_addq,
+body.pagina-estoque #btnEstoqueLiquidos,
+body.pagina-estoque #btnExportarPDF {
+    box-sizing: border-box;
+    width: auto;
+    min-width: 0;
+    height: 40px;
+    min-height: 40px;
+    margin: 0;
+    padding: 8px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    border-radius: 6px;
+}
+
+/* Mantém a identidade visual dos botões */
+body.pagina-estoque #b_addq {
+    background-color: #1c1c1c;
+    color: #ffc27a;
+}
+
+body.pagina-estoque #btnEstoqueLiquidos {
+    background-color: #2b241b;
+    color: #ffd28d;
+    border: 1px solid #efac4a;
+}
+
+body.pagina-estoque #btnEstoqueLiquidos:hover {
+    background-color: #efac4a;
+    color: #21180e;
+}
+
+/* Texto interno do botão Adicionar quantidade */
+body.pagina-estoque #s_addq {
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+/* Botão Baixar PDF: sem espaçamento extra */
+body.pagina-estoque #btnExportarPDF {
+    padding: 8px 12px;
+    margin: 0;
+    align-self: center;
+}
+
+/* Área e campo de busca */
+body.pagina-estoque #d_inp {
+    flex: 1 1 220px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+body.pagina-estoque .busca-box {
+    width: 260px;
+    max-width: 100%;
+    height: 40px;
+    flex: 0 1 260px;
+    box-sizing: border-box;
+}
+
+body.pagina-estoque #inputBusca {
+    min-width: 0;
+    height: 100%;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+/* TABELA RESPONSIVA — SEM SCROLL HORIZONTAL */
+
+body.pagina-estoque #sc_tabela {
+    width: 95%;
+    max-width: 100%;
+    height: calc(100dvh - var(--header-height, 70px) - 130px);
+    min-height: 180px;
+    max-height: calc(100dvh - var(--header-height, 70px) - 130px);
+    margin: 0 auto 12px !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+body.pagina-estoque #sc_tabela .tabela {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin: 0 !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th,
+body.pagina-estoque #sc_tabela .tabela td {
+    min-width: 0;
+    padding: 8px 5px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    box-sizing: border-box;
+    font-size: 13px;
+}
+
+/* Cabeçalho fixo */
+body.pagina-estoque #sc_tabela .tabela thead th {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    font-size: 13px;
+    line-height: 1.25;
+}
+
+/* Coluna Status: borda preta sem definir largura fixa */
+body.pagina-estoque #sc_tabela .tabela th.coluna-status,
+body.pagina-estoque #sc_tabela .tabela td.coluna-status {
+    border: 2px solid #000 !important;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Seletor de status: dimensões flexíveis */
+body.pagina-estoque .select-status-produto {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: 5px 3px;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 12px;
+    border: 1px solid #000 !important;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Ativo: preserva as cores já usadas no sistema */
+body.pagina-estoque .select-status-produto:has(option[value="1"]:checked) {
+    background-color: #efac4a !important;
+    color: #241a10 !important;
+    border-color: #000 !important;
+}
+
+/* Inativo: fundo preto e letras amarelas */
+body.pagina-estoque .select-status-produto:has(option[value="0"]:checked) {
+    background-color: #000 !important;
+    color: #efac4a !important;
+    border-color: #000 !important;
+}
+
+body.pagina-estoque .select-status-produto option {
+    background-color: #000;
+    color: #efac4a;
+}
+
+/* RESPONSIVIDADE PARA TABLETS E CELULARES */
+
+@media (max-width: 900px) {
+    body.pagina-estoque .d_util {
+        width: 94%;
+        gap: 8px;
+    }
+
+    body.pagina-estoque #d_inp {
+        flex: 1 1 100%;
+        order: 5;
+    }
+
+    body.pagina-estoque .busca-box {
+        width: 100%;
+        max-width: 100%;
+        flex: 1 1 100%;
+    }
+
+    body.pagina-estoque #sc_tabela {
+        width: 94%;
+        height: auto;
+        max-height: none;
+        overflow: visible !important;
+    }
+
+    /* Transforma cada linha em um cartão no celular */
+    body.pagina-estoque #sc_tabela .tabela,
+    body.pagina-estoque #sc_tabela .tabela tbody {
+        display: block;
+        width: 100% !important;
+    }
+
+    body.pagina-estoque #sc_tabela .tabela thead {
+        display: none;
+    }
+
+    body.pagina-estoque #sc_tabela .tabela tbody tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 0;
+        margin-bottom: 12px;
+        border: 1px solid #1c1c1c;
+        border-radius: 7px;
+        overflow: hidden;
+    }
+
+    body.pagina-estoque #sc_tabela .tabela tbody td {
+        display: block;
+        width: 100%;
+        padding: 8px;
+        border: 1px solid rgba(28, 28, 28, 0.45);
+        white-space: normal;
+        overflow-wrap: anywhere;
+        font-size: 13px;
+    }
+
+    /* Checkbox ocupa uma linha inteira */
+    body.pagina-estoque #sc_tabela .tabela tbody td:first-child {
+        grid-column: 1 / -1;
+        text-align: left;
+    }
+
+    /* Rótulos das células no cartão */
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(2)::before {
+        content: "Código: ";
+        font-weight: 700;
+    }
+
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(3)::before {
+        content: "Produto: ";
+        font-weight: 700;
+    }
+
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(4)::before {
+        content: "Categoria: ";
+        font-weight: 700;
+    }
+
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(5)::before {
+        content: "Preço: ";
+        font-weight: 700;
+    }
+
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(6)::before {
+        content: "Quantidade: ";
+        font-weight: 700;
+    }
+
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(7)::before {
+        content: "Disponível: ";
+        font-weight: 700;
+    }
+
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(8)::before {
+        content: "Qtd. mínima: ";
+        font-weight: 700;
+    }
+
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(9) {
+        grid-column: 1 / -1;
+        border: 2px solid #000 !important;
+    }
+
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(9)::before {
+        content: "Status: ";
+        font-weight: 700;
+    }
+
+    body.pagina-estoque .select-status-produto {
+        display: inline-block;
+        width: auto;
+        min-width: 90px;
+        margin-top: 5px;
+        padding: 6px 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    body.pagina-estoque #b_addq,
+    body.pagina-estoque #btnEstoqueLiquidos,
+    body.pagina-estoque #btnExportarPDF {
+        flex: 1 1 calc(50% - 8px);
+        width: auto;
+        min-height: 38px;
+        height: auto;
+        white-space: normal;
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    body.pagina-estoque .h_ag {
+        width: 100%;
+        font-size: 25px;
+    }
+
+    body.pagina-estoque #sc_tabela .tabela tbody tr {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    body.pagina-estoque #sc_tabela .tabela tbody td:first-child,
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(9) {
+        grid-column: 1;
+    }
+}
+
+/* ESTOQUE — AJUSTES FINAIS */
+
+/* Aumenta um pouco a coluna antes de Código. */
+body.pagina-estoque #sc_tabela .tabela thead th:first-child,
+body.pagina-estoque #sc_tabela .tabela tbody td:first-child {
+    width: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    box-sizing: border-box !important;
+}
+
+/* Centraliza os seletores de Ativo/Inativo. */
+body.pagina-estoque #sc_tabela .tabela th:last-child,
+body.pagina-estoque #sc_tabela .tabela td:last-child {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+body.pagina-estoque .select-status-produto {
+    display: block !important;
+    width: 72px !important;
+    min-width: 72px !important;
+    margin: 0 auto !important;
+    padding: 3px 17px 3px 6px !important;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+    box-sizing: border-box !important;
+}
+
+/* Remove as listras/bordas escuras da coluna Status. */
+body.pagina-estoque #sc_tabela .tabela th:last-child,
+body.pagina-estoque #sc_tabela .tabela td:last-child {
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+/* Mantém o estilo do seletor sem listras adicionais. */
+body.pagina-estoque .select-status-produto {
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+/* Ajusta o tamanho da fonte dos botões para igualar ao Conta Fiado: 18px. */
+body.pagina-estoque #btnEstoqueLiquidos,
+body.pagina-estoque #b_addq,
+body.pagina-estoque #s_addq {
+    font-size: 18px !important;
+}
+
+/* Checkbox preta com borda laranja */
+body.pagina-estoque #sc_tabela input[type="checkbox"] {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+
+    width: 17px !important;
+    height: 17px !important;
+    box-sizing: border-box !important;
+
+    background: #f8c471!important;
+    border: 2px solid #000000 !important;
+    border-radius: 4px !important;
+
+    display: inline-grid !important;
+    place-items: center !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+
+    filter: none !important;
+    cursor: pointer;
+}
+
+body.pagina-estoque #sc_tabela input[type="checkbox"]:checked::after {
+    content: none !important;
+    display: none !important;
+    -webkit-text-fill-color: #000000 !important;
+color: #000000 !important;
+}
+
+/* Ajuste da coluna Status */
+body.pagina-estoque #sc_tabela .tabela td.coluna-status {
+    vertical-align: middle !important;
+    text-align: center !important;
+    padding: 8px !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela td.coluna-status .select-status-produto {
+    box-sizing: border-box !important;
+    margin: 0 auto !important;
+    vertical-align: middle !important;
+    font-family: inherit !important;
+    line-height: normal !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:last-child,
+body.pagina-estoque #sc_tabela .tabela td.coluna-status {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+/* CORRIGE A COLUNA STATUS */
+#sc_tabela .tabela th:last-child,
+#sc_tabela .tabela td:last-child {
+    text-align: center !important;
+    vertical-align: middle !important;
+    border-right: none !important;
+    border-left: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* REMOVE AS LINHAS PRETAS ENTRE AS CÉLULAS DE STATUS */
+#sc_tabela .tabela tbody td:last-child {
+    border-top: none !important;
     border-bottom: none !important;
 }
 
-body.pagina-reposicao #d_modal #lista_sugestoes .sugestao-produto-nome {
-    display: block !important;
+/* PADRONIZA A ALTURA DO CAMPO STATUS */
+#sc_tabela .tabela td:last-child select {
+    display: block;
+    box-sizing: border-box;
+    height: 28px;
+    min-height: 28px;
+    margin: 0 auto;
+    padding: 2px 8px;
+    line-height: normal;
+    vertical-align: middle;
+}
 
+
+/* CORREÇÃO DEFINITIVA DA COLUNA STATUS — ESTOQUE */
+body.pagina-estoque #sc_tabela .tabela thead th.coluna-status,
+body.pagina-estoque #sc_tabela .tabela tbody td.coluna-status,
+body.pagina-estoque #sc_tabela .tabela thead th:last-child,
+body.pagina-estoque #sc_tabela .tabela tbody td:last-child {
+    border-top: none !important;
+    border-bottom: none !important;
+    border-right: none !important;
+    border-left: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    vertical-align: middle !important;
+}
+
+/* PADRONIZA A ALTURA DAS LINHAS */
+body.pagina-estoque #sc_tabela .tabela tbody tr {
+    height: 49px !important;
+}
+
+/* PADRONIZA AS CÉLULAS */
+body.pagina-estoque #sc_tabela .tabela tbody td {
+    height: 49px !important;
+    box-sizing: border-box !important;
+    vertical-align: middle !important;
+}
+
+/* PADRONIZA O SELETOR DE STATUS */
+body.pagina-estoque #sc_tabela .select-status-produto {
+    display: block !important;
+    width: 90px !important;
+    min-width: 90px !important;
+    max-width: 90px !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    margin: 0 auto !important;
+    padding: 2px 5px !important;
+    box-sizing: border-box !important;
+    font-size: 13px !important;
+    line-height: normal !important;
+    border: 1px solid #000 !important;
+    border-radius: 6px !important;
+}
+
+/* BOTÕES DO ESTOQUE — FONTE ROCA ONE */
+body.pagina-estoque #b_addq,
+body.pagina-estoque #btnEstoqueLiquidos,
+body.pagina-estoque #btnExportarPDF,
+body.pagina-estoque #s_addq {
+    font-family: "Roca One", sans-serif !important;
+    font-size: 24px !important;
+    color: #f8c471 !important;
+}
+
+body.pagina-estoque #btnExportarPDF{
+    font-size: 18px !important;
+}
+
+/* CENTRALIZA O TEXTO DO BOTÃO CONFIGURAR ML */
+body.pagina-estoque button#btnConfigurarML,
+body.pagina-estoque #btnConfigurarML {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    line-height: normal !important;
+    box-sizing: border-box !important;
+}
+
+#btnEstoqueLiquidos {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: normal;
+    padding: 0;
+}
+
+
+/* AGENDAMENTO — RESPONSIVIDADE DA TABELA - Sem alterar tamanhos de fonte */
+
+body.pagina-agendamento {
+    overflow-x: hidden;
+}
+
+/* Área da tabela */
+body.pagina-agendamento #sc_tabela {
+    width: 90%;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+/* Tabela ajustada à largura disponível */
+body.pagina-agendamento #sc_tabela .tabela {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+/* Permite que o conteúdo se adapte às colunas */
+body.pagina-agendamento #sc_tabela .tabela th,
+body.pagina-agendamento #sc_tabela .tabela td {
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+/* Mantém o cabeçalho fixo durante a rolagem vertical */
+body.pagina-agendamento #sc_tabela .tabela thead th {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+
+/* Telas menores */
+@media (max-width: 700px) {
+    body.pagina-agendamento #sc_tabela {
+        width: 96%;
+        overflow-x: auto;
+        overflow-y: auto;
+    }
+
+    body.pagina-agendamento #sc_tabela .tabela {
+        min-width: 650px;
+        max-width: none;
+        table-layout: auto;
+    }
+}
+
+
+
+/* HISTÓRICO DE PEDIDOS — RESPONSIVIDADE E PADRONIZAÇÃO - Regras limitadas à tela de histórico */
+
+/* Fonte Roca One */
+@font-face {
+    font-family: "Roca One";
+    src: url("fonts/roca-one-regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Impede rolagem horizontal na página inteira */
+body.pagina-historico {
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+body.pagina-historico *,
+body.pagina-historico *::before,
+body.pagina-historico *::after {
+    box-sizing: border-box;
+}
+
+/* BOTÃO PRODUTOS MAIS VENDIDOS */
+
+body.pagina-historico .btn-ranking {
+    font-family: "Roca One", serif !important;
+    font-size: 24px !important;
+    color: #f8c471 !important;
+
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
+}
+
+body.pagina-historico .btn-ranking:hover,
+body.pagina-historico .btn-ranking:focus-visible {
+    color: #f8c471 !important;
+}
+
+/* BOTÃO BAIXAR PDF */
+
+body.pagina-historico .btn-baixar-pdf {
+    font-size: 18px !important;
+    color: #f8c471 !important;
+
+    max-width: 100%;
+    white-space: nowrap;
+}
+
+body.pagina-historico .btn-baixar-pdf:hover,
+body.pagina-historico .btn-baixar-pdf:focus-visible {
+    color: #f8c471 !important;
+}
+
+/* CABEÇALHO RESPONSIVO */
+
+body.pagina-historico .topo-cabecalho {
+    width: 95%;
+    max-width: 100%;
+    margin: 30px auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+body.pagina-historico .grupo-esquerda,
+body.pagina-historico .titulo-historico,
+body.pagina-historico .grupo-direita {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    min-width: 0;
+}
+
+body.pagina-historico .grupo-direita {
+    justify-content: flex-end;
+    flex: 1 1 auto;
+}
+
+body.pagina-historico #painel_metricas {
+    min-width: 0;
+    max-width: 100%;
+}
+
+body.pagina-historico .busca-box {
+    width: 315px;
+    max-width: 100%;
+    min-width: 0;
+}
+
+body.pagina-historico #inputBusca {
+    min-width: 0;
+    width: 100%;
+}
+
+body.pagina-historico .total-faturado-box {
+    max-width: 100%;
+}
+
+/* TABELA — COMPUTADOR */
+
+body.pagina-historico #sc_tabela {
+    width: 90%;
+    max-width: 100%;
+    margin: 0 auto 20px !important;
+    padding: 0 !important;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    box-sizing: border-box;
+}
+
+body.pagina-historico #sc_tabela .tabela {
     width: 100% !important;
     min-width: 0 !important;
-    max-width: 100% !important;
+    max-width: 100%;
 
-    padding: 0 !important;
+    table-layout: fixed;
+    border-collapse: collapse;
     margin: 0 !important;
-
-    color: inherit !important;
-
-    font-size: 15px !important;
-    font-weight: 700 !important;
-    line-height: 1.15 !important;
-
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
 }
 
-body.pagina-reposicao #d_modal #lista_sugestoes .sugestao-produto-codigo {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
+/* Cabeçalho fixo, sem alterar o tamanho da fonte */
+body.pagina-historico #sc_tabela .tabela thead th {
+    position: sticky;
+    top: 0;
+    z-index: 20;
 
-    position: absolute !important;
-    top: 5px !important;
-    right: 9px !important;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    vertical-align: middle;
+}
+
+/* Conteúdo adaptável à largura das colunas */
+body.pagina-historico #sc_tabela .tabela th,
+body.pagina-historico #sc_tabela .tabela td {
+    overflow-wrap: anywhere;
+    word-break: normal;
+    white-space: normal;
+    box-sizing: border-box;
+}
+
+/* TABLETS E JANELAS MENORES */
+
+@media (min-width: 701px) and (max-width: 1100px) {
+    body.pagina-historico .topo-cabecalho {
+        align-items: flex-start;
+    }
+
+    body.pagina-historico .grupo-direita {
+        justify-content: flex-start;
+    }
+
+    body.pagina-historico #sc_tabela {
+        width: 96%;
+    }
+}
+
+/* CELULARES */
+
+@media (max-width: 700px) {
+    body.pagina-historico .topo-cabecalho {
+        width: 96%;
+        margin: 15px auto;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    body.pagina-historico .grupo-esquerda,
+    body.pagina-historico .titulo-historico,
+    body.pagina-historico .grupo-direita {
+        width: 100%;
+        justify-content: center;
+    }
+
+    body.pagina-historico .titulo-historico {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    body.pagina-historico .h_ag {
+        max-width: 100%;
+        text-align: center;
+        overflow-wrap: anywhere;
+    }
+
+    body.pagina-historico .btn-ranking {
+        width: 100%;
+    }
+
+    body.pagina-historico .grupo-direita {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    body.pagina-historico .total-faturado-box,
+    body.pagina-historico .busca-box,
+    body.pagina-historico .btn-baixar-pdf,
+    body.pagina-historico .btn-limpar-historico {
+        width: 100%;
+        max-width: 100%;
+        justify-content: center;
+    }
+
+    body.pagina-historico #sc_tabela {
+        width: 96%;
+        max-height: calc(100dvh - 240px);
+        overflow-x: auto;
+        overflow-y: auto;
+        margin-bottom: 20px !important;
+    }
+
+    body.pagina-historico #sc_tabela .tabela {
+        min-width: 750px !important;
+        width: max-content !important;
+        max-width: none;
+        table-layout: auto;
+    }
+
+    body.pagina-historico #sc_tabela .tabela thead th,
+    body.pagina-historico #sc_tabela .tabela tbody td {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (max-width: 400px) {
+    body.pagina-historico #sc_tabela {
+        width: 98%;
+    }
+}
+
+
+/* HISTÓRICO DE PEDIDOS */
+
+body.pagina-historico {
+    overflow-x: hidden;
+}
+
+body.pagina-historico .btn-ranking {
+    font-family: "Roca One", serif !important;
+    font-size: 24px !important;
+    color: #f8c471 !important;
+}
+
+body.pagina-historico #btnExportarPDF {
+    font-size: 18px !important;
+    color: #f8c471 !important;
+}
+
+/* Cabeçalho responsivo */
+body.pagina-historico .topo-cabecalho {
+    width: 95%;
+    max-width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+body.pagina-historico .grupo-esquerda,
+body.pagina-historico .titulo-historico,
+body.pagina-historico .grupo-direita {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    min-width: 0;
+}
+
+body.pagina-historico #painel_metricas {
+    flex: 1 1 500px;
+    min-width: 0;
+}
+
+body.pagina-historico .grupo-direita {
+    justify-content: flex-end;
+}
+
+body.pagina-historico .busca-box {
+    width: 315px;
+    max-width: 100%;
+    min-width: 0;
+}
+
+body.pagina-historico #inputBusca {
+    width: 100%;
+    min-width: 0;
+}
+
+/* Tabela responsiva com rolagem dentro do quadro */
+body.pagina-historico #sc_tabela {
+    width: 95%;
+    max-width: 100%;
+    height: calc(100vh - 180px);
+    height: calc(100dvh - 180px);
+    min-height: 200px;
+    margin: 20px auto !important;
+    overflow: auto !important;
+    box-sizing: border-box;
+}
+
+body.pagina-historico #sc_tabela .tabela {
+    width: 100%;
+    min-width: 750px;
+    margin: 0 !important;
+    border-collapse: collapse;
+}
+
+body.pagina-historico #sc_tabela .tabela thead th {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+body.pagina-historico #sc_tabela .tabela th,
+body.pagina-historico #sc_tabela .tabela td {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+/* Celulares */
+@media (max-width: 700px) {
+    body.pagina-historico .topo-cabecalho {
+        width: 94%;
+        margin: 15px auto;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    body.pagina-historico .grupo-esquerda,
+    body.pagina-historico .titulo-historico,
+    body.pagina-historico #painel_metricas,
+    body.pagina-historico .grupo-direita {
+        width: 100%;
+    }
+
+    body.pagina-historico .titulo-historico,
+    body.pagina-historico .grupo-direita {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    body.pagina-historico .h_ag {
+        font-size: 26px;
+        text-align: center;
+        overflow-wrap: anywhere;
+    }
+
+    body.pagina-historico .btn-ranking,
+    body.pagina-historico .total-faturado-box,
+    body.pagina-historico .busca-box,
+    body.pagina-historico #btnExportarPDF,
+    body.pagina-historico #btnLimparBackup {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    body.pagina-historico #sc_tabela {
+        width: 96%;
+        height: calc(100dvh - 320px);
+        min-height: 180px;
+        margin: 15px auto !important;
+    }
+
+    body.pagina-historico #sc_tabela .tabela {
+        min-width: 750px;
+        width: max-content;
+    }
+}
+
+/* HISTÓRICO DE PEDIDOS — RESPONSIVIDADE CONSOLIDADA */
+
+body.pagina-historico {
+    margin: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+body.pagina-historico *,
+body.pagina-historico *::before,
+body.pagina-historico *::after {
+    box-sizing: border-box;
+}
+
+/* Botão Produtos Mais Vendidos */
+body.pagina-historico .btn-ranking {
+    font-family: "Roca One", serif !important;
+    font-size: 24px !important;
+    color: #f8c471 !important;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+body.pagina-historico .btn-ranking:hover,
+body.pagina-historico .btn-ranking:focus-visible {
+    color: #f8c471 !important;
+}
+
+/* Botão Baixar PDF */
+body.pagina-historico #btnExportarPDF {
+    font-size: 18px !important;
+    color: #f8c471 !important;
+    white-space: nowrap;
+}
+
+body.pagina-historico #btnExportarPDF:hover,
+body.pagina-historico #btnExportarPDF:focus-visible {
+    color: #f8c471 !important;
+}
+
+/* Cabeçalho */
+body.pagina-historico .topo-cabecalho {
+    width: 95%;
+    max-width: 1600px;
+    margin: 24px auto 16px;
+    padding: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+body.pagina-historico .grupo-esquerda {
+    flex: 0 1 auto;
+    min-width: 0;
+}
+
+body.pagina-historico .titulo-historico {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    min-width: 0;
+}
+
+body.pagina-historico .h_ag {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+body.pagina-historico #painel_metricas {
+    flex: 1 1 500px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+body.pagina-historico .grupo-direita {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    min-width: 0;
+}
+
+body.pagina-historico .total-faturado-box {
+    max-width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+body.pagina-historico .busca-box {
+    width: 315px;
+    max-width: 100%;
+    min-width: 0;
+    flex: 0 1 315px;
+}
+
+body.pagina-historico #inputBusca {
+    width: 100%;
+    min-width: 0;
+}
+
+/* Tabela: a rolagem fica dentro do quadro */
+body.pagina-historico #sc_tabela {
+    display: block;
+    width: 95%;
+    max-width: 1600px;
+    height: calc(100vh - 220px);
+    height: calc(100dvh - 220px);
+    min-height: 200px;
+    margin: 0 auto 24px !important;
+    padding: 0 !important;
+    overflow: auto !important;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    box-sizing: border-box;
+}
+
+body.pagina-historico #sc_tabela .tabela {
+    width: 100%;
+    min-width: 850px;
+    margin: 0 !important;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: auto;
+}
+
+/* Cabeçalho da tabela */
+body.pagina-historico #sc_tabela .tabela thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background-color: #000;
+    color: #f8c471;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* Conteúdo: não forçar palavras a ficarem estre
+
+
+/* HISTÓRICO DE PEDIDOS — AJUSTES FINAIS - Responsividade e padronização dos botões */
+
+body.pagina-historico {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+body.pagina-historico *,
+body.pagina-historico *::before,
+body.pagina-historico *::after {
+    box-sizing: border-box;
+}
+
+/* BOTÃO PRODUTOS MAIS VENDIDOS */
+
+body.pagina-historico #btnRankingProdutos {
+    font-family: "Roca One", serif !important;
+    font-size: 24px !important;
+    color: #f8c471 !important;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
+}
+
+body.pagina-historico #btnRankingProdutos:hover,
+body.pagina-historico #btnRankingProdutos:focus-visible {
+    color: #f8c471 !important;
+}
+
+/* BOTÃO BAIXAR PDF */
+
+body.pagina-historico #btnExportarPDF {
+    font-size: 18px !important;
+    color: #f8c471 !important;
+    max-width: 100%;
+    white-space: nowrap;
+}
+
+body.pagina-historico #btnExportarPDF:hover,
+body.pagina-historico #btnExportarPDF:focus-visible {
+    color: #f8c471 !important;
+}
+
+/* CABEÇALHO RESPONSIVO */
+
+body.pagina-historico .topo-cabecalho {
+    width: 95%;
+    max-width: 1600px;
+    margin: 24px auto 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+body.pagina-historico .grupo-esquerda,
+body.pagina-historico .titulo-historico,
+body.pagina-historico .grupo-direita {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    min-width: 0;
+}
+
+body.pagina-historico .grupo-esquerda {
+    flex: 0 1 auto;
+    max-width: 100%;
+}
+
+body.pagina-historico .titulo-historico {
+    max-width: 100%;
+}
+
+body.pagina-historico .h_ag {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+body.pagina-historico #painel_metricas {
+    flex: 1 1 500px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+body.pagina-historico .grupo-direita {
+    justify-content: flex-end;
+    width: 100%;
+}
+
+body.pagina-historico .total-faturado-box {
+    max-width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+body.pagina-historico .busca-box {
+    width: 315px;
+    max-width: 100%;
+    min-width: 0;
+    flex: 0 1 315px;
+}
+
+body.pagina-historico #inputBusca {
+    width: 100%;
+    min-width: 0;
+}
+
+/* TABELA RESPONSIVA */
+
+body.pagina-historico #sc_tabela {
+    display: block;
+    width: 95%;
+    max-width: 1600px;
+    height: calc(100vh - 220px);
+    height: calc(100dvh - 220px);
+    min-height: 200px;
+    margin: 0 auto 24px !important;
+    padding: 0 !important;
+    overflow: auto !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+body.pagina-historico #sc_tabela .tabela {
+    width: 100%;
+    min-width: 850px;
+    max-width: none;
+    margin: 0 !important;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: auto;
+}
+
+/* Cabeçalho fixo durante a rolagem */
+
+body.pagina-historico #sc_tabela .tabela thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background-color: #000;
+    color: #f8c471;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    vertical-align: middle;
+}
+
+/* Conteúdo das células */
+
+body.pagina-historico #sc_tabela .tabela th,
+body.pagina-historico #sc_tabela .tabela td {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    vertical-align: middle;
+}
+
+/* TABLETS */
+
+@media (min-width: 701px) and (max-width: 1100px) {
+    body.pagina-historico .topo-cabecalho {
+        align-items: flex-start;
+    }
+
+    body.pagina-historico .grupo-direita {
+        justify-content: flex-start;
+    }
+
+    body.pagina-historico #sc_tabela {
+        width: 96%;
+    }
+}
+
+/* CELULARES */
+
+@media (max-width: 700px) {
+    body.pagina-historico .topo-cabecalho {
+        width: 94%;
+        margin: 15px auto;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    body.pagina-historico .grupo-esquerda,
+    body.pagina-historico .titulo-historico,
+    body.pagina-historico #painel_metricas,
+    body.pagina-historico .grupo-direita {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    body.pagina-historico .titulo-historico,
+    body.pagina-historico .grupo-direita {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    body.pagina-historico .h_ag {
+        width: 100%;
+        font-size: 26px;
+        text-align: center;
+        overflow-wrap: anywhere;
+    }
+
+    body.pagina-historico #btnRankingProdutos,
+    body.pagina-historico .total-faturado-box,
+    body.pagina-historico .busca-box,
+    body.pagina-historico #btnExportarPDF,
+    body.pagina-historico #btnLimparBackup {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    body.pagina-historico .grupo-direita {
+        gap: 12px;
+    }
+
+    body.pagina-historico .busca-box {
+        flex: 0 1 auto;
+    }
+
+    body.pagina-historico #sc_tabela {
+        width: 96%;
+        height: calc(100vh - 320px);
+        height: calc(100dvh - 320px);
+        min-height: 180px;
+        margin: 15px auto 20px !important;
+        overflow: auto !important;
+    }
+
+    body.pagina-historico #sc_tabela .tabela {
+        width: max-content;
+        min-width: 850px;
+        max-width: none;
+        table-layout: auto;
+    }
+
+    body.pagina-historico #sc_tabela .tabela thead th,
+    body.pagina-historico #sc_tabela .tabela tbody td {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+}
+
+/* CELULARES PEQUENOS */
+
+@media (max-width: 400px) {
+    body.pagina-historico .h_ag {
+        font-size: 23px;
+    }
+
+    body.pagina-historico #btnRankingProdutos {
+        font-size: 24px !important;
+    }
+
+    body.pagina-historico #sc_tabela {
+        width: 98%;
+    }
+}
+
+
+/* HISTÓRICO DE PEDIDOS — RESPONSIVIDADE E ESTILIZAÇÃO */
+
+/* CONTAINER SUPERIOR */
+body.pagina-historico .topo-cabecalho {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 14px !important;
+
+    width: 97% !important;
+    max-width: 100% !important;
+    margin: 20px auto !important;
+    box-sizing: border-box !important;
+}
+
+/* GRUPO DA ESQUERDA */
+body.pagina-historico .grupo-esquerda {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 12px !important;
+
+    flex: 0 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+}
+
+/* TÍTULO E BOTÃO DE PRODUTOS MAIS VENDIDOS */
+body.pagina-historico .titulo-historico {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 12px !important;
 
     width: auto !important;
-    max-width: 130px !important;
+    min-width: 0 !important;
+}
+
+/* TÍTULO HISTÓRICO DE PEDIDOS */
+body.pagina-historico .h_ag {
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+
+    font-size: clamp(20px, 1.6vw, 30px) !important;
+    white-space: nowrap !important;
+}
+
+/* PRODUTOS MAIS VENDIDOS */
+body.pagina-historico #btnRankingProdutos,
+body.pagina-historico .btn-ranking {
+    flex: 0 1 auto !important;
+    width: auto !important;
+    min-width: max-content !important;
+    max-width: none !important;
 
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 8px 12px !important;
 
-    color: #d7c4a8 !important;
+    font-family: "Roca One", sans-serif !important;
+    font-size: 24px !important;
+    color: #f8c471 !important;
 
-    font-family: Arial, sans-serif !important;
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    line-height: 1 !important;
-
-    text-align: right !important;
     white-space: nowrap !important;
-
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    box-sizing: border-box !important;
 }
 
-body.pagina-reposicao #d_modal #lista_sugestoes li:hover,
-body.pagina-reposicao #d_modal #lista_sugestoes li.ativo {
-    color: #1c1c1c !important;
-    background: #efac4a !important;
+/* PAINEL DE MÉTRICAS */
+body.pagina-historico #painel_metricas {
+    display: flex !important;
+    flex: 0 1 auto !important;
+    align-items: center !important;
+
+    width: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
 }
 
-body.pagina-reposicao #d_modal #lista_sugestoes li:hover .sugestao-produto-codigo,
-body.pagina-reposicao #d_modal #lista_sugestoes li.ativo .sugestao-produto-codigo {
-    color: #4d351e !important;
+/* GRUPO DA DIREITA: FATURAMENTO, BUSCA E BOTÕES */
+body.pagina-historico .grupo-direita {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
 }
 
-body.pagina-reposicao #d_modal #lista_sugestoes .sem-resultado-busca {
-    min-height: 38px !important;
-    height: 38px !important;
+/* FATURAMENTO */
+body.pagina-historico .total-faturado-box {
+    display: flex !important;
+    flex: 0 1 auto !important;
+    align-items: center !important;
 
-    padding: 6px 12px !important;
+    width: auto !important;
+    min-width: max-content !important;
+    margin: 0 !important;
 
-    color: #bfae96 !important;
-    background: #242424 !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
 }
 
-body.pagina-reposicao #d_modal #lista_sugestoes::-webkit-scrollbar {
-    width: 7px !important;
+/* CAMPO DE PESQUISA */
+body.pagina-historico .busca-box {
+    display: flex !important;
+    flex: 1 1 180px !important;
+    align-items: center !important;
+
+    width: auto !important;
+    min-width: 120px !important;
+    max-width: 260px !important;
+    margin: 0 !important;
 }
 
-body.pagina-reposicao #d_modal #lista_sugestoes::-webkit-scrollbar-track {
-    background: #1c1c1c !important;
+body.pagina-historico #inputBusca {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
 }
 
-body.pagina-reposicao #d_modal #lista_sugestoes::-webkit-scrollbar-thumb {
-    background: #dbb57c !important;
-    border-radius: 10px !important;
-}
-
-body.pagina-reposicao #d_modal #lista_sugestoes::-webkit-scrollbar-thumb:hover {
-    background: #c2904b !important;
-}
-
-/* O botão "Baixar Lista" fica restrito à Reposição. */
-body.pagina-reposicao #b_imprimir_lista {
+/* BOTÕES BAIXAR PDF E LIMPAR */
+body.pagina-historico #btnExportarPDF,
+body.pagina-historico .btn-baixar-pdf,
+body.pagina-historico #btnLimparBackup,
+body.pagina-historico .btn-limpar-historico {
     display: inline-flex !important;
+    flex: 0 0 auto !important;
     align-items: center !important;
     justify-content: center !important;
 
-    min-width: 150px;
-    height: 45px;
-
-    padding: 10px 20px !important;
-
-    background: #1c1c1c !important;
-    color: #ffc27a !important;
-
-    border: none !important;
-    border-radius: 5px !important;
-
-    font-family: "Roca One", sans-serif !important;
-    font-size: 18px !important;
-    font-weight: bold !important;
+    width: auto !important;
+    min-width: max-content !important;
+    max-width: none !important;
+    margin: 0 !important;
 
     white-space: nowrap !important;
+    box-sizing: border-box !important;
+}
+
+/* FONTE DO BOTÃO BAIXAR PDF */
+body.pagina-historico #btnExportarPDF,
+body.pagina-historico .btn-baixar-pdf {
+    font-family: "Roca One", sans-serif !important;
+    font-size: 18px !important;
+}
+
+/* RESPONSIVIDADE — TELAS MÉDIAS */
+
+@media (max-width: 1400px) and (min-width: 1101px) {
+    body.pagina-historico .topo-cabecalho {
+        gap: 8px !important;
+        width: 99% !important;
+    }
+
+    body.pagina-historico .grupo-esquerda,
+    body.pagina-historico .titulo-historico,
+    body.pagina-historico .grupo-direita {
+        gap: 7px !important;
+    }
+
+    body.pagina-historico .h_ag {
+        font-size: clamp(18px, 1.45vw, 25px) !important;
+    }
+
+    body.pagina-historico #btnRankingProdutos,
+    body.pagina-historico .btn-ranking {
+        font-size: 20px !important;
+        padding: 7px 8px !important;
+    }
+
+    body.pagina-historico #btnExportarPDF,
+    body.pagina-historico .btn-baixar-pdf {
+        font-size: 16px !important;
+    }
+
+    body.pagina-historico .busca-box {
+        min-width: 100px !important;
+        max-width: 190px !important;
+    }
+}
+
+/* RESPONSIVIDADE — TABLETS E JANELAS MENORES */
+
+@media (max-width: 1100px) {
+    body.pagina-historico .topo-cabecalho {
+        flex-wrap: wrap !important;
+        justify-content: flex-start !important;
+        gap: 12px !important;
+        width: 96% !important;
+    }
+
+    body.pagina-historico .grupo-esquerda {
+        flex-wrap: wrap !important;
+        flex: 1 1 100% !important;
+        width: 100% !important;
+    }
+
+    body.pagina-historico .titulo-historico {
+        flex-wrap: wrap !important;
+        width: 100% !important;
+    }
+
+    body.pagina-historico .h_ag {
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    body.pagina-historico #btnRankingProdutos,
+    body.pagina-historico .btn-ranking {
+        max-width: 100% !important;
+        white-space: normal !important;
+        font-size: 22px !important;
+    }
+
+    body.pagina-historico #painel_metricas {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+    }
+
+    body.pagina-historico .grupo-direita {
+        flex-wrap: wrap !important;
+        justify-content: flex-start !important;
+        flex: 1 1 100% !important;
+        width: 100% !important;
+    }
+
+    body.pagina-historico .busca-box {
+        flex: 1 1 200px !important;
+        max-width: none !important;
+    }
+}
+
+/* RESPONSIVIDADE — CELULARES */
+
+@media (max-width: 600px) {
+    body.pagina-historico .topo-cabecalho {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 14px !important;
+        width: 94% !important;
+        margin: 14px auto !important;
+    }
+
+    body.pagina-historico .grupo-esquerda,
+    body.pagina-historico .titulo-historico,
+    body.pagina-historico .grupo-direita {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 100% !important;
+        gap: 10px !important;
+    }
+
+    body.pagina-historico .h_ag {
+        font-size: clamp(21px, 6vw, 28px) !important;
+        white-space: normal !important;
+    }
+
+    body.pagina-historico #btnRankingProdutos,
+    body.pagina-historico .btn-ranking {
+        width: 100% !important;
+        min-width: 0 !important;
+        font-size: 20px !important;
+        text-align: center !important;
+    }
+
+    body.pagina-historico #painel_metricas,
+    body.pagina-historico .total-faturado-box,
+    body.pagina-historico .busca-box {
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0 !important;
+    }
+
+    body.pagina-historico #inputBusca {
+        width: 100% !important;
+    }
+
+    body.pagina-historico #btnExportarPDF,
+    body.pagina-historico .btn-baixar-pdf,
+    body.pagina-historico #btnLimparBackup,
+    body.pagina-historico .btn-limpar-historico {
+        width: 100% !important;
+        min-width: 0 !important;
+        font-size: 16px !important;
+    }
+}
+
+/* TABELA / LISTAGEM DO HISTÓRICO */
+
+@media (max-width: 768px) {
+    body.pagina-historico .tabela-container,
+    body.pagina-historico .table-container,
+    body.pagina-historico .historico-container {
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    body.pagina-historico table {
+        max-width: 100% !important;
+    }
+
+    body.pagina-historico th,
+    body.pagina-historico td {
+        white-space: nowrap;
+    }
+}
+
+/* AJUSTE DA BUSCA — REMOVER ESPAÇO APÓS A LUPA */
+
+body.pagina-historico .busca-box {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0 !important;
+    column-gap: 0 !important;
+}
+
+body.pagina-historico .busca-box i,
+body.pagina-historico .busca-box svg,
+body.pagina-historico .busca-box .fa,
+body.pagina-historico .busca-box .fas,
+body.pagina-historico .busca-box .bi-search {
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+body.pagina-historico .busca-box input,
+body.pagina-historico #inputBusca {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+}
+
+/* BOTÃO PRODUTOS MAIS VENDIDOS */
+
+body.pagina-historico #btnRankingProdutos,
+body.pagina-historico .btn-ranking {
+    font-family: "Roca One", sans-serif !important;
+    font-size: 24px !important;
+    color: #f8c471 !important;
+
+    width: auto !important;
+    min-width: max-content !important;
+    max-width: none !important;
+
+    white-space: nowrap !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-historico #btnRankingProdutos.btn-ranking {
+    font-weight: bold !important;
+}
+
+
+/* REPOSIÇÃO — AJUSTES FINAIS */
+
+/* Evita que os elementos ultrapassem a tela */
+body.pagina-reposicao {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    overflow-x: hidden !important;
+}
+
+body.pagina-reposicao *,
+body.pagina-reposicao *::before,
+body.pagina-reposicao *::after {
+    box-sizing: border-box;
+}
+
+/* CABEÇALHO RESPONSIVO */
+
+body.pagina-reposicao .d_util {
+    width: 95%;
+    max-width: 100%;
+    margin: 30px auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+body.pagina-reposicao .header-acoes {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+body.pagina-reposicao .h_ag {
+    flex-shrink: 0;
+    max-width: 100%;
+}
+
+body.pagina-reposicao #d_inp {
+    flex: 1 1 220px;
+    min-width: 0;
+    max-width: 100%;
+    margin-left: auto;
+}
+
+body.pagina-reposicao .busca-box {
+    width: 315px;
+    max-width: 100%;
+    min-width: 0;
+}
+
+body.pagina-reposicao #inputBusca {
+    width: 100%;
+    min-width: 0;
+}
+
+/* BOTÕES — MANTÉM O DESIGN ORIGINAL */
+
+body.pagina-reposicao #b_addq,
+body.pagina-reposicao #b_apagar_prod,
+body.pagina-reposicao #b_limpar_lista {
+    font-family: "Roca One", sans-serif !important;
+    font-size: 24px !important;
+    color: #f8c471 !important;
+    max-width: 100%;
+    white-space: normal;
+}
+
+body.pagina-reposicao #b_addq span,
+body.pagina-reposicao #b_apagar_prod span,
+body.pagina-reposicao #b_limpar_lista span {
+    font-family: "Roca One", sans-serif !important;
+    font-size: 24px !important;
+    color: #f8c471 !important;
+}
+
+/* Baixar Lista: mesmo design, somente fonte menor */
+
+body.pagina-reposicao #b_imprimir_lista {
+    font-family: "Roca One", sans-serif !important;
+    font-size: 18px !important;
+    color: #f8c471 !important;
+    background-color: #1c1c1c;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    width: auto;
+    min-height: 45px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s;
+    white-space: normal;
+    max-width: 100%;
+}
+
+body.pagina-reposicao #b_imprimir_lista span {
+    font-family: "Roca One", sans-serif !important;
+    font-size: 18px !important;
+    color: #f8c471 !important;
 }
 
 body.pagina-reposicao #b_imprimir_lista:hover {
+    filter: none;
+}
+
+/* TABELA — SOMENTE REMOVER SCROLL HORIZONTAL - Não altera cores, bordas, fontes ou linhas */
+
+body.pagina-reposicao #sc_tabela {
+    width: 90% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
+body.pagina-reposicao #sc_tabela .tabela {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: auto;
+}
+
+/* Permite que o texto se ajuste à largura disponível */
+body.pagina-reposicao #sc_tabela .tabela th,
+body.pagina-reposicao #sc_tabela .tabela td {
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+/* NOTEBOOKS E TABLETS */
+
+@media screen and (max-width: 1100px) {
+    body.pagina-reposicao .d_util {
+        width: 96%;
+        gap: 12px;
+    }
+
+    body.pagina-reposicao .header-acoes {
+        flex: 1 1 100%;
+        justify-content: flex-start;
+    }
+
+    body.pagina-reposicao #b_addq,
+    body.pagina-reposicao #b_apagar_prod,
+    body.pagina-reposicao #b_limpar_lista {
+        width: auto;
+        flex: 1 1 180px;
+    }
+
+    body.pagina-reposicao #d_inp {
+        flex: 1 1 250px;
+        margin-left: 0;
+    }
+
+    body.pagina-reposicao #b_imprimir_lista {
+        flex: 0 1 auto;
+    }
+
+    body.pagina-reposicao #sc_tabela {
+        width: 96% !important;
+    }
+}
+
+/* CELULARES */
+
+@media screen and (max-width: 700px) {
+    body.pagina-reposicao .d_util {
+        width: 94%;
+        margin: 16px auto 12px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    body.pagina-reposicao .header-acoes {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    body.pagina-reposicao .h_ag {
+        width: 100%;
+        text-align: center;
+        font-size: 26px;
+    }
+
+    body.pagina-reposicao #b_addq,
+    body.pagina-reposicao #b_apagar_prod,
+    body.pagina-reposicao #b_limpar_lista {
+        width: 100%;
+        min-height: 45px;
+        flex: none;
+    }
+
+    body.pagina-reposicao #d_inp {
+        width: 100%;
+        flex: none;
+        margin: 0;
+    }
+
+    body.pagina-reposicao .busca-box {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    body.pagina-reposicao #b_imprimir_lista {
+        width: 100%;
+        min-height: 45px;
+    }
+
+    body.pagina-reposicao #sc_tabela {
+        width: 96% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    body.pagina-reposicao #sc_tabela .tabela {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    body.pagina-reposicao #sc_tabela .tabela th,
+    body.pagina-reposicao #sc_tabela .tabela td {
+        padding: 8px 5px;
+        font-size: 12px;
+        overflow-wrap: anywhere;
+    }
+}
+
+/* CELULARES ESTREITOS */
+
+@media screen and (max-width: 380px) {
+    body.pagina-reposicao .h_ag {
+        font-size: 23px;
+        padding: 10px;
+    }
+
+    body.pagina-reposicao #b_addq,
+    body.pagina-reposicao #b_apagar_prod,
+    body.pagina-reposicao #b_limpar_lista {
+        padding: 10px;
+        font-size: 21px !important;
+    }
+
+    body.pagina-reposicao #b_addq span,
+    body.pagina-reposicao #b_apagar_prod span,
+    body.pagina-reposicao #b_limpar_lista span {
+        font-size: 21px !important;
+    }
+
+    body.pagina-reposicao #sc_tabela .tabela th,
+    body.pagina-reposicao #sc_tabela .tabela td {
+        padding: 6px 3px;
+        font-size: 11px;
+    }
+}
+
+
+/* Responsividade da tela de reposição */
+body.pagina-reposicao {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+body.pagina-reposicao .d_util,
+body.pagina-reposicao #sc_tabela {
+    width: 95%;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+body.pagina-reposicao .d_util *,
+body.pagina-reposicao #sc_tabela * {
+    box-sizing: border-box;
+}
+
+body.pagina-reposicao .header-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+body.pagina-reposicao #d_inp {
+    min-width: 0;
+    max-width: 100%;
+}
+
+body.pagina-reposicao .busca-box {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+body.pagina-reposicao #inputBusca {
+    width: 100%;
+    min-width: 0;
+}
+
+body.pagina-reposicao #sc_tabela {
+    overflow-x: hidden;
+}
+
+body.pagina-reposicao #sc_tabela .tabela {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+}
+
+body.pagina-reposicao #sc_tabela th,
+body.pagina-reposicao #sc_tabela td {
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+/* Tablets */
+@media (max-width: 900px) {
+    body.pagina-reposicao .d_util,
+    body.pagina-reposicao #sc_tabela {
+        width: 96%;
+    }
+
+    body.pagina-reposicao .header-acoes > * {
+        max-width: 100%;
+    }
+
+    body.pagina-reposicao #sc_tabela th,
+    body.pagina-reposicao #sc_tabela td {
+        padding: 6px;
+    }
+}
+
+/* Celulares */
+@media (max-width: 600px) {
+    body.pagina-reposicao .d_util,
+    body.pagina-reposicao #sc_tabela {
+        width: 94%;
+    }
+
+    body.pagina-reposicao .header-acoes {
+        width: 100%;
+    }
+
+    body.pagina-reposicao .header-acoes button,
+    body.pagina-reposicao #b_imprimir_lista {
+        max-width: 100%;
+    }
+
+    body.pagina-reposicao #d_inp {
+        width: 100%;
+    }
+
+    body.pagina-reposicao #sc_tabela th,
+    body.pagina-reposicao #sc_tabela td {
+        padding: 4px 3px;
+        font-size: 12px;
+    }
+}
+
+/* Largura do botão Apagar produto */
+body.pagina-reposicao #b_apagar_prod {
+    width: 218px;
+}
+
+/* Largura do botão Apagar lista */
+body.pagina-reposicao #b_limpar_lista {
+    width: 180px;
+}
+
+/* Largura do botão Adicionar produto */
+body.pagina-reposicao #b_addq {
+    width: 250px;
+}
+
+
+/* REPOSIÇÃO — BUSCA E RESPONSIVIDADE */
+
+/* Busca um pouco menor */
+body.pagina-reposicao .busca-box {
+    width: 270px;
+    max-width: 100%;
+}
+
+body.pagina-reposicao #d_inp {
+    flex: 0 1 270px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+body.pagina-reposicao #inputBusca {
+    width: 100%;
+    min-width: 0;
+}
+
+/* Evita que os elementos ultrapassem a tela */
+body.pagina-reposicao {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+body.pagina-reposicao .d_util {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    width: 95%;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+body.pagina-reposicao .header-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+body.pagina-reposicao .header-acoes > *,
+body.pagina-reposicao #b_imprimir_lista {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Tabela dentro da largura disponível */
+body.pagina-reposicao #sc_tabela {
+    width: 95%;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    overflow-x: hidden;
+}
+
+body.pagina-reposicao #sc_tabela .tabela {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+}
+
+body.pagina-reposicao #sc_tabela th,
+body.pagina-reposicao #sc_tabela td {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+/* Tablets */
+@media screen and (max-width: 900px) {
+    body.pagina-reposicao .d_util,
+    body.pagina-reposicao #sc_tabela {
+        width: 96%;
+    }
+
+    body.pagina-reposicao .header-acoes {
+        gap: 8px;
+    }
+
+    body.pagina-reposicao #d_inp {
+        flex: 1 1 220px;
+    }
+
+    body.pagina-reposicao .busca-box {
+        width: 100%;
+    }
+}
+
+/* Celulares */
+@media screen and (max-width: 600px) {
+    body.pagina-reposicao .d_util {
+        width: 94%;
+        gap: 10px;
+    }
+
+    body.pagina-reposicao .header-acoes {
+        width: 100%;
+    }
+
+    body.pagina-reposicao #d_inp {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+
+    body.pagina-reposicao .busca-box {
+        width: 100%;
+    }
+
+    body.pagina-reposicao #b_imprimir_lista {
+        width: 100%;
+    }
+
+    body.pagina-reposicao #sc_tabela {
+        width: 96%;
+    }
+
+    body.pagina-reposicao #sc_tabela th,
+    body.pagina-reposicao #sc_tabela td {
+        padding: 5px 3px;
+        font-size: 12px;
+    }
+}
+
+
+/* Aumentar o input da coluna Local */
+body.pagina-reposicao .input-local {
+    width: 100%;
+    min-width: 150px;
+    box-sizing: border-box;
+}
+
+/* Largura da coluna Concluir */
+body.pagina-reposicao #sc_tabela .tabela th:nth-child(6),
+body.pagina-reposicao #sc_tabela .tabela td:nth-child(6) {
+    width: 9%!important;
+}
+
+/* Corrigir o corte do texto no campo de busca */
+body.pagina-reposicao .busca-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+body.pagina-reposicao .icone-busca {
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+}
+
+body.pagina-reposicao #inputBusca {
+    flex: 1;
+    width: 0;
+    min-width: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-overflow: clip;
+}
+
+/* Modal Adicionar Quantidade */
+body.pagina-estoque dialog#d_modal {
+    position: fixed !important;
+    inset: 0 !important;
+    margin: auto !important;
+    transform: none !important;
+
+    width: min(560px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px) !important;
+
+    height: fit-content !important;
+    max-height: calc(100dvh - 32px) !important;
+    min-height: 0 !important;
+
+    border: 2px solid #efac4a !important;
+    border-radius: 16px !important;
     background: #1c1c1c !important;
-    color: #ffc27a !important;
-    filter: brightness(1.2);
+    color: #f8c471 !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7) !important;
+
+    box-sizing: border-box !important;
+    overflow: visible !important;
+}
+
+body.pagina-estoque #d_modal .modal_box {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 36px) !important;
+
+    padding: 30px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 15px !important;
+}
+
+body.pagina-estoque #d_modal .inp_m {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-estoque #d_modal #b_addf {
+    width: min(300px, 100%) !important;
+    max-width: 100% !important;
+    margin: 12px auto !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-estoque #d_modal .modal_footer {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+@media (max-width: 560px) {
+    body.pagina-estoque dialog#d_modal {
+        width: calc(100vw - 20px) !important;
+        max-width: calc(100vw - 20px) !important;
+        max-height: calc(100dvh - 20px) !important;
+    }
+}
+
+    body.pagina-estoque #d_modal .modal_box {
+        padding: 18px !important;
+        gap: 12px !important;
+    }
+
+    body.pagina-estoque #d_modal h2 {
+        font-size: 21px !important;
+        padding-right: 25px !important;
+    }
+
+    body.pagina-estoque #d_modal .pm {
+        font-size: 18px !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    body.pagina-estoque #d_modal #b_addf {
+        font-size: 16px !important;
+        padding: 12px !important;
+    }
+
+
+@media (max-height: 550px) {
+    body.pagina-estoque #d_modal .modal_box {
+        padding: 14px 20px !important;
+        gap: 8px !important;
+    }
+
+    body.pagina-estoque #d_modal .modal_footer {
+        padding: 4px !important;
+    }
+}
+
+
+/* 2. CAMPO DE BUSCA — TEXTO AO LADO DA LUPA */
+
+body.pagina-estoque .busca-box {
+    display: flex !important;
+    align-items: center !important;
+    position: relative !important;
+}
+
+body.pagina-estoque .busca-box .icone-busca {
+    position: absolute !important;
+    left: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+    pointer-events: none !important;
+}
+
+body.pagina-estoque #inputBusca {
+    flex: 1 1 auto !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    height: 100% !important;
+
+    padding: 6px 8px 6px 36px !important;
+    margin: 0 !important;
+
+    text-align: left !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-estoque #inputBusca::placeholder {
+    text-align: left !important;
+}
+
+
+/* 3. COLUNA STATUS — ALINHAMENTO À ESQUERDA */
+
+body.pagina-estoque #sc_tabela .tabela thead th.coluna-status,
+body.pagina-estoque #sc_tabela .tabela tbody td.coluna-status {
+    text-align: left !important;
+    vertical-align: middle !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela td.coluna-status .select-status-produto {
+    display: block !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+    text-align: left !important;
+}
+
+/* ESTOQUE — MODAL SEM SCROLL INTERNO */
+
+body.pagina-estoque dialog#d_modal {
+    overflow: visible !important;
+    max-height: calc(100dvh - 20px) !important;
+}
+
+body.pagina-estoque #d_modal .modal_box {
+    overflow-y: hidden !important;
+    max-height: calc(100dvh - 20px) !important;
+}
+
+
+/* ESTOQUE — DIMINUIR CÓDIGO E MANTER PRODUTO EM UMA LINHA */
+
+/* Coluna Código */
+body.pagina-estoque #sc_tabela .tabela th:nth-child(2),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(2) {
+    width: 75px !important;
+    min-width: 75px !important;
+    max-width: 75px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+}
+
+/* Coluna Produto */
+body.pagina-estoque #sc_tabela .tabela th:nth-child(3),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(3) {
+    white-space: nowrap !important;
+    min-width: 150px !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+}
+
+/* ESTOQUE — AJUSTE DAS COLUNAS PRODUTO, CATEGORIA E CÓDIGO */
+
+/* Código — números centralizados */
+body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(2) {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+/* Produto — um pouco mais de espaço */
+body.pagina-estoque #sc_tabela .tabela th:nth-child(3),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(3) {
+    min-width: 180px !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+}
+
+/* Categoria — um pouco mais estreita */
+body.pagina-estoque #sc_tabela .tabela th:nth-child(4),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(4) {
+    width: 100px !important;
+    min-width: 100px !important;
+    max-width: 100px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    box-sizing: border-box !important;
+}
+
+/* PRODUTO — aumenta mais um pouco a largura */
+body.pagina-estoque #sc_tabela .tabela th:nth-child(3),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(3) {
+    min-width: 200px !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+}
+
+/* PREÇO — diminui um pouco a largura */
+body.pagina-estoque #sc_tabela .tabela th:nth-child(5),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(5) {
+    width: 85px !important;
+    min-width: 85px !important;
+    max-width: 85px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    box-sizing: border-box !important;
+}
+
+/* CENTRALIZAR SUGESTÕES DE PRODUTOS — NOVA COMPRA FIADO */
+#d_modal_produtos #lista_produtos {
+    width: 100%;
+    max-width: 100%;
+    margin: 10px auto;
+    padding: 0;
+    box-sizing: border-box;
+    list-style: none;
+}
+
+#d_modal_produtos #lista_produtos li {
+    width: 100%;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+
+/* AGENDAMENTO — AJUSTE DAS LARGURAS DAS COLUNAS */
+
+body.pagina-agendamento #sc_tabela .tabela {
+    table-layout: fixed !important;
+}
+
+/* Nome */
+body.pagina-agendamento #sc_tabela .tabela th:nth-child(1),
+body.pagina-agendamento #sc_tabela .tabela td:nth-child(1) {
+    width: 22% !important;
+}
+
+/* Produto — diminui a largura */
+body.pagina-agendamento #sc_tabela .tabela th:nth-child(2),
+body.pagina-agendamento #sc_tabela .tabela td:nth-child(2) {
+    width: 16% !important;
+}
+
+/* Preço — aumenta levemente */
+body.pagina-agendamento #sc_tabela .tabela th:nth-child(3),
+body.pagina-agendamento #sc_tabela .tabela td:nth-child(3) {
+    width: 13% !important;
+}
+
+/* Qtd Total — aumenta levemente */
+body.pagina-agendamento #sc_tabela .tabela th:nth-child(4),
+body.pagina-agendamento #sc_tabela .tabela td:nth-child(4) {
+    width: 13% !important;
+}
+
+/* Origem — aumenta levemente */
+body.pagina-agendamento #sc_tabela .tabela th:nth-child(5),
+body.pagina-agendamento #sc_tabela .tabela td:nth-child(5) {
+    width: 12% !important;
+}
+
+/* Data — aumenta levemente */
+body.pagina-agendamento #sc_tabela .tabela th:nth-child(6),
+body.pagina-agendamento #sc_tabela .tabela td:nth-child(6) {
+    width: 15% !important;
+}
+
+/* Concluir — espaço para o conteúdo */
+body.pagina-agendamento #sc_tabela .tabela th:nth-child(7),
+body.pagina-agendamento #sc_tabela .tabela td:nth-child(7) {
+    width: 9% !important;
+}
+
+/* Mantém os títulos e ícones de ordenação juntos */
+body.pagina-agendamento #sc_tabela .tabela thead th {
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+}
+
+/* Evita que o texto das células quebre em várias linhas */
+body.pagina-agendamento #sc_tabela .tabela tbody td {
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    overflow-wrap: normal !important;
+}
+
+#sc_tabela {
+    overflow-x: hidden !important;
+}
+
+#sc_tabela .tabela {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+}
+
+/* Remove o scroll horizontal da tabela de agendamento */
+body.pagina-agendamento #sc_tabela {
+    width: 90% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+}
+
+body.pagina-agendamento #sc_tabela .tabela {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+}
+
+/* Sobrescreve a largura mínima definida no celular */
+@media (max-width: 700px) {
+    body.pagina-agendamento #sc_tabela {
+        width: 96% !important;
+        overflow-x: hidden !important;
+    }
+
+    body.pagina-agendamento #sc_tabela .tabela {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        table-layout: fixed !important;
+    }
+}
+
+/* Diminui a largura da tabela de estoque */
+#tabelaEstoque {
+    width: 90% !important;
+    max-width: 90% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-sizing: border-box;
+}
+
+
+/* Diminuir somente a largura da tabela de estoque */
+body.pagina-estoque #sc_tabela {
+    width: 85% !important;
+    max-width: 85% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+
+/* Mesma largura da tabela de agendamento */
+body.pagina-estoque #sc_tabela {
+    width: 90% !important;
+    max-width: 90% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-sizing: border-box !important;
+}
+
+/* ESTOQUE — MESMA LARGURA DA TABELA DE AGENDAMENTO */
+body.pagina-estoque #sc_tabela {
+    width: 90% !important;
+    max-width: 90% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+    box-sizing: border-box !important;
+}
+
+/* AGENDAMENTO — MAIS ESPAÇO PARA PRODUTO */
+body.pagina-agendamento #sc_tabela .tabela {
+    width: 100% !important;
+    table-layout: fixed !important;
+}
+
+/* Nome */
+body.pagina-agendamento #sc_tabela .tabela th:nth-child(1),
+body.pagina-agendamento #sc_tabela .tabela td:nth-child(1) {
+    width: 12% !important;
+}
+
+/* Produto */
+body.pagina-agendamento #sc_tabela .tabela th:nth-child(2),
+body.pagina-agendamento #sc_tabela .tabela td:nth-child(2) {
+    width: 38% !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+}
+
+/* Preço */
+body.pagina-agendamento #sc_tabela .tabela th:nth-child(3),
+body.pagina-agendamento #sc_tabela .tabela td:nth-child(3) {
+    width: 8% !important;
+}
+
+/* Quantidade Total */
+body.pagina-agendamento #sc_tabela .tabela th:nth-child(4),
+body.pagina-agendamento #sc_tabela .tabela td:nth-child(4) {
+    width: 5% !important;
+    padding-left: 1px !important;
+    padding-right: 1px !important;
+}
+
+/* Origem */
+body.pagina-agendamento #sc_tabela .tabela th:nth-child(5),
+body.pagina-agendamento #sc_tabela .tabela td:nth-child(5) {
+    width: 9% !important;
+}
+
+/* Data */
+body.pagina-agendamento #sc_tabela .tabela th:nth-child(6),
+body.pagina-agendamento #sc_tabela .tabela td:nth-child(6) {
+    width: 11% !important;
+}
+
+/* Concluir */
+body.pagina-agendamento #sc_tabela .tabela th:nth-child(7),
+body.pagina-agendamento #sc_tabela .tabela td:nth-child(7) {
+    width: 12% !important;
+}
+
+/* AGENDAMENTO — AJUSTE DAS COLUNAS */
+
+/* Quantidade Total: centralizar texto */
+body.pagina-agendamento #sc_tabela .tabela th:nth-child(4),
+body.pagina-agendamento #sc_tabela .tabela td:nth-child(4) {
+    text-align: center !important;
+    vertical-align: middle !important;
+    width: 6% !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+}
+
+/* Data: aumentar espaço */
+body.pagina-agendamento #sc_tabela .tabela th:nth-child(6),
+body.pagina-agendamento #sc_tabela .tabela td:nth-child(6) {
+    width: 15% !important;
+}
+
+/* Concluir: diminuir espaço */
+body.pagina-agendamento #sc_tabela .tabela th:nth-child(7),
+body.pagina-agendamento #sc_tabela .tabela td:nth-child(7) {
+    width: 8% !important;
+}
+
+/* ============================================================
+   ESTOQUE — MODAL DE ML NO MESMO PADRÃO DOS OUTROS MODAIS
+============================================================ */
+body.pagina-estoque #d_modal_liquidos {
+    width: min(600px, calc(100vw - 32px));
+    max-width: 95%;
+    height: auto;
+    max-height: calc(100dvh - 32px);
+    padding: 0;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    background: #1c1c1c;
+    color: #f8c471;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, .7);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+body.pagina-estoque #d_modal_liquidos::backdrop {
+    background: rgba(0, 0, 0, .85);
+    backdrop-filter: blur(4px);
+}
+
+body.pagina-estoque #d_modal_liquidos .modal_box {
+    width: 100%;
+    height: auto;
+    max-height: calc(100dvh - 36px);
+    padding: 30px;
+    padding-bottom: 20px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+body.pagina-estoque #d_modal_liquidos .modal_titulo {
+    margin-top: 8px;
+    padding-right: 28px;
+}
+
+body.pagina-estoque #d_modal_liquidos .fechar-modal-liquidos {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    float: none;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #efac4a;
+    font-size: 27px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+body.pagina-estoque #d_modal_liquidos .pmf {
+    margin: 0;
+}
+
+body.pagina-estoque #d_modal_liquidos .produtos-selecionados-ml {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+}
+
+body.pagina-estoque #d_modal_liquidos .produto-selecionado-ml {
+    border: 1px solid #efac4a;
+    border-radius: 8px;
+    padding: 8px 12px;
+    background: rgba(239, 172, 74, .10);
+    color: #f8d8a8;
+    font-weight: 600;
+}
+
+body.pagina-estoque #d_modal_liquidos .liquidos-form-volume {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+body.pagina-estoque #d_modal_liquidos .liquidos-form-volume label {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    color: #efac4a;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+body.pagina-estoque #d_modal_liquidos .liquidos-form-volume .inp_m {
+    width: 100%;
+    min-height: 42px;
+    box-sizing: border-box;
+}
+
+body.pagina-estoque #d_modal_liquidos #btnSalvarEstoqueMl {
+    min-height: 42px;
+    white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+    body.pagina-estoque #d_modal_liquidos .modal_box {
+        padding: 22px 18px;
+    }
+
+    body.pagina-estoque #d_modal_liquidos .liquidos-form-volume {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* AJUSTES FINAIS — TABELA SEM A COLUNA VAZIA E MODAL MAIS COMPACTO */
+body.pagina-estoque #sc_tabela {
+    width: 90% !important;
+    max-width: 90% !important;
+    margin-top: 30px !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela {
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+}
+
+/* Código */
+body.pagina-estoque #sc_tabela .tabela th:nth-child(1),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(1) {
+    width: 75px !important;
+    min-width: 75px !important;
+    max-width: 75px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+}
+
+/* Produto */
+body.pagina-estoque #sc_tabela .tabela th:nth-child(2),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(2) {
+    min-width: 200px !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+}
+
+/* Categoria */
+body.pagina-estoque #sc_tabela .tabela th:nth-child(3),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(3) {
+    width: 100px !important;
+    min-width: 100px !important;
+    max-width: 100px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    box-sizing: border-box !important;
+}
+
+/* Preço */
+body.pagina-estoque #sc_tabela .tabela th:nth-child(4),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(4) {
+    width: 85px !important;
+    min-width: 85px !important;
+    max-width: 85px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    box-sizing: border-box !important;
+}
+
+@media (max-width: 768px) {
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(8) {
+        grid-column: 1 / -1;
+    }
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(8)::before {
+        content: "Status: ";
+        font-weight: 700;
+    }
+}
+
+body.pagina-estoque #d_modal_liquidos {
+    width: min(540px, calc(100vw - 32px));
+}
+
+body.pagina-estoque #d_modal_liquidos .modal_box {
+    padding: 18px 24px 16px;
+}
+
+body.pagina-estoque #d_modal_liquidos .modal_titulo {
+    margin-top: 2px;
+    margin-bottom: 8px;
+}
+
+body.pagina-estoque #d_modal_liquidos .pmf {
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+body.pagina-estoque #d_modal_liquidos .produtos-selecionados-ml {
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+body.pagina-estoque #d_modal_liquidos .produto-selecionado-ml {
+    padding: 6px 10px;
+}
+
+body.pagina-estoque #d_modal_liquidos .liquidos-form-volume {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 9px;
+    margin-top: 0;
+}
+
+body.pagina-estoque #d_modal_liquidos .liquidos-form-volume label {
+    gap: 5px;
+}
+
+body.pagina-estoque #d_modal_liquidos .liquidos-form-volume .inp_m,
+body.pagina-estoque #d_modal_liquidos #btnSalvarEstoqueMl {
+    min-height: 38px;
+}
+
+body.pagina-estoque #d_modal_liquidos #btnSalvarEstoqueMl {
+    width: 100%;
+}
+
+@media (max-width: 600px) {
+    body.pagina-estoque #d_modal_liquidos .modal_box {
+        padding: 16px 18px;
+    }
+}
+
+/* ============================================================
+   ESTOQUE — REMOÇÃO DEFINITIVA DA COLUNA DE SELEÇÃO ANTIGA
+   A tabela atual começa diretamente pela coluna Código.
+============================================================ */
+body.pagina-estoque #sc_tabela .tabela {
+    table-layout: fixed !important;
+    width: 100% !important;
+}
+
+/* Larguras proporcionais das oito colunas atuais */
+body.pagina-estoque #sc_tabela .tabela th:nth-child(1),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(1) {
+    width: 8% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+}
+
+/* Força o alinhamento à esquerda especificamente na coluna 2 (Produto) */
+body.pagina-estoque #sc_tabela .tabela thead th:nth-child(2),
+body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(2) {
+    text-align: left !important;
+    justify-content: flex-start !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(3),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(3) {
+    width: 11% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(4),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(4) {
+    width: 9% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(5),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(5),
+body.pagina-estoque #sc_tabela .tabela th:nth-child(6),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(6) {
+    width: 12% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(7),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(7) {
+    width: 10% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(8),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(8) {
+    width: 8% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Corrige os rótulos no modo celular para a tabela sem checkbox */
+@media (max-width: 768px) {
+    body.pagina-estoque #sc_tabela .tabela tbody td:first-child {
+        grid-column: auto !important;
+        text-align: left !important;
+    }
+
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(1)::before { content: "Código: " !important; }
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(2)::before { content: "Produto: " !important; }
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(3)::before { content: "Categoria: " !important; }
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(4)::before { content: "Preço: " !important; }
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(5)::before { content: "Quantidade: " !important; }
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(6)::before { content: "Disponível: " !important; }
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(7)::before { content: "Qtd. mínima: " !important; }
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(8) {
+        grid-column: 1 / -1 !important;
+    }
+    body.pagina-estoque #sc_tabela .tabela tbody td:nth-child(8)::before {
+        content: "Status: " !important;
+        font-weight: 700;
+    }
+}
+/* ============================================================
+   MODAL "CONFIGURAR ML" — COMPACTO E SEM ALTURA EXCESSIVA
+   ============================================================ */
+
+body.pagina-estoque dialog#d_modal_liquidos[open] {
+    display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    margin: auto !important;
+    width: min(460px, calc(100vw - 32px)) !important;
+    height: fit-content !important;
+    min-height: 0 !important;
+    max-height: fit-content !important;
+    padding: 0 !important;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    background: #1c1c1c;
+    color: #f8c471;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.7);
+    overflow: visible !important;
+}
+
+body.pagina-estoque #d_modal_liquidos::backdrop {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+}
+
+body.pagina-estoque dialog#d_modal_liquidos .modal_box.modal-liquidos-conteudo {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 16px 20px !important;
+    gap: 8px !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-estoque #d_modal_liquidos .fechar-modal-liquidos {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: transparent;
+    border: none;
+    color: #efac4a;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+body.pagina-estoque #d_modal_liquidos .modal_titulo {
+    font-size: 19px !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+    padding-right: 28px !important;
+    text-align: left !important;
+}
+
+body.pagina-estoque #d_modal_liquidos .pmf {
+    font-size: 13px !important;
+    line-height: 1.3 !important;
+    margin: 0 !important;
+}
+
+body.pagina-estoque #d_modal_liquidos .produtos-selecionados-ml {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    margin: 2px 0 !important;
+}
+
+body.pagina-estoque #d_modal_liquidos .produto-selecionado-ml {
+    border: 1px solid #efac4a;
+    border-radius: 8px;
+    background: rgba(239, 172, 74, 0.10);
+    color: #f8d8a8;
+    font-weight: 600;
+    padding: 4px 10px !important;
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+}
+
+body.pagina-estoque #d_modal_liquidos .liquidos-form-volume {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    margin: 0 !important;
+}
+
+body.pagina-estoque #d_modal_liquidos .liquidos-form-volume label {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    margin: 0 !important;
+    color: #efac4a;
+    font-size: 13px !important;
+    font-weight: 600;
+}
+
+body.pagina-estoque #d_modal_liquidos .liquidos-form-volume .inp_m {
+    width: 100% !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    font-size: 16px !important;
+    padding: 4px 10px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+body.pagina-estoque #d_modal_liquidos #btnSalvarEstoqueMl {
+    width: 100% !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    margin: 4px 0 0 0 !important;
+    padding: 0 14px !important;
+    border-radius: 8px;
+    background: #efac4a;
+    color: #241a10;
+    font-weight: 700;
+    font-size: 15px !important;
+    cursor: pointer;
+}
+/* ======================================================
+   AGENDAMENTO — CLIENTES DO APP / PEDIDOS NÃO RETIRADOS
+====================================================== */
+body.pagina-agendamento .clientes-app-toolbar {
+    width: 90%;
+    max-width: 100%;
+    margin: 10px auto 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+body.pagina-agendamento #b_clientes_app {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 40px;
+    padding: 9px 16px;
+    border: 1px solid #efac4a;
+    border-radius: 7px;
+    background: #713b00;
+    color: #fff1d6;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .18s ease, transform .18s ease;
+}
+
+body.pagina-agendamento #b_clientes_app:hover {
+    background: #8a4b05;
+    transform: translateY(-1px);
+}
+
+body.pagina-agendamento #badge_clientes_app {
+    display: inline-flex;
+    min-width: 21px;
+    height: 21px;
+    padding: 0 6px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    background: #efac4a;
+    color: #341d04;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+body.pagina-agendamento #badge_clientes_app[hidden] {
+    display: none !important;
+}
+
+body.pagina-agendamento dialog#d_clientes_app {
+    width: min(920px, calc(100vw - 30px));
+    max-width: 920px;
+    max-height: calc(100vh - 34px);
+    margin: auto;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #efac4a;
+    border-radius: 12px;
+    background: #241608;
+    color: #f7e7c8;
+    box-shadow: 0 18px 55px rgba(0, 0, 0, .55);
+}
+
+body.pagina-agendamento dialog#d_clientes_app::backdrop {
+    background: rgba(0, 0, 0, .72);
+    backdrop-filter: blur(3px);
+}
+
+body.pagina-agendamento .clientes-app-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-height: calc(100vh - 34px);
+    padding: 20px;
+    box-sizing: border-box;
+    background: #241608;
+}
+
+body.pagina-agendamento .clientes-app-cabecalho {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0;
+    padding: 0 0 12px;
+    border-bottom: 1px solid rgba(239, 172, 74, .38);
+}
+
+body.pagina-agendamento .clientes-app-cabecalho h3 {
+    margin: 0 0 5px;
+    color: #efac4a;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+body.pagina-agendamento .clientes-app-cabecalho p {
+    margin: 0;
+    color: #ddc7a3;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+body.pagina-agendamento #b_fechar_clientes_app {
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid #efac4a;
+    border-radius: 7px;
+    background: #713b00;
+    color: #fff1d6;
+    font-size: 25px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+body.pagina-agendamento .clientes-app-filtros {
+    display: grid;
+    grid-template-columns: minmax(220px, .7fr) minmax(250px, 1.3fr);
+    gap: 12px;
+    align-items: end;
+}
+
+body.pagina-agendamento .clientes-app-filtros label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    color: #f1dfbf;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+body.pagina-agendamento .clientes-app-filtros select,
+body.pagina-agendamento .clientes-app-filtros input {
+    min-height: 39px;
+    width: 100%;
+    padding: 8px 10px;
+    box-sizing: border-box;
+    border: 1px solid #8b5a22;
+    border-radius: 7px;
+    outline: none;
+    background: #342313;
+    color: #fff1d6;
+    font: inherit;
+    font-size: 13px;
+}
+
+body.pagina-agendamento .clientes-app-filtros select {
+    width: auto;
+    min-width: 95px;
+}
+
+body.pagina-agendamento .clientes-app-filtros input:focus,
+body.pagina-agendamento .clientes-app-filtros select:focus {
+    border-color: #efac4a;
+    box-shadow: 0 0 0 2px rgba(239, 172, 74, .15);
+}
+
+body.pagina-agendamento .clientes-app-resumo {
+    margin: 0;
+    color: #efac4a;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+body.pagina-agendamento .clientes-app-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 90px;
+    max-height: min(55vh, 560px);
+    padding: 2px 5px 2px 0;
+    overflow-y: auto;
+}
+
+body.pagina-agendamento .cliente-app-card {
+    padding: 13px 14px;
+    border: 1px solid rgba(239, 172, 74, .35);
+    border-radius: 9px;
+    background: #321f0d;
+}
+
+body.pagina-agendamento .cliente-app-identificacao {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+body.pagina-agendamento .cliente-app-identificacao h4 {
+    margin: 0 0 3px;
+    color: #fff0d4;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+body.pagina-agendamento .cliente-app-identificacao p {
+    margin: 0 0 3px;
+    color: #dfc8a5;
+    font-size: 12px;
+}
+
+body.pagina-agendamento .cliente-app-identificacao small {
+    color: #bfa986;
+    font-size: 11px;
+}
+
+body.pagina-agendamento .b_bloquear_cliente_app {
+    flex: 0 0 auto;
+    padding: 9px 12px;
+    border: 1px solid #e7a045;
+    border-radius: 7px;
+    background: #713b00;
+    color: #fff0d4;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+body.pagina-agendamento .b_bloquear_cliente_app:hover {
+    background: #8a4b05;
+}
+
+body.pagina-agendamento .cliente-app-status {
+    display: inline-block;
+    max-width: 270px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+}
+
+body.pagina-agendamento .cliente-app-status-ok {
+    background: rgba(90, 135, 83, .17);
+    color: #b9d6a4;
+}
+
+body.pagina-agendamento .cliente-app-status-bloqueado {
+    background: rgba(188, 65, 48, .18);
+    color: #ffb0a4;
+}
+
+body.pagina-agendamento .clientes-app-pedidos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 8px;
+    margin-top: 11px;
+}
+
+body.pagina-agendamento .cliente-app-pedido {
+    padding: 10px;
+    border: 1px solid rgba(239, 172, 74, .28);
+    border-radius: 7px;
+    background: #24180d;
+}
+
+body.pagina-agendamento .cliente-app-pedido p {
+    margin: 5px 0 0;
+    color: #e7d5b8;
+    font-size: 12px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+body.pagina-agendamento .cliente-app-pedido-topo {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px;
+    color: #efac4a;
+    font-size: 12px;
+}
+
+body.pagina-agendamento .cliente-app-pedido-topo span {
+    color: #ffb0a4;
+}
+
+body.pagina-agendamento .cliente-app-sem-pendencia,
+body.pagina-agendamento .clientes-app-vazio {
+    margin: 10px 0 0;
+    color: #bfa986;
+    font-size: 12px;
+}
+
+body.pagina-agendamento .clientes-app-erro {
+    margin: 10px 0 0;
+    color: #ffb0a4;
+    font-size: 13px;
+}
+
+@media (max-width: 650px) {
+    body.pagina-agendamento .clientes-app-toolbar {
+        width: 94%;
+    }
+
+    body.pagina-agendamento .clientes-app-modal {
+        gap: 11px;
+        padding: 14px;
+    }
+
+    body.pagina-agendamento .clientes-app-filtros {
+        grid-template-columns: 1fr;
+    }
+
+    body.pagina-agendamento .cliente-app-identificacao {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    body.pagina-agendamento .cliente-app-status {
+        max-width: 100%;
+    }
+}
+/* ============================================================
+   ESTOQUE — TAMANHO DE FONTE E CABEÇALHO IGUAIS ÀS OUTRAS TELAS
+   ============================================================ */
+
+/* Cabeçalho da tabela: fonte 20px e altura maior */
+body.pagina-estoque #sc_tabela .tabela thead th {
+    font-size: 20px !important;
+    padding: 14px 10px !important;
+    line-height: 1.25 !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+}
+
+/* Corpo da tabela: fonte 16px (padrão das outras telas) */
+body.pagina-estoque #sc_tabela .tabela tbody td {
+    font-size: 16px !important;
+    padding: 12px 10px !important;
+    line-height: 1.3 !important;
+}
+
+/* Ajuste leve no seletor de Status para acompanhar o novo tamanho */
+body.pagina-estoque #sc_tabela .select-status-produto {
+    height: 32px !important;
+    min-height: 32px !important;
+    font-size: 14px !important;
+}
+
+/* Ajuste das larguras proporcionais para os títulos de 20px não cortarem */
+body.pagina-estoque #sc_tabela .tabela th:nth-child(1),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(1) {
+    width: 9% !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(2),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(2) {
+    width: 24% !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(3),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(3) {
+    width: 12% !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(4),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(4) {
+    width: 9% !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(5),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(5),
+body.pagina-estoque #sc_tabela .tabela th:nth-child(6),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(6) {
+    width: 12% !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(7),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(7) {
+    width: 13% !important;
+}
+
+body.pagina-estoque #sc_tabela .tabela th:nth-child(8),
+body.pagina-estoque #sc_tabela .tabela td:nth-child(8) {
+    width: 9% !important;
+}
+/* ============================================================
+   AGENDAMENTO — BOTÃO E MODAL NO MESMO MODELO DO ESTOQUE
+   ============================================================ */
+
+/* Barra superior alinhada como no Estoque */
+body.pagina-agendamento .d_util {
+    width: 90%;
+    margin: 24px auto 12px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* Botão "Clientes do app" idêntico aos botões do Estoque */
+body.pagina-agendamento #b_clientes_app {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    height: 45px !important;
+    padding: 0 20px !important;
+    border: none !important;
+    border-radius: 5px !important;
+    background-color: #1c1c1c !important;
+    color: #f8c471 !important;
+    font-family: "Roca One", sans-serif !important;
+    font-size: 20px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    transition: 0.2s !important;
+}
+
+body.pagina-agendamento #b_clientes_app:hover {
+    filter: brightness(1.2) !important;
+    transform: none !important;
+    background-color: #1c1c1c !important;
+}
+
+body.pagina-agendamento #badge_clientes_app {
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+    font-family: Arial, sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+}
+
+/* Modal de Clientes do App no padrão #1c1c1c + #efac4a do Estoque */
+body.pagina-agendamento dialog#d_clientes_app {
+    width: min(760px, calc(100vw - 32px)) !important;
+    max-width: 95% !important;
+    max-height: calc(100dvh - 32px) !important;
+    padding: 0 !important;
+    border: 2px solid #efac4a !important;
+    border-radius: 16px !important;
+    background: #1c1c1c !important;
+    color: #f8c471 !important;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.75) !important;
+    overflow: hidden !important;
+}
+
+body.pagina-agendamento dialog#d_clientes_app::backdrop {
+    background: rgba(0, 0, 0, 0.85) !important;
+    backdrop-filter: blur(4px) !important;
+}
+
+body.pagina-agendamento .clientes-app-modal {
+    background: #1c1c1c !important;
+    color: #f8c471 !important;
+    padding: 22px 26px !important;
+    gap: 12px !important;
+}
+
+body.pagina-agendamento .clientes-app-cabecalho {
+    border-bottom: 1px solid rgba(239, 172, 74, 0.35) !important;
+    padding-bottom: 10px !important;
+}
+
+body.pagina-agendamento .clientes-app-cabecalho h3 {
+    color: #f8c471 !important;
+    font-size: 22px !important;
+    text-transform: uppercase !important;
+}
+
+body.pagina-agendamento .clientes-app-cabecalho p {
+    color: #efac4a !important;
+    font-size: 13px !important;
+}
+
+/* Botão fechar (X) igual ao #b_close_modal do Estoque */
+body.pagina-agendamento #b_fechar_clientes_app {
+    background: transparent !important;
+    border: none !important;
+    color: #efac4a !important;
+    font-size: 28px !important;
+    font-weight: bold !important;
+    width: auto !important;
+    height: auto !important;
+}
+
+body.pagina-agendamento #b_fechar_clientes_app:hover {
+    color: #f8c471 !important;
+    transform: scale(1.1) !important;
+}
+
+/* Inputs e Select no padrão .inp_m (#fed89d + borda #efac4a) */
+body.pagina-agendamento .clientes-app-filtros label {
+    color: #efac4a !important;
+    font-size: 14px !important;
+}
+
+body.pagina-agendamento .clientes-app-filtros select,
+body.pagina-agendamento .clientes-app-filtros input {
+    background-color: #fed89d !important;
+    color: #1c1c1c !important;
+    border: 3px solid #efac4a !important;
+    border-radius: 10px !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    height: 40px !important;
+}
+
+body.pagina-agendamento .clientes-app-filtros input::placeholder {
+    color: #573e1c !important;
+}
+
+body.pagina-agendamento .clientes-app-resumo {
+    color: #f8c471 !important;
+    font-size: 14px !important;
+}
+
+/* Cards internos dos clientes e pedidos */
+body.pagina-agendamento .cliente-app-card {
+    background: #242424 !important;
+    border: 1px solid #efac4a !important;
+    border-radius: 10px !important;
+}
+
+body.pagina-agendamento .cliente-app-identificacao h4 {
+    color: #f8c471 !important;
+    font-size: 16px !important;
+}
+
+body.pagina-agendamento .cliente-app-identificacao p {
+    color: #e0d0b8 !important;
+}
+
+body.pagina-agendamento .cliente-app-identificacao small {
+    color: #bfae96 !important;
+}
+
+body.pagina-agendamento .cliente-app-pedido {
+    background: #181818 !important;
+    border: 1px solid rgba(239, 172, 74, 0.4) !important;
+    border-radius: 8px !important;
+}
+
+body.pagina-agendamento .cliente-app-pedido-topo {
+    color: #efac4a !important;
+}
+
+body.pagina-agendamento .cliente-app-pedido p {
+    color: #f5eee5 !important;
+}
+
+/* Botão de bloquear cliente no padrão .b_addf do Estoque */
+body.pagina-agendamento .b_bloquear_cliente_app {
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: bold !important;
+    font-size: 13px !important;
+    padding: 9px 14px !important;
+}
+
+body.pagina-agendamento .b_bloquear_cliente_app:hover {
+    filter: brightness(1.1) !important;
+    background: #efac4a !important;
+}
+
+/* Scrollbar da lista no padrão do Estoque */
+body.pagina-agendamento .clientes-app-lista::-webkit-scrollbar {
+    width: 8px !important;
+}
+
+body.pagina-agendamento .clientes-app-lista::-webkit-scrollbar-track {
+    background: #1c1c1c !important;
+}
+
+body.pagina-agendamento .clientes-app-lista::-webkit-scrollbar-thumb {
+    background: #dbb57c !important;
+    border-radius: 8px !important;
+}
+/* Garante que a bolinha de notificação apareça quando não estiver [hidden] */
+body.pagina-agendamento #badge_clientes_app:not([hidden]) {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 24px !important;
+    height: 24px !important;
+    padding: 0 7px !important;
+    border-radius: 999px !important;
+    background-color: #efac4a !important;
+    color: #1c1c1c !important;
+    font-family: Arial, sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    margin-left: 4px !important;
+}
+
+/* Garante abertura e centralização correta do modal */
+body.pagina-agendamento dialog#d_clientes_app[open] {
+    display: flex !important;
+    flex-direction: column !important;
+    position: fixed !important;
+    inset: 0 !important;
+    margin: auto !important;
+    z-index: 99999 !important;
+}
+
+/* ============================================================
+   AGENDAMENTO — EXIBIR NOME E PRODUTOS COMPLETOS NO HOVER
+   Não altera a largura das colunas nem o tamanho da tabela.
+   ============================================================ */
+
+body.pagina-agendamento #sc_tabela .tabela tbody td:nth-child(1),
+body.pagina-agendamento #sc_tabela .tabela tbody td:nth-child(2) {
+    position: relative;
+}
+
+/* Mantém o texto cortado dentro da largura atual da célula */
+body.pagina-agendamento #sc_tabela .texto-completo-tabela {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: help;
+}
+
+/* Ao passar o mouse, permite que o balão apareça fora da célula */
+body.pagina-agendamento #sc_tabela .tabela tbody td:nth-child(1):has(.texto-completo-tabela:hover),
+body.pagina-agendamento #sc_tabela .tabela tbody td:nth-child(2):has(.texto-completo-tabela:hover) {
+    overflow: visible !important;
+    z-index: 40;
+}
+
+/* Balão com o texto completo */
+body.pagina-agendamento #sc_tabela .texto-completo-tabela:hover::after {
+    content: attr(data-texto);
+    position: absolute;
+    left: 0;
+    top: calc(100% + 5px);
+    z-index: 9999;
+    display: block;
+    width: max-content;
+    max-width: min(420px, 70vw);
+    padding: 9px 12px;
+    border: 1px solid #1c1c1c;
+    border-radius: 6px;
+    background: #1c1c1c;
+    color: #f8c471;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.4;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-4px);
+    animation: mostrarTextoCompletoTabela 0.18s ease forwards;
+}
+
+@keyframes mostrarTextoCompletoTabela {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================
+   HOVER — IMPEDIR QUE AS LINHAS DE BAIXO APAREÇAM ATRÁS DO BALÃO
+   ============================================================ */
+
+/* Coloca a linha selecionada acima das demais */
+body.pagina-agendamento #sc_tabela .tabela tbody tr:has(.texto-completo-tabela:hover) {
+    position: relative;
+    z-index: 100;
+}
+
+/* Mantém o bloco preto na frente das outras linhas */
+body.pagina-agendamento #sc_tabela .texto-completo-tabela:hover::after {
+    z-index: 99999;
+}
+
+body.pagina-agendamento .cliente-app-identificacao {
+    align-items: center;
+}
+
+body.pagina-agendamento .b_bloquear_cliente_app {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid #efac4a;
+    border-radius: 8px;
+    background: #713b00;
+    color: #fff0d4;
+    font-size: 19px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background .18s ease, transform .18s ease;
+}
+
+body.pagina-agendamento .b_bloquear_cliente_app:hover {
+    background: #a65312;
+    transform: scale(1.05);
+}
+
+body.pagina-agendamento .b_bloquear_cliente_app:disabled {
+    opacity: .55;
+    cursor: wait;
+    transform: none;
+}
+
+@media (max-width: 650px) {
+    body.pagina-agendamento .cliente-app-identificacao {
+        align-items: flex-start;
+    }
+}
+
+body.pagina-agendamento #busca_clientes_app {
+    width: 100%;
+    min-width: 450px;
+    box-sizing: border-box;
+}
+
+body.pagina-historico #sc_tabela .tabela tbody td {
+    font-size: 14px !important;
+    white-space: nowrap !important;
 }

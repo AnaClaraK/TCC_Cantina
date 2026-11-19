@@ -18,7 +18,10 @@ const {
 =
 require('../config/multer');
 
-const SECRET = "C@ntina_Pr0jeto_2025_!#Z0ne_S3cur3";
+const {
+    aplicarDisponibilidadeReceitas,
+    obterGrupoLiquido
+} = require('../utils/estoqueLiquidos');
 
 
 //--------- Cadastro produtos add
@@ -425,6 +428,7 @@ router.get(
                 );
 
 
+            await aplicarDisponibilidadeReceitas(produtos);
             return res.json(
                 produtos
             );
@@ -490,6 +494,7 @@ router.get(
             }
 
 
+            await aplicarDisponibilidadeReceitas(rows);
             res.json(rows);
 
 
@@ -673,36 +678,90 @@ router.put(
                     : null;
 
 
-            await conexao.query(
-                `
-                UPDATE produtos
-                SET
-                    nome = ?,
-                    codigo_barras = ?,
-                    preco = ?,
-                    qtd = ?,
-                    qtd_min = ?,
-                    descricao = ?,
-                    valor_bruto = ?,
-                    porcentagem_lucro = ?,
-                    ativo = ?,
-                    img = COALESCE(?, img)
-                WHERE id_produto = ?
-                `,
-                [
-                    nome,
-                    codigo_barras,
-                    preco,
-                    qtd,
-                    qtd_min || 0,
-                    descricao,
-                    valor_bruto,
-                    porcentagem_lucro || 0,
-                    ativoFinal,
-                    img,
-                    id
-                ]
-            );
+            const grupoLiquido = await obterGrupoLiquido(Number(id));
+
+            if (grupoLiquido) {
+                const conn = await conexao.getConnection();
+
+                try {
+                    await conn.beginTransaction();
+
+                    await conn.query(
+                        `
+                        UPDATE produtos
+                        SET
+                            nome = ?,
+                            codigo_barras = ?,
+                            preco = ?,
+                            qtd = ?,
+                            qtd_min = ?,
+                            descricao = ?,
+                            valor_bruto = ?,
+                            porcentagem_lucro = ?,
+                            ativo = ?,
+                            img = COALESCE(?, img)
+                        WHERE id_produto = ?
+                        `,
+                        [
+                            nome,
+                            codigo_barras,
+                            preco,
+                            qtd,
+                            qtd_min || 0,
+                            descricao,
+                            valor_bruto,
+                            porcentagem_lucro || 0,
+                            ativoFinal,
+                            img,
+                            id
+                        ]
+                    );
+
+                    // A quantidade editada também representa o saldo único do grupo.
+                    await conn.query(
+                        'UPDATE produtos SET qtd = ? WHERE id_produto IN (?)',
+                        [qtd, grupoLiquido.ids]
+                    );
+
+                    await conn.commit();
+                } catch (erro) {
+                    try { await conn.rollback(); } catch (_) {}
+                    throw erro;
+                } finally {
+                    conn.release();
+                }
+            } else {
+                await conexao.query(
+                    `
+                    UPDATE produtos
+                    SET
+                        nome = ?,
+                        codigo_barras = ?,
+                        preco = ?,
+                        qtd = ?,
+                        qtd_min = ?,
+                        descricao = ?,
+                        valor_bruto = ?,
+                        porcentagem_lucro = ?,
+                        ativo = ?,
+                        img = COALESCE(?, img)
+                    WHERE id_produto = ?
+                    `,
+                    [
+                        nome,
+                        codigo_barras,
+                        preco,
+                        qtd,
+                        qtd_min || 0,
+                        descricao,
+                        valor_bruto,
+                        porcentagem_lucro || 0,
+                        ativoFinal,
+                        img,
+                        id
+                    ]
+                );
+            }
 
 
             return res.json({
@@ -868,6 +927,9 @@ router.get(
                 );
 
 
+            await aplicarDisponibilidadeReceitas(rows, conexao, {
+                mostrarVolume: req.query.modo === "estoque"
+            });
             res.json(
                 rows
             );

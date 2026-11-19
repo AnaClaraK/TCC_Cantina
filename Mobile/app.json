@@ -1,12 +1,11 @@
 {
   "expo": {
-    "name": "cantina",
+    "name": "Cantina Grano Vita",
     "slug": "cantina",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -20,7 +19,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "package": "com.anabanana7.cantina"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -28,7 +27,13 @@
     "plugins": [
       "expo-font",
       "expo-asset",
-      "expo-status-bar"
-    ]
+      "expo-status-bar",
+      "expo-build-properties"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "fb30c80d-6388-4532-b0e2-ae15ea491cbc"
+      }
+    }
   }
 }

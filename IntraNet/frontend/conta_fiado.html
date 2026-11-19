@@ -73,26 +73,33 @@
      CABEÇALHO
 ====================================================== -->
 
+
 <div class="d_util">
 
     <h2 class="h_ag">
         Contas
     </h2>
 
-
     <button
         id="b_addq"
         type="button"
+        class="btn-topo-conta-fiado"
     >
         <span id="s_addq">
             Novo Cliente
         </span>
     </button>
 
+    <button
+        id="b_gerenciar_cliente"
+        type="button"
+        class="btn-topo-conta-fiado"
+    >Consultar</button>
 
     <button
         id="b_nova_compra"
         type="button"
+        class="btn-topo-conta-fiado"
     >
         Nova Compra
     </button>
@@ -100,10 +107,23 @@
     <button
         id="b_compras_parceladas"
         type="button"
+        class="btn-topo-conta-fiado"
     >
         Compras parceladas
     </button>
 
+
+
+    <dialog id="modalNotificacoesFiado" class="modal-notificacoes-fiado">
+        <div class="conteudo-notificacoes-fiado">
+            <button type="button" id="fecharNotificacoesFiado" class="fechar-notificacoes-fiado" aria-label="Fechar">×</button>
+            <h2>Notificações</h2>
+            <p class="subtitulo-notificacoes-fiado">Avisos de compras parceladas concluídas.</p>
+            <div id="listaNotificacoesFiado" class="lista-notificacoes-fiado"><p class="notificacoes-vazias">Carregando notificações...</p></div>
+        </div>
+    </dialog>
+
+    
     <div id="notificacaoParcelasConcluidas" class="notificacao-parcela-pagina" aria-live="polite"></div>
 
 <div id="d_inp">
@@ -126,6 +146,12 @@
 
     </div>
 
+    <div class="fiado-notificacoes-wrap">
+        <button type="button" id="btnNotificacoesFiado" class="btn-notificacoes-fiado" aria-label="Abrir notificações" title="Notificações">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+            <span id="contadorNotificacoesFiado" class="contador-notificacoes-fiado" hidden>0</span>
+        </button>
+    </div>
 </div>
 
 <section id="sc_tabela" class="container mt-5">
@@ -172,6 +198,7 @@
                     <input
                         class="inp_m"
                         id="nome"
+                        maxlength="255"
                         placeholder="Nome completo"
                         autocomplete="name"
                     >
@@ -182,11 +209,12 @@
                     <input
                         class="inp_m"
                         id="cpf"
-                        placeholder="Apenas números"
-                        maxlength="11"
+                        maxlength="14"
+                        placeholder="000.000.000-00"
+                        maxlength="14"
                         inputmode="numeric"
                         autocomplete="off"
-                        oninput="this.value = this.value.replace(/\D/g, '')"
+                        oninput="formatarCPF(this)"
                     >
                 </div>
 
@@ -195,11 +223,12 @@
                     <input
                         class="inp_m"
                         id="telefone"
-                        placeholder="DDD + número"
-                        maxlength="11"
+                        maxlength="15"
+                        placeholder="(00) 00000-0000"
+                        maxlength="15"
                         inputmode="numeric"
                         autocomplete="tel"
-                        oninput="this.value = this.value.replace(/\D/g, '')"
+                        oninput="formatarTelefone(this)"
                     >
                 </div>
 
@@ -247,22 +276,46 @@
                         class="inp_m"
                         id="cep"
                         placeholder="00000-000"
-                        maxlength="8"
+                        maxlength="9"
                         inputmode="numeric"
-                        autocomplete="postal-code"
-                        oninput="this.value = this.value.replace(/\D/g, '')"
+                        autocomplete="off"
+                        oninput="formatarCEP(this)"
                     >
                 </div>
 
-                <div class="cliente-campo campo-numero">
-                    <label for="numero">Número <span>*</span></label>
+                <div class="cliente-campo campo-coluna-2">
+                    <label for="logradouro">Rua <span>*</span></label>
                     <input
                         class="inp_m"
-                        id="numero"
-                        placeholder="Nº"
-                        maxlength="10"
-                        autocomplete="address-line2"
+                        id="logradouro"
+                        placeholder="Nome da rua/avenida"
+                        maxlength="255"
+                        autocomplete="address-line1"
                     >
+                </div>
+
+                <div class="cliente-campo campo-endereco-duplo">
+                    <div class="cliente-campo">
+                        <label for="numero">Número <span>*</span></label>
+                        <input
+                            class="inp_m"
+                            id="numero"
+                            placeholder="Nº"
+                            maxlength="20"
+                            autocomplete="address-line2"
+                        >
+                    </div>
+                    <div class="cliente-campo">
+                        <label for="estado">Estado <span>*</span></label>
+                        <input
+                            class="inp_m"
+                            id="estado"
+                            placeholder="UF"
+                            maxlength="2"
+                            autocomplete="address-level1"
+                            oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 2)"
+                        >
+                    </div>
                 </div>
 
                 <div class="cliente-campo">
@@ -271,6 +324,7 @@
                         class="inp_m"
                         id="complemento"
                         placeholder="Apto, bloco..."
+                        maxlength="120"
                         autocomplete="address-line2"
                     >
                 </div>
@@ -281,6 +335,7 @@
                         class="inp_m"
                         id="bairro"
                         placeholder="Bairro"
+                        maxlength="120"
                         autocomplete="address-level3"
                     >
                 </div>
@@ -291,24 +346,11 @@
                         class="inp_m"
                         id="cidade"
                         placeholder="Cidade"
+                        maxlength="120"
                         autocomplete="address-level2"
                     >
                 </div>
-
-                <div class="cliente-campo">
-                    <label for="estado">Estado <span>*</span></label>
-                    <input
-                        class="inp_m"
-                        id="estado"
-                        placeholder="UF"
-                        maxlength="2"
-                        autocomplete="address-level1"
-                        oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '').toUpperCase()"
-                    >
-                </div>
-
             </div>
-
         </div>
 
         <div class="cliente-form-secao cliente-form-secao-final">
@@ -330,13 +372,15 @@
                 </div>
             </div>
 
-            <button
-                id="b_addf"
-                type="button"
-                class="btn-principal-cliente"
-            >
-                Cadastrar cliente
-            </button>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button
+                    id="b_addf"
+                    type="button"
+                    class="btn-principal-cliente"
+                >
+                    Cadastrar cliente
+                </button>
+            </div>
         </div>
 
     </div>
@@ -1007,9 +1051,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const API = "http://localhost:3000";
 
-    /* ======================================================
-       ELEMENTOS
-    ====================================================== */
+    // ELEMENTOS
 
     const modalFiado = document.getElementById("d_modal_fiado");
     const modalProdutos = document.getElementById("d_modal_produtos");
@@ -1063,6 +1105,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnFecharComprasParceladas = document.getElementById("btnFecharComprasParceladas");
     const listaComprasParceladas = document.getElementById("listaComprasParceladas");
     const notificacaoParcelasConcluidas = document.getElementById("notificacaoParcelasConcluidas");
+    const btnNotificacoesFiado = document.getElementById("btnNotificacoesFiado");
+    const modalNotificacoesFiado = document.getElementById("modalNotificacoesFiado");
+    const fecharNotificacoesFiado = document.getElementById("fecharNotificacoesFiado");
+    const listaNotificacoesFiado = document.getElementById("listaNotificacoesFiado");
+    const contadorNotificacoesFiado = document.getElementById("contadorNotificacoesFiado");
+    let notificacoesFiadoCache = [];
     const btnFecharSimulacaoJuros = document.getElementById("btnFecharSimulacaoJuros");
     const btnCancelarSimulacaoJuros = document.getElementById("btnCancelarSimulacaoJuros");
 
@@ -1086,9 +1134,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const jurosValorFinal = document.getElementById("jurosValorFinal");
 
 
-    /* ======================================================
-       ESTADO
-    ====================================================== */
+    // ESTADO
 
     let clientesCache = [];
     let produtosCache = [];
@@ -1127,9 +1173,7 @@ document.addEventListener("DOMContentLoaded", () => {
         jurosConfigPorConta = {};
     }
 
-    /* ======================================================
-       UTILITÁRIOS
-    ====================================================== */
+    // UTILITÁRIOS
 
     function obterToken() {
         return localStorage.getItem("token");
@@ -1277,9 +1321,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     }
 
-    /* ======================================================
-       AVISOS
-    ====================================================== */
+    // AVISOS
 
     function exibirAviso(
         mensagem,
@@ -1293,8 +1335,23 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        msgAviso.innerHTML =
-            mensagem;
+        const textoAviso = String(mensagem);
+
+const avisoCpfDuplicado =
+    /cpf/i.test(textoAviso) &&
+    (
+        /(já|ja)\s+cadastrad/i.test(textoAviso) ||
+        /duplicate entry/i.test(textoAviso)
+    );
+
+modalAviso.classList.toggle(
+    "aviso-cpf-duplicado",
+    avisoCpfDuplicado
+);
+
+msgAviso.textContent = avisoCpfDuplicado
+    ? "Este CPF já está cadastrado! Verifique o número informado ou consulte o cliente existente."
+    : textoAviso;
 
         bCancelarAviso.style.display =
             mostrarCancelar
@@ -1330,15 +1387,274 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     }
 
-    /* ======================================================
-       NOVO CLIENTE
-    ====================================================== */
+    function formatarCPF(campo) {
+        const n = campo.value.replace(/\D/g, "").slice(0, 11);
+        let v = n;
+        if (n.length > 9) v = n.replace(/^(\d{3})(\d{3})(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
+        else if (n.length > 6) v = n.replace(/^(\d{3})(\d{3})(\d{1,3}).*/, "$1.$2.$3");
+        else if (n.length > 3) v = n.replace(/^(\d{3})(\d{1,3}).*/, "$1.$2");
+        campo.value = v;
+    }
+
+    function formatarTelefone(campo) {
+        const n = campo.value.replace(/\D/g, "").slice(0, 11);
+        if (!n) campo.value = "";
+        else if (n.length <= 2) campo.value = `(${n}`;
+        else if (n.length <= 6) campo.value = `(${n.slice(0, 2)}) ${n.slice(2)}`;
+        else if (n.length <= 10) campo.value = `(${n.slice(0, 2)}) ${n.slice(2, 6)}-${n.slice(6)}`;
+        else campo.value = `(${n.slice(0, 2)}) ${n.slice(2, 7)}-${n.slice(7)}`;
+    }
+
+    function formatarCEP(campo) {
+        const n = campo.value.replace(/\D/g, "").slice(0, 8);
+        campo.value = n.length > 5 ? `${n.slice(0, 5)}-${n.slice(5)}` : n;
+    }
+
+    // Os handlers inline do HTML precisam acessar as funções pelo window.
+    window.formatarCPF = formatarCPF;
+    window.formatarTelefone = formatarTelefone;
+    window.formatarCEP = formatarCEP;
+
+    function validarCPF(cpf) {
+        if (!/^\d{11}$/.test(cpf) || /^(\d)\1{10}$/.test(cpf)) return false;
+        for (let t = 9; t < 11; t++) {
+            let soma = 0;
+            for (let i = 0; i < t; i++) soma += Number(cpf[i]) * ((t + 1) - i);
+            const digito = (soma * 10) % 11 % 10;
+            if (Number(cpf[t]) !== digito) return false;
+        }
+        return true;
+    }
+
+
+    // Consulta e edição em modal, com seleção por lista (sem digitar CPF/nome).
+    let clienteEmEdicao = null;
+    let listaClientesGerenciar = [];
+
+    
+const modalGerenciarHTML = `
+  <dialog id="modal_gerenciar_cliente" class="modal-gerenciar-cliente">
+    <div class="modal_box">
+
+      <button
+        type="button"
+        id="fechar_modal_gerenciar_cliente"
+        class="fechar-modal"
+        aria-label="Fechar"
+      >×</button>
+
+      <div class="modal-cabecalho">
+        <span class="modal-cabecalho-kicker">CLIENTES FIADO</span>
+        <h2 class="modal_titulo">Consultar / editar cliente</h2>
+        
+      </div>
+
+      <div class="cliente-campo">
+        <label for="select_cliente_gerenciar">
+          Cliente cadastrado
+        </label>
+
+        <select id="select_cliente_gerenciar" class="inp_m">
+          <option value="">Selecione um cliente</option>
+        </select>
+      </div>
+
+      <div
+        id="detalhes_cliente_gerenciar"
+        class="cliente-detalhes-gerenciar"
+        hidden
+      ></div>
+
+      <div class="cliente-gerenciar-acoes">
+        <button
+          type="button"
+          id="cancelar_gerenciar_cliente"
+          class="btn-secundario-cliente"
+        >Fechar</button>
+
+        <button
+          type="button"
+          id="alternar_bloqueio_cliente_consulta"
+          class="btn-secundario-cliente"
+          disabled
+        >Desbloquear cliente</button>
+
+        <button
+          type="button"
+          id="editar_cliente_selecionado"
+          class="btn-principal-cliente"
+          disabled
+        >Editar informações</button>
+      </div>
+
+    </div>
+  </dialog>`;
+
+
+    
+    // Insere o modal no HTML antes de buscar seus elementos.
+    if (!document.getElementById("modal_gerenciar_cliente")) {
+        document.body.insertAdjacentHTML("beforeend", modalGerenciarHTML);
+    }
+
+    const modalGerenciarCliente = document.getElementById("modal_gerenciar_cliente");
+    const selectGerenciarCliente = document.getElementById("select_cliente_gerenciar");
+    const detalhesGerenciarCliente = document.getElementById("detalhes_cliente_gerenciar");
+    const botaoEditarCliente = document.getElementById("editar_cliente_selecionado");
+    const botaoBloqueioConsulta = document.getElementById("alternar_bloqueio_cliente_consulta");
+
+    function atualizarBotaoBloqueioConsulta(c) {
+        if (!botaoBloqueioConsulta) return;
+        botaoBloqueioConsulta.disabled = !c;
+        botaoBloqueioConsulta.textContent = Number(c?.bloqueado || 0) === 1 ? "Desbloquear cliente" : "Bloquear cliente";
+        botaoBloqueioConsulta.classList.toggle("cliente-acao-desbloquear", Number(c?.bloqueado || 0) === 1);
+    }
+
+    botaoBloqueioConsulta?.addEventListener("click", async () => {
+        const id = Number(selectGerenciarCliente.value);
+        const cliente = listaClientesGerenciar.find(c => Number(c.id_cliente) === id);
+        if (!cliente) return;
+        const novoBloqueio = Number(cliente.bloqueado || 0) === 1 ? 0 : 1;
+        try {
+            const resposta = await apiFetch(`/clientes-fiado/${id}/bloqueio`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ bloqueado: novoBloqueio })
+            });
+            const dados = await resposta.json();
+            if (!resposta.ok) throw new Error(dados.erro || "Não foi possível alterar o bloqueio.");
+            cliente.bloqueado = novoBloqueio;
+            atualizarBotaoBloqueioConsulta(cliente);
+            preencherDetalhesCliente(cliente);
+            exibirAviso(novoBloqueio ? "Cliente bloqueado para novas compras." : "Cliente desbloqueado para novas compras.");
+        } catch (erro) {
+            exibirAviso(erro.message || "Erro ao alterar o bloqueio do cliente.");
+        }
+    });
+
+function preencherDetalhesCliente(c) {
+    if (!detalhesGerenciarCliente || !botaoEditarCliente) {
+        console.error(
+            "Erro: elementos de detalhes ou botão de edição não encontrados no modal."
+        );
+        return;
+    }
+
+    if (!c) {
+        detalhesGerenciarCliente.hidden = true;
+        detalhesGerenciarCliente.innerHTML = "";
+        botaoEditarCliente.disabled = true;
+        atualizarBotaoBloqueioConsulta(null);
+        return;
+    }
+
+    const linhas = [
+        ["CPF", c.cpf],
+        ["Telefone", c.telefone],
+        ["E-mail", c.email],
+        [
+            "Data de nascimento",
+            c.data_nascimento
+                ? String(c.data_nascimento).slice(0, 10)
+                : ""
+        ],
+        ["Endereço", c.endereco],
+        ["CEP", c.cep],
+        ["Número", c.numero],
+        ["Complemento", c.complemento],
+        ["Bairro", c.bairro],
+        ["Cidade", c.cidade],
+        ["Estado", c.estado],
+        ["Setor", c.setor],
+        ["Dia de vencimento", c.dia_vencimento]
+    ].filter(([_, v]) =>
+        v !== null &&
+        v !== undefined &&
+        String(v).trim() !== ""
+    );
+
+    detalhesGerenciarCliente.innerHTML = `
+        <h3>${escaparHTML(c.nome_completo || "Cliente")}</h3>
+        <dl>
+            ${linhas.map(([k, v]) => `
+                <dt>${escaparHTML(k)}</dt>
+                <dd>${escaparHTML(String(v))}</dd>
+            `).join("")}
+        </dl>
+    `;
+
+    detalhesGerenciarCliente.hidden = false;
+    botaoEditarCliente.disabled = false;
+    atualizarBotaoBloqueioConsulta(c);
+}
+
+
+    document.getElementById("b_gerenciar_cliente")?.addEventListener("click", async () => {
+        try {
+            const resposta = await apiFetch("/clientes-fiado");
+            if (!resposta.ok) throw new Error("Não foi possível carregar os clientes cadastrados.");
+            listaClientesGerenciar = await resposta.json();
+            selectGerenciarCliente.innerHTML = '<option value="">Selecione um cliente</option>' +
+                listaClientesGerenciar.map(c => `<option value="${Number(c.id_cliente)}">${escaparHTML(c.nome_completo)}${c.cpf ? " — " + escaparHTML(c.cpf) : ""}</option>`).join("");
+            selectGerenciarCliente.value = "";
+            preencherDetalhesCliente(null);
+            modalGerenciarCliente.showModal();
+        } catch (erro) {
+            exibirAviso(erro.message || "Erro ao consultar clientes.");
+        }
+    });
+    selectGerenciarCliente.addEventListener("change", () => {
+        const id = Number(selectGerenciarCliente.value);
+        preencherDetalhesCliente(listaClientesGerenciar.find(c => Number(c.id_cliente) === id));
+    });
+    document.getElementById("fechar_modal_gerenciar_cliente").addEventListener("click", () => modalGerenciarCliente.close());
+    document.getElementById("cancelar_gerenciar_cliente").addEventListener("click", () => modalGerenciarCliente.close());
+
+    botaoEditarCliente.addEventListener("click", () => {
+        clienteEmEdicao = listaClientesGerenciar.find(c => Number(c.id_cliente) === Number(selectGerenciarCliente.value));
+        if (!clienteEmEdicao) return;
+        // Preenche o próprio modal de cadastro, mantendo o visual e os campos existentes.
+        const valores = {
+            nome: clienteEmEdicao.nome_completo, cpf: clienteEmEdicao.cpf,
+            telefone: clienteEmEdicao.telefone, email: clienteEmEdicao.email,
+            data_nascimento: clienteEmEdicao.data_nascimento ? String(clienteEmEdicao.data_nascimento).slice(0,10) : "",
+            setor: clienteEmEdicao.setor, cep: clienteEmEdicao.cep,
+            logradouro: clienteEmEdicao.logradouro || clienteEmEdicao.endereco || "",
+            numero: clienteEmEdicao.numero, complemento: clienteEmEdicao.complemento,
+            bairro: clienteEmEdicao.bairro, cidade: clienteEmEdicao.cidade,
+            estado: clienteEmEdicao.estado, diaVencimentoPadraoCliente: clienteEmEdicao.dia_vencimento
+        };
+        Object.entries(valores).forEach(([id, valor]) => {
+            const campo = document.getElementById(id);
+            if (campo) campo.value = valor ?? "";
+        });
+        if (window.formatarCPF) window.formatarCPF(document.getElementById("cpf"));
+        if (window.formatarTelefone) window.formatarTelefone(document.getElementById("telefone"));
+        if (window.formatarCEP) window.formatarCEP(document.getElementById("cep"));
+        const titulo = document.querySelector("#modal_cliente .modal_titulo");
+        const subtitulo = document.querySelector("#modal_cliente .modal-subtitulo");
+        const botaoSalvar = document.getElementById("b_addf");
+        if (titulo) titulo.textContent = "Editar Cliente";
+        if (subtitulo) subtitulo.textContent = "Atualize as informações do cliente selecionado.";
+        if (botaoSalvar) botaoSalvar.textContent = "Salvar alterações";
+        modalGerenciarCliente.close();
+        modalCliente?.showModal();
+    });
+
+    // NOVO CLIENTE
 
     document.getElementById(
         "b_addq"
     )?.addEventListener(
         "click",
         () => {
+            clienteEmEdicao = null;
+            const titulo = document.querySelector("#modal_cliente .modal_titulo");
+            const subtitulo = document.querySelector("#modal_cliente .modal-subtitulo");
+            const botaoSalvar = document.getElementById("b_addf");
+            if (titulo) titulo.textContent = "Novo Cliente";
+            if (subtitulo) subtitulo.textContent = "Cadastre os dados do cliente para facilitar as próximas compras fiado.";
+            if (botaoSalvar) botaoSalvar.textContent = "Cadastrar cliente";
             modalCliente?.showModal();
         }
     );
@@ -1390,6 +1706,24 @@ document.addEventListener("DOMContentLoaded", () => {
                     "setor"
                 ).value.trim();
 
+            const logradouro =
+                document.getElementById("logradouro").value.trim();
+
+            const numero =
+                document.getElementById("numero").value.trim();
+
+            const complemento =
+                document.getElementById("complemento").value.trim();
+
+            const bairro =
+                document.getElementById("bairro").value.trim();
+
+            const cidade =
+                document.getElementById("cidade").value.trim();
+
+            const estado =
+                document.getElementById("estado").value.trim().toUpperCase();
+
             const cep =
                 document.getElementById(
                     "cep"
@@ -1401,22 +1735,54 @@ document.addEventListener("DOMContentLoaded", () => {
                     diaVencimentoPadraoCliente?.value || 0
                 );
 
-            if (
-                !nome ||
-                cpf.length !== 11 ||
-                telefone.length < 10 ||
-                telefone.length > 11 ||
-                !numero ||
-                !bairro ||
-                !cidade ||
-                estado.length !== 2 ||
-                !Number.isInteger(diaVencimento) ||
-                diaVencimento < 1 ||
-                diaVencimento > 31
-            ) {
-                exibirAviso(
-                    "Preencha nome, CPF, telefone, número, bairro, cidade, estado e um dia de vencimento entre 1 e 31."
-                );
+            if (nome.length < 3) {
+                exibirAviso("O campo Nome completo deve ter pelo menos 3 caracteres.");
+                document.getElementById("nome").focus();
+                return;
+            }
+            if (cpf.length !== 11) {
+                exibirAviso("O campo CPF está incompleto. Digite os 11 números.");
+                document.getElementById("cpf").focus();
+                return;
+            }
+            if (!validarCPF(cpf)) {
+                exibirAviso("O CPF informado é inválido. Confira os números digitados.");
+                document.getElementById("cpf").focus();
+                return;
+            }
+            if (telefone.length !== 10 && telefone.length !== 11) {
+                exibirAviso("O campo Telefone está incorreto. Informe o DDD e o número, com 10 ou 11 dígitos.");
+                document.getElementById("telefone").focus();
+                return;
+            }
+            if (!logradouro) {
+                exibirAviso("O campo Rua / Logradouro é obrigatório.");
+                document.getElementById("logradouro").focus();
+                return;
+            }
+            if (!numero) {
+                exibirAviso("O campo Número do endereço é obrigatório.");
+                document.getElementById("numero").focus();
+                return;
+            }
+            if (!bairro) {
+                exibirAviso("O campo Bairro é obrigatório.");
+                document.getElementById("bairro").focus();
+                return;
+            }
+            if (!cidade) {
+                exibirAviso("O campo Cidade é obrigatório.");
+                document.getElementById("cidade").focus();
+                return;
+            }
+            if (!/^[A-Z]{2}$/.test(estado)) {
+                exibirAviso("O campo Estado (UF) deve conter exatamente 2 letras. Exemplo: SP.");
+                document.getElementById("estado").focus();
+                return;
+            }
+            if (!Number.isInteger(diaVencimento) || diaVencimento < 1 || diaVencimento > 31) {
+                exibirAviso("O Vencimento padrão deve ser um dia válido entre 1 e 31.");
+                diaVencimentoPadraoCliente?.focus();
                 return;
             }
 
@@ -1444,9 +1810,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const res =
                     await apiFetch(
-                        "/clientes-fiado",
+                        clienteEmEdicao
+                            ? `/clientes-fiado/${Number(clienteEmEdicao.id_cliente)}`
+                            : "/clientes-fiado",
                         {
-                            method: "POST",
+                            method: clienteEmEdicao ? "PUT" : "POST",
                             headers: {
                                 "Content-Type":
                                     "application/json"
@@ -1459,6 +1827,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                     telefone,
                                     cep:
                                         cep || null,
+                                    logradouro,
                                     numero,
                                     complemento:
                                         complemento || null,
@@ -1500,6 +1869,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     "nome",
                     "cpf",
                     "telefone",
+                    "logradouro",
+                    "numero",
+                    "complemento",
+                    "bairro",
+                    "cidade",
+                    "estado",
                     "email",
                     "data_nascimento",
                     "setor",
@@ -1526,11 +1901,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 modalCliente.close();
+                const foiEdicao = Boolean(clienteEmEdicao);
+                clienteEmEdicao = null;
+                const tituloModalCliente = document.querySelector("#modal_cliente .modal_titulo");
+                const subtituloModalCliente = document.querySelector("#modal_cliente .modal-subtitulo");
+                const botaoSalvarCliente = document.getElementById("b_addf");
+                if (tituloModalCliente) tituloModalCliente.textContent = "Novo Cliente";
+                if (subtituloModalCliente) subtituloModalCliente.textContent = "Cadastre os dados do cliente para facilitar as próximas compras fiado.";
+                if (botaoSalvarCliente) botaoSalvarCliente.textContent = "Cadastrar cliente";
 
                 await carregarClientes();
 
                 exibirAviso(
-                    "Cliente cadastrado com sucesso!"
+                    foiEdicao ? "Dados do cliente atualizados com sucesso!" : "Cliente cadastrado com sucesso!"
                 );
 
             } catch (erro) {
@@ -1546,9 +1929,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     );
 
-    /* ======================================================
-       NOVA COMPRA FIADO
-    ====================================================== */
+    // NOVA COMPRA FIADO
 
     document.getElementById(
         "b_nova_compra"
@@ -1732,9 +2113,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     );
 
-    /* ======================================================
-       PRODUTOS
-    ====================================================== */
+    // PRODUTOS
 
     document.getElementById(
         "b_abrir_produtos"
@@ -2149,9 +2528,7 @@ document.addEventListener("DOMContentLoaded", () => {
             `R$ ${formatarMoeda(total)}`;
     }
 
-    /* ======================================================
-       SALVAR COMPRA
-    ====================================================== */
+    // SALVAR COMPRA
 
     document.getElementById(
         "b_salvar_fiado"
@@ -2319,9 +2696,7 @@ document.addEventListener("DOMContentLoaded", () => {
         listaProdutos.innerHTML = "";
     }
 
-    /* ======================================================
-       CONCLUSÃO DE CONTAS / PRODUTOS
-    ====================================================== */
+    // CONCLUSÃO DE CONTAS / PRODUTOS
 
     function abrirModalConclusaoContaFiado(conta, itens = null) {
         contaParaConcluirFiado = conta || null;
@@ -2491,8 +2866,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    /* A confirmação do pagamento é tratada pelo script de pagamento abaixo,
-       que usa explicitamente o backend em http://localhost:3000. */
+    // A confirmação do pagamento é tratada pelo script de pagamento abaixo,
+// que usa explicitamente o backend em http://localhost:3000.
 
     btnFecharConclusao?.addEventListener("click", () => {
         modalConclusao.close();
@@ -2560,9 +2935,7 @@ document.addEventListener("DOMContentLoaded", () => {
         limparResultadoSimulacao();
     };
 
-    /* ======================================================
-       MODAL DE COMPRAS DO CLIENTE
-    ====================================================== */
+    // MODAL DE COMPRAS DO CLIENTE
 
     const modalComprasCliente =
         document.getElementById("modalComprasCliente");
@@ -2967,9 +3340,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     );
 
-    /* ======================================================
-       TABELAS PRINCIPAIS
-    ====================================================== */
+    // TABELAS PRINCIPAIS
 
     function normalizarProdutosConta(conta) {
         const entrada = conta?.itens || conta?.produtos;
@@ -2981,18 +3352,30 @@ document.addEventListener("DOMContentLoaded", () => {
                         return null;
                     }
 
+                    const quantidade = Number(item.quantidade ?? item.qtd ?? 0);
+                    const valorUnitario = Number(item.valor_unitario ?? item.valor_unit ?? item.preco ?? 0);
+                    const valorBaseInformado = Number(item.valor_base);
+                    // Algumas respostas antigas trazem valor_base como 0 mesmo havendo quantidade e preço.
+                    const valorBase = Number.isFinite(valorBaseInformado) && valorBaseInformado > 0
+                        ? valorBaseInformado
+                        : valueRound(quantidade * valorUnitario);
+                    const valorAtualInformado = Number(item.valor_atual);
+                    const valorAtual = Number.isFinite(valorAtualInformado) && valorAtualInformado > 0
+                        ? valorAtualInformado
+                        : valorBase;
+
                     return {
                         idConta: Number(item.id_conta ?? conta?.id_conta ?? 0),
                         idProduto: Number(item.id_produto ?? item.id ?? 0),
                         nome: item.nome || item.produto || "Produto",
-                        quantidade: Number(item.quantidade ?? item.qtd ?? 0),
-                        valorUnitario: Number(item.valor_unitario ?? item.valor_unit ?? item.preco ?? 0),
-                        valorBase: Number(item.valor_base ?? ((item.quantidade ?? item.qtd ?? 0) * (item.valor_unitario ?? item.valor_unit ?? item.preco ?? 0))),
-                        jurosAtivo: Number(item.juros_ativo ?? 0) === 1,
+                        quantidade,
+                        valorUnitario,
+                        valorBase,
+                        jurosAtivo: Number(item.juros_ativo ?? 0) === 1 || item.juros_ativo === true,
                         taxa: Number(item.taxa_juros ?? 0),
                         tipo: item.tipo_juros || "",
                         valorJurosAtual: Number(item.valor_juros_atual ?? 0),
-                        valorAtual: Number(item.valor_atual ?? item.valor_base ?? 0),
+                        valorAtual,
                         statusPagamento: String(item.status_pagamento ?? "Pendente").trim(),
                         diasAtraso: Number(item.dias_atraso ?? 0),
                         dataVencimento: item.data_vencimento || conta?.data_vencimento || null,
@@ -3182,9 +3565,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    /* ======================================================
-       BUSCA DA TABELA
-    ====================================================== */
+    // BUSCA DA TABELA
 
     inputBusca?.addEventListener(
         "input",
@@ -3219,9 +3600,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     );
 
-    /* ======================================================
-       SIMULAÇÃO DE JUROS
-    ====================================================== */
+    // SIMULAÇÃO DE JUROS
 
     function limparModalJuros() {
 
@@ -3760,26 +4139,17 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
         }
     }
-/* ======================================================
-   SIMULAÇÃO DE JUROS — VERSÃO ÚNICA
-====================================================== */
+// SIMULAÇÃO DE JUROS — VERSÃO ÚNICA
 
-/*
-    IMPORTANTE:
-
-    Cada checkbox representa UM PRODUTO.
-
-    Não usamos mais uma função para calcular
-    a conta inteira e outra para calcular produto.
-
-    Tudo é calculado produto por produto.
-*/
+// IMPORTANTE:
+// Cada checkbox representa UM PRODUTO.
+// Não usamos mais uma função para calcular
+// a conta inteira e outra para calcular produto.
+// Tudo é calculado produto por produto.
 
 
 
-/* ======================================================
-   RENDERIZAR CONTAS/PRODUTOS PARA SIMULAÇÃO
-====================================================== */
+// RENDERIZAR CONTAS/PRODUTOS PARA SIMULAÇÃO
 
 function renderContasParaJuros() {
     listaContasJuros.innerHTML = "";
@@ -3867,15 +4237,10 @@ function renderContasParaJuros() {
         return;
     }
 
-    listaContasJuros.querySelectorAll(".checkbox-produto-juros").forEach(checkbox => {
-        checkbox.addEventListener("change", () => limparResultadoSimulacao());
-    });
 }
 
 
-/* ======================================================
-   CONCLUIR SOMENTE OS PRODUTOS SELECIONADOS DA CONTA
-====================================================== */
+// CONCLUIR SOMENTE OS PRODUTOS SELECIONADOS DA CONTA
 listaContasJuros?.addEventListener("click", event => {
     const desbloquear = event.target.closest(".btn-desbloquear-juros");
     if (desbloquear) {
@@ -3969,9 +4334,7 @@ function obterProdutosSelecionadosJuros() {
 }
 
 
-/* ======================================================
-   SELECIONAR TODOS
-====================================================== */
+// SELECIONAR TODOS
 
 btnSelecionarTodosJuros?.addEventListener(
     "click",
@@ -3988,13 +4351,12 @@ btnSelecionarTodosJuros?.addEventListener(
             );
 
         limparResultadoSimulacao();
+        atualizarResumoSelecaoJuros();
     }
 );
 
 
-/* ======================================================
-   DESMARCAR TODOS
-====================================================== */
+// DESMARCAR TODOS
 
 btnDesmarcarTodosJuros?.addEventListener(
     "click",
@@ -4011,40 +4373,44 @@ btnDesmarcarTodosJuros?.addEventListener(
             );
 
         limparResultadoSimulacao();
+        atualizarResumoSelecaoJuros();
     }
 );
 
 
-/* ======================================================
-   QUANDO ALTERAR UM PRODUTO
-====================================================== */
+// QUANDO ALTERAR UM PRODUTO
+
+function atualizarResumoSelecaoJuros() {
+    const selecionados = obterProdutosSelecionadosJuros();
+    const valorOriginal = valueRound(selecionados.reduce((total, item) => {
+        const produto = item.produto;
+        const baseInformada = Number(produto.valorBase ?? produto.valor_base);
+        const quantidade = Number(produto.quantidade ?? produto.qtd ?? 0);
+        const unitario = Number(produto.valorUnitario ?? produto.valor_unitario ?? produto.valor_unit ?? produto.preco ?? 0);
+        const base = Number.isFinite(baseInformada) && baseInformada > 0
+            ? baseInformada
+            : quantidade * unitario;
+        return total + base;
+    }, 0));
+
+    if (jurosValorOriginal) jurosValorOriginal.innerText = `R$ ${formatarMoeda(valorOriginal)}`;
+    if (jurosValorCalculado) jurosValorCalculado.innerText = "R$ 0,00";
+    if (jurosValorFinal) jurosValorFinal.innerText = `R$ ${formatarMoeda(valorOriginal)}`;
+    if (resumoSimulacaoJuros) resumoSimulacaoJuros.style.display = selecionados.length ? "block" : "none";
+}
 
 listaContasJuros?.addEventListener(
     "change",
     event => {
-
-        if (
-            event.target.classList.contains(
-                "checkbox-produto-juros"
-            )
-        ) {
-
-            /*
-                A seleção mudou.
-
-                Portanto a simulação anterior
-                não pode continuar válida.
-            */
-
+        if (event.target.classList.contains("checkbox-produto-juros")) {
             limparResultadoSimulacao();
+            atualizarResumoSelecaoJuros();
         }
     }
 );
 
 
-/* ======================================================
-   CALCULAR JUROS DE UM PRODUTO
-====================================================== */
+// CALCULAR JUROS DE UM PRODUTO
 
 function calcularJurosProduto(
     produto,
@@ -4068,12 +4434,9 @@ function calcularJurosProduto(
             0
         );
 
-    /*
-        Valor original daquele produto.
-
-        NÃO usamos valor_original da conta,
-        porque uma compra pode possuir vários produtos.
-    */
+    // Valor original daquele produto.
+// NÃO usamos valor_original da conta,
+// porque uma compra pode possuir vários produtos.
 
     let valorOriginal =
         Number(
@@ -4081,17 +4444,12 @@ function calcularJurosProduto(
             produto.valor_base
         );
 
-
+    // O valor_base pode vir zerado mesmo quando o produto tem preço.
     if (
-        !Number.isFinite(
-            valorOriginal
-        ) ||
-        valorOriginal < 0
+        !Number.isFinite(valorOriginal) ||
+        valorOriginal <= 0
     ) {
-
-        valorOriginal =
-            quantidade *
-            valorUnitario;
+        valorOriginal = quantidade * valorUnitario;
     }
 
 
@@ -4101,10 +4459,8 @@ function calcularJurosProduto(
         );
 
 
-    /*
-        Cada produto possui o vencimento
-        da própria compra.
-    */
+    // Cada produto possui o vencimento
+// da própria compra.
 
     const dataVencimento =
         produto.dataVencimento ||
@@ -4112,10 +4468,8 @@ function calcularJurosProduto(
         conta?.data_vencimento;
 
 
-    /*
-        Calcula novamente aqui para não
-        depender de um valor antigo.
-    */
+    // Calcula novamente aqui para não
+// depender de um valor antigo.
 
     const diasAtraso =
         Math.max(
@@ -4132,13 +4486,10 @@ function calcularJurosProduto(
         );
 
 
-    /*
-        0% é válido.
-
-        Produto ainda não vencido:
-            dias = 0
-            juros = 0
-    */
+    // 0% é válido.
+// Produto ainda não vencido:
+// dias = 0
+// juros = 0
 
     if (
         !Number.isFinite(
@@ -4171,9 +4522,7 @@ function calcularJurosProduto(
         tipo === "mes"
     ) {
 
-        /*
-            30 dias = 1 mês.
-        */
+        // 30 dias = 1 mês.
 
         periodos =
             diasAtraso /
@@ -4181,20 +4530,15 @@ function calcularJurosProduto(
 
     } else {
 
-        /*
-            1 dia = 1 período.
-        */
+        // 1 dia = 1 período.
 
         periodos =
             diasAtraso;
     }
 
 
-    /*
-        JUROS SIMPLES
-
-        valor × taxa × período
-    */
+    // JUROS SIMPLES
+// valor × taxa × período
 
     const juros =
         valorOriginal *
@@ -4235,23 +4579,17 @@ function calcularJurosProduto(
 }
 
 
-/* ======================================================
-   LIMPAR SIMULAÇÃO
-====================================================== */
+// LIMPAR SIMULAÇÃO
 
 function limparResultadoSimulacao() {
 
-    /*
-        A simulação antiga deixa de existir.
-    */
+    // A simulação antiga deixa de existir.
 
     simulacaoJurosAtual =
         null;
 
 
-    /*
-        Zera o resumo.
-    */
+    // Zera o resumo.
 
     if (
         resumoSimulacaoJuros
@@ -4298,10 +4636,8 @@ function limparResultadoSimulacao() {
     }
 
 
-    /*
-        Zera o juros mostrado
-        ao lado de cada produto.
-    */
+    // Zera o juros mostrado
+// ao lado de cada produto.
 
     document
         .querySelectorAll(
@@ -4325,11 +4661,9 @@ function limparResultadoSimulacao() {
         );
 
 
-    /*
-        Também limpa caso a versão
-        do HTML esteja usando
-        data-juros-produto.
-    */
+    // Também limpa caso a versão
+// do HTML esteja usando
+// data-juros-produto.
 
     document
         .querySelectorAll(
@@ -4358,9 +4692,7 @@ function limparResultadoSimulacao() {
 }
 
 
-/* ======================================================
-   SIMULAR JUROS
-====================================================== */
+// SIMULAR JUROS
 
 btnSimularJuros?.addEventListener(
     "click",
@@ -4402,9 +4734,7 @@ btnSimularJuros?.addEventListener(
             );
 
 
-        /*
-            0% É PERMITIDO.
-        */
+        // 0% É PERMITIDO.
 
         if (
             !Number.isFinite(
@@ -4441,9 +4771,7 @@ btnSimularJuros?.addEventListener(
             [];
 
 
-        /* ==============================================
-           CALCULAR CADA PRODUTO
-        ============================================== */
+        // CALCULAR CADA PRODUTO
 
         produtosSelecionados.forEach(
             item => {
@@ -4506,9 +4834,7 @@ btnSimularJuros?.addEventListener(
                 });
 
 
-                /*
-                    MOSTRAR JUROS NO PRODUTO
-                */
+                // MOSTRAR JUROS NO PRODUTO
 
                 let campoJuros =
                     document.querySelector(
@@ -4516,10 +4842,8 @@ btnSimularJuros?.addEventListener(
                     );
 
 
-                /*
-                    Compatibilidade com a
-                    outra marcação do HTML.
-                */
+                // Compatibilidade com a
+// outra marcação do HTML.
 
                 if (!campoJuros) {
 
@@ -4561,11 +4885,8 @@ btnSimularJuros?.addEventListener(
             );
 
 
-        /*
-            GUARDA A SIMULAÇÃO ATUAL.
-
-            Só essa seleção poderá ser aplicada.
-        */
+        // GUARDA A SIMULAÇÃO ATUAL.
+// Só essa seleção poderá ser aplicada.
 
         simulacaoJurosAtual = {
 
@@ -4583,11 +4904,9 @@ btnSimularJuros?.addEventListener(
             itens:
                 detalhes,
 
-            /*
-                Mantém também contas
-                por compatibilidade com
-                partes antigas do HTML.
-            */
+            // Mantém também contas
+// por compatibilidade com
+// partes antigas do HTML.
 
             contas:
                 detalhes.map(
@@ -4608,9 +4927,7 @@ btnSimularJuros?.addEventListener(
         };
 
 
-        /*
-            RESUMO
-        */
+        // RESUMO
 
         jurosValorOriginal.innerText =
             `R$ ${formatarMoeda(
@@ -4634,10 +4951,8 @@ btnSimularJuros?.addEventListener(
             "block";
 
 
-        /*
-            Mesmo com 0%,
-            a simulação é válida.
-        */
+        // Mesmo com 0%,
+// a simulação é válida.
 
         btnAplicarJuros.disabled =
             false;
@@ -4645,9 +4960,7 @@ btnSimularJuros?.addEventListener(
 );
 
 
-/* ======================================================
-   ARREDONDAMENTO
-====================================================== */
+// ARREDONDAMENTO
 
 function valueRound(
     valor
@@ -4661,9 +4974,7 @@ function valueRound(
 }
 
 
-/* ======================================================
-   APLICAR JUROS
-====================================================== */
+// APLICAR JUROS
 
 btnAplicarJuros?.addEventListener(
     "click",
@@ -4685,10 +4996,8 @@ btnAplicarJuros?.addEventListener(
         }
 
 
-        /*
-            Usa o seu modal de confirmação,
-            não window.confirm().
-        */
+        // Usa o seu modal de confirmação,
+// não window.confirm().
 
         exibirAviso(
             "Deseja realmente aplicar os juros aos produtos selecionados?",
@@ -4705,9 +5014,7 @@ btnAplicarJuros?.addEventListener(
 );
 
 
-/* ======================================================
-   EXECUTAR APLICAÇÃO
-====================================================== */
+// EXECUTAR APLICAÇÃO
 
 async function executarAplicacaoDeJuros() {
 
@@ -4762,9 +5069,7 @@ async function executarAplicacaoDeJuros() {
             );
 
 
-        /*
-            Sessão expirada.
-        */
+        // Sessão expirada.
 
         if (
             res.status === 401 ||
@@ -4794,10 +5099,8 @@ async function executarAplicacaoDeJuros() {
         }
 
 
-        /*
-            Guarda a configuração
-            para a tabela de juros.
-        */
+        // Guarda a configuração
+// para a tabela de juros.
 
         simulacaoJurosAtual.itens
             .forEach(
@@ -4822,26 +5125,18 @@ async function executarAplicacaoDeJuros() {
         salvarConfiguracoesJuros();
 
 
-        /*
-            ATENÇÃO:
-
-            A função correta no seu HTML é:
-
-                carregarContasFiado()
-
-            e não:
-
-                carregarContas()
-        */
+        // ATENÇÃO:
+// A função correta no seu HTML é:
+// carregarContasFiado()
+// e não:
+// carregarContas()
 
         await carregarContasFiado();
 
 
-        /*
-            Atualiza novamente
-            os produtos do cliente
-            dentro do modal.
-        */
+        // Atualiza novamente
+// os produtos do cliente
+// dentro do modal.
 
         if (
             clienteSelecionadoJuros
@@ -4851,10 +5146,8 @@ async function executarAplicacaoDeJuros() {
         }
 
 
-        /*
-            Fecha o modal somente depois
-            de atualizar os dados.
-        */
+        // Fecha o modal somente depois
+// de atualizar os dados.
 
         fecharModalJuros();
 
@@ -4865,9 +5158,7 @@ async function executarAplicacaoDeJuros() {
         );
 
 
-        /*
-            Limpa a simulação antiga.
-        */
+        // Limpa a simulação antiga.
 
         simulacaoJurosAtual =
             null;
@@ -4886,13 +5177,10 @@ async function executarAplicacaoDeJuros() {
         );
     }
 }
-    /* ======================================================
-       ACOMPANHAMENTO DE CRÉDITO PARCELADO
-
-       As parcelas NÃO são concluídas manualmente.
-       O backend verifica a data de vencimento de cada parcela
-       e conclui automaticamente quando ela chega.
-    ====================================================== */
+    // ACOMPANHAMENTO DE CRÉDITO PARCELADO
+// As parcelas NÃO são concluídas manualmente.
+// O backend verifica a data de vencimento de cada parcela
+// e conclui automaticamente quando ela chega.
 
     function escaparHtmlParcela(valor) {
         return String(valor ?? "")
@@ -4941,7 +5229,13 @@ async function executarAplicacaoDeJuros() {
                 ? dados
                 : (Array.isArray(dados.compras) ? dados.compras : []);
 
-            comprasParceladasCache = compras;
+            // Mais recentes primeiro, independentemente da ordem retornada pela API.
+            comprasParceladasCache = compras.slice().sort((a, b) => {
+                const dataA = new Date(a.data_compra || a.data || 0).getTime() || 0;
+                const dataB = new Date(b.data_compra || b.data || 0).getTime() || 0;
+                if (dataA !== dataB) return dataB - dataA;
+                return Number(b.id_pedido || 0) - Number(a.id_pedido || 0);
+            });
 
             // As parcelas são atualizadas automaticamente pelo backend.
             // Não exibimos mais um aviso dizendo que elas precisam ser concluídas manualmente.
@@ -4956,6 +5250,109 @@ async function executarAplicacaoDeJuros() {
         }
     }
 
+    function escaparTextoNotificacao(valor) {
+        return String(valor ?? "").replace(/[&<>"']/g, caractere => ({
+            "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#039;"
+        }[caractere]));
+    }
+
+    function dataNotificacaoFiado(valor) {
+        if (!valor) return "";
+        const data = new Date(valor);
+        if (Number.isNaN(data.getTime())) return "";
+        return data.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+    }
+
+    async function carregarNotificacoesFiado() {
+        if (!listaNotificacoesFiado) return;
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${API}/contas-fiado/notificacoes`, {
+                headers: token ? { Authorization: `Bearer ${token}` } : {}
+            });
+            if (res.status === 401 || res.status === 403) { tratarSessaoExpirada(); return; }
+            const dados = await res.json();
+            if (!res.ok) throw new Error(dados.erro || "Falha ao carregar notificações.");
+            notificacoesFiadoCache = Array.isArray(dados.notificacoes) ? dados.notificacoes : [];
+            const naoLidas = notificacoesFiadoCache.filter(n => Number(n.lida) !== 1).length;
+            if (contadorNotificacoesFiado) {
+                contadorNotificacoesFiado.textContent = naoLidas > 99 ? "99+" : String(naoLidas);
+                contadorNotificacoesFiado.hidden = naoLidas === 0;
+            }
+            renderNotificacoesFiado();
+        } catch (erro) {
+            console.error("Erro ao carregar notificações:", erro);
+            if (!notificacoesFiadoCache.length) listaNotificacoesFiado.innerHTML = '<p class="notificacoes-vazias">Não foi possível carregar as notificações.</p>';
+        }
+    }
+
+    function renderNotificacoesFiado() {
+        if (!listaNotificacoesFiado) return;
+        if (!notificacoesFiadoCache.length) {
+            listaNotificacoesFiado.innerHTML = '<p class="notificacoes-vazias">Nenhuma notificação por enquanto.</p>';
+            return;
+        }
+        listaNotificacoesFiado.innerHTML = notificacoesFiadoCache.map(n => {
+            const lida = Number(n.lida) === 1;
+            return `<article class="notificacao-fiado-item ${lida ? "" : "nao-lida"}" data-notificacao-id="${Number(n.id_notificacao)}" data-pedido-id="${Number(n.id_pedido)}">
+                <span class="notificacao-fiado-ponto" ${lida ? 'style="opacity:.25"' : ""}></span>
+                <div><p class="notificacao-fiado-texto">${escaparTextoNotificacao(n.mensagem)}</p><small class="notificacao-fiado-data">${escaparTextoNotificacao(dataNotificacaoFiado(n.criado_em))} · Pedido #${Number(n.id_pedido)}</small></div>
+            </article>`;
+        }).join("");
+    }
+
+    async function marcarNotificacaoFiadoLida(id) {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+        `${API}/contas-fiado/notificacoes/${encodeURIComponent(id)}/lida`,
+        {
+            method: "PUT",
+            headers: token
+                ? { Authorization: `Bearer ${token}` }
+                : {}
+        }
+    );
+
+    if (!res.ok) {
+        throw new Error("Não foi possível remover a notificação.");
+    }
+
+    // Remove a notificação da lista
+  const [resultado] = await conexao.query(
+    `DELETE FROM notificacoes_fiado WHERE id_notificacao = ?`,
+    [id]
+);
+
+    // Atualiza o contador
+    const naoLidas = notificacoesFiadoCache.length;
+
+    if (contadorNotificacoesFiado) {
+        contadorNotificacoesFiado.textContent =
+            naoLidas > 99 ? "99+" : String(naoLidas);
+
+        contadorNotificacoesFiado.hidden = naoLidas === 0;
+    }
+
+    // Atualiza o modal
+    renderNotificacoesFiado();
+}
+
+    btnNotificacoesFiado?.addEventListener("click", async () => {
+        if (!modalNotificacoesFiado.open) modalNotificacoesFiado.showModal();
+        await carregarNotificacoesFiado();
+    });
+    fecharNotificacoesFiado?.addEventListener("click", () => modalNotificacoesFiado.close());
+    modalNotificacoesFiado?.addEventListener("click", async event => {
+        const item = event.target.closest(".notificacao-fiado-item");
+        if (!item) return;
+        const id = Number(item.dataset.notificacaoId);
+        if (!id) return;
+        try { await marcarNotificacaoFiadoLida(id); }
+        catch (erro) { console.error(erro); }
+    });
+    modalNotificacoesFiado?.addEventListener("cancel", event => { event.preventDefault(); modalNotificacoesFiado.close(); });
+
     function renderComprasParceladas() {
         if (!listaComprasParceladas) return;
 
@@ -4968,8 +5365,8 @@ async function executarAplicacaoDeJuros() {
             const parcelas = Array.isArray(compra.parcelas) ? compra.parcelas : [];
             const totalParcelas = Number(compra.total_parcelas || parcelas.length || 0);
             const pagas = parcelas.filter(p => obterStatusParcela(p) === "pago").length;
-            const valor = Number(compra.valor_total || 0);
-            const valorCredito = Number(compra.valor_credito || valor || 0);
+            const valorCredito = Number(compra.valor_credito || 0);
+            const valor = Number(compra.valor_total ?? compra.valor ?? valorCredito ?? 0) || valorCredito;
             const valorParcela = Number(compra.valor_parcela || parcelas[0]?.valor || 0);
             const proxima = parcelas.find(p => obterStatusParcela(p) !== "pago");
             const progresso = `${pagas}/${totalParcelas}`;
@@ -5023,9 +5420,7 @@ async function executarAplicacaoDeJuros() {
         modalComprasParceladas.close();
     });
 
-    /* ======================================================
-       INICIALIZAÇÃO
-    ====================================================== */
+    // INICIALIZAÇÃO
 
     const campoDiaVencimentoInicial =
         document.getElementById("s_dia_vencimento");
@@ -5047,11 +5442,13 @@ async function executarAplicacaoDeJuros() {
     }
 
     carregarContasFiado();
-    carregarComprasParceladas(true);
+    carregarComprasParceladas(true).then(carregarNotificacoesFiado);
+    carregarNotificacoesFiado();
 
-    // Mantém o acompanhamento automático enquanto a tela estiver aberta.
-    setInterval(() => {
-        carregarComprasParceladas(true);
+    // Atualiza as compras parceladas e o contador do sininho automaticamente.
+    setInterval(async () => {
+        await carregarComprasParceladas(true);
+        await carregarNotificacoesFiado();
     }, 60000);
 
     // O fundo da página não rola enquanto o modal está aberto.
@@ -5071,6 +5468,7 @@ async function executarAplicacaoDeJuros() {
     window.tratarSessaoExpirada = tratarSessaoExpirada;
     window.carregarContasFiado = carregarContasFiado;
     window.carregarComprasParceladas = carregarComprasParceladas;
+    window.carregarNotificacoesFiado = carregarNotificacoesFiado;
 
     // Abre o modal de juros diretamente ao clicar no nome da conta.
     window.abrirClienteDiretoNoModal = async function (idCliente) {
@@ -5151,10 +5549,8 @@ async function executarAplicacaoDeJuros() {
 })();
 </script>
 <script>
-/* ======================================================
-   PAGAMENTO DA CONTA FIADO — MESMA EXPERIÊNCIA DO PDV
-   Dinheiro / Crédito / Dividido + parcelamento 1x–12x
-====================================================== */
+// PAGAMENTO DA CONTA FIADO — MESMA EXPERIÊNCIA DO PDV
+// Dinheiro / Crédito / Dividido + parcelamento 1x–12x
 document.addEventListener("DOMContentLoaded", () => {
     const conclusao = document.getElementById("modalConclusaoFiado");
     const forma = document.getElementById("formaPagamentoFiado");
@@ -5162,8 +5558,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmar = document.getElementById("btnConfirmarConclusao");
     const cancelar = document.getElementById("btnCancelarConclusao");
 
-    /* API deste script: não usa o apiFetch global do sidebar_header.js,
-       pois ele recebe URLs relativas e acabaria indo para o Live Server (5501). */
+    // API deste script: não usa o apiFetch global do sidebar_header.js,
+// pois ele recebe URLs relativas e acabaria indo para o Live Server (5501).
     const API_CONTA_FIADO = "http://localhost:3000";
 
     async function apiFetchContaFiado(url, opcoes = {}) {
@@ -5515,10 +5911,8 @@ document.addEventListener("DOMContentLoaded", () => {
         dividir.close();
     });
 
-    /*
-       Captura antes do listener antigo do HTML.
-       Assim o botão só finaliza depois que o modal correto foi concluído.
-    */
+    // Captura antes do listener antigo do HTML.
+// Assim o botão só finaliza depois que o modal correto foi concluído.
     confirmar?.addEventListener("click", async event => {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -5619,9 +6013,112 @@ document.addEventListener("DOMContentLoaded", () => {
 
     cancelar?.addEventListener("click", () => resetarPagamento());
 
-    /* Torna o estado acessível ao restante do HTML, sem substituir as funções existentes. */
+    // Torna o estado acessível ao restante do HTML, sem substituir as funções existentes.
     window.pagamentoContaFiado = pagamento;
 });
+</script>
+
+
+<script>
+// Consulta o endereço diretamente na internet pelo serviço ViaCEP.
+(() => {
+    const campoCep = document.getElementById("cep");
+    const modalCliente = document.getElementById("modal_cliente");
+    if (!campoCep) return;
+
+    const camposEndereco = {
+        logradouro: document.getElementById("logradouro"),
+        bairro: document.getElementById("bairro"),
+        cidade: document.getElementById("cidade"),
+        estado: document.getElementById("estado")
+    };
+
+    let ultimoCepConsultado = "";
+    let requisicaoAtual = 0;
+    let valoresPreenchidosAutomaticamente = {};
+
+    function limparEnderecoAutomatico() {
+        Object.entries(valoresPreenchidosAutomaticamente).forEach(([id, valor]) => {
+            const campo = camposEndereco[id];
+            // Só apaga se o campo ainda contém o valor que foi preenchido pelo CEP.
+            // Assim, não apaga uma alteração manual feita pela pessoa.
+            if (campo && campo.value === valor) campo.value = "";
+        });
+        valoresPreenchidosAutomaticamente = {};
+    }
+
+    function registrarPreenchimento(id, valor) {
+        const campo = camposEndereco[id];
+        if (!campo || !valor) return;
+        campo.value = valor;
+        valoresPreenchidosAutomaticamente[id] = valor;
+    }
+
+    async function preencherEnderecoPeloCep() {
+        const cep = campoCep.value.replace(/\D/g, "");
+        if (cep.length !== 8 || cep === ultimoCepConsultado) return;
+
+        const idRequisicao = ++requisicaoAtual;
+        ultimoCepConsultado = cep;
+        campoCep.setCustomValidity("");
+
+        try {
+            const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`, {
+                method: "GET",
+                headers: { "Accept": "application/json" },
+                cache: "no-store"
+            });
+            if (!resposta.ok) throw new Error(`Falha na consulta do CEP (HTTP ${resposta.status})`);
+
+            const endereco = await resposta.json();
+            // Ignora a resposta se a pessoa já alterou o CEP enquanto a consulta ocorria.
+            if (idRequisicao !== requisicaoAtual || campoCep.value.replace(/\D/g, "") !== cep) return;
+
+            if (endereco.erro) {
+                ultimoCepConsultado = "";
+                campoCep.setCustomValidity("CEP não encontrado. Confira os números digitados.");
+                campoCep.reportValidity();
+                return;
+            }
+
+            limparEnderecoAutomatico();
+            registrarPreenchimento("logradouro", endereco.logradouro || "");
+            registrarPreenchimento("bairro", endereco.bairro || "");
+            registrarPreenchimento("cidade", endereco.localidade || "");
+            registrarPreenchimento("estado", endereco.uf ? endereco.uf.toUpperCase() : "");
+        } catch (erro) {
+            if (idRequisicao !== requisicaoAtual) return;
+            ultimoCepConsultado = "";
+            console.error("Erro ao consultar o CEP no ViaCEP:", erro);
+            campoCep.setCustomValidity("Não foi possível consultar o CEP pela internet. Confira sua conexão ou preencha o endereço manualmente.");
+            campoCep.reportValidity();
+        }
+    }
+
+    campoCep.addEventListener("input", () => {
+        campoCep.setCustomValidity("");
+        const cep = campoCep.value.replace(/\D/g, "");
+        if (cep !== ultimoCepConsultado) {
+            requisicaoAtual++;
+            ultimoCepConsultado = "";
+            limparEnderecoAutomatico();
+        }
+        if (cep.length === 8) preencherEnderecoPeloCep();
+    });
+    campoCep.addEventListener("blur", preencherEnderecoPeloCep);
+
+    // Fechar o modal sempre descarta o cadastro incompleto, inclusive com Esc ou clique fora.
+    modalCliente?.addEventListener("close", () => {
+        modalCliente.querySelectorAll("input, textarea, select").forEach(campo => {
+            if (campo.type === "checkbox" || campo.type === "radio") campo.checked = false;
+            else campo.value = "";
+            if (typeof campo.setCustomValidity === "function") campo.setCustomValidity("");
+        });
+        ultimoCepConsultado = "";
+        requisicaoAtual++;
+        valoresPreenchidosAutomaticamente = {};
+    });
+})();
 </script>
 
 </body>

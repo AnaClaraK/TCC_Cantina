@@ -256,6 +256,7 @@ router.get("/reposicao", verificarToken, async (req, res) => {
                 r.prioridade,
                 r.local,
                 p.codigo_barras AS codigo,
+                (p.qtd <= COALESCE(p.qtd_min, 0)) AS alerta_estoque_minimo,
                 r.status
             FROM reposicao r
             JOIN produtos p

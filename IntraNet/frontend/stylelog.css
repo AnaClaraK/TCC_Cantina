@@ -68,7 +68,7 @@ body {
 /* BOTÃO ENTRAR (Baseado no botão do cadastro) */
 .btn_entrar {
     background-color: #1c1c1c;
-    color: #efac4a; /* Amarelo no texto */
+    color: #efac4a;
     border: none;
     padding: 14px;
     cursor: pointer;
@@ -77,11 +77,10 @@ body {
     font-size: 16px;
     width: 100%;
     margin-top: 10px;
-    transition: opacity 0.2s;
 }
 
 .btn_entrar:hover {
-    opacity: 0.85;
+    opacity: 1;
 }
 
 /* MENSAGENS DE SUCESSO/ERRO */

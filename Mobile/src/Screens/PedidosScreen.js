@@ -3,7 +3,6 @@ import {
   StyleSheet, 
   Text, 
   View, 
-  SafeAreaView, 
   FlatList, 
   TouchableOpacity, 
   Modal, 
@@ -11,9 +10,12 @@ import {
   Alert 
 } from 'react-native';
 import { useFocusEffect } from "@react-navigation/native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
+
+import { BASE_URL } from '../../config';
 
 const CORES = {
   marromEscuro: '#341d04',
@@ -23,9 +25,6 @@ const CORES = {
   branco: '#FFFFFF',
   cinzaCard: '#4a2c0a',
 };
-
-const IP_SERVIDOR = "192.168.5.6"; 
-const URL_API = `http://${IP_SERVIDOR}:3000`;
 
 // Função auxiliar para formatar a data/hora do agendamento
 const formatarDataAgendada = (dataString) => {
@@ -65,7 +64,7 @@ export default function PedidosScreen() {
       
       const idCliente = idUser ? parseInt(idUser) : 1;
 
-      const resposta = await fetch(`${URL_API}/historico-pedidos`, {
+      const resposta = await fetch(`${BASE_URL}/historico-pedidos`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       
@@ -116,7 +115,7 @@ export default function PedidosScreen() {
         <View style={styles.topoCard}>
           <Text style={styles.txtNumeroPedido}>PEDIDO #{item.num_pedido || item.id_pedido}</Text>
           <View style={[styles.badgeStatus, { backgroundColor: isPendente ? CORES.dourado : '#4CD964' }]}>
-            <Text style={styles.txtStatus}>{(item.status || 'PENDENTE').toUpperCase()}</Text>
+            <Text style={[styles.txtStatus, !isPendente && styles.txtStatusFinalizado]}>{(item.status || 'PENDENTE').toUpperCase()}</Text>
           </View>
         </View>
 
@@ -144,10 +143,8 @@ export default function PedidosScreen() {
   const itensDoModal = Array.isArray(pedidoSelecionado?.itens) ? pedidoSelecionado.itens : [];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.barraTituloTela}>
-        <Text style={styles.txtTituloTela}>MEUS PEDIDOS</Text>
-      </View>
+    <SafeAreaView style={styles.safeAreaTopo} edges={['top']}>
+      <View style={styles.container}>
 
       {carregando && (
         <ActivityIndicator size="large" color={CORES.dourado} style={styles.loadingStyle} />
@@ -232,22 +229,22 @@ export default function PedidosScreen() {
           </View>
         </View>
       </Modal>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeAreaTopo: {
+    flex: 1,
+    backgroundColor: CORES.dourado
+  },
   container: { 
     flex: 1, 
     backgroundColor: '#242628' 
   },
-  barraTituloTela: { 
-    backgroundColor: CORES.marromDestaque, 
-    paddingVertical: 15, 
-    alignItems: 'center' 
-  },
   txtTituloTela: { 
-    color: CORES.branco, 
+    color: CORES.marromEscuro, 
     fontFamily: 'BebasNeue-Regular', 
     fontSize: 24, 
     letterSpacing: 2 
@@ -297,6 +294,9 @@ const styles = StyleSheet.create({
     color: CORES.marromEscuro, 
     fontSize: 10, 
     fontWeight: 'bold' 
+  },
+  txtStatusFinalizado: {
+    color: CORES.branco,
   },
   txtData: { 
     color: CORES.creme, 

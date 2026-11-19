@@ -12,13 +12,8 @@ import {
 } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from '@expo/vector-icons'; 
-import Constants from 'expo-constants';
 import { Botao } from '../Components/Botoes';
 
-// Pega o IP local dinamicamente para testes com Expo Go
-const hostUri = Constants.expoConfig?.hostUri || Constants.manifest2?.extra?.expoGo?.developer?.manifest?.debuggerHost;
-const IP_SERVIDOR = hostUri ? hostUri.split(':')[0] : '192.168.5.6';
-const URL_API = `http://${IP_SERVIDOR}:3000`;
 
 export default function RecuperarScreen() {
   const [email, setEmail] = useState('');
@@ -52,7 +47,7 @@ export default function RecuperarScreen() {
     try {
       setCarregando(true);
 
-      const resposta = await fetch(`${URL_API}/redefinir-senha`, {
+      const resposta = await fetch(`${BASE_URL}/redefinir-senha`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -185,6 +180,8 @@ export default function RecuperarScreen() {
     </ScrollView>
   );
 }
+
+import { BASE_URL } from '../../config';
 
 const styles = StyleSheet.create({
   scrollContainer: {

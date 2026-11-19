@@ -28,6 +28,8 @@ LocaleConfig.locales['pt-br'] = {
 };
 LocaleConfig.defaultLocale = 'pt-br';
 
+import { BASE_URL } from '../../config';
+
 const CORES = {
   marromEscuro: '#341d04',
   marromDestaque: '#713b00',
@@ -43,9 +45,6 @@ const OPCOES_PAGAMENTO = [
   { id: 'CREDITO', label: 'Cartão de Crédito', icon: 'card-outline' },
   { id: 'DEBITO', label: 'Cartão de Débito', icon: 'card-outline' },
 ];
-
-const IP_SERVIDOR = "192.168.5.6"; 
-const URL_API = `http://${IP_SERVIDOR}:3000`;
 
 export default function ComprasScreen({ navigation }) {
   const [itensCarrinho, setItensCarrinho] = useState([]);
@@ -94,6 +93,30 @@ export default function ComprasScreen({ navigation }) {
     await AsyncStorage.setItem('@carrinho', JSON.stringify(atualizado));
   };
 
+  const ajustarMinutosItem = async (id, deltaMinutos) => {
+    const atualizado = itensCarrinho.map(item => {
+      if (item.id_produto === id) {
+        let horaAtual = (item.horario_retirada || '10:00').trim();
+        const partes = horaAtual.split(':');
+        let h = parseInt(partes[0], 10);
+        let m = parseInt(partes[1], 10);
+        if (isNaN(h)) h = 10;
+        if (isNaN(m)) m = 0;
+
+        let totalMin = h * 60 + m + deltaMinutos;
+        if (totalMin < 0) totalMin += 24 * 60;
+        totalMin = totalMin % (24 * 60);
+
+        const novoH = String(Math.floor(totalMin / 60)).padStart(2, '0');
+        const novoM = String(totalMin % 60).padStart(2, '0');
+        return { ...item, horario_retirada: `${novoH}:${novoM}` };
+      }
+      return item;
+    });
+    setItensCarrinho(atualizado);
+    await AsyncStorage.setItem('@carrinho', JSON.stringify(atualizado));
+  };
+
   const selecionarDataProduto = (day) => {
     if (!itemSelecionadoParaData) return;
 
@@ -116,46 +139,24 @@ export default function ComprasScreen({ navigation }) {
   };
 
   const alterarQuantidade = async (id, tipo) => {
-    const atualizado = itensCarrinho.map(item => {
-      if (item.id_produto === id) {
-        if (tipo === 'aumentar' && item.estoque && item.qtd >= item.estoque) {
-          Alert.alert("Limite atingido", "Não há mais unidades disponíveis em estoque.");
-          return item;
-        }
+    const itemAtual = itensCarrinho.find(item => item.id_produto === id);
+    if (!itemAtual) return;
 
-        const novaQtd = tipo === 'aumentar' ? item.qtd + 1 : item.qtd - 1;
-        return {
-          ...item,
-          qtd: novaQtd > 0 ? novaQtd : 1
-        };
-      }
-      return item;
-    });
+    if (tipo === 'aumentar' && itemAtual.estoque && itemAtual.qtd >= itemAtual.estoque) {
+      Alert.alert("Limite atingido", "Não há mais unidades disponíveis em estoque.");
+      return;
+    }
+
+    // Ao diminuir a última unidade, o produto é removido do carrinho.
+    const atualizado = tipo === 'diminuir' && itemAtual.qtd <= 1
+      ? itensCarrinho.filter(item => item.id_produto !== id)
+      : itensCarrinho.map(item => item.id_produto === id
+        ? { ...item, qtd: tipo === 'aumentar' ? item.qtd + 1 : item.qtd - 1 }
+        : item
+      );
 
     setItensCarrinho(atualizado);
     await AsyncStorage.setItem('@carrinho', JSON.stringify(atualizado));
-  };
-
-  const removerProduto = async (id, nome) => {
-    Alert.alert(
-      "Remover item",
-      `Deseja tirar "${nome}" do seu carrinho?`,
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Remover",
-          style: "destructive",
-          onPress: async () => {
-            const filtrado = itensCarrinho.filter(
-              item => item.id_produto !== id
-            );
-
-            setItensCarrinho(filtrado);
-            await AsyncStorage.setItem('@carrinho', JSON.stringify(filtrado));
-          }
-        }
-      ]
-    );
   };
 
   const calcularSubtotal = () => {
@@ -197,7 +198,7 @@ export default function ComprasScreen({ navigation }) {
       const totalNumerico = itensCarrinho.reduce((soma, item) => soma + (item.preco * item.qtd), 0);
       const quantidadeTotalItens = itensCarrinho.reduce((soma, item) => soma + item.qtd, 0);
 
-      const resposta = await fetch(`${URL_API}/comandas`, {
+      const resposta = await fetch(`${BASE_URL}/comandas`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -257,10 +258,6 @@ export default function ComprasScreen({ navigation }) {
         <View style={styles.containerDetalhes}>
           <View style={styles.linhaTituloAcao}>
             <Text style={styles.tituloProduto}>{item.nome}</Text>
-            
-            <TouchableOpacity onPress={() => removerProduto(item.id_produto, item.nome)} hitSlop={10}>
-              <Ionicons name="trash-outline" size={22} color={CORES.dourado} />
-            </TouchableOpacity>
           </View>
 
           {/* Seletor de Data com Calendário */}
@@ -274,17 +271,35 @@ export default function ComprasScreen({ navigation }) {
             </Text>
           </TouchableOpacity>
 
-          {/* Campo de Horário */}
+          {/* Campo de Horário com setinhas de 30 em 30 min */}
           <View style={styles.boxInputHorario}>
             <Ionicons name="time-outline" size={16} color={CORES.dourado} style={{ marginRight: 4 }} />
             <Text style={styles.labelHorario}>Hora:</Text>
+
+            <TouchableOpacity 
+              style={styles.btnSetaHorario} 
+              onPress={() => ajustarMinutosItem(item.id_produto, -30)}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="chevron-back" size={18} color={CORES.dourado} />
+            </TouchableOpacity>
+
             <TextInput
               style={styles.inputHorario}
-              placeholder="Ex: 10:15"
+              placeholder="10:00"
               placeholderTextColor={CORES.cinza}
               value={item.horario_retirada}
               onChangeText={(texto) => mudarHorarioItem(item.id_produto, texto)}
+              keyboardType="numbers-and-punctuation"
             />
+
+            <TouchableOpacity 
+              style={styles.btnSetaHorario} 
+              onPress={() => ajustarMinutosItem(item.id_produto, 30)}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="chevron-forward" size={18} color={CORES.dourado} />
+            </TouchableOpacity>
           </View>
 
           <View style={styles.linhaPrecoQuantidade}>
@@ -322,10 +337,6 @@ export default function ComprasScreen({ navigation }) {
           source={require('../../assets/images/logo_m.png')}
           style={styles.logo}
         />
-      </View>
-
-      <View style={styles.barraTituloTela}>
-        <Text style={styles.txtTituloTela}>CARRINHO</Text>
       </View>
 
       <FlatList
@@ -479,10 +490,8 @@ export default function ComprasScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: CORES.marromEscuro },
-  header: { justifyContent: 'center', alignItems: 'center', paddingVertical: 10, backgroundColor: '#efac4a' },
+  header: { justifyContent: 'center', alignItems: 'flex-start', paddingHorizontal: 15, paddingVertical: 8, backgroundColor: '#efac4a' },
   logo: { width: 170, height: 49, resizeMode: 'contain' },
-  barraTituloTela: { backgroundColor: CORES.marromDestaque, paddingVertical: 12, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.1)' },
-  txtTituloTela: { color: CORES.branco, fontFamily: 'BebasNeue-Regular', fontSize: 26, letterSpacing: 1.5 },
   listaConteudo: { padding: 15, paddingBottom: 30 },
   cardItem: { flexDirection: 'row', backgroundColor: '#4a2c0a', borderRadius: 15, padding: 12, marginBottom: 15, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
   containerImagem: { width: 80, height: 80, backgroundColor: CORES.marromEscuro, borderRadius: 12, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: CORES.cinza, overflow: 'hidden' },
@@ -494,9 +503,10 @@ const styles = StyleSheet.create({
   boxSeletorData: { flexDirection: 'row', alignItems: 'center', marginTop: 6, backgroundColor: 'rgba(0,0,0,0.3)', padding: 6, borderRadius: 8, gap: 6 },
   txtDataAgendada: { color: CORES.creme, fontSize: 12, fontWeight: 'bold' },
 
-  boxInputHorario: { flexDirection: 'row', alignItems: 'center', marginTop: 6, backgroundColor: 'rgba(0,0,0,0.2)', padding: 6, borderRadius: 8 },
-  labelHorario: { color: CORES.creme, fontSize: 12, marginRight: 6 },
-  inputHorario: { flex: 1, color: CORES.dourado, fontSize: 13, fontWeight: 'bold', paddingVertical: 0, height: 22, borderBottomWidth: 1, borderBottomColor: CORES.dourado },
+  boxInputHorario: { flexDirection: 'row', alignItems: 'center', marginTop: 6, backgroundColor: 'rgba(0,0,0,0.2)', paddingHorizontal: 6, paddingVertical: 4, borderRadius: 8 },
+  labelHorario: { color: CORES.creme, fontSize: 12, marginRight: 4 },
+  btnSetaHorario: { paddingHorizontal: 6, paddingVertical: 2, justifyContent: 'center', alignItems: 'center' },
+  inputHorario: { color: CORES.dourado, fontSize: 13, fontWeight: 'bold', paddingVertical: 0, height: 22, minWidth: 46, textAlign: 'center', borderBottomWidth: 1, borderBottomColor: CORES.dourado },
   
   linhaPrecoQuantidade: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
   controladorQtd: { flexDirection: 'row', backgroundColor: CORES.branco, borderRadius: 8, alignItems: 'center', paddingHorizontal: 4, height: 30 },
