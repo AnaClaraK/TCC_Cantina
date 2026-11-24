@@ -137,7 +137,7 @@ const inputBusca = document.getElementById("inputBusca");
 function normalizarTexto(texto) {
     return String(texto || "")
         .normalize("NFD")
-        .replace(/[[\u0300-\u036f]/g, "")
+        .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase()
         .trim();
 }
@@ -174,38 +174,8 @@ inputBusca.addEventListener("input", () => {
 
 b_addq.addEventListener("click", () => {
     limparModal();
-
-    const produtosBaixoEstoque = produtosCache
-        .filter(p => Number(p.ativo) === 1 && !p.estoque_em_ml && Number(p.estoque_por_receita) !== 1 && Number(p.estoque_por_volume) !== 1 && (p.qtd || 0) <= 10)
-        .sort((a, b) => (a.qtd || 0) - (b.qtd || 0));
-
-    lista.innerHTML = "";
-
-    produtosBaixoEstoque.forEach((p, i) => {
-        const li = document.createElement("li");
-        li.textContent = `${p.nome} (${p.qtd || 0} un.)`;
-
-        li.onclick = () => {
-            inpBuscaModal.value = p.nome;
-            inpBuscaModal.dataset.codigo = p.codigo_barras;
-
-            document.getElementById("s_produto").innerText = p.nome;
-            document.getElementById("s_qtda").innerText = p.qtd || 0;
-
-            lista.innerHTML = "";
-            inpAddQtd.focus();
-        };
-
-        li.addEventListener("mouseenter", () => {
-            indexSelecionado = i;
-            atualizarDestaqueModal(lista.querySelectorAll("li"));
-        });
-
-        lista.appendChild(li);
-    });
-
-    indexSelecionado = -1;
     modal.showModal();
+    setTimeout(() => inpBuscaModal.focus(), 50);
 });
 
 b_addf.addEventListener("click", async () => {
@@ -247,6 +217,7 @@ function limparModal() {
     document.getElementById("s_qtda").innerText = "0";
     inpAddQtd.value = 0;
     lista.innerHTML = "";
+    lista.style.display = "none";
     indexSelecionado = -1;
 }
 
@@ -468,6 +439,11 @@ async function carregarProdutos() {
 }
 
 function selecionarProdutoModal(produto) {
+    if (Number(produto.estoque_em_ml) === 1) {
+        exibirAviso("Este produto é controlado em ml. Utilize Configurar ml para alterar o estoque.");
+        return;
+    }
+
     if (Number(produto.ativo) !== 1) {
         exibirAviso(`O produto "${produto.nome}" está inativo e não pode receber quantidade.`);
         return;
@@ -480,6 +456,7 @@ function selecionarProdutoModal(produto) {
     document.getElementById("s_qtda").innerText = produto.qtd || 0;
 
     lista.innerHTML = "";
+    lista.style.display = "none";
     indexSelecionado = -1;
 
     inpAddQtd.focus();
@@ -521,12 +498,13 @@ modal.addEventListener("keydown", (e) => {
         const termo = normalizarTexto(inpBuscaModal.value);
         const filtrados = produtosCache.filter(p =>
     Number(p.ativo) === 1 &&
+    Number(p.estoque_em_ml) !== 1 &&
     (normalizarTexto(p.nome).includes(termo) ||
     normalizarTexto(p.codigo_barras).startsWith(termo))
 );
 
         const listaTratada = termo === ""
-    ? produtosCache.filter(p => Number(p.ativo) === 1 && (p.qtd || 0) <= 10).sort((a, b) => (a.qtd || 0) - (b.qtd || 0))
+    ? produtosCache.filter(p => Number(p.ativo) === 1 && Number(p.estoque_em_ml) !== 1 && (p.qtd || 0) <= 10).sort((a, b) => (a.qtd || 0) - (b.qtd || 0))
     : filtrados.slice(0, 5);
 
         if (indexSelecionado >= 0 && listaTratada[indexSelecionado]) {
@@ -536,27 +514,47 @@ modal.addEventListener("keydown", (e) => {
 }, true);
 
 inpBuscaModal.addEventListener("input", () => {
-    const termo = inpBuscaModal.value.toLowerCase();
+    const termo = normalizarTexto(inpBuscaModal.value);
     lista.innerHTML = "";
+    lista.style.display = "none";
     indexSelecionado = -1;
 
-    const filtrados = produtosCache.filter(p =>
-        (p.nome || "").toLowerCase().includes(termo) ||
-        (p.codigo_barras || "").startsWith(termo)
-    ).slice(0, 5);
+    inpBuscaModal.dataset.codigo = "";
+    document.getElementById("s_produto").innerText = "---";
+    document.getElementById("s_qtda").innerText = "0";
 
-    filtrados.forEach((p, i) => {
+    if (!termo) return;
+
+    const filtrados = produtosCache
+        .filter(p => Number(p.ativo) === 1 && Number(p.estoque_em_ml) !== 1)
+        .filter(p => {
+            const nome = normalizarTexto(p.nome || p.nome_produto || "");
+            const codigo = normalizarTexto(p.codigo_barras || "");
+            return nome.includes(termo) || codigo.includes(termo);
+        })
+        .slice(0, 10);
+
+    if (filtrados.length === 0) {
         const li = document.createElement("li");
-        li.textContent = p.nome;
-        li.onclick = () => selecionarProdutoModal(p);
+        li.className = "sem-resultado-busca";
+        li.textContent = "Nenhum produto encontrado.";
+        lista.appendChild(li);
+        lista.style.display = "block";
+        return;
+    }
 
+    filtrados.forEach((produto, i) => {
+        const li = document.createElement("li");
+        li.textContent = produto.nome || produto.nome_produto || "Produto sem nome";
+        li.addEventListener("click", () => selecionarProdutoModal(produto));
         li.addEventListener("mouseenter", () => {
             indexSelecionado = i;
-            atualizarDestaqueModal(lista.querySelectorAll("li"));
+            atualizarDestaqueModal(lista.querySelectorAll("li:not(.sem-resultado-busca)"));
         });
-
         lista.appendChild(li);
     });
+
+    lista.style.display = "block";
 });
 
 inpAddQtd.addEventListener("focus", () => {

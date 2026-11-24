@@ -1566,6 +1566,7 @@ table thead th.sort-desc::after {
 }
 
 #d_modal #lista_sugestoes {
+    display: none;
     position: absolute;
     top: calc(100% + 6px);
     left: 0;
@@ -3535,7 +3536,7 @@ body.pagina-agendamento #sc_tabela .tabela th:nth-child(6), body.pagina-agendame
 }
 
 body.pagina-agendamento #sc_tabela .tabela th:nth-child(7), body.pagina-agendamento #sc_tabela .tabela td:nth-child(7) {
-    width: 2% !important;
+    width:6% !important;
 }
 
 body.pagina-estoque #sc_tabela {

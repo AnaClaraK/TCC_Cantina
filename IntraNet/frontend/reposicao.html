@@ -405,6 +405,7 @@
     b_addq.addEventListener("click", () => {
         limparModal();
         modal.showModal();
+        setTimeout(() => inpBuscaModal.focus(), 50);
     });
 
     b_close_modal.addEventListener("click", () => {
@@ -631,7 +632,7 @@
     function normalizarBusca(valor) {
         return String(valor ?? "")
             .normalize("NFD")
-            .replace(/[[\u0300-\u036f]/g, "")
+            .replace(/[\u0300-\u036f]/g, "")
             .toLowerCase()
             .trim();
     }
@@ -641,6 +642,7 @@
 
     function renderizarSugestoesProdutos(produtos, termoAtual = inpBuscaModal.value) {
         lista.innerHTML = "";
+        lista.style.display = "none";
         indexSelecionado = -1;
 
         const termo = normalizarBusca(termoAtual);
@@ -650,7 +652,7 @@
         }
 
         const somenteNumeros = termo.replace(/\D/g, "");
-        const buscaPorCodigo = somenteNumeros !== "" && /^[[\d\s\-./]+$/.test(String(termoAtual));
+        const buscaPorCodigo = somenteNumeros !== "" && /^[\d\s\-./]+$/.test(String(termoAtual));
 
         const filtrados = (Array.isArray(produtos) ? produtos : [])
             .filter(p => Number(p.ativo) === 1)
@@ -735,6 +737,7 @@
             li.className = "sem-resultado-busca";
             li.textContent = "Nenhum produto encontrado.";
             lista.appendChild(li);
+            lista.style.display = "block";
             return;
         }
 
@@ -766,6 +769,7 @@
                     0;
 
                 lista.innerHTML = "";
+                lista.style.display = "none";
                 indexSelecionado = -1;
 
                 document.getElementById("inp_add_qtd").focus();
@@ -773,6 +777,8 @@
 
             lista.appendChild(li);
         });
+
+        lista.style.display = "block";
     }
 
     inpBuscaModal.addEventListener("keydown", (e) => {
@@ -815,15 +821,13 @@
         }
     });
 
-    function normalizarBusca(valor) {
-        return String(valor ?? "")
-            .normalize("NFD")
-            .replace(/[[\u0300-\u036f]/g, "")
-            .toLowerCase()
-            .trim();
-    }
+
 
     inpBuscaModal.addEventListener("input", () => {
+        inpBuscaModal.dataset.codigo = "";
+        document.getElementById("s_produto").innerText = "---";
+        document.getElementById("s_qtda").innerText = "0";
+
         renderizarSugestoesProdutos(
             produtosCache,
             inpBuscaModal.value
