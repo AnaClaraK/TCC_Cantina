@@ -258,7 +258,7 @@
 
             <div class="cliente-form-grid cliente-form-grid-6">
                 <div class="cliente-campo">
-                    <label for="cep">CEP <small>opcional</small></label>
+                    <label for="cep">CEP</label>
                     <input
                         class="inp_m"
                         id="cep"
@@ -1649,7 +1649,7 @@ function preencherDetalhesCliente(c) {
 
             if (
                 email &&
-                !/^[[^\s@]+@[[^\s@]+\.[[^\s@]+$/.test(email)
+                !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
             ) {
                 exibirAviso(
                     "Informe um e-mail válido ou deixe o campo em branco."
