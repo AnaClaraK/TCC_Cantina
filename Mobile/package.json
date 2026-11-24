@@ -24,6 +24,7 @@
     "expo-updates": "~58.0.21",
     "gradle": "^1.2.4",
     "lottie-react-native": "~7.5.0",
+    "ngrok": "^5.0.0-beta.2",
     "react": "19.3.0",
     "react-native": "0.88.1",
     "react-native-calendars": "^1.1314.0",

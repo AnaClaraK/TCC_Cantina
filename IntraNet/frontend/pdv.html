@@ -2682,14 +2682,44 @@ b_buscar_comanda.addEventListener("click", () => {
     carregarComanda();
 });
 
+// Leitura automática da comanda pelo leitor de código de barras.
+// Aguarda a leitura terminar antes de acionar Carregar Comanda.
+let timerLeituraComanda = null;
+
+inputComanda.addEventListener("input", () => {
+
+    clearTimeout(timerLeituraComanda);
+
+    if (!dialogComanda.open || !inputComanda.value.trim()) {
+        return;
+    }
+
+    timerLeituraComanda = setTimeout(() => {
+
+        if (
+            dialogComanda.open &&
+            inputComanda.value.trim() !== "" &&
+            !b_buscar_comanda.disabled
+        ) {
+            b_buscar_comanda.click();
+        }
+
+    }, 250);
+});
+
+// Também permite carregar manualmente ao pressionar Enter.
 inputComanda.addEventListener("keydown", (e) => {
 
     if (e.key === "Enter") {
-
         e.preventDefault();
-
+        clearTimeout(timerLeituraComanda);
         b_buscar_comanda.click();
     }
+});
+
+// Cancela a leitura pendente ao fechar o modal.
+inputComanda.addEventListener("blur", () => {
+    clearTimeout(timerLeituraComanda);
 });
 
 window.addEventListener("keydown", (event) => {

@@ -422,7 +422,7 @@ input[type=number] {
 
 .chk-concluido:hover {
     border-color: #efac4a;
-    box-shadow: 0 0 8px #efac4a;
+    box-shadow: none;
 }
 
 .chk-concluido:checked {
@@ -1985,9 +1985,11 @@ body.pagina-estoque #btnEstoqueLiquidos {
 }
 
 body.pagina-estoque #btnEstoqueLiquidos:hover {
-    background: #efac4a;
-    color: #21180e;
-    background-color: #efac4a;
+    background: #1C1C1C;
+    color: #ffd28d;
+    background-color: #1C1C1C;
+    box-shadow: none;
+    filter: none;
 }
 
 body.pagina-estoque #s_addq {
@@ -3553,7 +3555,7 @@ body.pagina-estoque #sc_tabela {
 }
 
 body.pagina-estoque #d_modal_liquidos {
-    width: min(540px, calc(100vw - 32px));
+    width: min(640px, calc(100vw - 32px));
     max-width: 95%;
     height: auto;
     max-height: calc(100dvh - 32px);
@@ -3563,17 +3565,17 @@ body.pagina-estoque #d_modal_liquidos {
     background: #1c1c1c;
     color: #f8c471;
     box-shadow: 0 10px 50px rgba(0, 0, 0, .7);
-    overflow: hidden;
+    overflow: visible;
     box-sizing: border-box;
 }
 
 body.pagina-estoque #d_modal_liquidos .modal_box {
     width: 100%;
     height: auto;
-    max-height: calc(100dvh - 36px);
+    max-height: none;
     padding: 18px 24px 16px;
     padding-bottom: 20px;
-    overflow-y: auto;
+    overflow: visible;
     box-sizing: border-box;
 }
 
@@ -4080,9 +4082,10 @@ body.pagina-agendamento #b_clientes_app {
 }
 
 body.pagina-agendamento #b_clientes_app:hover {
-    background: #8a4b05;
+    background: #1c1c1c !important;
     transform: none !important;
-    filter: brightness(1.2) !important;
+    filter: none !important;
+    box-shadow: none !important;
     background-color: #1c1c1c !important;
 }
 

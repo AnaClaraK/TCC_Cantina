@@ -1311,7 +1311,7 @@ b_desbloquear_pagamento {
     top: calc(100% + 5px);
     left: 0;
     width: 100%;
-    max-height: 230px;
+    max-height: 200px;
     overflow-y: auto;
     background: #f1b869;
     border: 2px solid #efac4a;
@@ -1711,6 +1711,7 @@ b_desbloquear_pagamento {
 
 #dialogCredito #b_confirmar_credito, #dialogDinheiro #b_confirmar_dinheiro {
     min-height: 50px;
+    margin-top: 25px;
     border-radius: 9px;
     background: #62c370;
     color: #fff;
@@ -2017,8 +2018,8 @@ b_desbloquear_pagamento {
 }
 
 #d_aviso .aviso_box, #dialogComanda .modal_box, #dialogDinheiro .conteudo-dinheiro, #dialogCredito .conteudo-credito, #d_fiado .modal_titulo {
-    max-height: calc(100dvh - clamp(40px, 8vh, 80px));
-    overflow-y: auto;
+    max-height: none;
+    overflow: visible;
 }
 
 @media (max-width: 1400px) {
@@ -2245,12 +2246,12 @@ dialog > * {
 #dialogDinheiro, #dialogCredito, #d_fiado, #dialogDividirPagamento, #dialogComanda, #d_aviso {
     height: auto !important;
     max-height: calc(100dvh - 24px) !important;
-    overflow: hidden !important;
+    overflow: visible !important;
 }
 
 #dialogDinheiro .conteudo-dinheiro, #dialogCredito .conteudo-credito, #d_fiado .modal_titulo, #dialogComanda .modal_box, .split-box {
-    max-height: calc(100dvh - 24px);
-    overflow: hidden !important;
+    max-height: none;
+    overflow: visible !important;
 }
 
 #sc_inputs {
@@ -2597,7 +2598,7 @@ dialog, dialog > *, dialog article, dialog article > section, #dialogBusca .moda
 #dialogComanda, #dialogDinheiro, #dialogCredito, #dialogDividirPagamento, #d_fiado, #d_aviso {
     height: auto !important;
     max-height: calc(100dvh - 24px) !important;
-    overflow: hidden !important;
+    overflow: visible !important;
 }
 
 #d_modal article, #d_modal article section, #d_modal footer {
@@ -3057,14 +3058,13 @@ body.modo-monitor #dialogDinheiro[open]::backdrop, body.modo-monitor #dialogCred
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
-    max-height: calc(100dvh - 72px) !important;
+    max-height: none !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: stretch !important;
     justify-content: center !important;
     gap: 18px !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
+    overflow: visible !important;
     box-sizing: border-box !important;
 }
 
@@ -3264,13 +3264,11 @@ dialog {
     flex: 1 1 auto !important;
     flex-direction: column;
     min-height: 0 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     gap: clamp(8px, 1.3vw, 14px);
     padding: clamp(14px, 2vw, 24px);
-    overflow-y: auto !important;
     height: auto !important;
     max-height: none !important;
-    overflow-x: hidden !important;
     box-sizing: border-box !important;
 }
 
@@ -3285,7 +3283,7 @@ dialog {
 }
 
 #dialogDinheiro {
-    width: min(430px, calc(100vw - 32px)) !important;
+    width: min(460px, calc(100vw - 32px)) !important;
     padding: 0 !important;
     color: #f1b869;
     background: #1c1c1c;
@@ -3295,7 +3293,7 @@ dialog {
     height: auto !important;
     max-height: calc(100dvh - 32px) !important;
     min-height: 0 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     box-sizing: border-box !important;
 }
 
@@ -3311,19 +3309,17 @@ dialog {
     color: #ffffff;
     height: auto !important;
     min-height: 0 !important;
-    max-height: calc(100dvh - 32px) !important;
+    max-height: none !important;
     overflow: visible !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
 }
 
 #dialogCredito {
-    width: min(450px, calc(100vw - 32px)) !important;
+    width: min(480px, calc(100vw - 32px)) !important;
     height: auto !important;
     padding: 0 !important;
     max-height: calc(100dvh - 32px) !important;
     min-height: 0 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     box-sizing: border-box !important;
 }
 
@@ -3339,10 +3335,8 @@ dialog {
     color: #f8c471;
     height: auto !important;
     min-height: 0 !important;
-    max-height: calc(100dvh - 32px) !important;
+    max-height: none !important;
     overflow: visible !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
 }
 
 #dialogCredito:has(#campoValorCreditoDivisao[style*="display: block"]) {
@@ -3351,11 +3345,11 @@ dialog {
 }
 
 #dialogDividirPagamento {
-    width: min(520px, calc(100vw - 32px)) !important;
+    width: min(580px, calc(100vw - 32px)) !important;
     max-width: 95%;
     max-height: calc(100dvh - 32px) !important;
     padding: 0 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     color: #f8c471;
     background: #1c1c1c;
     border: 2px solid #efac4a;
@@ -3367,18 +3361,16 @@ dialog {
 }
 
 #dialogDividirPagamento .split-box {
-    max-height: calc(100dvh - 32px) !important;
-    overflow-y: auto !important;
+    max-height: none !important;
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
     overflow: visible !important;
     box-sizing: border-box !important;
-    overflow-x: hidden !important;
 }
 
 #d_fiado {
-    width: min(450px, calc(100vw - 32px)) !important;
+    width: min(500px, calc(100vw - 32px)) !important;
     max-width: 95%;
     padding: 0 !important;
     color: #f8c471;
@@ -3386,7 +3378,7 @@ dialog {
     border: 2px solid #efac4a;
     border-radius: 16px;
     box-shadow: 0 10px 40px rgba(0,0,0,.65);
-    overflow: hidden !important;
+    overflow: visible !important;
     height: auto !important;
     max-height: calc(100dvh - 32px) !important;
     min-height: 0 !important;
@@ -3406,15 +3398,13 @@ dialog {
     text-align: left;
     height: auto !important;
     min-height: 0 !important;
-    max-height: calc(100dvh - 32px) !important;
+    max-height: none !important;
     overflow: visible !important;
     box-sizing: border-box !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
 }
 
 #d_aviso {
-    width: 380px !important;
+    width: min(460px, calc(100vw - 32px)) !important;
     max-width: 90vw !important;
     height: auto !important;
     max-height: calc(100dvh - 32px) !important;
@@ -3431,22 +3421,19 @@ dialog {
     padding: 20px !important;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6) !important;
     box-sizing: border-box !important;
-    overflow-y: auto !important;
     min-height: 0 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
 }
 
 #d_aviso .aviso_box {
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
-    max-height: calc(100dvh - 72px) !important;
+    max-height: none !important;
     overflow: visible !important;
     box-sizing: border-box !important;
     display: flex !important;
     flex-direction: column !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
 }
 
 #msg_aviso {
@@ -3481,14 +3468,14 @@ dialog {
     border: 2px solid #efac4a !important;
     border-radius: 16px !important;
     padding: 0 !important;
-    width: min(980px, calc(100vw - 24px));
+    width: min(1080px, calc(100vw - 24px));
     max-width: calc(100vw - 24px) !important;
     background-color: #242628;
     color: #fff !important;
     box-shadow: 0 10px 50px rgba(0,0,0,.7) !important;
     max-height: calc(100dvh - 32px) !important;
     background: #1c1c1c !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     height: auto !important;
     box-sizing: border-box !important;
     position: fixed !important;
@@ -3496,7 +3483,6 @@ dialog {
     left: 50% !important;
     transform: none !important;
     margin: auto !important;
-    overflow-y: auto;
     min-height: 0 !important;
     right: auto !important;
     bottom: auto !important;
@@ -3504,24 +3490,22 @@ dialog {
 }
 
 #dialogFechamentoDiario .fechamento-box {
-    max-height: calc(100dvh - 32px) !important;
-    overflow: hidden !important;
+    max-height: none !important;
+    overflow: visible !important;
     box-sizing: border-box !important;
     height: auto !important;
     width: 100% !important;
     min-height: 0 !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
 }
 
 #d_modal_fiado {
-    width: min(650px, calc(100vw - 32px)) !important;
+    width: min(720px, calc(100vw - 32px)) !important;
     max-width: 95%;
     height: auto !important;
     padding: 0 !important;
     max-height: calc(100dvh - 32px) !important;
     min-height: 0 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     box-sizing: border-box !important;
 }
 
@@ -3529,21 +3513,19 @@ dialog {
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
-    max-height: calc(100dvh - 32px) !important;
+    max-height: none !important;
     overflow: visible !important;
     box-sizing: border-box !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
 }
 
 #d_modal_produtos {
-    width: min(700px, calc(100vw - 32px)) !important;
+    width: min(760px, calc(100vw - 32px)) !important;
     max-width: 95%;
     height: auto !important;
     padding: 0 !important;
     max-height: calc(100dvh - 32px) !important;
     min-height: 0 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     box-sizing: border-box !important;
 }
 
@@ -3551,11 +3533,9 @@ dialog {
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
-    max-height: calc(100dvh - 32px) !important;
+    max-height: none !important;
     overflow: visible !important;
     box-sizing: border-box !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
 }
 
 dialog button {
@@ -3717,12 +3697,10 @@ dialog button {
     display: flex !important;
     flex-direction: column !important;
     gap: 18px !important;
-    overflow-x: hidden !important;
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
     overflow: visible !important;
-    overflow-y: auto !important;
     max-width: 100% !important;
     justify-content: flex-start !important;
     align-items: stretch !important;
@@ -3799,8 +3777,7 @@ dialog button {
     width: 100% !important;
     min-height: 0 !important;
     box-sizing: border-box !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
+    overflow: visible !important;
 }
 
 #d_modal[open] article > footer {
@@ -3811,46 +3788,44 @@ dialog button {
 
 #d_fiado[open] {
     box-sizing: border-box !important;
-    width: min(450px, calc(100vw - 32px)) !important;
+    width: min(500px, calc(100vw - 32px)) !important;
     max-width: calc(100vw - 32px) !important;
     height: fit-content !important;
     min-height: 0 !important;
     max-height: calc(100dvh - 32px) !important;
     margin: auto !important;
     padding: 0 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
 }
 
 #d_fiado[open] .conteudo-fiado, #d_fiado[open] .modal-conteudo, #d_fiado[open] .modal_box {
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
-    max-height: calc(100dvh - 32px) !important;
+    max-height: none !important;
     box-sizing: border-box !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
+    overflow: visible !important;
 }
 
 #dialogDividirPagamento[open] {
     box-sizing: border-box !important;
-    width: min(520px, calc(100vw - 32px)) !important;
+    width: min(580px, calc(100vw - 32px)) !important;
     max-width: calc(100vw - 32px) !important;
     height: fit-content !important;
     min-height: 0 !important;
     max-height: calc(100dvh - 32px) !important;
     margin: auto !important;
     padding: 0 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
 }
 
 #dialogDividirPagamento[open] .split-box, #dialogDividirPagamento[open] .conteudo-dividir {
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
-    max-height: calc(100dvh - 32px) !important;
+    max-height: none !important;
     box-sizing: border-box !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
+    overflow: visible !important;
 }
 
 #d_modal *, #d_fiado *, #dialogDividirPagamento * {
@@ -3860,14 +3835,14 @@ dialog button {
 
 #d_modal[open] {
     box-sizing: border-box !important;
-    width: min(600px, calc(100vw - 32px)) !important;
+    width: min(680px, calc(100vw - 32px)) !important;
     max-width: calc(100vw - 32px) !important;
     height: fit-content !important;
     min-height: 0 !important;
     max-height: calc(100dvh - 32px) !important;
     margin: auto !important;
     padding: 0 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
 }
 
 #d_modal[open] article {
@@ -3876,9 +3851,9 @@ dialog button {
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
-    max-height: calc(100dvh - 32px) !important;
+    max-height: none !important;
     box-sizing: border-box !important;
-    overflow: hidden !important;
+    overflow: visible !important;
 }
 
 #d_modal[open] article section {
@@ -3886,11 +3861,10 @@ dialog button {
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
-    max-height: calc(100dvh - 120px) !important;
+    max-height: none !important;
     padding: clamp(14px, 2vw, 24px) !important;
     gap: clamp(8px, 1.3vw, 14px) !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
+    overflow: visible !important;
     box-sizing: border-box !important;
 }
 
@@ -3950,22 +3924,23 @@ dialog button {
     padding: 16px !important;
     transform: none !important;
     box-sizing: border-box !important;
-    overflow: auto !important;
+    overflow: hidden !important;
 }
 
 #dialogDinheiro[open] .conteudo-dinheiro {
     position: relative !important;
     margin: auto !important;
-    flex: 0 1 430px !important;
-    width: 430px !important;
+    flex: 0 1 460px !important;
+    width: 460px !important;
     max-width: 100% !important;
 }
 
 #dialogCredito[open] .conteudo-credito {
     position: relative !important;
     margin: auto !important;
-    flex: 0 1 450px !important;
-    width: 450px !important;
+    flex: 0 1 480px !important;
+    width: 480px !important;
+    min-height: 500px !important;
     max-width: 100% !important;
 }
 
