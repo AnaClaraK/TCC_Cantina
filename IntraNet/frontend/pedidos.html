@@ -8,8 +8,7 @@
     <link rel="stylesheet" href="styleag_es.css">
     <link rel="stylesheet" href="layout.css">
     <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
-
-    <title>Histórico de Pedidos</title>
+<title>Histórico de Pedidos</title>
 </head>
 
 <body class="fundo-escuro pagina-historico">
@@ -549,94 +548,107 @@ function aplicarOrdenacaoTabela(
 
 }
 
-function formatarFormaPagamento(texto) {
+function converterValorPagamento(texto) {
+    let valor = String(texto ?? "")
+        .replace(/R\$\s*/gi, "")
+        .replace(/\s/g, "")
+        .trim();
 
-    if (
-        texto === null ||
-        texto === undefined ||
-        String(texto).trim() === ""
-    ) {
+    if (valor.includes(",") && valor.includes(".")) {
+        valor = valor.replace(/\./g, "").replace(",", ".");
+    } else if (valor.includes(",")) {
+        valor = valor.replace(",", ".");
+    }
+
+    const numero = Number(valor);
+    return Number.isFinite(numero) ? numero : NaN;
+}
+
+function formatarFormaPagamento(texto, pedido = null) {
+    if (texto === null || texto === undefined || String(texto).trim() === "") {
         return "-";
     }
 
-    const valorOriginal =
-        String(texto).trim();
+    const valorOriginal = String(texto).trim();
+    const partes = valorOriginal.includes(" + ")
+        ? valorOriginal.split(/\s+\+\s+/)
+        : valorOriginal.includes("=")
+            ? valorOriginal.split(/,\s*(?=[^,]+=)/)
+            : [];
 
-    if (valorOriginal.includes("=")) {
+    if (partes.length < 2) {
+        const formatado = (
+            valorOriginal.charAt(0).toUpperCase() +
+            valorOriginal.slice(1).toLowerCase()
+        ).replace(/r\$/g, "R$");
 
-        const partes =
-            valorOriginal
-                .split(",")
-                .map(parte => parte.trim())
-                .filter(Boolean);
-
-        const pagamentos =
-            partes.map(parte => {
-
-                const indiceIgual =
-                    parte.lastIndexOf("=");
-
-                if (indiceIgual <= 0) {
-
-                    return escapeHtml(parte);
-
-                }
-
-                const forma =
-                    parte
-                        .slice(
-                            0,
-                            indiceIgual
-                        )
-                        .trim();
-
-                const valorTexto =
-                    parte
-                        .slice(
-                            indiceIgual + 1
-                        )
-                        .trim();
-
-                const valorNumerico =
-                    Number(
-                        valorTexto.replace(
-                            ",",
-                            "."
-                        )
-                    );
-
-                if (
-                    !Number.isFinite(
-                        valorNumerico
-                    )
-                ) {
-
-                    return escapeHtml(
-                        forma
-                    );
-
-                }
-
-                return `
-                    <div style="line-height:1.5;">
-                        ${escapeHtml(forma)}:
-                        R$ ${valorNumerico
-                            .toFixed(2)
-                            .replace(".", ",")}
-                    </div>
-                `;
-
-            });
-
-        return pagamentos.join("");
-
+        return escapeHtml(formatado);
     }
 
-    return escapeHtml(
-        valorOriginal
-    );
-}
+    const pagamentos = partes.map(parte => {
+        const textoParte = parte.trim();
+        const correspondencia = textoParte.match(/^(.+?)\s*(?::\s*R\$\s*|=\s*)(.+)$/i);
 
+        if (!correspondencia) {
+            return { credito: false, html: escapeHtml(textoParte) };
+        }
+
+        const formaOriginal = correspondencia[1].trim();
+        const valorInformado = converterValorPagamento(correspondencia[2]);
+
+        if (!Number.isFinite(valorInformado)) {
+            return { credito: false, html: escapeHtml(textoParte) };
+        }
+
+        if (/cartão\s+de\s+crédito/i.test(formaOriginal)) {
+            const parcelasNaForma = formaOriginal.match(/(\d+)\s*x/i);
+            const totalParcelas = Number(
+                pedido?.total_parcelas_credito || parcelasNaForma?.[1] || 0
+            );
+            const totalPago = Number(pedido?.valor_credito_pago || 0);
+            const totalPendente = Number(pedido?.valor_credito_pendente || 0);
+            const totalCreditoInformado = Number(pedido?.valor_credito_total);
+            const totalCredito = Number.isFinite(totalCreditoInformado) && totalCreditoInformado > 0
+                ? totalCreditoInformado
+                : totalPago + totalPendente > 0
+                    ? totalPago + totalPendente
+                    : valorInformado;
+            const valorParcela = Number(
+                pedido?.valor_parcela_credito ||
+                (totalParcelas > 0 ? totalCredito / totalParcelas : 0)
+            );
+            const statusPedido = String(pedido?.status || "").trim().toLowerCase();
+            const possuiResumoParcelas = Number(pedido?.total_parcelas_credito || 0) > 0;
+            const parcelasPagas = totalParcelas > 0
+                ? possuiResumoParcelas
+                    ? Number(pedido?.parcelas_pagas_credito || 0)
+                    : statusPedido === "finalizado" ? totalParcelas : 1
+                : 0;
+
+            if (totalParcelas > 0 && valorParcela > 0) {
+                return {
+                    credito: true,
+                    html: `Crédito ${parcelasPagas}/${totalParcelas} (total R$ ${totalCredito.toFixed(2).replace(".", ",")})`
+                };
+            }
+
+            return {
+                credito: true,
+                html: `Crédito R$ ${totalCredito.toFixed(2).replace(".", ",")}`
+            };
+        }
+
+        const forma = formaOriginal.replace(/\s*[—-]\s*\d+\s*x\s*$/i, "");
+        return {
+            credito: false,
+            html: `${escapeHtml(forma)} R$ ${valorInformado.toFixed(2).replace(".", ",")}`
+        };
+    });
+
+    pagamentos.sort((a, b) => Number(b.credito) - Number(a.credito));
+
+    return `<span style="line-height:1.4;">${pagamentos.map(pagamento => pagamento.html).join(" • ")}</span>`;
+}
 function escapeHtml(valor) {
 
     return String(valor)
@@ -674,6 +686,22 @@ document.addEventListener(
     }
 );
 
+function ehPedidoDivididoComCreditoPendente(pedido) {
+    const status = String(pedido?.status || "").trim().toLowerCase();
+    const forma = String(pedido?.form_pag || "");
+    const partes = forma.includes(" + ")
+        ? forma.split(/\s+\+\s+/)
+        : forma.includes("=")
+            ? forma.split(/,\s*(?=[^,]+=)/)
+            : [];
+
+    return (
+        status === "pendente" &&
+        partes.length > 1 &&
+        /cartão\s+de\s+crédito/i.test(forma) &&
+        /\d+\s*x/i.test(forma)
+    );
+}
 async function buscarProdutosEstoque() {
 
     if (!corpoTabela) {
@@ -708,15 +736,10 @@ async function buscarProdutosEstoque() {
 
         pedidosCarregados =
             Array.isArray(dadosHistorico)
-                ? dadosHistorico.filter(
-                    pedido =>
-                        String(
-                            pedido?.status || ""
-                        )
-                        .trim()
-                        .toLowerCase() ===
-                        "finalizado"
-                )
+                ? dadosHistorico.filter(pedido => {
+                    const status = String(pedido?.status || "").trim().toLowerCase();
+                    return status === "finalizado" || ehPedidoDivididoComCreditoPendente(pedido);
+                })
                 : [];
 
         calcularRankingProdutos();
@@ -730,7 +753,7 @@ async function buscarProdutosEstoque() {
                     <td
                         colspan="6"
                         style="text-align: center;">
-                        Nenhum pedido finalizado encontrado.
+                        Nenhum pedido encontrado.
                     </td>
                 </tr>
             `;
@@ -969,7 +992,7 @@ function renderizarTabela(pedidos) {
                 <td
                     colspan="6"
                     style="text-align: center;">
-                    Nenhum pedido finalizado encontrado.
+                    Nenhum pedido encontrado.
                 </td>
             </tr>
         `;
@@ -1006,7 +1029,8 @@ function renderizarTabela(pedidos) {
 
             const pagamentoFormatado =
                 formatarFormaPagamento(
-                    pedido.form_pag
+                    pedido.form_pag,
+                    pedido
                 );
 
             const tr =
@@ -1081,24 +1105,20 @@ function obterPedidosDoMesAtual() {
 
     return pedidosCarregados.filter(
         pedido => {
+            if (String(pedido.status || "").trim().toLowerCase() !== "finalizado") {
+                return false;
+            }
 
             if (!pedido.data) {
                 return false;
             }
 
-            const dataPedido =
-                new Date(
-                    pedido.data
-                );
+            const dataPedido = new Date(pedido.data);
 
             return (
-                dataPedido.getMonth() ===
-                    mesAtual
-                &&
-                dataPedido.getFullYear() ===
-                    anoAtual
+                dataPedido.getMonth() === mesAtual &&
+                dataPedido.getFullYear() === anoAtual
             );
-
         }
     );
 
@@ -1150,6 +1170,10 @@ function calcularRankingProdutos() {
 
     pedidosCarregados.forEach(
         pedido => {
+
+            if (String(pedido.status || "").trim().toLowerCase() !== "finalizado") {
+                return;
+            }
 
             let listaProds =
                 pedido.itens ||

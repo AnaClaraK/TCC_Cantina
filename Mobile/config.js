@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
 
-const IP_SERVIDOR_PADRAO = '10.111.9.70';
+const IP_SERVIDOR_PADRAO = '10.111.9.40';
 
 const hostUri =
   Constants.expoConfig?.hostUri ||

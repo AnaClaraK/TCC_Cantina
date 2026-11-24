@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="stylecadp.css">
     <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
     <title>Cadastro de Produtos - Grano Vita</title>
+
 </head>
 
 <body class="fundo-laranja">
@@ -40,12 +41,15 @@
 
                 <div class="form-group">
                     <label for="porcentagem_lucro">Lucro (%)</label>
-                    <input type="number" step="0.1" id="porcentagem_lucro" value="50" placeholder="50">
+                    <input type="number" step="any" id="porcentagem_lucro" value="50" placeholder="50">
                 </div>
 
                 <div class="form-group">
                     <label for="preco_final">Preço Venda (R$)</label>
-                    <input type="text" id="preco_final" placeholder="0,00" class="input-disabled" readonly>
+                    <div class="preco-venda-controle">
+                        <input type="text" id="preco_final" placeholder="0,00" class="input-disabled" readonly inputmode="decimal">
+                        <button type="button" id="btnDesbloquearPrecoCadastro" class="botao-desbloquear-preco" aria-label="Desbloquear edição do preço de venda" aria-pressed="false" title="Desbloquear preço de venda"><img src="../backend/imagens/cadeado_p.png" alt="" aria-hidden="true"></button>
+                    </div>
                 </div>
             </div>
 
@@ -281,41 +285,106 @@
             }
         }
 
-        function calcularPrecoVenda() {
-            const valorBruto =
-                parseFloat(document.getElementById("valor_bruto").value) || 0;
+        const inputValorBruto = document.getElementById("valor_bruto");
+        const inputPorcentagemLucro = document.getElementById("porcentagem_lucro");
+        const inputPrecoVenda = document.getElementById("preco_final");
+        const btnDesbloquearPreco = document.getElementById("btnDesbloquearPrecoCadastro");
+        let precoVendaDesbloqueado = false;
+        let precoVendaManual = false;
 
-            const porcentagem =
-                parseFloat(document.getElementById("porcentagem_lucro").value) || 0;
-
-            const precoVenda =
-                valorBruto + (valorBruto * (porcentagem / 100));
-
-            document.getElementById("preco_final").value =
-                precoVenda.toFixed(2).replace(".", ",");
+        function converterValorMonetario(valor) {
+            let texto = String(valor ?? "").trim().replace(/[^0-9,.-]/g, "");
+            if (texto.includes(",") && texto.includes(".")) {
+                texto = texto.replace(/\./g, "").replace(",", ".");
+            } else {
+                texto = texto.replace(",", ".");
+            }
+            return Number(texto);
         }
 
-        document
-            .getElementById("valor_bruto")
-            .addEventListener("input", calcularPrecoVenda);
+        function atualizarPorcentagemPeloPreco() {
+            const bruto = converterValorMonetario(inputValorBruto.value);
+            const venda = converterValorMonetario(inputPrecoVenda.value);
+            if (!Number.isFinite(bruto) || bruto <= 0 || !Number.isFinite(venda)) return;
+            inputPorcentagemLucro.value = (((venda / bruto) - 1) * 100).toFixed(6);
+        }
 
-        document
-            .getElementById("porcentagem_lucro")
-            .addEventListener("input", calcularPrecoVenda);
+        function calcularPrecoVenda() {
+            const valorBruto = converterValorMonetario(inputValorBruto.value) || 0;
+            const porcentagem = converterValorMonetario(inputPorcentagemLucro.value) || 0;
+
+            if (precoVendaManual) {
+                atualizarPorcentagemPeloPreco();
+                return;
+            }
+
+            const precoVenda = valorBruto + (valorBruto * (porcentagem / 100));
+            inputPrecoVenda.value = precoVenda.toFixed(2).replace(".", ",");
+        }
+
+        function definirPrecoVendaDesbloqueado(desbloqueado) {
+            precoVendaDesbloqueado = Boolean(desbloqueado);
+            inputPrecoVenda.readOnly = !precoVendaDesbloqueado;
+            inputPrecoVenda.classList.toggle("input-disabled", !precoVendaDesbloqueado);
+            btnDesbloquearPreco.setAttribute("aria-label", precoVendaDesbloqueado ? "Bloquear edição do preço de venda" : "Desbloquear edição do preço de venda");
+            btnDesbloquearPreco.setAttribute("aria-pressed", String(precoVendaDesbloqueado));
+            btnDesbloquearPreco.title = precoVendaDesbloqueado ? "Bloquear edição do preço de venda" : "Desbloquear preço de venda";
+            if (precoVendaDesbloqueado) {
+                inputPrecoVenda.focus();
+                inputPrecoVenda.select();
+            }
+        }
+
+        btnDesbloquearPreco.addEventListener("click", () => {
+            if (precoVendaDesbloqueado) {
+                definirPrecoVendaDesbloqueado(false);
+                return;
+            }
+
+            exibirAviso(
+                "Tem certeza de que deseja desbloquear a alteração direta do preço de venda?",
+                () => definirPrecoVendaDesbloqueado(true),
+                true
+            );
+        });
+
+        inputPrecoVenda.addEventListener("input", () => {
+            if (!precoVendaDesbloqueado) return;
+            precoVendaManual = true;
+            atualizarPorcentagemPeloPreco();
+        });
+
+        inputValorBruto.addEventListener("input", calcularPrecoVenda);
+
+        inputPorcentagemLucro.addEventListener("input", () => {
+            precoVendaManual = false;
+            calcularPrecoVenda();
+        });
 
         document
             .getElementById("form_cadastrar_produto")
             .addEventListener("submit", async e => {
                 e.preventDefault();
 
-                const valorBruto =
-                    parseFloat(document.getElementById("valor_bruto").value) || 0;
+                const valorBruto = converterValorMonetario(inputValorBruto.value) || 0;
+                let precoCalculado = converterValorMonetario(inputPrecoVenda.value);
+                let porcentagem = converterValorMonetario(inputPorcentagemLucro.value) || 0;
 
-                const porcentagem =
-                    parseFloat(document.getElementById("porcentagem_lucro").value) || 0;
+                if (precoVendaManual) {
+                    if (valorBruto <= 0 || !Number.isFinite(precoCalculado) || precoCalculado <= 0) {
+                        exibirAviso("Informe um custo/bruto e um preço de venda válidos.");
+                        return;
+                    }
+                    porcentagem = ((precoCalculado / valorBruto) - 1) * 100;
+                    inputPorcentagemLucro.value = porcentagem.toFixed(6);
+                } else {
+                    precoCalculado = valorBruto + (valorBruto * (porcentagem / 100));
+                }
 
-                const precoCalculado =
-                    (valorBruto + (valorBruto * (porcentagem / 100))).toFixed(2);
+                if (!Number.isFinite(precoCalculado) || precoCalculado <= 0) {
+                    exibirAviso("O preço de venda precisa ser maior que zero.");
+                    return;
+                }
 
                 const formData = new FormData();
 
@@ -341,7 +410,7 @@
 
                 formData.append(
                     "preco",
-                    precoCalculado
+                    precoCalculado.toFixed(2)
                 );
 
                 const qtdDigitada = document.getElementById("quantidade").value.trim();

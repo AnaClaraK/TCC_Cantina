@@ -10,6 +10,7 @@
     <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
 
     <title>Editar Produto - Grano Vita</title>
+
 </head>
 
 <body>
@@ -88,7 +89,7 @@
 
                 <input
                     type="number"
-                    step="0.1"
+                    step="any"
                     name="porcentagem_lucro"
                     id="porcentagem_lucro"
                     value="50"
@@ -102,15 +103,19 @@
                     Preço Venda (R$)
                 </label>
 
-                <input
-                    type="text"
-                    name="preco"
-                    id="preco"
-                    placeholder="0,00"
-                    class="input-disabled"
-                    readonly
-                    disabled
-                >
+                <div class="preco-venda-controle">
+                    <input
+                        type="text"
+                        name="preco"
+                        id="preco"
+                        placeholder="0,00"
+                        class="input-disabled"
+                        inputmode="decimal"
+                        readonly
+                        disabled
+                    >
+                    <button type="button" id="btnDesbloquearPrecoEdicao" class="botao-desbloquear-preco" aria-label="Desbloquear edição do preço de venda" aria-pressed="false" title="Desbloquear preço de venda" disabled><img src="../backend/imagens/cadeado_p.png" alt="" aria-hidden="true"></button>
+                </div>
             </div>
 
         </div>
@@ -252,34 +257,20 @@
 </div>
 
 <dialog id="d_aviso">
-
-    <div class="modal-box">
-
-        <div id="msg_aviso"></div>
-
-        <div class="modal-botoes">
-
-            <button id="b_confirmar_aviso">
-                OK
-            </button>
-
-            <button
-                id="b_cancelar_aviso"
-                style="display:none;"
-            >
-                Cancelar
-            </button>
-
+    <div class="aviso_box">
+        <p id="msg_aviso"></p>
+        <div class="aviso_botoes">
+            <button id="b_confirmar_aviso">OK</button>
+            <button id="b_cancelar_aviso" style="display:none;">Cancelar</button>
         </div>
-
     </div>
-
 </dialog>
 <script>
 
 const nome = document.getElementById("nome");
 const codigo = document.getElementById("codigo");
 const preco = document.getElementById("preco");
+const btnDesbloquearPreco = document.getElementById("btnDesbloquearPrecoEdicao");
 const qtd = document.getElementById("qtd");
 const descricao = document.getElementById("descricao");
 const previewImg = document.getElementById("preview-img");
@@ -319,6 +310,7 @@ const camposEdicao = [
     nome,
     codigo,
     preco,
+    btnDesbloquearPreco,
     qtd,
     qtdMin,
     ativo,
@@ -332,6 +324,8 @@ const camposEdicao = [
 let produtosCache = [];
 let produtoSelecionado = null;
 let indexSelecionado = -1;
+let precoDesbloqueado = false;
+let precoManualAtivo = false;
 
 function exibirAviso(
     mensagem,
@@ -527,29 +521,67 @@ function atualizarSelecao(itens) {
 
 }
 
-function calcularPrecoVenda() {
-
-    const valorBrutoAtual =
-        parseFloat(
-            valorBruto.value
-        ) || 0;
-
-    const porcentagem =
-        parseFloat(
-            porcentagemLucro.value
-        ) || 0;
-
-    const precoVenda =
-        valorBrutoAtual +
-        (
-            valorBrutoAtual *
-            (porcentagem / 100)
-        );
-
-    preco.value =
-        precoVenda.toFixed(2);
-
+function converterValorMonetario(valor) {
+    let texto = String(valor ?? "").trim().replace(/[^0-9,.-]/g, "");
+    if (texto.includes(",") && texto.includes(".")) {
+        texto = texto.replace(/\./g, "").replace(",", ".");
+    } else {
+        texto = texto.replace(",", ".");
+    }
+    return Number(texto);
 }
+
+function atualizarPorcentagemPeloPreco() {
+    const bruto = converterValorMonetario(valorBruto.value);
+    const venda = converterValorMonetario(preco.value);
+    if (!Number.isFinite(bruto) || bruto <= 0 || !Number.isFinite(venda)) return;
+    porcentagemLucro.value = (((venda / bruto) - 1) * 100).toFixed(6);
+}
+
+function calcularPrecoVenda() {
+    const valorBrutoAtual = converterValorMonetario(valorBruto.value) || 0;
+    const porcentagem = converterValorMonetario(porcentagemLucro.value) || 0;
+
+    if (precoManualAtivo) {
+        atualizarPorcentagemPeloPreco();
+        return;
+    }
+
+    const precoVenda = valorBrutoAtual + (valorBrutoAtual * (porcentagem / 100));
+    preco.value = precoVenda.toFixed(2).replace(".", ",");
+}
+
+function definirPrecoDesbloqueado(desbloqueado) {
+    precoDesbloqueado = Boolean(desbloqueado);
+    preco.readOnly = !precoDesbloqueado;
+    preco.classList.toggle("input-disabled", !precoDesbloqueado);
+    btnDesbloquearPreco.setAttribute("aria-label", precoDesbloqueado ? "Bloquear edição do preço de venda" : "Desbloquear edição do preço de venda");
+    btnDesbloquearPreco.setAttribute("aria-pressed", String(precoDesbloqueado));
+    btnDesbloquearPreco.title = precoDesbloqueado ? "Bloquear edição do preço de venda" : "Desbloquear preço de venda";
+    if (precoDesbloqueado) {
+        preco.focus();
+        preco.select();
+    }
+}
+
+btnDesbloquearPreco.addEventListener("click", () => {
+    if (precoDesbloqueado) {
+        definirPrecoDesbloqueado(false);
+        return;
+    }
+
+    exibirAviso(
+        "Tem certeza de que deseja desbloquear a alteração direta do preço de venda?",
+        () => definirPrecoDesbloqueado(true),
+        true
+    );
+});
+
+preco.addEventListener("input", () => {
+    if (!precoDesbloqueado) return;
+    precoManualAtivo = true;
+    atualizarPorcentagemPeloPreco();
+});
 
 function selecionarProduto(p) {
 
@@ -578,6 +610,10 @@ nome.value =
     descricao.value =
         p.descricao || "";
 
+    preco.value = converterValorMonetario(p.preco).toFixed(2).replace(".", ",");
+    precoManualAtivo = false;
+    precoDesbloqueado = false;
+
     if (p.ativo !== undefined) {
 
         ativo.value =
@@ -588,8 +624,6 @@ nome.value =
         ativo.value = "1";
 
     }
-
-    calcularPrecoVenda();
 
     if (p.img) {
 
@@ -626,21 +660,19 @@ nome.value =
         }
     );
 
-    preco.disabled = true;
+    preco.disabled = false;
+    definirPrecoDesbloqueado(false);
 
     lista.innerHTML = "";
 
 }
 
-valorBruto.addEventListener(
-    "input",
-    calcularPrecoVenda
-);
+valorBruto.addEventListener("input", calcularPrecoVenda);
 
-porcentagemLucro.addEventListener(
-    "input",
-    calcularPrecoVenda
-);
+porcentagemLucro.addEventListener("input", () => {
+    precoManualAtivo = false;
+    calcularPrecoVenda();
+});
 
 inputImagem.addEventListener(
     "change",
@@ -675,25 +707,26 @@ formProduto.addEventListener(
 
         }
 
-        const valorBrutoAtual =
-            parseFloat(
-                valorBruto.value
-            ) || 0;
+        const valorBrutoAtual = converterValorMonetario(valorBruto.value) || 0;
+        let precoCalculado = converterValorMonetario(preco.value);
+        let porcentagem = converterValorMonetario(porcentagemLucro.value) || 0;
 
-        const porcentagem =
-            parseFloat(
-                porcentagemLucro.value
-            ) || 0;
+        if (precoManualAtivo) {
+            if (valorBrutoAtual <= 0 || !Number.isFinite(precoCalculado) || precoCalculado <= 0) {
+                exibirAviso("Informe um custo/bruto e um preço de venda válidos.");
+                return;
+            }
+            porcentagem = ((precoCalculado / valorBrutoAtual) - 1) * 100;
+            porcentagemLucro.value = porcentagem.toFixed(6);
+        } else {
+            precoCalculado = valorBrutoAtual + (valorBrutoAtual * (porcentagem / 100));
+            preco.value = precoCalculado.toFixed(2).replace(".", ",");
+        }
 
-        const precoCalculado =
-            valorBrutoAtual +
-            (
-                valorBrutoAtual *
-                (porcentagem / 100)
-            );
-
-        preco.value =
-            precoCalculado.toFixed(2);
+        if (!Number.isFinite(precoCalculado) || precoCalculado <= 0) {
+            exibirAviso("O preço de venda precisa ser maior que zero.");
+            return;
+        }
 
         const formData =
             new FormData(formProduto);
@@ -750,7 +783,12 @@ previewImg.src =
                         );
 
                         preco.disabled = true;
-
+                        preco.readOnly = true;
+                        preco.classList.add("input-disabled");
+                        precoDesbloqueado = false;
+                        precoManualAtivo = false;
+                        btnDesbloquearPreco.setAttribute("aria-label", "Desbloquear edição do preço de venda");
+                        btnDesbloquearPreco.setAttribute("aria-pressed", "false");
                         carregarProdutos();
 
                     }

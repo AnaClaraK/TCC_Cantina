@@ -36,7 +36,7 @@ body {
     background-color: #1c1c1c;
     color: #ffc27a;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     padding: 10px 20px;
     font-weight: bold;
     transition: 0.2s;
@@ -50,9 +50,8 @@ body {
     filter: none;
 }
 
-#s_addq {
+#s_addq{
     color: #f8c471;
-    font-weight: bold;
     font-size: 24px;
 }
 
@@ -423,7 +422,7 @@ input[type=number] {
 
 .chk-concluido:hover {
     border-color: #efac4a;
-    box-shadow: 0 0 8px #efac4a;
+    box-shadow: none;
 }
 
 .chk-concluido:checked {
@@ -1986,9 +1985,11 @@ body.pagina-estoque #btnEstoqueLiquidos {
 }
 
 body.pagina-estoque #btnEstoqueLiquidos:hover {
-    background: #efac4a;
-    color: #21180e;
-    background-color: #efac4a;
+    background: #1C1C1C;
+    color: #ffd28d;
+    background-color: #1C1C1C;
+    box-shadow: none;
+    filter: none;
 }
 
 body.pagina-estoque #s_addq {
@@ -2287,6 +2288,8 @@ body.pagina-historico #btnRankingProdutos {
     white-space: normal;
     overflow-wrap: anywhere;
     text-align: center;
+    background-color: #1C1C1C;
+    border-radius: 6px;
 }
 
 body.pagina-historico #btnRankingProdutos:hover, body.pagina-historico #btnRankingProdutos:focus-visible {
@@ -2468,6 +2471,7 @@ body.pagina-historico .total-faturado-box {
     margin: 0 !important;
     white-space: nowrap !important;
     box-sizing: border-box !important;
+    border-radius: 6px;
 }
 
 body.pagina-historico #inputBusca {
@@ -3501,25 +3505,25 @@ body.pagina-agendamento #sc_tabela .tabela {
 }
 
 body.pagina-agendamento #sc_tabela .tabela th:nth-child(1), body.pagina-agendamento #sc_tabela .tabela td:nth-child(1) {
-    width: 12% !important;
+    width: 20% !important;
 }
 
 body.pagina-agendamento #sc_tabela .tabela th:nth-child(2), body.pagina-agendamento #sc_tabela .tabela td:nth-child(2) {
-    width: 38% !important;
+    width: 10% !important;
     white-space: nowrap !important;
     overflow: visible !important;
 }
 
 body.pagina-agendamento #sc_tabela .tabela th:nth-child(3), body.pagina-agendamento #sc_tabela .tabela td:nth-child(3) {
-    width: 8% !important;
+    width: 10% !important;
 }
 
 body.pagina-agendamento #sc_tabela .tabela th:nth-child(5), body.pagina-agendamento #sc_tabela .tabela td:nth-child(5) {
-    width: 9% !important;
+    width: 10% !important;
 }
 
 body.pagina-agendamento #sc_tabela .tabela th:nth-child(4), body.pagina-agendamento #sc_tabela .tabela td:nth-child(4) {
-    width: 6% !important;
+    width: 17% !important;
     padding-left: 2px !important;
     padding-right: 2px !important;
     text-align: center !important;
@@ -3527,11 +3531,11 @@ body.pagina-agendamento #sc_tabela .tabela th:nth-child(4), body.pagina-agendame
 }
 
 body.pagina-agendamento #sc_tabela .tabela th:nth-child(6), body.pagina-agendamento #sc_tabela .tabela td:nth-child(6) {
-    width: 15% !important;
+    width: 20% !important;
 }
 
 body.pagina-agendamento #sc_tabela .tabela th:nth-child(7), body.pagina-agendamento #sc_tabela .tabela td:nth-child(7) {
-    width: 8% !important;
+    width: 2% !important;
 }
 
 body.pagina-estoque #sc_tabela {
@@ -3551,7 +3555,7 @@ body.pagina-estoque #sc_tabela {
 }
 
 body.pagina-estoque #d_modal_liquidos {
-    width: min(540px, calc(100vw - 32px));
+    width: min(640px, calc(100vw - 32px));
     max-width: 95%;
     height: auto;
     max-height: calc(100dvh - 32px);
@@ -3561,17 +3565,17 @@ body.pagina-estoque #d_modal_liquidos {
     background: #1c1c1c;
     color: #f8c471;
     box-shadow: 0 10px 50px rgba(0, 0, 0, .7);
-    overflow: hidden;
+    overflow: visible;
     box-sizing: border-box;
 }
 
 body.pagina-estoque #d_modal_liquidos .modal_box {
     width: 100%;
     height: auto;
-    max-height: calc(100dvh - 36px);
+    max-height: none;
     padding: 18px 24px 16px;
     padding-bottom: 20px;
-    overflow-y: auto;
+    overflow: visible;
     box-sizing: border-box;
 }
 
@@ -4064,7 +4068,7 @@ body.pagina-agendamento #b_clientes_app {
     min-height: 40px;
     padding: 0 20px !important;
     border: none !important;
-    border-radius: 5px !important;
+    border-radius: 6px !important;
     background: #713b00;
     color: #f8c471 !important;
     font-family: "Roca One", sans-serif !important;
@@ -4078,9 +4082,10 @@ body.pagina-agendamento #b_clientes_app {
 }
 
 body.pagina-agendamento #b_clientes_app:hover {
-    background: #8a4b05;
+    background: #1c1c1c !important;
     transform: none !important;
-    filter: brightness(1.2) !important;
+    filter: none !important;
+    box-shadow: none !important;
     background-color: #1c1c1c !important;
 }
 
@@ -4431,4 +4436,111 @@ body.pagina-agendamento #busca_clientes_app {
 body.pagina-historico #sc_tabela .tabela tbody td {
     font-size: 14px !important;
     white-space: nowrap !important;
+}
+body.pagina-estoque #btnEstoqueLiquidos,
+body.pagina-estoque #s_addq {
+    font-weight: 700 !important;
+}
+
+body.pagina-historico #sc_tabela .tabela {
+    width: 100% !important;
+    min-width: 850px !important;
+    max-width: none !important;
+    table-layout: fixed !important;
+}
+
+body.pagina-historico #sc_tabela .tabela th:nth-child(1), body.pagina-historico #sc_tabela .tabela td:nth-child(1) {
+    width: 28% !important;
+}
+
+body.pagina-historico #sc_tabela .tabela th:nth-child(2), body.pagina-historico #sc_tabela .tabela td:nth-child(2) {
+    width: 9% !important;
+}
+
+body.pagina-historico #sc_tabela .tabela th:nth-child(3), body.pagina-historico #sc_tabela .tabela td:nth-child(3) {
+    width: 8% !important;
+}
+
+body.pagina-historico #sc_tabela .tabela th:nth-child(4), body.pagina-historico #sc_tabela .tabela td:nth-child(4) {
+    width: 14% !important;
+}
+
+body.pagina-historico #sc_tabela .tabela th:nth-child(5), body.pagina-historico #sc_tabela .tabela td:nth-child(5) {
+    width: 12% !important;
+}
+
+body.pagina-historico #sc_tabela .tabela th:nth-child(6), body.pagina-historico #sc_tabela .tabela td:nth-child(6) {
+    width: 29% !important;
+}
+
+body.pagina-historico #sc_tabela .tabela th:nth-child(1), body.pagina-historico #sc_tabela .tabela tbody td:nth-child(1) {
+    white-space: nowrap !important;
+}
+
+body.pagina-historico #sc_tabela .tabela tbody td:nth-child(1) {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+body.pagina-historico #sc_tabela .tabela th:nth-child(2), body.pagina-historico #sc_tabela .tabela td:nth-child(2),
+body.pagina-historico #sc_tabela .tabela th:nth-child(3), body.pagina-historico #sc_tabela .tabela td:nth-child(3),
+body.pagina-historico #sc_tabela .tabela th:nth-child(4), body.pagina-historico #sc_tabela .tabela td:nth-child(4),
+body.pagina-historico #sc_tabela .tabela th:nth-child(5), body.pagina-historico #sc_tabela .tabela td:nth-child(5) {
+    white-space: nowrap !important;
+}
+
+body.pagina-historico #sc_tabela .tabela tbody td:nth-child(6) {
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+}
+
+body.pagina-historico #sc_tabela .tabela th:nth-child(1), body.pagina-historico #sc_tabela .tabela td:nth-child(1) {
+    width: 24% !important;
+}
+
+body.pagina-historico #sc_tabela .tabela th:nth-child(2), body.pagina-historico #sc_tabela .tabela td:nth-child(2) {
+    width: 10.5% !important;
+}
+
+body.pagina-historico #sc_tabela .tabela th:nth-child(3), body.pagina-historico #sc_tabela .tabela td:nth-child(3) {
+    width: 9% !important;
+}
+
+body.pagina-historico #sc_tabela .tabela th:nth-child(4), body.pagina-historico #sc_tabela .tabela td:nth-child(4) {
+    width: 12% !important;
+}
+
+body.pagina-historico #sc_tabela .tabela th:nth-child(5), body.pagina-historico #sc_tabela .tabela td:nth-child(5) {
+    width: 15% !important;
+}
+
+body.pagina-historico #sc_tabela .tabela th:nth-child(6), body.pagina-historico #sc_tabela .tabela td:nth-child(6) {
+    width: 24% !important;
+}
+
+body.pagina-historico #sc_tabela .tabela thead th.sortable {
+    position: relative;
+    padding-right: 12px !important;
+    white-space: nowrap !important;
+}
+
+body.pagina-historico #sc_tabela .tabela thead th.sortable::after {
+    position: static !important;
+    display: inline-block !important;
+    margin-left: 7px !important;
+    top: auto !important;
+    right: auto !important;
+    transform: none !important;
+    white-space: nowrap !important;
+    vertical-align: middle;
+}
+
+body.pagina-historico #btnRankingProdutos,
+body.pagina-historico .btn-ranking {
+    height: 45px !important;
+    min-height: 45px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
 }

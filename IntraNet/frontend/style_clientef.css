@@ -392,7 +392,7 @@ body.fundo-escuro > .d_util > #b_addq, body.fundo-escuro > .d_util > #b_nova_com
     min-height: 42Zpx;
     padding: 9px 14px;
     border: 2px solid #efac4a !important;
-    border-radius: 8px !important;
+    border-radius: 6px !important;
     background: #1c1c1c !important;
     color: #efac4a !important;
     box-shadow: none !important;
