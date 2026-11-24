@@ -54,7 +54,7 @@ router.post("/pedidos", verificarToken, async (req, res) => {
             data_referencia
         } = req.body;
 
-        const idCliente = id_user || 1;
+        const idCliente = id_user || 2;
         const status = "Finalizado";
         const alertas = [];
 
