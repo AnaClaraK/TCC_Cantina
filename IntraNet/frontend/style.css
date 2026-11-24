@@ -16,101 +16,17 @@ body {
 }
 
 .custom-sidebar {
-    background-color: #efac4a !important; 
+    background-color: #efac4a !important;
 }
 
-.a_btn {
-    display: inline-flex;
-}
-
-.p_nome {
-    font-family: 'Roca One', serif;
-    margin-top: 10px;
-    font-size: 30px;
-    color: #efac4a;
-    text-align: center;
-    width: 300px;
-}
-
-/* 1. CONTAINER: Alinha os botões em LINHA */
-.s_btn {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 40px;
-    padding: 20px;
-    margin-top: 50px;
-    width: auto; 
-    transition: all 0.3s ease;
-}
-
-/* 2. Garante que o conteúdo principal não "vaze" para fora da tela */
-main, .conteudo-principal { 
+main, .conteudo-principal {
     overflow-x: hidden;
-}
-
-/* agenda */
-.agenda-box {
-    background-color: #efac4a;
-    border-radius: 20px;
-    padding: 23px;
-    width: 470px;
-    height: 520px;
-    color: #242628;
-    font-family: 'Roca One', serif;
-    margin: 0 60px 0 90px;
-    position: relative;
-    box-sizing: border-box;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-.f_agenda {
-    position: absolute;
-    bottom: 20px;
-    right: 25px;
-}
-
-.btn-agenda-footer {
-    background-color: #242628;
-    color: #efac4a;
-    text-decoration: none;
-    padding: 15px 25px;
-    border-radius: 12px;
-    font-family: 'Roca One', serif;
-    font-size: 20px;
-    display: block;
 }
 
 .btn-agenda-footer:hover {
     transform: none;
 }
 
-.corpo-agenda {
-    flex: 1 1 auto;
-    min-height: 0;
-    margin-top: 8px;
-    padding-bottom: 92px;
-    box-sizing: border-box;
-    overflow: hidden;
-}
-
-/* Cabeçalho com o Número Grande */
-.agenda-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.dia-grande {
-    font-size: 70px;
-    line-height: 1;
-}
-
-/* Grade dos Dias */
 .dias-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -118,28 +34,10 @@ main, .conteudo-principal {
     text-align: center;
 }
 
-#calendario-numeros {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 6px;
-    text-align: center;
-    min-height: min(200px, 18.518519vh);
-    align-content: start;
-}
-
-.dia-numero {
-    padding: 7px 0;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: 0.2s;
-}
-
 .dia-numero:hover {
     background-color: rgba(0,0,0,0.1);
 }
 
-/* DIA SELECIONADO / COM AGENDAMENTO - Cor alterada para #242628 */
-/* Dia que tem agendamento ou é hoje */
 .dia-agendado {
     background-color: #242628;
     color: #efac4a;
@@ -147,9 +45,8 @@ main, .conteudo-principal {
     cursor: pointer;
 }
 
-/* DIA SELECIONADO PELO CLIQUE (Cor Marrom) */
 .dia-selecionado {
-    background-color: #5c3823 !important; /* Cor marrom */
+    background-color: #5c3823 !important;
     color: #ffffff !important;
     font-weight: bold;
     border-radius: 8px;
@@ -160,56 +57,9 @@ main, .conteudo-principal {
     background-color: #1a1c1d;
 }
 
-
-.info-mes {
-    width: 180px;
-    flex-shrink: 0;
-}
-
-.nav-agenda {
-    position: absolute;
-    top: 25px;
-    right: 25px;
-    display: flex;
-    gap: 8px;
-}
-
-.btn-seta {
-    background: #242628;
-    color: #efac4a;
-    border: none;
-    border-radius: 10px;
-    font-size: 24px;
-    cursor: pointer;
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .d_quad {
     background-color: #242628;
     max-width: 150px;
-}
-
-.dashboard-inferior {
-    display: flex;
-    gap: 35px;
-    align-items: flex-start;
-    margin-top: 30px;
-    width: 100%;
-}
-
-.atalho-agendamentos {
-    width: 880px;
-    height: 450px;
-    max-width: calc(100% - 32px);
-    text-decoration: none;
-    color: inherit;
-    display: block;
-    flex-shrink: 0;
-    box-sizing: border-box;
 }
 
 .painel-agendamentos {
@@ -221,56 +71,22 @@ main, .conteudo-principal {
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
 }
 
-.painel-agendamentos-header {
-    background: #1f2329;
-    color: #efac4a;
-    padding: 12px 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* Tabela de Agendamentos */
 .tabela-agendamentos-home {
     width: 100%;
     table-layout: fixed;
     border-collapse: collapse;
 }
 
-.tabela-agendamentos-home th, 
-.tabela-agendamentos-home td {
-    padding: 10px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-
-    /* Borda das linhas alterada para a cor alaranjada do tema (#efac4a) */
-    border-bottom: 1px solid #efac4a; 
-
-    color: #1f2329;
-    font-family: 'Roca One', serif;
-}
-
-.tabela-agendamentos-home th:nth-child(1),
-.tabela-agendamentos-home td:nth-child(1) {
+.tabela-agendamentos-home th:nth-child(1), .tabela-agendamentos-home td:nth-child(1) {
     width: 30%;
 }
 
-.tabela-agendamentos-home th:nth-child(2),
-.tabela-agendamentos-home td:nth-child(2) {
+.tabela-agendamentos-home th:nth-child(2), .tabela-agendamentos-home td:nth-child(2) {
     width: 45%;
     text-align: left;
 }
 
-.tabela-agendamentos-home th:nth-child(3),
-.tabela-agendamentos-home td:nth-child(3) {
-    width: 25%;
-    min-width: 170px;
-    text-align: center;
-}
-
-.sem-agendamentos,
-.carregando {
+.sem-agendamentos, .carregando {
     text-align: center;
     padding: 30px;
 }
@@ -279,9 +95,7 @@ main, .conteudo-principal {
     border-bottom: none;
 }
 
-/* Limita a quantidade visível e permite rolar somente pelos próximos agendamentos. */
-.tabela-agendamentos-home thead,
-.tabela-agendamentos-home tbody tr {
+.tabela-agendamentos-home thead, .tabela-agendamentos-home tbody tr {
     display: table;
     width: 100%;
     table-layout: fixed;
@@ -315,8 +129,10 @@ main, .conteudo-principal {
     border-radius: 8px;
 }
 
-.tabela-agendamentos-home th:nth-child(3),
-.tabela-agendamentos-home td:nth-child(3) {
+.tabela-agendamentos-home th:nth-child(3), .tabela-agendamentos-home td:nth-child(3) {
+    width: 25%;
+    min-width: 170px;
+    text-align: center;
     white-space: nowrap;
 }
 
@@ -326,13 +142,11 @@ main, .conteudo-principal {
     font-weight: bold;
     border-radius: 8px;
 }
-.tem-evento,
-.dia-agendado.tem-evento {
+
+.tem-evento, .dia-agendado.tem-evento {
     background-color: #242628;
     color: #efac4a;
 }
-
-/* Estilos do calendario */
 
 #nome-mes-js {
     margin: 0;
@@ -345,19 +159,12 @@ main, .conteudo-principal {
     opacity: 0.8;
 }
 
-.nav-agenda {
-    margin-left: auto;
-    display: flex;
-    gap: 5px;
-}
-
 .dias-cabecalho {
     font-weight: bold;
     opacity: 0.7;
     margin-bottom: 5px;
 }
 
-/* Lista dinâmica do aviso de estoque: sem CSS inline. */
 .lista-estoque-aviso {
     text-align: left;
     margin-top: 8px;
@@ -365,18 +172,20 @@ main, .conteudo-principal {
     padding-left: 22px;
 }
 
-/* Responsividade - Index */
-
 .s_btn {
-    --tamanho-card-index: clamp(180px, 15.625vw, 300px);
-    --gap-card-index: clamp(18px, 2.083333vw, 40px);
-
+    display: flex;
+    flex-direction: row;
     flex-wrap: nowrap;
+    justify-content: center;
     gap: var(--gap-card-index);
-    box-sizing: border-box;
-    align-items: flex-start;
     padding: min(20px, 1.851852vh);
     margin-top: min(50px, 4.62963vh);
+    width: auto;
+    transition: all 0.3s ease;
+    --tamanho-card-index: clamp(180px, 15.625vw, 300px);
+    --gap-card-index: clamp(18px, 2.083333vw, 40px);
+    box-sizing: border-box;
+    align-items: flex-start;
 }
 
 .s_btn > div {
@@ -387,6 +196,7 @@ main, .conteudo-principal {
 }
 
 .a_btn {
+    display: inline-flex;
     width: var(--tamanho-card-index);
     height: var(--tamanho-card-index);
     box-sizing: border-box;
@@ -399,99 +209,151 @@ main, .conteudo-principal {
 }
 
 .p_nome {
+    font-family: 'Roca One', serif;
+    margin-top: min(10px, 0.925926vh);
+    font-size: clamp(18px, 1.5625vw, 30px);
+    color: #efac4a;
+    text-align: center;
     width: var(--tamanho-card-index);
     max-width: 100%;
     box-sizing: border-box;
-    font-size: clamp(18px, 1.5625vw, 30px);
-    margin-top: min(10px, 0.925926vh);
     white-space: nowrap;
 }
 
-/* A área inferior sobe junto com a redução dos cards. */
 .dashboard-inferior {
+    display: flex;
     gap: min(35px, 3.240741vh);
+    align-items: flex-start;
     margin-top: min(15px, 1.388889vh);
+    width: 100%;
     box-sizing: border-box;
 }
 
 .agenda-box {
+    background-color: #efac4a;
+    border-radius: 20px;
+    padding: min(23px, 3.12963vh);
     width: min(470px, 43.518519vh);
     height: min(520px, 48.148148vh);
-    padding: min(23px, 3.12963vh);
+    color: #242628;
+    font-family: 'Roca One', serif;
+    margin: 0 60px 0 90px;
+    position: relative;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
     margin-top: 0;
     margin-right: min(60px, 5.555556vh);
     margin-left: min(90px, 8.333333vh);
 }
 
 .f_agenda {
+    position: absolute;
     bottom: min(25px, 2.314815vh);
     right: min(25px, 2.314815vh);
 }
 
 .btn-agenda-footer {
+    background-color: #242628;
+    color: #efac4a;
+    text-decoration: none;
     padding: min(15px, 1.388889vh) min(25px, 2.314815vh);
     border-radius: min(12px, 1.111111vh);
+    font-family: 'Roca One', serif;
     font-size: min(20px, 1.851852vh);
+    display: block;
 }
 
 .agenda-header {
+    display: flex;
+    align-items: flex-start;
     gap: min(15px, 1.388889vh);
     margin-bottom: min(20px, 1.851852vh);
 }
 
 .dia-grande {
     font-size: min(70px, 6.481481vh);
+    line-height: 1;
 }
 
 .corpo-agenda {
+    flex: 1 1 auto;
+    min-height: 0;
     margin-top: min(8px, 0.740741vh);
+    padding-bottom: 92px;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
-.dias-grid,
-#calendario-numeros {
+.dias-grid, #calendario-numeros {
     gap: min(6px, 0.555556vh);
 }
 
 .dia-numero {
     padding: min(7px, 0.648148vh) 0;
+    cursor: pointer;
     border-radius: min(8px, 0.740741vh);
+    transition: 0.2s;
 }
 
 .info-mes {
     width: min(180px, 16.666667vh);
+    flex-shrink: 0;
 }
 
 .nav-agenda {
+    position: absolute;
     top: min(25px, 2.314815vh);
     right: min(25px, 2.314815vh);
+    display: flex;
     gap: min(8px, 0.740741vh);
+    margin-left: auto;
 }
 
 .btn-seta {
-    width: min(45px, 4.166667vh);
-    height: min(45px, 4.166667vh);
+    background: #242628;
+    color: #efac4a;
+    border: none;
     border-radius: min(10px, 0.925926vh);
     font-size: min(24px, 2.222222vh);
+    cursor: pointer;
+    width: min(45px, 4.166667vh);
+    height: min(45px, 4.166667vh);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .atalho-agendamentos {
     width: min(880px, 81.481481vh);
     height: min(520px, 48.148148vh);
     max-width: 100%;
+    text-decoration: none;
+    color: inherit;
+    display: block;
     flex-shrink: 1;
     box-sizing: border-box;
 }
 
 .painel-agendamentos-header {
+    background: #1f2329;
+    color: #efac4a;
     padding: min(12px, 1.111111vh) min(24px, 2.222222vh);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.tabela-agendamentos-home th,
-.tabela-agendamentos-home td {
+.tabela-agendamentos-home th, .tabela-agendamentos-home td {
     padding: min(10px, 0.925926vh);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border-bottom: 1px solid #efac4a;
+    color: #1f2329;
+    font-family: 'Roca One', serif;
 }
-
-/* Modal de aviso */
 
 #d_aviso {
     box-sizing: border-box;
@@ -551,6 +413,7 @@ main, .conteudo-principal {
         width: min(880px, calc(100vw - 32px));
         height: 520px;
     }
+
 }
 
 @media (max-width: 720px) {
@@ -559,9 +422,7 @@ main, .conteudo-principal {
         justify-content: center;
     }
 
-    .s_btn > div,
-    .a_btn,
-    .p_nome {
+    .s_btn > div, .a_btn, .p_nome {
         width: min(180px, 40vw);
         flex-basis: min(180px, 40vw);
     }
@@ -570,104 +431,20 @@ main, .conteudo-principal {
         flex-direction: column;
         align-items: center;
     }
+
 }
 
-@media (max-width: 560px) {
-    body {
-        overflow-y: auto;
-    }
-
-    .agenda-box {
-        width: min(470px, calc(100vw - 32px));
-        height: 520px;
-        margin: 10px auto 0;
-    }
-
-    .atalho-agendamentos {
-        width: calc(100vw - 32px);
-        height: 520px;
-    }
-
-    #d_aviso,
-    #d_aviso:has(#msg_aviso .lista-estoque-aviso) {
-        width: calc(100vw - 24px);
-        max-width: calc(100vw - 24px);
-        padding: 20px;
-    }
-}
-
-
-/* Escala proporcional da grade do calendário sem alterar o desenho original. */
 #calendario-numeros {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    text-align: center;
     min-height: min(200px, 18.518519vh);
-}
-/* Regras base - modal de aviso */
-
-dialog#d_aviso {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    margin: 0 !important;
-
-    width: min(460px, calc(100vw - 32px)) !important;
-    max-width: calc(100vw - 32px) !important;
-    height: auto !important;
-    max-height: calc(90dvh - 24px) !important;
-    
-    padding: 0 !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-
-    background: #1c1c1c !important;
-    color: #f8c471 !important;
-    border: 3px solid #efac4a !important;
-    border-radius: 14px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .75) !important;
+    align-content: start;
 }
 
-/* Modal específico quando contém a lista de estoque baixo */
-dialog#d_aviso:has(.lista-estoque-aviso) {
-    width: min(760px, calc(100vw - 32px)) !important;
-    max-width: calc(100vw - 32px) !important;
-}
-
-/* Fundo escuro do Modal */
 dialog#d_aviso::backdrop {
     background: rgba(0, 0, 0, .68) !important;
-}
-
-/* Conteúdo interno ajustável */
-#d_aviso .aviso_box {
-    width: 100% !important;
-    max-width: 100% !important;
-    max-height: calc(90dvh - 32px) !important;
-    min-height: 0 !important;
-
-    display: flex !important;
-    flex-direction: column !important;
-    box-sizing: border-box !important;
-
-    padding: 24px 26px 20px !important;
-    gap: 16px !important;
-
-    overflow: hidden !important;
-}
-
-/* Texto do Aviso / Mensagem de Confirmação */
-#d_aviso #msg_aviso {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    text-align: center !important;
-    font-family: "Roca One", sans-serif !important;
-    font-size: 19px !important;
-    line-height: 1.3 !important;
-    color: #f8c471 !important;
 }
 
 #d_aviso #msg_aviso p {
@@ -675,39 +452,16 @@ dialog#d_aviso::backdrop {
     padding: 0 !important;
 }
 
-/* Lista de produtos no aviso */
-
-#d_aviso #msg_aviso .lista-estoque-aviso {
-    width: 100% !important;
-    max-width: 100% !important;
-
-    margin: 8px 0 0 !important;
-    padding: 0 4px 0 24px !important;
-
-    box-sizing: border-box !important;
-
-    /* A barra de rolagem fica retida apenas na lista de itens */
-    max-height: min(40dvh, 320px) !important;
-
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-
-    text-align: left !important;
-}
-
 #d_aviso #msg_aviso .lista-estoque-aviso li {
     box-sizing: border-box !important;
     margin: 0 !important;
     padding: 8px 10px !important;
     min-height: 36px !important;
-
     font-family: "Roca One", sans-serif !important;
     font-size: 15px !important;
     line-height: 1.2 !important;
-
     color: #1c1c1c !important;
     background: #efac4a !important;
-
     border: 0 !important;
     border-radius: 6px !important;
     overflow-wrap: anywhere !important;
@@ -731,34 +485,27 @@ dialog#d_aviso::backdrop {
     border-radius: 8px !important;
 }
 
-/* Botões de ação do aviso */
-
 #d_aviso .aviso_botoes {
     width: 100% !important;
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
     gap: 12px !important;
-
     margin: 0 !important;
     padding: 0 !important;
     flex-shrink: 0 !important;
 }
 
-#d_aviso #b_confirmar_aviso,
-#d_aviso #b_cancelar_aviso {
+#d_aviso #b_confirmar_aviso, #d_aviso #b_cancelar_aviso {
     box-sizing: border-box !important;
     width: 125px !important;
     min-width: 125px !important;
     max-width: 125px !important;
-
     height: 44px !important;
     min-height: 44px !important;
     max-height: 44px !important;
-
     padding: 8px 14px !important;
     border-radius: 7px !important;
-
     font-family: "Roca One", sans-serif !important;
     font-size: 16px !important;
     font-weight: 900 !important;
@@ -788,8 +535,6 @@ dialog#d_aviso::backdrop {
     color: #efac4a !important;
 }
 
-/* Responsividade e telas menores */
-
 @media (max-width: 800px) {
     dialog#d_aviso:has(.lista-estoque-aviso) {
         width: calc(100vw - 24px) !important;
@@ -804,6 +549,7 @@ dialog#d_aviso::backdrop {
     #d_aviso #msg_aviso {
         font-size: 17px !important;
     }
+
 }
 
 @media (max-height: 700px) {
@@ -819,21 +565,27 @@ dialog#d_aviso::backdrop {
     #d_aviso #msg_aviso .lista-estoque-aviso {
         max-height: 32dvh !important;
     }
+
 }
 
-/* AJUSTE RESPONSIVO DOS MODAIS DE AVISO E CONFIRMAÇÃO DE LEITURA */
-
 dialog#d_aviso {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: auto !important;
     width: min(460px, calc(100vw - 24px)) !important;
     max-width: calc(100vw - 24px) !important;
     height: auto !important;
     max-height: calc(100dvh - 24px) !important;
-    margin: auto !important;
-}
-
-dialog#d_aviso:has(.lista-estoque-aviso) {
-    width: min(680px, calc(100vw - 24px)) !important;
-    max-width: calc(100vw - 24px) !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    background: #1c1c1c !important;
+    color: #f8c471 !important;
+    border: 3px solid #efac4a !important;
+    border-radius: 14px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .75) !important;
 }
 
 #d_aviso .aviso_box {
@@ -841,23 +593,129 @@ dialog#d_aviso:has(.lista-estoque-aviso) {
     max-width: 100% !important;
     max-height: calc(100dvh - 48px) !important;
     min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+    padding: 24px 26px 20px !important;
+    gap: 16px !important;
     overflow: hidden !important;
 }
 
 #d_aviso #msg_aviso {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+    font-family: "Roca One", sans-serif !important;
+    font-size: 19px !important;
+    line-height: 1.3 !important;
+    color: #f8c471 !important;
     min-width: 0 !important;
     overflow-wrap: anywhere !important;
 }
 
 #d_aviso #msg_aviso .lista-estoque-aviso {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 8px 0 0 !important;
+    padding: 0 4px 0 24px !important;
+    box-sizing: border-box !important;
     max-height: min(38dvh, 300px) !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
+    text-align: left !important;
+}
+
+dialog#d_aviso:not(:has(.lista-estoque-aviso)) {
+    position: fixed !important;
+    inset: 0 !important;
+    margin: auto !important;
+    width: fit-content !important;
+    min-width: 0 !important;
+    max-width: min(420px, calc(100vw - 32px)) !important;
+    height: fit-content !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 32px) !important;
+    padding: 0 !important;
+    transform: none !important;
+}
+
+dialog#d_aviso:not(:has(.lista-estoque-aviso)) .aviso_box {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 32px) !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+}
+
+dialog#d_aviso:has(.lista-estoque-aviso) {
+    width: min(680px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px) !important;
+    position: fixed !important;
+    inset: 0 !important;
+    margin: auto !important;
+    transform: none !important;
+    min-width: 0 !important;
+    height: fit-content !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 32px) !important;
+    box-sizing: border-box !important;
+}
+
+dialog#d_aviso:has(.lista-estoque-aviso) .aviso_box {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 32px) !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+dialog#d_aviso:has(.lista-estoque-aviso) #msg_aviso {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+}
+
+dialog#d_aviso:has(.lista-estoque-aviso) .lista-estoque-aviso {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: min(45dvh, 320px) !important;
+    overflow-y: auto !important;
+    overflow-x: auto !important;
+    box-sizing: border-box !important;
 }
 
 @media (max-width: 560px) {
-    dialog#d_aviso,
-    dialog#d_aviso:has(.lista-estoque-aviso) {
+    body {
+        overflow-y: auto;
+    }
+
+    .agenda-box {
+        width: min(470px, calc(100vw - 32px));
+        height: 520px;
+        margin: 10px auto 0;
+    }
+
+    .atalho-agendamentos {
+        width: calc(100vw - 32px);
+        height: 520px;
+    }
+
+    #d_aviso, #d_aviso:has(#msg_aviso .lista-estoque-aviso) {
+        width: calc(100vw - 24px);
+        max-width: calc(100vw - 24px);
+        padding: 20px;
+    }
+
+    dialog#d_aviso, dialog#d_aviso:has(.lista-estoque-aviso) {
         width: calc(100vw - 20px) !important;
         max-width: calc(100vw - 20px) !important;
         max-height: calc(100dvh - 20px) !important;
@@ -878,57 +736,12 @@ dialog#d_aviso:has(.lista-estoque-aviso) {
         gap: 8px !important;
     }
 
-    #d_aviso #b_confirmar_aviso,
-    #d_aviso #b_cancelar_aviso {
+    #d_aviso #b_confirmar_aviso, #d_aviso #b_cancelar_aviso {
         width: min(125px, calc(50% - 4px)) !important;
         min-width: 0 !important;
         max-width: 100% !important;
     }
-}
 
-@media (max-height: 500px) {
-    #d_aviso .aviso_box {
-        padding: 12px 16px !important;
-        gap: 8px !important;
-    }
-
-    #d_aviso #msg_aviso .lista-estoque-aviso {
-        max-height: 25dvh !important;
-    }
-}
-
-/* AJUSTE SOMENTE DO MODAL DE CONFIRMAÇÃO DE LEITURA */
-dialog#d_aviso:not(:has(.lista-estoque-aviso)) {
-    position: fixed !important;
-    inset: 0 !important;
-    margin: auto !important;
-
-    width: fit-content !important;
-    min-width: 0 !important;
-    max-width: min(420px, calc(100vw - 32px)) !important;
-
-    height: fit-content !important;
-    min-height: 0 !important;
-    max-height: calc(100dvh - 32px) !important;
-
-    padding: 0 !important;
-    transform: none !important;
-}
-
-dialog#d_aviso:not(:has(.lista-estoque-aviso)) .aviso_box {
-    width: auto !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: calc(100dvh - 32px) !important;
-
-    overflow-y: auto !important;
-    box-sizing: border-box !important;
-}
-
-@media (max-width: 560px) {
     dialog#d_aviso:not(:has(.lista-estoque-aviso)) {
         width: calc(100vw - 32px) !important;
         max-width: 420px !important;
@@ -937,56 +750,7 @@ dialog#d_aviso:not(:has(.lista-estoque-aviso)) .aviso_box {
     dialog#d_aviso:not(:has(.lista-estoque-aviso)) .aviso_box {
         padding: 16px !important;
     }
-}
 
-/* RESPONSIVIDADE SOMENTE DO MODAL DE ESTOQUE BAIXO */
-dialog#d_aviso:has(.lista-estoque-aviso) {
-    position: fixed !important;
-    inset: 0 !important;
-    margin: auto !important;
-    transform: none !important;
-
-    width: min(680px, calc(100vw - 32px)) !important;
-    min-width: 0 !important;
-    max-width: calc(100vw - 32px) !important;
-
-    height: fit-content !important;
-    min-height: 0 !important;
-    max-height: calc(100dvh - 32px) !important;
-
-    box-sizing: border-box !important;
-}
-
-dialog#d_aviso:has(.lista-estoque-aviso) .aviso_box {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: calc(100dvh - 32px) !important;
-
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-}
-
-dialog#d_aviso:has(.lista-estoque-aviso) #msg_aviso {
-    min-width: 0 !important;
-    max-width: 100% !important;
-    overflow-wrap: anywhere !important;
-}
-
-dialog#d_aviso:has(.lista-estoque-aviso) .lista-estoque-aviso {
-    width: 100% !important;
-    max-width: 100% !important;
-    max-height: min(45dvh, 320px) !important;
-
-    overflow-y: auto !important;
-    overflow-x: auto !important;
-    box-sizing: border-box !important;
-}
-
-@media (max-width: 560px) {
     dialog#d_aviso:has(.lista-estoque-aviso) {
         width: calc(100vw - 20px) !important;
         max-width: calc(100vw - 20px) !important;
@@ -1006,9 +770,19 @@ dialog#d_aviso:has(.lista-estoque-aviso) .lista-estoque-aviso {
         flex-wrap: wrap !important;
         gap: 8px !important;
     }
+
 }
 
 @media (max-height: 500px) {
+    #d_aviso .aviso_box {
+        padding: 12px 16px !important;
+        gap: 8px !important;
+    }
+
+    #d_aviso #msg_aviso .lista-estoque-aviso {
+        max-height: 25dvh !important;
+    }
+
     dialog#d_aviso:has(.lista-estoque-aviso) {
         max-height: calc(100dvh - 16px) !important;
     }
@@ -1016,4 +790,5 @@ dialog#d_aviso:has(.lista-estoque-aviso) .lista-estoque-aviso {
     dialog#d_aviso:has(.lista-estoque-aviso) .lista-estoque-aviso {
         max-height: 25dvh !important;
     }
+
 }

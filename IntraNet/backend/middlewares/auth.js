@@ -5,8 +5,6 @@ const SECRET = process.env.API_SEGREDO;
 
 function verificarToken(req, res, next) {
     const authHeader = req.headers['authorization'];
-
-    // Garante a leitura do token mesmo se vier com "Bearer " ou apenas a string
     const token = authHeader && (authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader);
 
     if (!token) {
@@ -15,7 +13,7 @@ function verificarToken(req, res, next) {
 
     try {
         const decoded = jwt.verify(token, SECRET);
-        req.usuario = decoded; // Armazena { id: usuario.id_cadastro }
+        req.usuario = decoded;
         next();
     } catch (err) {
         return res.status(401).json({ resposta: "Token inválido ou expirado." });

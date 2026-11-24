@@ -5,17 +5,15 @@ import {
   View, 
   Image, 
   FlatList, 
-  TouchableOpacity,
-  TextInput,
-  Alert,
-  ActivityIndicator,
-  ScrollView
+  TouchableOpacity, 
+  TextInput, 
+  Alert, 
+  ActivityIndicator, 
+  ScrollView 
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from "@react-navigation/native";
-
 import { BASE_URL } from '../../config';
 
 const CORES = {
@@ -31,7 +29,6 @@ const CORES = {
 
 const LISTA_CATEGORIAS = ['Todos', 'Marmitas', 'Salgados', 'Lanches', 'Bebidas', 'Doces'];
 
-// Função para remover acentos e caracteres especiais para a busca
 const removerAcentos = (texto) => {
   if (!texto) return '';
   return texto
@@ -41,7 +38,6 @@ const removerAcentos = (texto) => {
     .trim();
 };
 
-// Componente Memoizado do Card do Produto
 const CardProdutoBusca = React.memo(({ item, temEstoque, adicionarAoCarrinho }) => {
   const [expandido, setExpandido] = useState(false);
   const podeExpandir = item.info && item.info.length > 50;
@@ -53,7 +49,6 @@ const CardProdutoBusca = React.memo(({ item, temEstoque, adicionarAoCarrinho }) 
           <Image
             source={item.imagem}
             style={styles.fotoComida}
-            onError={() => console.log("ERRO IMG:", item.titulo, item.imagem)}
           />
           {!temEstoque && (
             <View style={styles.badgeEsgotado}>
@@ -98,26 +93,22 @@ const CardProdutoBusca = React.memo(({ item, temEstoque, adicionarAoCarrinho }) 
           </Text>
           
           {podeExpandir && !expandido && (
-            <Text style={styles.txtVerMais}>... Ver mais</Text>
+            <Text style={styles.txtVerMais}>Ver mais</Text>
           )}
         </TouchableOpacity>
 
         <View style={styles.containerPrecoCarrinho}>
           <View style={styles.badgePreco}>
-            <Text style={styles.textoPreco}>R$ {item.preco}</Text>
+            <Text style={styles.textoPreco}>{item.preco}</Text>
           </View>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[styles.botaoAdicionarCarrinho, !temEstoque && styles.btnBloqueado]}
             onPress={() => adicionarAoCarrinho(item)}
-            activeOpacity={temEstoque ? 0.7 : 1}
+            activeOpacity={0.8}
             disabled={!temEstoque}
           >
-            <Ionicons 
-              name={temEstoque ? "cart" : "close-circle-outline"} 
-              size={22} 
-              color={temEstoque ? CORES.marromEscuro : CORES.branco} 
-            />
+            <Ionicons name="cart-outline" size={20} color={temEstoque ? CORES.marromEscuro : '#999'} />
           </TouchableOpacity>
         </View>
       </View>
@@ -126,68 +117,65 @@ const CardProdutoBusca = React.memo(({ item, temEstoque, adicionarAoCarrinho }) 
 });
 
 export default function BuscarScreen() {
-  const navigation = useNavigation();
-  const [termoBusca, setTermoBusca] = useState('');
-  const [categoriaSelecionada, setCategoriaSelecionada] = useState('Todos');
   const [todosOsProdutos, setTodosOsProdutos] = useState([]);
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState('Todos');
+  const [termoBusca, setTermoBusca] = useState('');
   const [carregando, setCarregando] = useState(true);
-
-  const mapearCategoriaDoBanco = (categoriaNome, idCategoria) => {
-    const nome = String(categoriaNome || idCategoria || '').toLowerCase().trim();
-    if (nome.includes('marmita') || nome === '2') return 'Marmitas';
-    if (nome.includes('bebida') || nome.includes('quente') || nome === '1' || nome === '8') return 'Bebidas';
-    if (nome.includes('guloseima') || nome.includes('trufa') || nome.includes('doce') || nome === '6' || nome === '7') return 'Doces';
-    if (nome.includes('salgado') || nome === '4') return 'Salgados';
-    if (nome.includes('lanche') || nome === '5') return 'Lanches';
-    if (nome.includes('picolé') || nome.includes('picole') || nome.includes('sorvete') || nome === '3') return 'Doces';
-    return 'Geral'; 
-  };
 
   const carregarProdutosDoBanco = async () => {
     try {
       setCarregando(true);
       const token = await AsyncStorage.getItem("token");
-      const resposta = await fetch(`${BASE_URL}/produtos`, {
-        method: "GET",
+
+      const response = await fetch(`${BASE_URL}/produtos`, {
         headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+          'Authorization': `Bearer ${token}`
+        }
       });
 
-      if (!resposta.ok) throw new Error(`Erro HTTP: ${resposta.status}`);
-      const dados = await resposta.json();
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
 
-      const produtosFormatados = dados.map((p) => {
-        const qtdDisponivel = parseInt(p.qtd !== undefined ? p.qtd : 0, 10);
-        const img = p.img ? String(p.img).trim() : "";
+      const lista = await response.json();
 
-        let nomeArquivo = img
-          .replace(/^.*(images|imagens|uploads)\//, '')
-          .replace(/^\/+/, '')
-          .trim();
-        
-        const nomeSemExt = nomeArquivo.replace(/\.(png|jpg|jpeg|webp)$/i, '');
-        const urlFinal = `${BASE_URL}/images/${encodeURIComponent(nomeSemExt)}`;
+      const mapeados = lista
+        .filter(p => p.status === 'ativo' || p.status === 1 || !p.status)
+        .map(p => {
+          let cat = 'Salgados';
+          const catBanco = (p.nome_categoria || p.categoria || '').toLowerCase();
+          
+          if (catBanco.includes('bebida') || catBanco.includes('suco') || catBanco.includes('refrigerante')) cat = 'Bebidas';
+          else if (catBanco.includes('marmita') || catBanco.includes('prato') || catBanco.includes('almoco')) cat = 'Marmitas';
+          else if (catBanco.includes('doce') || catBanco.includes('sobremesa')) cat = 'Doces';
+          else if (catBanco.includes('lanche') || catBanco.includes('hamburguer') || catBanco.includes('sanduiche')) cat = 'Lanches';
 
-        return {
-          id_produto: p.id_produto,
-          id: p.id_produto.toString(),
-          categoria: mapearCategoriaDoBanco(p.categoria_nome, p.id_categoria),
-          titulo: p.nome,
-          estoque: qtdDisponivel,
-          vendas: parseInt(p.vendas || p.total_vendas || p.qtd_vendida || 0, 10),
-          preco: parseFloat(p.preco || 0).toFixed(2).replace(".", ","),
-          precoNumerico: parseFloat(p.preco || 0),
-          detalheTitulo: "Descrição:",
-          info: p.descricao && p.descricao.trim() !== "" ? p.descricao : "Sem descrição",
-          imagem: { uri: urlFinal, cache: 'force-cache' },
-        };
-      });
+          let imagemValida = require('../../assets/imagens/img_ntf.png');
+          if (p.imagem && typeof p.imagem === 'string' && p.imagem.trim() !== '') {
+            const limpa = p.imagem
+              .trim()
+              .replace(/^.*(images|imagens|uploads)\//, '')
+              .replace(/^\/+/, '');
+            imagemValida = { uri: `${BASE_URL}/uploads/${limpa}` };
+          }
 
-      setTodosOsProdutos(produtosFormatados);
+          return {
+            id: p.id_produto ? p.id_produto.toString() : Math.random().toString(),
+            id_produto: p.id_produto,
+            titulo: p.nome_produto || p.nome || 'Produto sem nome',
+            info: p.descricao || 'Sem descrição detalhada.',
+            detalheTitulo: 'Detalhes:',
+            preco: `R$ ${parseFloat(p.preco || p.preco_unitario || 0).toFixed(2).replace('.', ',')}`,
+            precoNumerico: parseFloat(p.preco || p.preco_unitario || 0),
+            estoque: parseInt(p.quantidade || p.estoque || 0, 10),
+            imagem: imagemValida,
+            categoria: cat,
+            vendas: parseInt(p.total_vendas || p.vendas || 0, 10)
+          };
+        });
+
+      setTodosOsProdutos(mapeados);
     } catch (erro) {
-      console.error("❌ Erro ao buscar produtos para busca:", erro);
       Alert.alert("Erro de Conexão", "Não foi possível carregar o catálogo de produtos.");
     } finally {
       setCarregando(false);
@@ -198,16 +186,13 @@ export default function BuscarScreen() {
     carregarProdutosDoBanco();
   }, []);
 
-  // Filtro sem acentuação + Ordenação por estoque e vendas
   const produtosExibidos = useMemo(() => {
     let resultado = [...todosOsProdutos];
 
-    // 1. Filtrar por Categoria
     if (categoriaSelecionada !== 'Todos') {
       resultado = resultado.filter(p => p.categoria === categoriaSelecionada);
     }
 
-    // 2. Filtrar por Termo Digitado (Sem acentos / case insensitive)
     if (termoBusca.trim()) {
       const buscaLimpa = removerAcentos(termoBusca);
       resultado = resultado.filter(p => 
@@ -217,7 +202,6 @@ export default function BuscarScreen() {
       );
     }
 
-    // 3. Ordenação (Estoque primeiro, depois mais vendidos)
     return resultado.sort((a, b) => {
       const aComEstoque = a.estoque > 0 ? 1 : 0;
       const bComEstoque = b.estoque > 0 ? 1 : 0;
@@ -262,7 +246,6 @@ export default function BuscarScreen() {
       await AsyncStorage.setItem('@carrinho', JSON.stringify(itens));
       Alert.alert("Adicionado", `${produto.titulo} foi inserido no carrinho.`);
     } catch (error) {
-      console.log(error);
     }
   }, []);
 
@@ -276,8 +259,6 @@ export default function BuscarScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      
-      {/* Barra Superior de Busca */}
       <View style={styles.containerBarraBusca}>
         <View style={styles.inputWrapper}>
           <Ionicons name="search-outline" size={20} color={CORES.dourado} style={styles.iconeBusca} />
@@ -300,7 +281,6 @@ export default function BuscarScreen() {
         </View>
       </View>
 
-      {/* Categorias no Estilo Cardápio (Versão Menor) */}
       <View style={styles.containerCategorias}>
         <ScrollView 
           horizontal 
@@ -325,7 +305,6 @@ export default function BuscarScreen() {
         </ScrollView>
       </View>
 
-      {/* Lista Principal */}
       {carregando ? (
         <View style={styles.containerLoading}>
           <ActivityIndicator size="large" color={CORES.dourado} />
@@ -384,8 +363,6 @@ const styles = StyleSheet.create({
   btnLimpar: {
     padding: 4,
   },
-
-  /* --- CATEGORIAS ESTILO CARDÁPIO (COMPACTO) --- */
   containerCategorias: { 
     backgroundColor: CORES.marromEscuro, 
     paddingVertical: 6, 
@@ -418,8 +395,6 @@ const styles = StyleSheet.create({
   txtCategoriaAtiva: { 
     color: CORES.branco,
   },
-
-  /* --- LISTA E CARDS --- */
   listaConteudo: {
     backgroundColor: CORES.marromEscuro,
     padding: 15,

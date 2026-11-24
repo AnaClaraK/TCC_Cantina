@@ -15,7 +15,6 @@ export default function CampoSenhaProtegida({
 }) {
   const [posicaoCursor, setPosicaoCursor] = useState({ start: valor.length, end: valor.length });
 
-  // Transforma instantaneamente todos os caracteres em bolinhas quando oculta
   const textoExibido = oculto ? '•'.repeat(valor.length) : valor;
 
   const handleTextChange = (textoDigitado) => {
@@ -24,18 +23,15 @@ export default function CampoSenhaProtegida({
       return;
     }
 
-    // Calcula a diferença para atualizar a senha real
     const tamanhoAntigo = valor.length;
     const tamanhoNovo = textoDigitado.length;
 
     if (tamanhoNovo > tamanhoAntigo) {
-      // Caractere adicionado
       const novoCaractere = textoDigitado.slice(-1);
       const novaSenha = valor + novoCaractere;
       onChangeText(novaSenha);
       setPosicaoCursor({ start: novaSenha.length, end: novaSenha.length });
     } else if (tamanhoNovo < tamanhoAntigo) {
-      // Caractere apagado
       const novaSenha = valor.slice(0, tamanhoNovo);
       onChangeText(novaSenha);
       setPosicaoCursor({ start: novaSenha.length, end: novaSenha.length });
@@ -50,11 +46,11 @@ export default function CampoSenhaProtegida({
         onChangeText={handleTextChange}
         placeholder={placeholder}
         placeholderTextColor="#888"
-        secureTextEntry={false} // Desativa a mascara nativa bugada do Android
+        secureTextEntry={false}
         autoCorrect={false}
         autoCapitalize="none"
-        caretHidden={false} // Mantém o cursor '|' sempre visível
-        selection={posicaoCursor} // Mantém o cursor no final do texto
+        caretHidden={false}
+        selection={posicaoCursor}
         onSelectionChange={(e) => setPosicaoCursor(e.nativeEvent.selection)}
         onFocus={(e) => {
           setPosicaoCursor({ start: valor.length, end: valor.length });

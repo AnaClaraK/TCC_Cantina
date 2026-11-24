@@ -13,7 +13,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from '@expo/vector-icons'; 
 import { Botao } from '../Components/Botoes';
-
+import { BASE_URL } from '../../config';
 
 export default function RecuperarScreen() {
   const [email, setEmail] = useState('');
@@ -27,7 +27,6 @@ export default function RecuperarScreen() {
   const navigation = useNavigation();
 
   const handleRecuperar = async () => {
-    // 1. Validações locais
     if (!email.trim() || !novaSenha.trim() || !confirmarSenha.trim()) {
       Alert.alert("Campos Obrigatórios", "Por favor, preencha todos os campos.");
       return;
@@ -43,7 +42,6 @@ export default function RecuperarScreen() {
       return;
     }
 
-    // 2. Envio para a API
     try {
       setCarregando(true);
 
@@ -70,7 +68,6 @@ export default function RecuperarScreen() {
         Alert.alert("Erro", dados.mensagem || "Não foi possível alterar a senha.");
       }
     } catch (erro) {
-      console.error("Erro ao redefinir senha:", erro);
       Alert.alert(
         "Falha na Rede", 
         "Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente."
@@ -83,7 +80,6 @@ export default function RecuperarScreen() {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
       <View style={styles.container}>
-        {/* Botão de Voltar */}
         <TouchableOpacity 
           style={styles.btnVoltarTopo} 
           onPress={() => navigation.goBack()}
@@ -91,7 +87,6 @@ export default function RecuperarScreen() {
           <Ionicons name="arrow-back" size={28} color="#efac4a" />
         </TouchableOpacity>
 
-        {/* Header */}
         <View style={styles.header}>
           <Image 
             source={require('../../assets/images/logo.png')} 
@@ -102,9 +97,7 @@ export default function RecuperarScreen() {
           <Text style={styles.subtitulo}>Recuperar Senha</Text>
         </View>
 
-        {/* Card do Formulário */}
         <View style={styles.quadrado}>
-          {/* Campo E-mail */}
           <View style={styles.inputArea}>
             <Ionicons name="mail-outline" size={26} color="#eeaf55" />
             <TextInput 
@@ -118,7 +111,6 @@ export default function RecuperarScreen() {
             />
           </View>
 
-          {/* Campo Nova Senha */}
           <View style={styles.inputArea}>
             <Ionicons name="lock-closed-outline" size={26} color="#eeaf55" />
             <TextInput 
@@ -138,7 +130,6 @@ export default function RecuperarScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Campo Confirmar Nova Senha */}
           <View style={styles.inputArea}>
             <Ionicons name="checkmark-circle-outline" size={26} color="#eeaf55" />
             <TextInput 
@@ -158,7 +149,6 @@ export default function RecuperarScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Botão de Ação */}
           {carregando ? (
             <ActivityIndicator size="large" color="#efac4a" style={{ marginVertical: 15 }} />
           ) : (
@@ -180,8 +170,6 @@ export default function RecuperarScreen() {
     </ScrollView>
   );
 }
-
-import { BASE_URL } from '../../config';
 
 const styles = StyleSheet.create({
   scrollContainer: {
@@ -262,9 +250,9 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
   imagemTopo: { 
-        height: 80, 
-        width: 300, 
-        resizeMode: 'contain',
-        marginTop: -10 
-    },
+    height: 80, 
+    width: 300, 
+    resizeMode: 'contain',
+    marginTop: -10 
+  },
 });

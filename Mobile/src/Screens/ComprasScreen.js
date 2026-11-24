@@ -17,8 +17,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import QRCode from 'react-native-qrcode-svg';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
+import { BASE_URL } from '../../config';
 
-// Configuração em Português para o Calendário
 LocaleConfig.locales['pt-br'] = {
   monthNames: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
   monthNamesShort: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
@@ -27,8 +27,6 @@ LocaleConfig.locales['pt-br'] = {
   today: 'Hoje'
 };
 LocaleConfig.defaultLocale = 'pt-br';
-
-import { BASE_URL } from '../../config';
 
 const CORES = {
   marromEscuro: '#341d04',
@@ -53,7 +51,6 @@ export default function ComprasScreen({ navigation }) {
   const [codigoComandaGerado, setCodigoComandaGerado] = useState('');
   const [formaPagamento, setFormaPagamento] = useState('');
 
-  // Estados para o Modal de Calendário
   const [modalCalendarioVisivel, setModalCalendarioVisivel] = useState(false);
   const [itemSelecionadoParaData, setItemSelecionadoParaData] = useState(null);
 
@@ -72,7 +69,7 @@ export default function ComprasScreen({ navigation }) {
       
       setItensCarrinho(itensComAgendamento);
     } catch (e) {
-      console.log("Erro ao ler carrinho do storage:", e);
+      setItensCarrinho([]);
     }
   };
 
@@ -147,7 +144,6 @@ export default function ComprasScreen({ navigation }) {
       return;
     }
 
-    // Ao diminuir a última unidade, o produto é removido do carrinho.
     const atualizado = tipo === 'diminuir' && itemAtual.qtd <= 1
       ? itensCarrinho.filter(item => item.id_produto !== id)
       : itensCarrinho.map(item => item.id_produto === id
@@ -233,7 +229,6 @@ export default function ComprasScreen({ navigation }) {
       }
 
     } catch (erro) {
-      console.error(erro);
       Alert.alert("Erro ao Processar", erro.message || "Não foi possível enviar o carrinho para o banco do PDV.");
     } finally {
       setCarregando(false);
@@ -260,7 +255,6 @@ export default function ComprasScreen({ navigation }) {
             <Text style={styles.tituloProduto}>{item.nome}</Text>
           </View>
 
-          {/* Seletor de Data com Calendário */}
           <TouchableOpacity 
             style={styles.boxSeletorData} 
             onPress={() => abrirCalendarioPara(item.id_produto)}
@@ -271,7 +265,6 @@ export default function ComprasScreen({ navigation }) {
             </Text>
           </TouchableOpacity>
 
-          {/* Campo de Horário com setinhas de 30 em 30 min */}
           <View style={styles.boxInputHorario}>
             <Ionicons name="time-outline" size={16} color={CORES.dourado} style={{ marginRight: 4 }} />
             <Text style={styles.labelHorario}>Hora:</Text>
@@ -409,7 +402,6 @@ export default function ComprasScreen({ navigation }) {
         </View>
       )}
 
-      {/* Modal do Calendário */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -446,7 +438,6 @@ export default function ComprasScreen({ navigation }) {
         </View>
       </Modal>
 
-      {/* Modal de Confirmação da Comanda */}
       <Modal
         animationType="fade"
         transparent={true}

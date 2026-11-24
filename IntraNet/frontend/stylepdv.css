@@ -1,7 +1,3 @@
-/* ============================================================
-   FONTE, RESET E VARIÁVEIS
-============================================================ */
-
 @font-face {
     font-family: "Roca One";
     src: url("fonts/roca-one-regular.ttf") format("truetype");
@@ -27,34 +23,6 @@ html {
     min-width: 0;
 }
 
-body {
-    background-color: var(--cor-laranja);
-    font-family: "Roca One", sans-serif;
-
-    display: grid;
-    width: 100%;
-
-    /* Não força o conteúdo a ultrapassar a altura disponível */
-    min-height: 100dvh;
-    height: 100dvh;
-
-    overflow: hidden;
-
-    grid-template-columns: minmax(0, 1.6fr) minmax(420px, 1fr);
-
-    /*
-      Deixa a área dos inputs ocupar o espaço disponível
-      e garante espaço para os botões/área inferior.
-    */
-    grid-template-rows: minmax(0, 1fr) auto;
-
-    grid-template-areas:
-        "inputs tabela"
-        "modal tabela";
-
-    gap: clamp(12px, 1vw, 15px);
-    padding: 75px 15px 15px;
-}
 body.sem-sidebar {
     margin-left: 0 !important;
     padding-left: 0 !important;
@@ -68,35 +36,12 @@ body.sem-sidebar .sidebar {
     display: none;
 }
 
-button,
-input,
-select {
+button, input, select {
     font: inherit;
 }
 
 button {
     max-width: 100%;
-}
-
-/* ============================================================
-   INPUTS E ÁREA ESQUERDA
-============================================================ */
-
-#sc_inputs {
-    grid-area: inputs;
-
-    min-width: 0;
-    min-height: 0;
-
-    background-color: var(--cor-escuro);
-    border-radius: 12px;
-
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-content: start;
-
-    gap: clamp(10px, 1vw, 15px);
-    padding: clamp(12px, 1vw, 20px);
 }
 
 .grupo-input {
@@ -118,21 +63,17 @@ button {
     cursor: default;
 }
 
-#inp_codb,
-.inp_val {
+#inp_codb, .inp_val {
     width: 100%;
     min-width: 0;
     height: clamp(38px, 2.2vw, 42px);
     padding: 0 clamp(9px, 0.65vw, 12px);
-
     color: var(--cor-escuro);
     background-color: var(--cor-laranja);
     border: none;
     outline: none;
-
     font-size: clamp(1rem, 1.3vw, 1.5rem);
     font-weight: bold;
-
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -141,30 +82,6 @@ button {
 #inp_codb::placeholder {
     color: #ffeed5;
     opacity: 1;
-}
-
-#img_prod {
-    grid-column: 1 / span 2;
-    grid-row: 3 / span 2;
-
-    /*
-      Mantém o tamanho de 500px em monitor grande,
-      mas diminui proporcionalmente nas telas menores.
-    */
-    width: min(100%, 500px);
-    max-width: 100%;
-    aspect-ratio: 1 / 1;
-    height: 90%;
-
-    justify-self: center;
-    align-self: start;
-
-    object-fit: contain;
-    background-color: #F0F2F5;
-    border-radius: 8px;
-
-    margin-top: clamp(15px, 1.3vw, 25px);
-    margin-left: 0;
 }
 
 #grupo_estoque {
@@ -183,54 +100,6 @@ button {
     display: flex;
     align-items: center;
     font-size: clamp(1.5rem, 2vw, 2.2rem);
-}
-
-#relogio_pdv {
-    width: 100%;
-    min-width: 0;
-
-    margin-top: 10px;
-    margin-left: clamp(0px, 6.25vw, 120px);
-    padding: 10px;
-
-    color: #ffeed5;
-    font-size: clamp(0.875rem, 1vw, 1.125rem);
-    font-weight: bold;
-    text-align: center;
-    border-radius: 10px;
-}
-
-/* ============================================================
-   TABELA / CARRINHO
-============================================================ */
-
-#sc_tabela {
-    grid-area: tabela;
-
-    width: 100%;
-    min-width: 0;
-    min-height: 0;
-
-    /*
-      A tabela acompanha o tamanho completo da área direita.
-      Não use height fixa aqui, pois ela causava desalinhamento.
-    */
-    height: auto;
-    max-height: none;
-
-    margin-top: 15px;
-    margin-right: 10px;
-    margin-bottom: 0;
-
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 12px;
-
-    overflow-x: hidden;
-    overflow-y: auto;
-
-    scrollbar-width: thin;
-    scrollbar-color: var(--cor-laranja) var(--cor-escuro);
 }
 
 table {
@@ -260,127 +129,72 @@ th {
     position: sticky;
     top: 0;
     z-index: 1;
-
     padding: clamp(8px, 0.8vw, 15px);
-
     background-color: var(--cor-laranja);
     border-right: 2px solid #1c1c1c;
-
     overflow-wrap: anywhere;
 }
 
 td {
     height: clamp(40px, 2.6vw, 50px);
     padding: clamp(6px, 0.65vw, 12px);
-
     text-align: center;
     font-size: clamp(0.75rem, 0.9vw, 1rem);
     font-weight: bold;
-
     border-right: 2px solid #1c1c1c;
-
     overflow-wrap: anywhere;
     word-break: break-word;
 }
 
-/* Scroll da tabela: Chrome, Edge e Safari */
-#sc_tabela::-webkit-scrollbar {
-    width: 12px;
-}
-
-#sc_tabela::-webkit-scrollbar-track {
-    background: var(--cor-escuro);
-    border-radius: 0 12px 12px 0;
-}
-
-#sc_tabela::-webkit-scrollbar-thumb {
-    background: var(--cor-laranja);
-    border: 3px solid var(--cor-escuro);
-    border-radius: 10px;
-}
-
-#sc_tabela::-webkit-scrollbar-thumb:hover {
-    background: #ffcf8b;
-}
 .sc_tabela tbody tr:nth-child(even) {
-    background-color: rgba(255, 255, 255, 0.05); /* Tom levemente mais claro */
-    color: #ffffff; /* Garante que o texto continue visível */
-}
-
-.sc_tabela tbody tr:nth-child(odd) {
-    background-color: transparent; /* Ou a cor base escura da tabela */
+    background-color: rgba(255, 255, 255, 0.05);
     color: #ffffff;
 }
 
-/* Garante a visibilidade ao passar o mouse */
+.sc_tabela tbody tr:nth-child(odd) {
+    background-color: transparent;
+    color: #ffffff;
+}
+
 .sc_tabela tbody tr:hover {
     background-color: var(--cor-laranja);
     color: var(--cor-escuro);
 }
-/* ============================================================
-   ÁREA DOS BOTÕES PRINCIPAIS
-============================================================ */
 
 #sc_modal {
     grid-area: modal;
     min-width: 0;
-
-    /*
-      Mantém os botões abaixo dos inputs
-      e evita sobreposição com a tabela.
-    */
     position: relative;
     z-index: 1;
 }
 
 #d_botoes {
-    /*
-      Não usar margin negativa.
-      Margens negativas causavam os botões sobre a tabela/carrinho.
-    */
     display: grid;
-
-    /*
-      Estrutura dos botões:
-      Pesquisa | Comanda | Cancelar | Agendamento | Finalizar
-    */
-    grid-template-columns:
-        clamp(56px, 3.7vw, 70px)
+    grid-template-columns: clamp(56px, 3.7vw, 70px)
         clamp(56px, 3.7vw, 70px)
         minmax(150px, 1fr)
         minmax(175px, 1.1fr)
         minmax(220px, 1.45fr);
-
     align-items: center;
     align-content: center;
     justify-content: start;
-
     width: 100%;
     min-width: 0;
     min-height: clamp(80px, 6vw, 110px);
-
     gap: clamp(8px, 1vw, 24px);
-
-    /*
-      Move levemente o grupo para a esquerda,
-      sem invadir a área da tabela.
-    */
     margin: 0;
     padding: 0 0 0 clamp(0px, 0.8vw, 14px);
 }
 
-#d_botoes button,
-#sc_modal button {
+#d_botoes button, #sc_modal button {
     width: 100%;
     min-width: 0;
     margin: 0 !important;
-
     border: none;
     border-radius: 8px;
     font-family: "Roca One", sans-serif;
     font-weight: bold;
     cursor: pointer;
-
     transition: filter 0.2s, transform 0.1s;
 }
 
@@ -392,44 +206,32 @@ td {
     transform: scale(0.98);
 }
 
-/* Botões pequenos: pesquisa e comanda */
-.b_atalho,
-#b_pesq {
+.b_atalho, #b_pesq {
     width: 100%;
     height: clamp(56px, 3.7vw, 70px);
-
     color: var(--cor-escuro);
     background: var(--cor-laranja);
-
     font-size: clamp(1rem, 1.3vw, 25px);
     text-align: center;
 }
 
-/* Cancelar */
 #b_canc {
     width: 100%;
     height: clamp(56px, 3.7vw, 70px);
-
     color: #fff;
     background: var(--btn-cancel);
-
     font-size: clamp(1rem, 1.3vw, 25px);
 }
 
-/* Finalizar */
 #b_final {
     width: 100%;
     height: clamp(76px, 5.2vw, 100px);
-
     color: #fff;
     background: var(--btn-finish);
-
     border: none;
     border-radius: 8px;
-
     font-size: clamp(1.2rem, 1.56vw, 30px);
     font-family: "Roca One", sans-serif;
-
     cursor: pointer;
     transition: background 0.3s ease, opacity 0.3s ease;
 }
@@ -437,7 +239,6 @@ td {
 #b_final:disabled {
     color: #889888 !important;
     background: #4a5a4a !important;
-
     cursor: not-allowed;
     opacity: 0.7;
     box-shadow: none;
@@ -449,72 +250,19 @@ td {
     opacity: 1;
 }
 
-/* ============================================================
-   DIALOG PADRÃO
-============================================================ */
-
-dialog {
-    width: min(450px, calc(100vw - 32px));
-    max-height: calc(100dvh - 32px);
-    margin: auto;
-    padding: 30px;
-
-    color: #efac4a;
-    background: #1c1c1c;
-    border: none;
-    border-radius: 15px;
-
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    overflow: auto;
-}
-
 dialog::backdrop {
     background: rgba(0, 0, 0, 0.8);
-}
-/* ============================================================
-   MODAL DE DIVIDIR PAGAMENTO
-============================================================ */
-
-#dialogDividirPagamento {
-    width: min(500px, calc(100vw - 32px));
-    max-width: 95%;
-    max-height: calc(100dvh - 32px);
-
-    padding: 0;
-    overflow: hidden;
-
-    color: #f1b869;
-    background: #1c1c1c;
-    border: 2px solid #efac4a;
-    border-radius: 16px;
-
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
 }
 
 #dialogDividirPagamento::backdrop {
     background: rgba(0, 0, 0, 0.75);
 }
 
-.split-box {
-    position: relative;
-
-    display: flex;
-    flex-direction: column;
-
-    min-width: 0;
-    max-height: calc(100dvh - 32px);
-    padding: clamp(20px, 2vw, 28px);
-
-    font-family: system-ui, -apple-system, sans-serif;
-}
-
 .split-box h2 {
     margin: 0 0 20px;
     padding-bottom: 12px;
-
     color: #f1b869;
     border-bottom: 1px solid #5a4332;
-
     font-family: "Roca One", sans-serif !important;
     font-size: 1.6rem;
     font-weight: 800;
@@ -526,19 +274,15 @@ dialog::backdrop {
     position: absolute;
     top: 8px;
     right: 12px;
-
     width: 38px;
     height: 38px;
     padding: 0;
-
     color: #ffffff;
     background: transparent;
     border: none;
-
     font-family: Arial, sans-serif !important;
     font-size: 30px;
     line-height: 1;
-
     cursor: pointer;
 }
 
@@ -549,7 +293,6 @@ dialog::backdrop {
 .split-resumo {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-
     gap: 10px;
     margin-bottom: 18px;
 }
@@ -559,10 +302,8 @@ dialog::backdrop {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
     min-width: 0;
     padding: 12px 10px;
-
     background: #1c1c1c;
     border: 1px solid #5a4332;
     border-radius: 10px;
@@ -570,7 +311,6 @@ dialog::backdrop {
 
 .split-resumo small {
     margin-bottom: 5px;
-
     color: #f1b869;
     font-family: "Roca One", sans-serif !important;
     font-size: 0.85rem;
@@ -592,27 +332,8 @@ dialog::backdrop {
 .split-metodos {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-
     gap: 10px;
     margin-bottom: 16px;
-}
-
-.split-metodo {
-    width: 100%;
-    min-width: 0;
-    min-height: 48px;
-    padding: 12px 10px;
-
-    color: #f1b869;
-    background: transparent;
-    border: 2px solid #efac4a;
-    border-radius: 9px;
-
-    font-family: "Roca One", sans-serif !important;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
 }
 
 .split-metodo:hover {
@@ -633,7 +354,6 @@ dialog::backdrop {
 .split-entrada {
     display: flex;
     align-items: stretch;
-
     gap: 10px;
     margin-bottom: 16px;
 }
@@ -644,13 +364,11 @@ dialog::backdrop {
     min-width: 0;
     height: 48px;
     padding: 0 12px;
-
     color: #22160d;
     background: #ffffff;
     border: 2px solid #f1b869;
     border-radius: 8px;
     outline: none;
-
     font-size: 1.1rem;
     font-weight: 700;
 }
@@ -660,12 +378,10 @@ dialog::backdrop {
     width: auto;
     min-height: 48px;
     padding: 0 16px;
-
     color: #22160d;
     background: #f1b869;
     border: none;
     border-radius: 9px;
-
     font-family: "Roca One", sans-serif !important;
     font-size: 1rem;
     font-weight: bold;
@@ -684,23 +400,18 @@ dialog::backdrop {
 .split-lista {
     display: flex;
     flex-direction: column;
-
     min-height: 0;
     max-height: 190px;
-
     margin-bottom: 16px;
     padding: 8px;
-
     background: #1c1c1c;
     border: 1px solid #5a4332;
     border-radius: 10px;
-
     overflow-y: auto;
 }
 
 .split-lista > div:not(.split-item) {
     padding: 12px;
-
     color: #a99a8b;
     font-size: 0.95rem;
     text-align: center;
@@ -710,10 +421,8 @@ dialog::backdrop {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto 34px;
     align-items: center;
-
     gap: 10px;
     padding: 10px 8px;
-
     border-bottom: 1px solid #3d3026;
 }
 
@@ -723,7 +432,6 @@ dialog::backdrop {
 
 .split-item span {
     min-width: 0;
-
     color: #f1b869;
     font-family: "Roca One", sans-serif;
     font-size: 0.95rem;
@@ -740,12 +448,10 @@ dialog::backdrop {
     width: 34px;
     height: 34px;
     padding: 0;
-
     color: #ffffff;
     background: #a94e4e;
     border: none;
     border-radius: 7px;
-
     font-family: Arial, sans-serif !important;
     font-size: 20px;
     line-height: 1;
@@ -758,23 +464,6 @@ dialog::backdrop {
 
 .split-acoes {
     margin-top: 4px;
-}
-
-#b_confirmar_split {
-    width: 100%;
-    min-height: 52px;
-    padding: 0 16px;
-
-    color: #ffffff;
-    background: #62c370;
-    border: none;
-    border-radius: 10px;
-
-    font-family: "Roca One", sans-serif !important;
-    font-size: 1.15rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
 }
 
 #b_confirmar_split:hover:not(:disabled) {
@@ -790,17 +479,14 @@ dialog::backdrop {
     opacity: 0.45;
 }
 
-/* Botão DIVIDIR dentro do modal de pagamento */
 .botao-dividir-pagamento {
     width: 100%;
     min-height: 48px;
     padding: 14px;
-
     color: #f8c471;
     background: transparent;
     border: 2px solid #efac4a;
     border-radius: 8px;
-
     font-family: "Roca One", sans-serif !important;
     font-weight: bold;
     text-transform: uppercase;
@@ -817,60 +503,9 @@ dialog::backdrop {
     opacity: 0.45;
 }
 
-/* FIADO: garante que o botão continue visível no modal de pagamento */
-#pg_fiado {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1;
-}
-
-/* Evita que o último botão fique cortado pelo overflow do grid */
-.area_pagamento {
-    overflow: visible !important;
-}
-
-/* ============================================================
-   MODAL DE FINALIZAÇÃO DA VENDA
-============================================================ */
-
-#d_modal {
-    width: min(600px, calc(100vw - 32px));
-    height: min(820px, calc(100dvh - 32px));
-    max-width: 95%;
-    
-    padding: 0;
-    overflow: hidden !important;
-
-    color: #f8c471;
-    background: #1c1c1c;
-    border: 2px solid #efac4a;
-    border-radius: 16px;
-
-    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.7);
-}
-
 #d_modal::backdrop {
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(4px);
-}
-
-#d_modal article {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    min-height: 0;
-    overflow: hidden !important;
-}
-
-#d_modal article section {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    min-height: 0;
-    overflow: hidden !important;
-    gap: 15px;
-    padding: clamp(20px, 2vw, 30px);
-    overflow-y: auto;
 }
 
 #d_modal h2 {
@@ -879,9 +514,7 @@ dialog::backdrop {
     font-size: 18px;
 }
 
-#s_pedido,
-#s_dt,
-#s_tot {
+#s_pedido, #s_dt, #s_tot {
     color: #f8c471;
     font-size: 1.4rem;
     font-weight: bold;
@@ -902,7 +535,6 @@ dialog::backdrop {
 .bloco-info-venda {
     display: flex;
     flex-direction: column;
-
     width: 100%;
     gap: 20px;
     margin: 20px 0;
@@ -917,10 +549,8 @@ dialog::backdrop {
 
 .info-label {
     margin-bottom: 5px !important;
-
     color: #efac4a !important;
     font-size: 1.3rem !important;
-
     text-transform: none;
 }
 
@@ -932,7 +562,6 @@ dialog::backdrop {
 
 .total-box {
     padding: 15px;
-
     background-color: #262626;
     border: 1px dashed #efac4a;
     border-radius: 10px;
@@ -947,7 +576,6 @@ dialog::backdrop {
 .titulo-central {
     width: 100%;
     margin-bottom: 15px;
-
     color: #efac4a;
     font-size: 2rem !important;
     font-weight: bold;
@@ -956,25 +584,15 @@ dialog::backdrop {
 
 .label-pagamento {
     display: block;
-
     width: 100%;
     margin-top: 20px;
     margin-bottom: 10px;
-
     color: #efac4a;
     font-size: 2rem !important;
     font-weight: bold;
     text-align: center;
 }
 
-.area_pagamento {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    overflow: hidden !important;
-    width: 100%;
-    gap: 12px;
-    padding: 10px;
-}
 .pagamento {
     width: 100%;
     background: transparent;
@@ -987,52 +605,14 @@ dialog::backdrop {
     text-transform: uppercase;
 }
 
-/* Mouse sobre o botão */
 .pagamento:hover {
     background: #efac4a;
     color: #1c1c1c;
 }
 
-/* Botão selecionado pelo atalho ou clique */
-.pagamento.selecionado {
-    background: #efac4a;
-    color: #1c1c1c;
-    border-color: #efac4a;
-
-}
-
-/* Mantém o visual selecionado mesmo com o mouse saindo */
 .pagamento.selecionado:hover {
     background: #efac4a;
     color: #1c1c1c;
-}
-
-/* Botão bloqueado */
-.pagamento:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
-}
-
-#d_modal footer {
-    padding: 20px;
-    background: #1c1c1c;
-    text-align: center;
-}
-
-#b_nv_venda {
-    width: 100%;
-    padding: 14px;
-
-    color: #1c1c1c;
-    background: #efac4a;
-    border: none;
-    border-radius: 10px;
-
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
 }
 
 #b_nv_venda:disabled {
@@ -1040,35 +620,25 @@ dialog::backdrop {
     opacity: 0.5;
 }
 
-/* ============================================================
-   TOAST DE ERRO
-============================================================ */
-
 #erro_overlay {
     position: fixed;
     z-index: 10000;
     bottom: clamp(16px, 2vw, 30px);
     left: clamp(16px, 2vw, 30px);
-
     display: none;
     max-width: calc(100vw - 32px);
-
     background-color: transparent;
 }
 
-#erro_box.erro,
-#erro_box.alerta {
+#erro_box.erro, #erro_box.alerta {
     max-width: 100%;
-
     color: #2b1f14;
     background-color: #ffffff;
     border: 4px solid #f1b869;
     border-radius: 10px;
-
     font-size: 1.2rem;
     font-weight: bold;
     text-transform: uppercase;
-
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
@@ -1084,55 +654,18 @@ dialog::backdrop {
 
 @keyframes slideIn {
     from {
-        opacity: 0;
-        transform: translateX(-100%);
+    opacity: 0;
+    transform: translateX(-100%);
     }
-
     to {
-        opacity: 1;
-        transform: translateX(0);
+    opacity: 1;
+    transform: translateX(0);
     }
-}
- 
-/* ============================================================
-   MODAL DE BUSCA
-============================================================ */
-
-#dialogBusca {
-    width: min(600px, calc(100vw - 32px));
-    height: min(500px, calc(100dvh - 32px));
-    max-width: 95%;
-
-    padding: 0;
-    overflow: hidden;
-
-    color: #f8c471;
-    background: #1c1c1c;
-    border: 2px solid #efac4a;
-    border-radius: 16px;
-
-    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.7);
 }
 
 #dialogBusca::backdrop {
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(4px);
-}
-
-#dialogBusca .modal_box {
-    position: relative;
-
-    display: flex;
-    flex-direction: column;
-
-    height: 100%;
-    min-height: 0;
-    gap: 20px;
-    padding: clamp(20px, 2vw, 30px);
-
-    color: #f8c471;
-    background: #1c1c1c;
-    border-radius: 16px;
 }
 
 .modal_titulo {
@@ -1154,28 +687,11 @@ dialog::backdrop {
     height: 50px;
     padding: 0 10px;
     margin-top: 20px;
-
     color: #22160d;
     background-color: #fed89d;
     border: 3px solid #efac4a;
     border-radius: 10px;
-
     font-size: 18px;
-}
-
-#listaSugestoes {
-    width: 100%;
-    min-height: 0;
-    max-height: 180px;
-    padding: 0;
-
-    color: #f8c471;
-    background: #1c1c1c;
-    border: 2px solid #efac4a;
-    border-radius: 8px;
-
-    list-style: none;
-    overflow-y: auto;
 }
 
 #listaSugestoes li {
@@ -1184,8 +700,7 @@ dialog::backdrop {
     border-bottom: 1px solid #333;
 }
 
-#listaSugestoes li:hover,
-#listaSugestoes .ativo {
+#listaSugestoes li:hover, #listaSugestoes .ativo {
     color: #1c1c1c;
     background: #efac4a;
 }
@@ -1208,11 +723,9 @@ dialog::backdrop {
     position: absolute;
     top: 10px;
     right: 15px;
-
     color: #efac4a;
     background: transparent;
     border: none;
-
     font-size: 26px;
     cursor: pointer;
 }
@@ -1224,7 +737,6 @@ dialog::backdrop {
 #b_addf {
     display: block;
     position: relative;
-
     width: 80%;
     margin: 20px auto 0;
 }
@@ -1234,41 +746,26 @@ dialog::backdrop {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
     gap: 20px;
     font-family: sans-serif;
-}
-
-#msg_aviso {
-    margin: 0;
-
-    color: #f1b256;
-    font-size: clamp(1rem, 1.3vw, 22px);
-    font-weight: bold;
-    letter-spacing: 0.5px;
-    text-align: center;
 }
 
 .aviso_botoes {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-
     width: 100%;
     gap: 15px;
     margin-top: 5px;
 }
 
-#b_confirmar_aviso,
-#b_cancelar_aviso {
+#b_confirmar_aviso, #b_cancelar_aviso {
     min-width: 100px;
     padding: 10px 30px;
-
     color: #202020;
     background-color: #f1b256;
     border: none;
     border-radius: 8px;
-
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
@@ -1279,8 +776,7 @@ dialog::backdrop {
     background-color: #df9e3f;
 }
 
-#b_confirmar_aviso:active,
-#b_cancelar_aviso:active {
+#b_confirmar_aviso:active, #b_cancelar_aviso:active {
     transform: scale(0.96);
 }
 
@@ -1291,22 +787,6 @@ dialog::backdrop {
 
 #b_cancelar_aviso:hover {
     background-color: #444;
-}
-
-/* ============================================================
-   MODAL PAGAMENTO EM DINHEIRO
-============================================================ */
-
-#dialogDinheiro {
-    width: min(440px, calc(100vw - 32px));
-    padding: 0;
-
-    color: #f1b869;
-    background: #1c1c1c;
-    border: 2px solid #efac4a;
-    border-radius: 16px;
-
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
 }
 
 #dialogDinheiro::backdrop {
@@ -1321,10 +801,8 @@ dialog::backdrop {
 .conteudo-dinheiro h2 {
     margin: 0 0 20px;
     padding-bottom: 12px;
-
     color: #f1b869;
     border-bottom: 1px solid #5a4332;
-    
     font-size: 1.6rem;
     font-weight: 800;
     letter-spacing: 0.5px;
@@ -1335,16 +813,13 @@ dialog::backdrop {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     gap: 15px;
     margin-bottom: 16px;
-
     font-size: 1.15rem;
     font-weight: 600;
 }
 
-.linha-modal span,
-.linha-modal label {
+.linha-modal span, .linha-modal label {
     color: #f1b869;
 }
 
@@ -1359,20 +834,17 @@ dialog::backdrop {
     min-width: 0;
     height: 42px;
     padding-right: 12px;
-
     color: #22160d;
     background: #ffffff;
     border: 2px solid #f1b869;
     border-radius: 8px;
     outline: none;
-
     font-size: 1.25rem;
     font-weight: 700;
     text-align: right;
 }
 
-.linha-modal input::-webkit-outer-spin-button,
-.linha-modal input::-webkit-inner-spin-button {
+.linha-modal input::-webkit-outer-spin-button, .linha-modal input::-webkit-inner-spin-button {
     margin: 0;
     -webkit-appearance: none;
 }
@@ -1386,15 +858,12 @@ dialog::backdrop {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     gap: 15px;
     margin: 22px 0;
     padding: 14px 18px;
-
     color: #d9534f;
     background: #ffebe2;
     border-radius: 12px;
-
     font-size: 1.25rem;
     font-weight: 700;
 }
@@ -1407,281 +876,43 @@ dialog::backdrop {
     margin-top: 20px;
 }
 
-#b_confirmar_dinheiro {
-    width: 100%;
-    height: 52px;
-
-    color: #ffffff;
-    background: #62c370;
-    border: none;
-    border-radius: 10px;
-
-    font-size: 1.25rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-}
-
-#b_confirmar_dinheiro:hover {
-    background: #53b060;
-}
-
 #b_confirmar_dinheiro:active {
     transform: scale(0.99);
 }
 
-/* ============================================================
-   FONTE GLOBAL EM TÍTULOS E BOTÕES
-============================================================ */
-
-h1,
-h2,
-.titulo,
-.titulo-central,
-.info-label,
-.modal_titulo,
-button {
+h1, h2, .titulo, .titulo-central, .info-label, .modal_titulo, button {
     font-family: "Roca One", sans-serif !important;
 }
 
-/* Em desktop, reduz a altura necessária para exibir todos os meios */
 @media (min-width: 1101px) {
     .area_pagamento {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
+
 }
 
-/* ============================================================
-   NOTEBOOKS E TELAS MÉDIAS
-============================================================ */
-
-@media (max-width: 1100px) {
-    body {
-        grid-template-columns: minmax(0, 1.35fr) minmax(330px, 0.9fr);
-        gap: 10px;
-        padding: 65px 12px 12px;
-    }
-
-    #sc_tabela {
-        margin-top: 10px;
-        margin-right: 0;
-    }
-
-    #img_prod {
-        width: min(100%, 360px);
-    }
-
-    #d_botoes {
-        grid-template-columns:
-            56px
-            56px
-            minmax(120px, 1fr)
-            minmax(140px, 1.1fr)
-            minmax(180px, 1.4fr);
-
-        gap: 8px;
-        padding-left: 0;
-    }
-
-    #d_botoes button {
-        font-size: clamp(0.78rem, 1.7vw, 1rem);
-    }
-
-    #b_final {
-        height: 76px;
-    }
-}
-
-/* ============================================================
-   TABLETS
-============================================================ */
-
-@media (max-width: 850px) {
-    body {
-        height: auto;
-        min-height: 100dvh;
-
-        overflow-x: hidden;
-        overflow-y: auto;
-
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-rows: auto minmax(320px, 55dvh) auto;
-
-        grid-template-areas:
-            "inputs"
-            "tabela"
-            "modal";
-
-        gap: 12px;
-        padding: 12px;
-    }
-
-    #sc_inputs {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    #sc_tabela {
-        min-height: 320px;
-        height: auto;
-        margin: 0;
-    }
-
-    #img_prod {
-        grid-column: 1 / -1;
-        grid-row: auto;
-
-        width: min(100%, 340px);
-        margin: 15px auto 0;
-    }
-
-    #grupo_estoque,
-    #total {
-        grid-column: auto;
-        grid-row: auto;
-    }
-
-    #relogio_pdv {
-        grid-column: 1 / -1;
-        margin-left: 0;
-    }
-
-    #d_botoes {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        min-height: auto;
-        gap: 10px;
-        padding: 0;
-    }
-
-    #b_final {
-        grid-column: 1 / -1;
-        height: 80px;
-    }
-}
-
-/* ============================================================
-   CELULARES
-============================================================ */
-
-@media (max-width: 520px) {
-    body {
-        padding: 10px;
-        gap: 10px;
-    }
-
-    #sc_inputs {
-        grid-template-columns: minmax(0, 1fr);
-        gap: 10px;
-        padding: 12px;
-    }
-
-    /*
-      Corrige o primeiro grupo que possui:
-      style="grid-column: 1 / span 3" no HTML.
-    */
-    #sc_inputs > .grupo-input[style*="grid-column"] {
-        grid-column: 1 !important;
-    }
-
-    #img_prod {
-        width: min(100%, 280px);
-    }
-
-    #sc_tabela {
-        min-height: 300px;
-    }
-
-    #d_botoes {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    #d_botoes button,
-    #b_canc,
-    #b_agend,
-    #b_final,
-    #b_pesq,
-    .b_atalho {
-        width: 100%;
-        margin: 0 !important;
-    }
-
-    #b_canc,
-    #b_agend,
-    #b_pesq,
-    .b_atalho {
-        height: 56px;
-        font-size: 0.82rem;
-    }
-
-    #b_final {
-        height: 74px;
-        font-size: 1.15rem;
-    }
-
-    #d_modal article section {
-        padding: 20px;
-    }
-
-    .area_pagamento {
-        grid-template-columns: minmax(0, 1fr);
-        padding: 0;
-    }
-
-    .label-pagamento {
-        font-size: 1.5rem !important;
-    }
-
-    .linha-modal {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .linha-modal input {
-        width: 100%;
-    }
-
-    .box-troco {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    th,
-    td {
-        padding: 7px 4px;
-        font-size: clamp(0.65rem, 2.6vw, 0.82rem);
-    }
-
-    thead {
-        font-size: clamp(0.7rem, 2.8vw, 0.95rem);
-    }
-}
-.dialogComanda{
+.dialogComanda {
     width: min(420px, calc(100vw - 32px));
     max-width: 90%;
     padding: clamp(20px, 2vw, 30px);
-
     background-color: #202020;
     border: 3px solid #f1b256;
     border-radius: 18px;
-
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-b_desbloquear_pagamento{
-                display: none;
-                width: 24px;
-                height: 24px;
-                padding: 0;
-                margin-left: 8px;
-                font-size: 13px;
-                line-height: 20px;
-                cursor: pointer;
+b_desbloquear_pagamento {
+    display: none;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    margin-left: 8px;
+    font-size: 13px;
+    line-height: 20px;
+    cursor: pointer;
 }
 
-/* =========================================================
-MODAL CLIENTE
-========================================================= */
-
-#modal_cliente{
+#modal_cliente {
     border: 2px solid #efac4a;
     border-radius: 16px;
     padding: 0;
@@ -1691,12 +922,12 @@ MODAL CLIENTE
     overflow: hidden;
 }
 
-#modal_cliente::backdrop{
+#modal_cliente::backdrop {
     background: rgba(0,0,0,0.8);
     backdrop-filter: blur(4px);
 }
 
-#modal_cliente .modal_box{
+#modal_cliente .modal_box {
     width: 100%;
     box-sizing: border-box;
     padding: 30px;
@@ -1706,13 +937,7 @@ MODAL CLIENTE
     overflow-x: hidden;
 }
 
-
-/* =========================================================
-MODAL FIADO / PRODUTOS
-========================================================= */
-
-#d_modal_fiado,
-#d_modal_produtos{
+#d_modal_fiado, #d_modal_produtos {
     border: 2px solid #efac4a;
     border-radius: 16px;
     padding: 0;
@@ -1720,79 +945,34 @@ MODAL FIADO / PRODUTOS
     overflow: hidden;
 }
 
-#d_modal_fiado{
-    width: 650px;
-    max-width: 95%;
-}
-
-#d_modal_produtos{
-    width: 700px;
-    max-width: 95%;
-}
-
-#d_modal_fiado::backdrop,
-#d_modal_produtos::backdrop{
+#d_modal_fiado::backdrop, #d_modal_produtos::backdrop {
     background: rgba(0,0,0,0.8);
     backdrop-filter: blur(4px);
 }
 
-#d_modal_fiado .modal_box,
-#d_modal_produtos .modal_box{
+#d_modal_fiado .modal_box, #d_modal_produtos .modal_box {
     overflow-x: hidden;
     box-sizing: border-box;
     width: 100%;
 }
 
-/* =========================================================
-   MODAL - BUSCAR COMANDA
-========================================================= */
-
-#dialogComanda {
-    border: 2px solid #efac4a;
-    border-radius: 16px;
-    padding: 0;
-    width: 500px;
-    max-width: 95%;
-    background: #1c1c1c;
-    overflow: hidden;
-    color: white;
-}
-
-/* Fundo escuro atrás do modal */
 #dialogComanda::backdrop {
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(4px);
 }
 
-/* Conteúdo interno */
-#dialogComanda .modal_box {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 30px;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    overflow-x: hidden;
-}
-
-/* Botão X */
 #dialogComanda #b_close_comanda {
     position: absolute;
     top: 12px;
     right: 15px;
-
     width: 32px;
     height: 32px;
-
     border: none;
     border-radius: 8px;
-
     background: transparent;
     color: #efac4a;
-
     font-size: 24px;
     font-weight: bold;
-
     cursor: pointer;
     transition: 0.2s;
 }
@@ -1802,7 +982,6 @@ MODAL FIADO / PRODUTOS
     color: #1c1c1c;
 }
 
-/* Título */
 #dialogComanda .modal_titulo {
     margin: 0;
     color: #efac4a;
@@ -1811,37 +990,16 @@ MODAL FIADO / PRODUTOS
     text-align: center;
 }
 
-/* Linha do formulário */
 #dialogComanda .modal_linha {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
-/* Label */
 #dialogComanda .label {
     color: white;
     font-size: 16px;
     font-weight: bold;
-}
-
-/* Input */
-#dialogComanda #inputComanda {
-    width: 100%;
-    box-sizing: border-box;
-
-    padding: 13px 15px;
-
-    border: 2px solid #555;
-    border-radius: 10px;
-
-    background: #292929;
-    color: white;
-
-    font-size: 16px;
-    outline: none;
-
-    transition: 0.2s;
 }
 
 #dialogComanda #inputComanda::placeholder {
@@ -1853,30 +1011,22 @@ MODAL FIADO / PRODUTOS
     box-shadow: 0 0 0 2px rgba(239, 172, 74, 0.15);
 }
 
-/* Rodapé */
 #dialogComanda .modal_footer {
     display: flex;
     justify-content: center;
     margin-top: 5px;
 }
 
-/* Botão carregar comanda */
 #dialogComanda #b_buscar_comanda {
     width: 100%;
-
     padding: 13px 20px;
-
     border: none;
     border-radius: 10px;
-
     background: #efac4a;
     color: #1c1c1c;
-
     font-size: 16px;
     font-weight: bold;
-
     cursor: pointer;
-
     transition: 0.2s;
 }
 
@@ -1889,12 +1039,7 @@ MODAL FIADO / PRODUTOS
     transform: translateY(0);
 }
 
-/* =========================================================
-   MODAIS DE PAGAMENTO
-   ========================================================= */
-
-#dialogDinheiro,
-#dialogCredito {
+#dialogDinheiro, #dialogCredito {
     border: none;
     border-radius: 12px;
     padding: 0;
@@ -1902,26 +1047,8 @@ MODAL FIADO / PRODUTOS
     overflow: visible;
 }
 
-#dialogDinheiro::backdrop,
-#dialogCredito::backdrop {
+#dialogDinheiro::backdrop, #dialogCredito::backdrop {
     background: rgba(0, 0, 0, 0.65);
-}
-
-
-/* =========================================================
-   MODAL DINHEIRO
-   ========================================================= */
-
-#dialogDinheiro .conteudo-dinheiro {
-    position: relative;
-    width: 430px;
-    max-width: 90vw;
-    padding: 30px;
-    background: #1c1c1c;
-    border: 2px solid #efac4a;
-    border-radius: 12px;
-    box-sizing: border-box;
-    color: #ffffff;
 }
 
 #dialogDinheiro .conteudo-dinheiro h2 {
@@ -1931,29 +1058,20 @@ MODAL FIADO / PRODUTOS
     color: #efac4a;
 }
 
-
-/* Botão X do dinheiro */
-
 #b_fechar_dinheiro {
     position: absolute;
     top: 10px;
     right: 12px;
-
     width: 34px;
     height: 34px;
-
     border: none;
     border-radius: 50%;
-
     background: transparent;
     color: #555;
-
     font-size: 26px;
     font-weight: bold;
-
     line-height: 30px;
     cursor: pointer;
-
     transition: 0.2s;
 }
 
@@ -1962,17 +1080,12 @@ MODAL FIADO / PRODUTOS
     color: #111;
 }
 
-
-/* Linhas */
-
 #dialogDinheiro .linha-modal {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 15px;
-
     margin-bottom: 18px;
-
     font-size: 17px;
 }
 
@@ -1980,19 +1093,13 @@ MODAL FIADO / PRODUTOS
     font-size: 19px;
 }
 
-
-/* Input valor recebido */
-
 #inp_valor_pago {
     width: 150px;
     padding: 10px 12px;
-
     border: 1px solid #ccc;
     border-radius: 6px;
-
     font-size: 17px;
     text-align: right;
-
     box-sizing: border-box;
 }
 
@@ -2002,20 +1109,14 @@ MODAL FIADO / PRODUTOS
     box-shadow: 0 0 0 2px rgba(239, 172, 74, 0.2);
 }
 
-
-/* Caixa do troco */
-
 #dialogDinheiro .box-troco {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     margin-top: 20px;
     padding: 15px;
-
     border-radius: 8px;
     background: #f5f5f5;
-
     font-size: 18px;
 }
 
@@ -2023,110 +1124,57 @@ MODAL FIADO / PRODUTOS
     font-size: 21px;
 }
 
-
-/* Botões */
-
 #dialogDinheiro .acoes-modal {
     display: flex;
     justify-content: center;
-
     margin-top: 25px;
 }
 
 #b_confirmar_dinheiro {
     width: 100%;
-    padding: 13px;
-
+    height: 52px;
+    color: #1c1c1c;
+    background: #efac4a;
     border: none;
     border-radius: 7px;
-
-    background: #efac4a;
-    color: #1c1c1c;
-
     font-size: 17px;
     font-weight: bold;
-
     cursor: pointer;
     transition: 0.2s;
+    padding: 13px;
 }
 
 #b_confirmar_dinheiro:hover {
+    background: #53b060;
     filter: brightness(0.95);
 }
-
-
-/* =========================================================
-   MODAL CARTÃO DE CRÉDITO
-   ========================================================= */
-
-#dialogCredito .conteudo-credito {
-    position: relative;
-
-    width: 450px;
-    max-width: 90vw;
-
-    padding: 30px;
-
-    background: #1c1c1c;
-    border-radius: 12px;
-    border: 2px solid #efac4a;
-    box-sizing: border-box;
-    color: #1c1c1c;
-}
-
-#dialogCredito .conteudo-credito h2 {
-    margin: 0 35px 25px 0;
-
-    text-align: center;
-
-    font-size: 23px;
-    width: 360px;
-    color: #efac4a;
-}
-
-
-/* X */
 
 #b_fechar_credito {
     position: absolute;
     top: 10px;
     right: 12px;
-
     width: 34px;
     height: 34px;
-
     border: none;
     border-radius: 50%;
-
     background: transparent;
     color: #efac4a;
-
     font-size: 27px;
     font-weight: bold;
-
     line-height: 30px;
     cursor: pointer;
-
     transition: 0.2s;
 }
-
-
-
-
-/* Total */
 
 #dialogCredito .credito-total {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     margin-bottom: 22px;
     padding: 14px;
-
     border-radius: 8px;
     background: #fed89d;
-    border: 3px solid #efac4a ;
-
+    border: 3px solid #efac4a;
     font-size: 17px;
 }
 
@@ -2134,34 +1182,19 @@ MODAL FIADO / PRODUTOS
     font-size: 20px;
 }
 
-
-/* Campo parcelas */
-
 #dialogCredito .credito-campo {
     display: flex;
     flex-direction: column;
     gap: 8px;
-
     margin-bottom: 20px;
-}
-
-#dialogCredito .credito-campo label {
-    font-size: 16px;
-    font-weight: bold;
-    color: #efac4a;
-    
 }
 
 #sel_parcelas_credito {
     width: 100%;
     padding: 11px;
-
-    border: 1px solid #ccc;
+    border: 3px solid #efac4a;
     border-radius: 6px;
-
     background: #fed89d;
-    border: 3px solid #efac4a ;
-
     font-size: 17px;
     cursor: pointer;
 }
@@ -2171,29 +1204,21 @@ MODAL FIADO / PRODUTOS
     color: #f8c471;
 }
 
-
-
 #sel_parcelas_credito:focus {
     outline: none;
     border-color: #fed89d;
     box-shadow: 0 0 0 2px rgba(239, 172, 74, 0.2);
 }
 
-
-/* Valor da parcela */
-
 #dialogCredito .credito-parcela {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     margin-bottom: 25px;
     padding: 15px;
-
     border-radius: 8px;
     background: #fed89d;
-    border: 3px solid #efac4a ;
-
+    border: 3px solid #efac4a;
     font-size: 17px;
 }
 
@@ -2201,22 +1226,15 @@ MODAL FIADO / PRODUTOS
     font-size: 20px;
 }
 
-
-/* Confirmar */
-
 #b_confirmar_credito {
     width: 100%;
     padding: 13px;
-
     border: none;
     border-radius: 7px;
-
     background: #efac4a;
     color: #1c1c1c;
-
     font-size: 17px;
     font-weight: bold;
-
     cursor: pointer;
     transition: 0.2s;
 }
@@ -2225,12 +1243,6 @@ MODAL FIADO / PRODUTOS
     filter: brightness(0.95);
 }
 
-
-/* =========================================================
-   PARCELAS AINDA NÃO SELECIONADAS
-   ========================================================= */
-
-
 .pagamento.selecionado {
     background: #efac4a !important;
     color: #1c1c1c !important;
@@ -2238,56 +1250,47 @@ MODAL FIADO / PRODUTOS
     font-weight: bold;
     box-shadow: 0 0 0 2px rgba(239, 172, 74, 0.25);
 }
+
 .pagamento:disabled {
     opacity: 1 !important;
     cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
 }
-
 
 #relogio_pdv {
     width: auto;
     min-width: max-content;
-
-    margin: 0;
+    margin-top: 10px;
+    margin-left: clamp(0px, 6.25vw, 120px);
     padding: 10px;
-
     color: #f1b869;
     font-size: clamp(0.875rem, 1vw, 1.125rem);
     font-weight: bold;
     text-align: center;
     border-radius: 10px;
-
+    margin: 0;
     white-space: nowrap;
 }
-
-/* =========================================================
-   SELECT PERSONALIZADO - CARTÃO DE CRÉDITO
-========================================================= */
 
 .select-personalizado {
     position: relative;
     width: 100%;
 }
 
-/* Campo fechado */
 .select-selecionado {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     width: 100%;
     height: 48px;
     padding: 0 14px;
-
     background: #f1b869;
     color: #1c1c1c;
-
     border: 2px solid #efac4a;
     border-radius: 8px;
-
     font-size: 16px;
     font-weight: bold;
-
     cursor: pointer;
     box-sizing: border-box;
 }
@@ -2301,43 +1304,31 @@ MODAL FIADO / PRODUTOS
     line-height: 1;
 }
 
-/* Lista */
 .opcoes-parcelas {
     display: none;
-
     position: absolute;
     z-index: 9999;
-
     top: calc(100% + 5px);
     left: 0;
-
     width: 100%;
     max-height: 230px;
-
     overflow-y: auto;
-
     background: #f1b869;
     border: 2px solid #efac4a;
     border-radius: 8px;
-
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
 }
 
-/* Lista aberta */
 .select-personalizado.aberto .opcoes-parcelas {
     display: block;
 }
 
-/* Opções */
 .opcoes-parcelas div {
     padding: 12px 14px;
-
     color: #1c1c1c;
     background: #f1b869;
-
     font-size: 16px;
     font-weight: bold;
-
     cursor: pointer;
 }
 
@@ -2345,48 +1336,17 @@ MODAL FIADO / PRODUTOS
     background: #efac4a;
 }
 
-/* Opção selecionada */
 .opcoes-parcelas div.selecionada {
     background: #efac4a;
     color: #1c1c1c;
 }
 
-/* Esconde o select original */
 .select-original {
     position: absolute !important;
-
     width: 1px !important;
     height: 1px !important;
-
     opacity: 0 !important;
-
     pointer-events: none !important;
-}
-/* =========================================================
-   ESTILOS - FECHAMENTO DIÁRIO E CONSULTA DE DATAS
-========================================================= */
-
-#dialogFechamentoDiario {
-    border: none;
-    border-radius: 12px;
-    padding: 0;
-    width: 90%;
-    max-width: 850px;
-    background-color: #242628;
-    color: #ffffff;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-}
-
-#dialogFechamentoDiario::backdrop {
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(3px);
-}
-
-.fechamento-box {
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
 }
 
 #topo_fechamento {
@@ -2399,6 +1359,7 @@ MODAL FIADO / PRODUTOS
 #fechamentoTitulo {
     margin: 0;
 }
+
 .fechamento-topo {
     position: relative;
 }
@@ -2453,8 +1414,7 @@ MODAL FIADO / PRODUTOS
     color: #a0a0a0;
 }
 
-.fechamento-campo input[type="date"],
-.fechamento-campo input[type="text"] {
+.fechamento-campo input[type="date"], .fechamento-campo input[type="text"] {
     background: #242628;
     border: 1px solid #444;
     color: #fff;
@@ -2487,10 +1447,6 @@ MODAL FIADO / PRODUTOS
     font-size: 1.1rem;
     font-weight: bold;
     color: #ffffff;
-}
-
-.fechamento-status-fechado {
-    color: #e74c3c !important;
 }
 
 .fechamento-grid {
@@ -2573,116 +1529,26 @@ MODAL FIADO / PRODUTOS
     gap: 12px;
 }
 
-.fechamento-acoes button {
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    border: none;
-}
-
-#btnSalvarFechamento {
-    background: #27ae60;
-    color: #fff;
-}
-
-#btnSalvarFechamento:hover {
-    background: #219150;
-}
-
-#btnFecharFechamentoSemSalvar {
-    background: #e74c3c;
-    color: #fff;
-}
-
-.pdv-fechamento-bloqueado #sc_inputs input,
-.pdv-fechamento-bloqueado #b_final {
+.pdv-fechamento-bloqueado #sc_inputs input, .pdv-fechamento-bloqueado #b_final {
     pointer-events: none;
     opacity: 0.5;
 }
 
-/* ============================================================
-   AJUSTES FINAIS — MODAL DIVIDIR
-============================================================ */
-
-@media (max-width: 520px) {
-    #dialogDividirPagamento {
-        width: calc(100vw - 20px);
-        max-height: calc(100dvh - 20px);
-    }
-
-    .split-box {
-        padding: 18px;
-    }
-
-    .split-resumo {
-        grid-template-columns: 1fr;
-    }
-
-    .split-metodos {
-        grid-template-columns: 1fr;
-    }
-
-    .split-entrada {
-        flex-direction: column;
-    }
-
-    #b_add_split {
-        flex: 0 0 auto;
-        width: 100%;
-    }
-
-    .split-lista {
-        max-height: 160px;
-    }
-}
-
-
-/* ============================================================
-   CORES DAS LISTAS / OPÇÕES DOS SELECTS — TEMA DO SISTEMA
-============================================================ */
-
-#d_fiado #sl_cliente option,
-#sel_metodo_divisao option,
-#sel_parcelas_credito option {
+#d_fiado #sl_cliente option, #sel_metodo_divisao option, #sel_parcelas_credito option {
     background: #1c1c1c !important;
     color: #f8c471 !important;
 }
 
-#d_fiado #sl_cliente option:checked,
-#sel_metodo_divisao option:checked,
-#sel_parcelas_credito option:checked {
+#d_fiado #sl_cliente option:checked, #sel_metodo_divisao option:checked, #sel_parcelas_credito option:checked {
     background: #efac4a !important;
     color: #1c1c1c !important;
 }
 
-#d_fiado #sl_cliente,
-#sel_metodo_divisao,
-#sel_parcelas_credito {
+#d_fiado #sl_cliente, #sel_metodo_divisao, #sel_parcelas_credito {
     color-scheme: dark;
 }
 
-
-/* ============================================================
-   PADRONIZAÇÃO FINAL — PDV / PAGAMENTOS / FECHAMENTO
-   Apenas ajustes visuais e de posicionamento.
-============================================================ */
-
-/* Botões de pagamento: mesma altura, tipografia e acabamento */
-.area_pagamento {
-    position: relative;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-auto-rows: minmax(52px, auto);
-    gap: 10px;
-    width: 100%;
-    padding: 10px;
-    overflow: visible !important;
-}
-
-/* Dividir + Fiado compartilham o espaço de UM botão */
-#b_dividir_pagamento,
-#pg_fiado {
+#b_dividir_pagamento, #pg_fiado {
     width: calc(50% - 5px);
     min-width: 0;
     height: 52px;
@@ -2700,11 +1566,12 @@ MODAL FIADO / PRODUTOS
 }
 
 #pg_fiado {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1;
     grid-column: 1;
     grid-row: 1;
     justify-self: end;
-    display: block !important;
-    visibility: visible !important;
 }
 
 #pg_dinheiro {
@@ -2732,8 +1599,7 @@ MODAL FIADO / PRODUTOS
     grid-row: 2;
 }
 
-.area_pagamento .pagamento,
-.area_pagamento .botao-dividir-pagamento {
+.area_pagamento .pagamento, .area_pagamento .botao-dividir-pagamento {
     min-height: 52px;
     padding: 10px 8px;
     border: 2px solid #efac4a;
@@ -2747,8 +1613,7 @@ MODAL FIADO / PRODUTOS
     transition: background-color .2s ease, color .2s ease, transform .1s ease;
 }
 
-.area_pagamento .pagamento:hover,
-.area_pagamento .botao-dividir-pagamento:hover {
+.area_pagamento .pagamento:hover, .area_pagamento .botao-dividir-pagamento:hover {
     color: #1c1c1c;
     background: #efac4a;
 }
@@ -2759,41 +1624,14 @@ MODAL FIADO / PRODUTOS
     border-color: #efac4a !important;
 }
 
-.area_pagamento .pagamento:disabled,
-.area_pagamento .botao-dividir-pagamento:disabled {
+.area_pagamento .pagamento:disabled, .area_pagamento .botao-dividir-pagamento:disabled {
     opacity: .45;
     cursor: not-allowed;
-}
-
-/* Modal Fiado no mesmo padrão dos outros modais */
-#d_fiado {
-    width: min(450px, calc(100vw - 32px));
-    max-width: 95%;
-    padding: 0;
-    color: #f8c471;
-    background: #1c1c1c;
-    border: 2px solid #efac4a;
-    border-radius: 16px;
-    box-shadow: 0 10px 40px rgba(0,0,0,.65);
-    overflow: hidden;
 }
 
 #d_fiado::backdrop {
     background: rgba(0,0,0,.78);
     backdrop-filter: blur(3px);
-}
-
-#d_fiado .modal_titulo {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-    width: 100%;
-    padding: 28px;
-    color: #f8c471;
-    background: #1c1c1c;
-    text-align: left;
 }
 
 #d_fiado .modal_titulo h2 {
@@ -2834,40 +1672,23 @@ MODAL FIADO / PRODUTOS
     background: #53b060;
 }
 
-#d_fiado .fechar-modal-pagamento,
-#dialogCredito .fechar-modal-pagamento,
-#dialogDinheiro #b_fechar_dinheiro,
-#b_fechar_dividir_pagamento {
+#d_fiado .fechar-modal-pagamento, #dialogCredito .fechar-modal-pagamento, #dialogDinheiro #b_fechar_dinheiro, #b_fechar_dividir_pagamento {
     color: #efac4a;
 }
 
-#d_fiado .fechar-modal-pagamento:hover,
-#dialogCredito .fechar-modal-pagamento:hover,
-#dialogDinheiro #b_fechar_dinheiro:hover,
-#b_fechar_dividir_pagamento:hover {
+#d_fiado .fechar-modal-pagamento:hover, #dialogCredito .fechar-modal-pagamento:hover, #dialogDinheiro #b_fechar_dinheiro:hover, #b_fechar_dividir_pagamento:hover {
     color: #fff;
     background: rgba(239,172,74,.12);
 }
 
-/* Crédito e dinheiro seguem o mesmo acabamento */
-#dialogDinheiro .conteudo-dinheiro,
-#dialogCredito .conteudo-credito {
+#dialogDinheiro .conteudo-dinheiro, #dialogCredito .conteudo-credito {
     font-family: "Roca One", sans-serif;
-}
-
-#dialogDinheiro .conteudo-dinheiro,
-#dialogCredito .conteudo-credito {
     background: #1c1c1c;
     border: 2px solid #efac4a;
     border-radius: 16px;
 }
 
-#dialogCredito .conteudo-credito {
-    color: #f8c471;
-}
-
-#dialogCredito .credito-total,
-#dialogCredito .credito-parcela {
+#dialogCredito .credito-total, #dialogCredito .credito-parcela {
     background: #fed89d;
     color: #1c1c1c;
     border: 2px solid #efac4a;
@@ -2875,11 +1696,12 @@ MODAL FIADO / PRODUTOS
 }
 
 #dialogCredito .credito-campo label {
+    font-size: 16px;
+    font-weight: bold;
     color: #efac4a;
 }
 
-#dialogCredito #sel_parcelas_credito,
-#dialogCredito .select-selecionado {
+#dialogCredito #sel_parcelas_credito, #dialogCredito .select-selecionado {
     height: 48px;
     color: #1c1c1c;
     background: #f1b869;
@@ -2887,8 +1709,7 @@ MODAL FIADO / PRODUTOS
     border-radius: 9px;
 }
 
-#dialogCredito #b_confirmar_credito,
-#dialogDinheiro #b_confirmar_dinheiro {
+#dialogCredito #b_confirmar_credito, #dialogDinheiro #b_confirmar_dinheiro {
     min-height: 50px;
     border-radius: 9px;
     background: #62c370;
@@ -2896,61 +1717,62 @@ MODAL FIADO / PRODUTOS
     font-family: "Roca One", sans-serif !important;
 }
 
-#dialogCredito #b_confirmar_credito:hover,
-#dialogDinheiro #b_confirmar_dinheiro:hover {
+#dialogCredito #b_confirmar_credito:hover, #dialogDinheiro #b_confirmar_dinheiro:hover {
     background: #53b060;
 }
 
-/* Modal Dividir no mesmo padrão */
-#dialogDividirPagamento {
-    width: min(520px, calc(100vw - 32px));
-    max-width: 95%;
-    color: #f8c471;
-    background: #1c1c1c;
-    border: 2px solid #efac4a;
-    border-radius: 16px;
-}
-
 .split-box {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    max-height: calc(100dvh - 32px);
+    padding: clamp(20px, 2vw, 28px);
     font-family: "Roca One", sans-serif;
 }
 
 .split-metodo {
+    width: 100%;
+    min-width: 0;
     min-height: 48px;
+    padding: 12px 10px;
+    color: #f1b869;
+    background: transparent;
+    border: 2px solid #efac4a;
     border-radius: 9px;
+    font-family: "Roca One", sans-serif !important;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
 }
 
 #b_confirmar_split {
+    width: 100%;
     min-height: 50px;
-    border-radius: 9px;
+    padding: 0 16px;
+    color: #ffffff;
     background: #62c370;
-}
-
-/* Fechamento: padrão visual dos demais modais */
-#dialogFechamentoDiario {
-    width: min(900px, calc(100vw - 32px));
-    max-width: 95%;
-    max-height: calc(100dvh - 24px);
-    background: #1c1c1c;
-    color: #fff;
-    border: 2px solid #efac4a;
-    border-radius: 16px;
-    overflow: hidden;
+    border: none;
+    border-radius: 9px;
+    font-family: "Roca One", sans-serif !important;
+    font-size: 1.15rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
 }
 
 .fechamento-box {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
     max-height: calc(100dvh - 24px);
     overflow-y: auto;
-    padding: 24px;
     font-family: "Roca One", sans-serif;
 }
 
-.fechamento-topo h2,
-.fechamento-campo label,
-.fechamento-valor,
-.fechamento-card strong,
-.fechamento-diferenca,
-.fechamento-box button {
+.fechamento-topo h2, .fechamento-campo label, .fechamento-valor, .fechamento-card strong, .fechamento-diferenca, .fechamento-box button {
     font-family: "Roca One", sans-serif !important;
 }
 
@@ -3002,9 +1824,12 @@ MODAL FIADO / PRODUTOS
 }
 
 .fechamento-acoes button {
-    min-height: 44px;
     padding: 0 18px;
     border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    min-height: 44px;
     font-family: "Roca One", sans-serif !important;
 }
 
@@ -3015,10 +1840,12 @@ MODAL FIADO / PRODUTOS
 
 #btnFecharFechamentoSemSalvar {
     background: #e06060;
+    color: #fff;
 }
 
 #btnSalvarFechamento {
     background: #62c370;
+    color: #fff;
 }
 
 #btnConsultarFechamento:hover {
@@ -3033,29 +1860,120 @@ MODAL FIADO / PRODUTOS
     background: #53b060;
 }
 
-/* Só libera o bloco de abertura quando o JS realmente o exibe. */
 .fechamento-status-campo:has(#fechamentoTrocoInicialInput[style*="display: block"]) .fechamento-abertura-acao {
     display: flex;
 }
 
-@media (max-width: 1100px) {
-    .area_pagamento {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-
 @media (max-width: 520px) {
-    .area_pagamento {
+    body {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    #sc_inputs {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+        padding: 12px;
+    }
+
+    #sc_inputs > .grupo-input[style*="grid-column"] {
+        grid-column: 1 !important;
+    }
+
+    #img_prod {
+        width: min(100%, 280px);
+    }
+
+    #sc_tabela {
+        min-height: 300px;
+    }
+
+    #d_botoes {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #d_botoes button, #b_canc, #b_agend, #b_final, #b_pesq, .b_atalho {
+        width: 100%;
+        margin: 0 !important;
+    }
+
+    #b_canc, #b_agend, #b_pesq, .b_atalho {
+        height: 56px;
+        font-size: 0.82rem;
+    }
+
+    #b_final {
+        height: 74px;
+        font-size: 1.15rem;
+    }
+
+    #d_modal article section {
+        padding: 20px;
+    }
+
+    .label-pagamento {
+        font-size: 1.5rem !important;
+    }
+
+    .linha-modal {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .linha-modal input {
+        width: 100%;
+    }
+
+    .box-troco {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    th, td {
+        padding: 7px 4px;
+        font-size: clamp(0.65rem, 2.6vw, 0.82rem);
+    }
+
+    thead {
+        font-size: clamp(0.7rem, 2.8vw, 0.95rem);
+    }
+
+    #dialogDividirPagamento {
+        width: calc(100vw - 20px);
+        max-height: calc(100dvh - 20px);
+    }
+
+    .split-box {
+        padding: 18px;
+    }
+
+    .split-resumo {
         grid-template-columns: 1fr;
     }
 
-    #b_dividir_pagamento,
-    #pg_fiado,
-    #pg_dinheiro,
-    #pg_credito,
-    #pg_debito,
-    #pg_pix,
-    #pg_voucher {
+    .split-metodos {
+        grid-template-columns: 1fr;
+    }
+
+    .split-entrada {
+        flex-direction: column;
+    }
+
+    #b_add_split {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+
+    .split-lista {
+        max-height: 160px;
+    }
+
+    .area_pagamento {
+        grid-template-columns: 1fr;
+        padding: 0;
+    }
+
+    #b_dividir_pagamento, #pg_fiado, #pg_dinheiro, #pg_credito, #pg_debito, #pg_pix, #pg_voucher {
         grid-column: auto;
         grid-row: auto;
         width: 100%;
@@ -3091,51 +2009,18 @@ MODAL FIADO / PRODUTOS
     .fechamento-acoes-dir button {
         flex: 1;
     }
+
 }
 
-/* ============================================================
-   RESPONSIVIDADE — RESOLUÇÃO, ZOOM E ALTURA DO MONITOR
-   O layout usa a área útil do navegador (CSS viewport), então
-   continua proporcional mesmo com zoom de 125%, 150% etc.
-============================================================ */
-
-/* Evita que conteúdos internos estourem a altura disponível. */
-#sc_inputs {
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-
-/* Dialogs nunca devem ultrapassar a área visível do navegador. */
-#d_aviso,
-#dialogComanda,
-#dialogDinheiro,
-#dialogCredito,
-#dialogDividirPagamento,
-#d_fiado,
-#dialogFechamentoDiario {
+#d_aviso, #dialogComanda, #dialogDinheiro, #dialogCredito, #dialogDividirPagamento, #d_fiado, #dialogFechamentoDiario {
     max-height: calc(100dvh - clamp(20px, 4vh, 48px));
 }
 
-/* Conteúdo interno dos modais acompanha a altura disponível. */
-#d_aviso .aviso_box,
-#dialogComanda .modal_box,
-#dialogDinheiro .conteudo-dinheiro,
-#dialogCredito .conteudo-credito,
-#d_fiado .modal_titulo {
+#d_aviso .aviso_box, #dialogComanda .modal_box, #dialogDinheiro .conteudo-dinheiro, #dialogCredito .conteudo-credito, #d_fiado .modal_titulo {
     max-height: calc(100dvh - clamp(40px, 8vh, 80px));
     overflow-y: auto;
 }
 
-#dialogDividirPagamento .split-box {
-    max-height: calc(100dvh - clamp(24px, 6vh, 60px));
-    overflow-y: auto;
-}
-
-#dialogFechamentoDiario .fechamento-box {
-    max-height: calc(100dvh - clamp(24px, 6vh, 60px));
-}
-
-/* Em telas menores, a coluna da tabela não fica presa a 420px. */
 @media (max-width: 1400px) {
     body {
         grid-template-columns: minmax(0, 1.55fr) minmax(350px, 1fr);
@@ -3152,10 +2037,9 @@ MODAL FIADO / PRODUTOS
         gap: 8px;
         padding: 8px;
     }
+
 }
 
-/* Aproximadamente o espaço disponível de um monitor 1920x1080
-   usando zoom de 125% (~1536x864 CSS px). */
 @media (max-width: 1600px) and (max-height: 950px) {
     body {
         padding-top: clamp(58px, 7vh, 68px);
@@ -3167,8 +2051,7 @@ MODAL FIADO / PRODUTOS
         padding: 12px;
     }
 
-    .area_pagamento .pagamento,
-    .area_pagamento .botao-dividir-pagamento {
+    .area_pagamento .pagamento, .area_pagamento .botao-dividir-pagamento {
         min-height: clamp(44px, 6vh, 52px);
         height: auto;
     }
@@ -3176,10 +2059,9 @@ MODAL FIADO / PRODUTOS
     .fechamento-box {
         padding: clamp(16px, 1.5vw, 24px);
     }
+
 }
 
-/* Tablets/notebooks menores: mantém duas colunas enquanto houver
-   espaço útil, mas reduz a largura mínima da tabela. */
 @media (max-width: 1150px) {
     body {
         grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr);
@@ -3206,9 +2088,9 @@ MODAL FIADO / PRODUTOS
     .fechamento-status-campo {
         grid-column: 1 / -1;
     }
+
 }
 
-/* Alturas muito baixas: reduz espaçamentos antes de empilhar o layout. */
 @media (max-height: 760px) {
     body {
         padding-top: 58px;
@@ -3225,8 +2107,7 @@ MODAL FIADO / PRODUTOS
         padding: 7px;
     }
 
-    .area_pagamento .pagamento,
-    .area_pagamento .botao-dividir-pagamento {
+    .area_pagamento .pagamento, .area_pagamento .botao-dividir-pagamento {
         min-height: 42px;
         padding: 7px 6px;
     }
@@ -3238,10 +2119,9 @@ MODAL FIADO / PRODUTOS
     .fechamento-topo {
         margin-bottom: 10px;
     }
+
 }
 
-/* Quando a largura já não comporta duas colunas com conforto,
-   o PDV passa para uma coluna sem cortar conteúdo. */
 @media (max-width: 900px) {
     body {
         height: auto;
@@ -3249,8 +2129,7 @@ MODAL FIADO / PRODUTOS
         overflow-y: auto;
         grid-template-columns: minmax(0, 1fr);
         grid-template-rows: auto auto;
-        grid-template-areas:
-            "inputs"
+        grid-template-areas: "inputs"
             "modal";
         padding: 58px 10px 10px;
     }
@@ -3264,8 +2143,7 @@ MODAL FIADO / PRODUTOS
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    #b_dividir_pagamento,
-    #pg_fiado {
+    #b_dividir_pagamento, #pg_fiado {
         grid-column: 1;
         grid-row: 1;
     }
@@ -3294,114 +2172,12 @@ MODAL FIADO / PRODUTOS
         grid-column: 2;
         grid-row: 3;
     }
-}
 
-/* Celular/tela muito estreita: os controles deixam de competir por espaço. */
-@media (max-width: 560px) {
-    body {
-        padding: 52px 7px 7px;
-    }
-
-    #sc_inputs {
-        grid-template-columns: 1fr;
-    }
-
-    .area_pagamento {
-        grid-template-columns: 1fr;
-    }
-
-    #b_dividir_pagamento,
-    #pg_fiado,
-    #pg_dinheiro,
-    #pg_credito,
-    #pg_debito,
-    #pg_pix,
-    #pg_voucher {
-        grid-column: 1;
-        grid-row: auto;
-        width: 100%;
-    }
-
-    .split-resumo {
-        grid-template-columns: 1fr;
-    }
-
-    .split-metodos {
-        grid-template-columns: 1fr;
-    }
-
-    .split-entrada {
-        flex-direction: column;
-    }
-
-    #b_add_split {
-        flex: 0 0 auto;
-        width: 100%;
-    }
-
-    .fechamento-datas {
-        grid-template-columns: 1fr;
-    }
-
-    .fechamento-status-campo {
-        grid-column: auto;
-    }
-
-    .fechamento-status-linha {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .fechamento-abertura-acao {
-        width: 100%;
-    }
-
-    .fechamento-abertura-acao input,
-    #btnRegistrarAbertura {
-        flex: 1 1 100%;
-        width: 100%;
-    }
-}
-
-
-/* ============================================================
-   AJUSTE FINAL DE MODAIS
-   Nenhum <dialog> cria barra de rolagem própria.
-   A caixa nunca passa da altura da viewport.
-============================================================ */
-
-dialog {
-    box-sizing: border-box;
-    max-height: calc(100dvh - 24px) !important;
-    overflow: hidden !important;
 }
 
 dialog > * {
     box-sizing: border-box;
     max-width: 100%;
-}
-
-/* O modal de finalização não fica mais preso a 820px de altura. */
-#d_modal {
-    width: min(680px, calc(100vw - 24px));
-    height: auto !important;
-    min-height: 0;
-    max-height: calc(100dvh - 24px) !important;
-    overflow: hidden !important;
-}
-
-#d_modal article {
-    height: auto;
-    max-height: calc(100dvh - 24px);
-    overflow: hidden !important;
-}
-
-#d_modal article section {
-    height: auto;
-    max-height: none;
-    overflow: hidden !important;
-    padding: clamp(14px, 2vw, 24px);
-    gap: clamp(8px, 1.3vw, 14px);
 }
 
 #d_modal .bloco-info-venda {
@@ -3432,41 +2208,24 @@ dialog > * {
     padding: 6px;
 }
 
-#d_modal .pagamento,
-#d_modal #b_dividir_pagamento {
+#d_modal .pagamento, #d_modal #b_dividir_pagamento {
     min-height: 46px;
     padding: 8px 10px;
 }
 
-#d_modal footer {
-    padding: 10px 16px 14px;
-}
-
 #b_nv_venda {
+    width: 100%;
     padding: 10px;
+    color: #1c1c1c;
+    background: #efac4a;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-/* Busca: o dialog não rola; somente a lista, quando houver muitos resultados. */
-#dialogBusca {
-    width: min(620px, calc(100vw - 24px));
-    height: auto !important;
-    max-height: calc(100dvh - 24px) !important;
-    overflow: hidden !important;
-}
-
-#dialogBusca .modal_box {
-    height: auto;
-    max-height: calc(100dvh - 24px);
-    overflow: hidden;
-    padding: clamp(16px, 2vw, 24px);
-}
-
-/* Modal de agendamento: caso esteja presente/gerado por outra parte da tela. */
-#dialogAgendamento,
-#modalAgendamento,
-#d_agendamento,
-.dialog-agendamento,
-.modal-agendamento {
+#dialogAgendamento, #modalAgendamento, #d_agendamento, .dialog-agendamento, .modal-agendamento {
     width: min(760px, calc(100vw - 24px));
     max-width: calc(100vw - 24px);
     max-height: calc(100dvh - 24px) !important;
@@ -3475,11 +2234,7 @@ dialog > * {
     box-sizing: border-box;
 }
 
-#dialogAgendamento .modal_box,
-#modalAgendamento .modal_box,
-#d_agendamento .modal_box,
-.dialog-agendamento .modal_box,
-.modal-agendamento .modal_box {
+#dialogAgendamento .modal_box, #modalAgendamento .modal_box, #d_agendamento .modal_box, .dialog-agendamento .modal_box, .modal-agendamento .modal_box {
     width: 100%;
     max-width: 100%;
     max-height: calc(100dvh - 24px);
@@ -3487,214 +2242,55 @@ dialog > * {
     box-sizing: border-box;
 }
 
-/* Pagamentos simples: altura pelo conteúdo, nunca 100% da tela. */
-#dialogDinheiro,
-#dialogCredito,
-#d_fiado,
-#dialogDividirPagamento,
-#dialogComanda,
-#d_aviso {
+#dialogDinheiro, #dialogCredito, #d_fiado, #dialogDividirPagamento, #dialogComanda, #d_aviso {
     height: auto !important;
     max-height: calc(100dvh - 24px) !important;
     overflow: hidden !important;
 }
 
-#dialogDinheiro .conteudo-dinheiro,
-#dialogCredito .conteudo-credito,
-#d_fiado .modal_titulo,
-#dialogComanda .modal_box,
-.split-box {
+#dialogDinheiro .conteudo-dinheiro, #dialogCredito .conteudo-credito, #d_fiado .modal_titulo, #dialogComanda .modal_box, .split-box {
     max-height: calc(100dvh - 24px);
     overflow: hidden !important;
 }
 
-/* Fechamento: mais largura e conteúdo compacto em telas baixas, sem scrollbar no modal. */
-#dialogFechamentoDiario {
-    width: min(900px, calc(100vw - 24px));
-    height: auto !important;
-    max-height: calc(100dvh - 24px) !important;
-    overflow: hidden !important;
-}
-
-#dialogFechamentoDiario .fechamento-box {
-    max-height: calc(100dvh - 24px);
-    overflow: hidden !important;
-}
-
-@media (max-height: 850px) {
-    #d_modal article section {
-        padding: 12px 16px;
-        gap: 7px;
-    }
-
-    #d_modal .bloco-info-venda {
-        gap: 7px;
-        margin: 7px 0;
-    }
-
-    #d_modal .total-box {
-        padding: 9px;
-    }
-
-    #d_modal footer {
-        padding: 8px 14px 10px;
-    }
-
-    #dialogFechamentoDiario .fechamento-box {
-        padding: 16px;
-        gap: 10px;
-    }
-
-    #dialogFechamentoDiario .fechamento-linha {
-        padding: 10px;
-        gap: 10px;
-    }
-
-    #dialogFechamentoDiario .fechamento-grid {
-        gap: 8px;
-    }
-}
-
-@media (max-height: 700px) {
-    #d_modal article section {
-        padding: 10px 12px;
-        gap: 5px;
-    }
-
-    #d_modal .bloco-info-venda {
-        margin: 5px 0;
-        gap: 5px;
-    }
-
-    #d_modal .label-pagamento {
-        margin-top: 4px;
-        margin-bottom: 3px;
-    }
-
-    #d_modal .area_pagamento {
-        gap: 5px;
-        padding: 4px;
-    }
-
-    #d_modal .pagamento,
-    #d_modal #b_dividir_pagamento {
-        min-height: 40px;
-        padding: 6px 8px;
-    }
-
-    #d_modal footer {
-        padding: 6px 10px 8px;
-    }
-}
-
-/* ============================================================
-   AJUSTE ESPECÍFICO — PDV
-   1) Área de valores/foto sem scrollbar
-   2) Foto sempre quadrada e proporcional
-   3) Fechamento mais largo quando a abertura manual aparece
-   4) Nenhuma rolagem interna nos modais
-============================================================ */
-
-/* A área superior do PDV não deve criar uma barra lateral própria. */
 #sc_inputs {
-    overflow: hidden !important;
-}
-
-/*
-   A foto continua quadrada.
-   Em telas menores, largura e altura diminuem juntas pela altura útil
-   da viewport, evitando que a região de valores/foto ultrapasse a área.
-*/
-#img_prod {
-    width: min(500px, 58dvh, 100%);
-    height: min(500px, 58dvh);
+    grid-area: inputs;
     min-width: 0;
     min-height: 0;
-    aspect-ratio: 1 / 1;
-    object-fit: contain;
-}
-
-/* Nenhum modal usa a própria caixa como área de rolagem. */
-dialog,
-dialog > *,
-dialog article,
-dialog article > section,
-#dialogBusca .modal_box,
-#dialogDinheiro .conteudo-dinheiro,
-#dialogCredito .conteudo-credito,
-#d_fiado .modal_titulo,
-#dialogDividirPagamento .split-box,
-#dialogComanda .modal_box,
-#dialogFechamentoDiario .fechamento-box {
+    background-color: var(--cor-escuro);
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-content: start;
+    gap: clamp(10px, 1vw, 15px);
+    padding: clamp(12px, 1vw, 20px);
+    overflow-x: hidden;
+    overflow-y: auto;
     overflow: hidden !important;
 }
 
-/*
-   O fechamento ganha espaço quando o botão de abertura manual aparece.
-   Isso evita que input + botão quebrem para outra linha.
-*/
-#dialogFechamentoDiario {
-    width: min(930px, calc(100vw - 24px));
-    max-width: calc(100vw - 24px);
-    max-height: calc(100dvh - 20px) !important;
+#img_prod {
+    grid-column: 1 / span 2;
+    grid-row: 3 / span 2;
+    width: min(500px, 58dvh, 100%);
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
+    height: min(500px, 58dvh);
+    justify-self: center;
+    align-self: start;
+    object-fit: contain;
+    background-color: #F0F2F5;
+    border-radius: 8px;
+    margin-top: clamp(15px, 1.3vw, 25px);
+    margin-left: 0;
+    min-width: 0;
+    min-height: 0;
 }
 
-#dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]),
-#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]),
-#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) {
-    width: min(1000px, calc(100vw - 24px));
+dialog, dialog > *, dialog article, dialog article > section, #dialogBusca .modal_box, #dialogDinheiro .conteudo-dinheiro, #dialogCredito .conteudo-credito, #d_fiado .modal_titulo, #dialogDividirPagamento .split-box, #dialogComanda .modal_box, #dialogFechamentoDiario .fechamento-box {
+    overflow: hidden !important;
 }
 
-#dialogFechamentoDiario .fechamento-box {
-    max-height: calc(100dvh - 20px) !important;
-    box-sizing: border-box;
-}
-
-/* Em telas com pouca altura, compacta o fechamento antes de qualquer corte. */
-@media (max-height: 900px) {
-    #dialogFechamentoDiario {
-        width: min(930px, calc(100vw - 20px));
-    }
-
-    #dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]),
-    #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]),
-    #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) {
-        width: min(1000px, calc(100vw - 20px));
-    }
-
-    #dialogFechamentoDiario .fechamento-box {
-        padding: 18px;
-        gap: 11px;
-    }
-
-    #dialogFechamentoDiario .fechamento-linha {
-        gap: 11px;
-        padding: 12px;
-    }
-
-    #dialogFechamentoDiario .fechamento-grid {
-        gap: 9px;
-    }
-
-    #dialogFechamentoDiario .fechamento-card {
-        padding: 9px;
-    }
-
-    #dialogFechamentoDiario .fechamento-dinheiro {
-        padding: 11px;
-        gap: 6px;
-    }
-
-    #dialogFechamentoDiario .fechamento-proximo {
-        padding: 11px;
-    }
-
-    #dialogFechamentoDiario .fechamento-acoes {
-        margin-top: 0;
-    }
-}
-
-/* Em telas ainda mais baixas, reduz apenas espaçamentos e textos do fechamento. */
 @media (max-height: 780px) {
     #dialogFechamentoDiario .fechamento-box {
         padding: 13px;
@@ -3734,64 +2330,38 @@ dialog article > section,
         font-size: 0.9rem;
     }
 
-    #dialogFechamentoDiario .fechamento-dinheiro,
-    #dialogFechamentoDiario .fechamento-proximo {
+    #dialogFechamentoDiario .fechamento-dinheiro, #dialogFechamentoDiario .fechamento-proximo {
         padding: 8px;
     }
 
     #dialogFechamentoDiario .fechamento-acoes button {
         min-height: 40px;
     }
+
 }
 
-
-/* ============================================================
-   CORREÇÕES FINAIS — SOMENTE OS PONTOS SOLICITADOS
-============================================================ */
-
-/*
-   Modais comuns: tamanho natural pelo conteúdo.
-   O limite de viewport só entra como teto quando realmente necessário.
-*/
-dialog {
-    height: fit-content !important;
-    width: fit-content;
-    max-width: calc(100vw - 32px) !important;
-    max-height: calc(100dvh - 32px) !important;
-    overflow: hidden !important;
-}
-
-#dialogBusca,
-#dialogComanda,
-#dialogDinheiro,
-#dialogCredito,
-#dialogDividirPagamento,
-#d_fiado,
-#d_aviso {
+#dialogBusca, #dialogComanda, #dialogDinheiro, #dialogCredito, #dialogDividirPagamento, #d_fiado, #d_aviso {
     height: auto !important;
 }
 
-#dialogBusca .modal_box,
-#dialogComanda .modal_box,
-#dialogDinheiro .conteudo-dinheiro,
-#dialogCredito .conteudo-credito,
-#dialogDividirPagamento .split-box,
-#d_fiado .modal_titulo,
-#d_aviso .aviso_box {
+#dialogBusca .modal_box, #dialogComanda .modal_box, #dialogDinheiro .conteudo-dinheiro, #dialogCredito .conteudo-credito, #dialogDividirPagamento .split-box, #d_fiado .modal_titulo, #d_aviso .aviso_box {
     height: auto !important;
     max-height: none !important;
     overflow: hidden !important;
 }
 
-/* ============================================================
-   DIVIDIR + FIADO — MESMO ESPAÇO DE UM ÚNICO BOTÃO
-============================================================ */
 .area_pagamento {
+    overflow: visible !important;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    gap: 10px;
+    padding: 10px;
     position: relative;
+    grid-auto-rows: minmax(52px, auto);
 }
 
-.area_pagamento #b_dividir_pagamento,
-.area_pagamento #pg_fiado {
+.area_pagamento #b_dividir_pagamento, .area_pagamento #pg_fiado {
     grid-column: 1 !important;
     grid-row: 1 !important;
     width: calc(50% - 5px) !important;
@@ -3811,16 +2381,66 @@ dialog {
     visibility: visible !important;
 }
 
-/* Mesmo comportamento também nas larguras menores.
-   Os dois continuam lado a lado; os demais botões podem se reorganizar. */
 @media (max-width: 560px) {
+    body {
+        padding: 52px 7px 7px;
+    }
+
+    #sc_inputs {
+        grid-template-columns: 1fr;
+    }
+
+    #b_dividir_pagamento, #pg_fiado, #pg_dinheiro, #pg_credito, #pg_debito, #pg_pix, #pg_voucher {
+        grid-column: 1;
+        grid-row: auto;
+        width: 100%;
+    }
+
+    .split-resumo {
+        grid-template-columns: 1fr;
+    }
+
+    .split-metodos {
+        grid-template-columns: 1fr;
+    }
+
+    .split-entrada {
+        flex-direction: column;
+    }
+
+    #b_add_split {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+
+    .fechamento-datas {
+        grid-template-columns: 1fr;
+    }
+
+    .fechamento-status-campo {
+        grid-column: auto;
+    }
+
+    .fechamento-status-linha {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .fechamento-abertura-acao {
+        width: 100%;
+    }
+
+    .fechamento-abertura-acao input, #btnRegistrarAbertura {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+
     .area_pagamento {
         grid-template-columns: 1fr !important;
         grid-auto-rows: minmax(48px, auto) !important;
     }
 
-    .area_pagamento #b_dividir_pagamento,
-    .area_pagamento #pg_fiado {
+    .area_pagamento #b_dividir_pagamento, .area_pagamento #pg_fiado {
         grid-column: 1 !important;
         grid-row: 1 !important;
         width: calc(50% - 5px) !important;
@@ -3828,21 +2448,42 @@ dialog {
         justify-self: initial !important;
     }
 
-    .area_pagamento #b_dividir_pagamento { justify-self: start !important; }
-    .area_pagamento #pg_fiado { justify-self: end !important; }
+    .area_pagamento #b_dividir_pagamento {
+        justify-self: start !important;
+    }
 
-    #pg_dinheiro { grid-column: 1 !important; grid-row: 2 !important; }
-    #pg_credito  { grid-column: 1 !important; grid-row: 3 !important; }
-    #pg_debito   { grid-column: 1 !important; grid-row: 4 !important; }
-    #pg_pix      { grid-column: 1 !important; grid-row: 5 !important; }
-    #pg_voucher  { grid-column: 1 !important; grid-row: 6 !important; }
+    .area_pagamento #pg_fiado {
+        justify-self: end !important;
+    }
+
+    #pg_dinheiro {
+        grid-column: 1 !important;
+        grid-row: 2 !important;
+    }
+
+    #pg_credito {
+        grid-column: 1 !important;
+        grid-row: 3 !important;
+    }
+
+    #pg_debito {
+        grid-column: 1 !important;
+        grid-row: 4 !important;
+    }
+
+    #pg_pix {
+        grid-column: 1 !important;
+        grid-row: 5 !important;
+    }
+
+    #pg_voucher {
+        grid-column: 1 !important;
+        grid-row: 6 !important;
+    }
+
 }
 
-/* ============================================================
-   X DO FIADO — DIREITA, NO CANTO, SEM FUNDO/BORDA
-============================================================ */
-#d_fiado .fechar-modal-pagamento,
-#d_fiado #b_fechar_fiado {
+#d_fiado .fechar-modal-pagamento, #d_fiado #b_fechar_fiado {
     position: absolute !important;
     top: 8px !important;
     right: 10px !important;
@@ -3862,10 +2503,7 @@ dialog {
     justify-content: center !important;
 }
 
-#d_fiado .fechar-modal-pagamento:hover,
-#d_fiado #b_fechar_fiado:hover,
-#d_fiado .fechar-modal-pagamento:focus,
-#d_fiado #b_fechar_fiado:focus {
+#d_fiado .fechar-modal-pagamento:hover, #d_fiado #b_fechar_fiado:hover, #d_fiado .fechar-modal-pagamento:focus, #d_fiado #b_fechar_fiado:focus {
     border: 0 !important;
     outline: 0 !important;
     background: transparent !important;
@@ -3873,204 +2511,28 @@ dialog {
     color: #f8c471 !important;
 }
 
-/* ============================================================
-   SELECT DE CLIENTE DO FIADO — PADRÃO LARANJA
-============================================================ */
-#d_fiado .select-fiado-cliente,
-#d_fiado #sl_cliente {
+#d_fiado .select-fiado-cliente, #d_fiado #sl_cliente {
     color: #1c1c1c !important;
     background-color: #f8c471 !important;
     border-color: #efac4a !important;
     accent-color: #efac4a !important;
 }
 
-#d_fiado .select-fiado-cliente option,
-#d_fiado #sl_cliente option {
+#d_fiado .select-fiado-cliente option, #d_fiado #sl_cliente option {
     background-color: #efac4a !important;
     color: #1c1c1c !important;
 }
 
-#d_fiado .select-fiado-cliente option:hover,
-#d_fiado #sl_cliente option:hover,
-#d_fiado .select-fiado-cliente option:checked,
-#d_fiado #sl_cliente option:checked {
+#d_fiado .select-fiado-cliente option:hover, #d_fiado #sl_cliente option:hover, #d_fiado .select-fiado-cliente option:checked, #d_fiado #sl_cliente option:checked {
     background-color: #efac4a !important;
     color: #1c1c1c !important;
-}
-
-/* ============================================================
-   FECHAMENTO — NATURAL, SEM ESPAÇO EXTRA ABAIXO
-============================================================ */
-#dialogFechamentoDiario {
-    width: min(980px, calc(100vw - 40px)) !important;
-    height: auto !important;
-    max-height: calc(100dvh - 32px) !important;
-    overflow: hidden !important;
-    padding: 0 !important;
-    box-sizing: border-box !important;
-}
-
-#dialogFechamentoDiario .fechamento-box {
-    height: auto !important;
-    max-height: none !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-}
-
-/* Quando a abertura manual aparece, ganha um pouco mais de largura. */
-#dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]),
-#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]),
-#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) {
-    width: min(1060px, calc(100vw - 40px)) !important;
 }
 
 #dialogFechamentoDiario .fechamento-status-linha {
     min-width: 0;
 }
 
-#dialogFechamentoDiario .fechamento-abertura-acao {
-    flex: 0 0 auto;
-    white-space: nowrap;
-}
-
-/* Em telas baixas, reduz somente o espaçamento para caber sem esticar o modal. */
-@media (max-height: 850px) {
-    #dialogFechamentoDiario .fechamento-box {
-        padding: 18px !important;
-        gap: 10px !important;
-    }
-
-    #dialogFechamentoDiario .fechamento-linha {
-        gap: 10px !important;
-        padding: 11px !important;
-    }
-
-    #dialogFechamentoDiario .fechamento-card {
-        padding: 9px !important;
-    }
-
-    #dialogFechamentoDiario .fechamento-dinheiro,
-    #dialogFechamentoDiario .fechamento-proximo {
-        padding: 10px !important;
-    }
-}
-
-@media (max-height: 700px) {
-    #dialogFechamentoDiario .fechamento-box {
-        padding: 13px !important;
-        gap: 7px !important;
-    }
-
-    #dialogFechamentoDiario .fechamento-linha {
-        padding: 8px !important;
-        gap: 7px !important;
-    }
-
-    #dialogFechamentoDiario .fechamento-grid {
-        gap: 6px !important;
-    }
-
-    #dialogFechamentoDiario .fechamento-card {
-        padding: 6px !important;
-    }
-}
-
-
-/* ============================================================
-   AJUSTES FINAIS — MODAIS / PESQUISA / FECHAMENTO
-   Apenas os pontos solicitados nesta correção.
-============================================================ */
-
-/* Modais comuns ficam no tamanho natural do conteúdo. O limite da viewport
-   é somente um teto para evitar que qualquer modal passe da tela. */
-dialog {
-    width: fit-content;
-    height: auto !important;
-    max-width: calc(100vw - 24px) !important;
-    max-height: calc(100dvh - 24px) !important;
-    overflow: hidden !important;
-    box-sizing: border-box;
-}
-
-/* Modal de finalização: os filhos não devem transformar o modal em uma
-   caixa ocupando a tela inteira. */
-#d_modal {
-    width: min(600px, calc(100vw - 24px)) !important;
-    height: auto !important;
-    max-height: calc(100dvh - 24px) !important;
-}
-
-#d_modal article {
-    height: auto !important;
-    min-height: 0 !important;
-    overflow: visible !important;
-}
-
-#d_modal article section {
-    flex: none !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
-}
-
-#d_modal footer {
-    flex: none !important;
-    height: auto !important;
-}
-
-/* Modal de pesquisa: sem altura fixa e sem rolagem própria. */
-#dialogBusca {
-    width: min(620px, calc(100vw - 24px)) !important;
-    height: auto !important;
-    max-height: calc(100dvh - 24px) !important;
-}
-
-#dialogBusca .modal_box {
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-}
-
-/* As sugestões ficam limitadas às 5 melhores pelo JavaScript, portanto
-   não precisam de scrollbar interna. */
-#listaSugestoes {
-    max-height: none !important;
-    overflow: visible !important;
-}
-
-/* Fechamento: largura natural suficiente para o status + abertura, sem
-   esticar a altura artificialmente. */
-#dialogFechamentoDiario {
-    border: none;
-    border-radius: 8px;
-    padding: 0;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    margin: 0;
-    max-height: 90vh;
-    overflow-y: auto;
-}
-
-#dialogFechamentoDiario .fechamento-box {
-    height: auto !important;
-    max-height: none !important;
-    overflow: hidden !important;
-}
-
-/* Quando o botão Registrar abertura está visível, a terceira coluna precisa
-   de espaço para o texto de status + campo + botão sem quebrar. */
-#dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]),
-#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]),
-#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) {
-    width: min(1160px, calc(100vw - 24px)) !important;
-}
-
-#dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]) .fechamento-datas,
-#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]) .fechamento-datas,
-#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) .fechamento-datas {
+#dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]) .fechamento-datas, #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]) .fechamento-datas, #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) .fechamento-datas {
     grid-template-columns: minmax(210px, 0.9fr) minmax(210px, 0.9fr) minmax(460px, 1.5fr) !important;
 }
 
@@ -4079,72 +2541,66 @@ dialog {
     white-space: nowrap !important;
 }
 
-/* Em uma viewport mais estreita, o status ganha uma linha própria para
-   preservar o botão inteiro. */
 @media (max-width: 1100px) {
-    #dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]) .fechamento-datas,
-    #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]) .fechamento-datas,
-    #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) .fechamento-datas {
+    body {
+        grid-template-columns: minmax(0, 1.35fr) minmax(330px, 0.9fr);
+        gap: 10px;
+        padding: 65px 12px 12px;
+    }
+
+    #sc_tabela {
+        margin-top: 10px;
+        margin-right: 0;
+    }
+
+    #img_prod {
+        width: min(100%, 360px);
+    }
+
+    #d_botoes {
+        grid-template-columns: 56px
+            56px
+            minmax(120px, 1fr)
+            minmax(140px, 1.1fr)
+            minmax(180px, 1.4fr);
+        gap: 8px;
+        padding-left: 0;
+    }
+
+    #d_botoes button {
+        font-size: clamp(0.78rem, 1.7vw, 1rem);
+    }
+
+    #b_final {
+        height: 76px;
+    }
+
+    .area_pagamento {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    #dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]) .fechamento-datas, #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]) .fechamento-datas, #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) .fechamento-datas {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     }
 
-    #dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]) .fechamento-status-campo,
-    #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]) .fechamento-status-campo,
-    #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) .fechamento-status-campo {
+    #dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]) .fechamento-status-campo, #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]) .fechamento-status-campo, #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) .fechamento-status-campo {
         grid-column: 1 / -1 !important;
     }
+
 }
 
-/* Mantém os demais modais no tamanho do conteúdo. */
-#dialogComanda .modal_box,
-#dialogDinheiro .conteudo-dinheiro,
-#dialogCredito .conteudo-credito,
-#dialogDividirPagamento .split-box,
-#d_fiado .modal_titulo,
-#d_aviso .aviso_box {
+#dialogComanda .modal_box, #dialogDinheiro .conteudo-dinheiro, #dialogCredito .conteudo-credito, #dialogDividirPagamento .split-box, #d_fiado .modal_titulo, #d_aviso .aviso_box {
     height: auto !important;
     max-height: none !important;
 }
 
-#dialogComanda,
-#dialogDinheiro,
-#dialogCredito,
-#dialogDividirPagamento,
-#d_fiado,
-#d_aviso {
+#dialogComanda, #dialogDinheiro, #dialogCredito, #dialogDividirPagamento, #d_fiado, #d_aviso {
     height: auto !important;
     max-height: calc(100dvh - 24px) !important;
     overflow: hidden !important;
 }
 
-/* ============================================================
-   CORREÇÃO DEFINITIVA — MODAIS COM TAMANHO NATURAL
-   Os modais não devem ocupar uma área maior que o próprio conteúdo.
-   O tamanho abaixo só é o limite de largura da caixa em telas pequenas.
-============================================================ */
-
-/* Base: remove qualquer alongamento herdado dos ajustes anteriores. */
-dialog {
-    box-sizing: border-box !important;
-    width: auto !important;
-    height: auto !important;
-    min-width: 0 !important;
-    min-height: 0 !important;
-    max-width: calc(100vw - 32px) !important;
-    max-height: calc(100dvh - 32px) !important;
-    padding: 0;
-    overflow: hidden !important;
-}
-
-/* FINALIZAÇÃO DA VENDA */
-#d_modal {
-    width: min(600px, calc(100vw - 32px)) !important;
-    height: auto !important;
-}
-
-#d_modal article,
-#d_modal article section,
-#d_modal footer {
+#d_modal article, #d_modal article section, #d_modal footer {
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
@@ -4154,379 +2610,39 @@ dialog {
     box-sizing: border-box !important;
 }
 
-/* BUSCA DE PRODUTO */
-#dialogBusca {
-    width: min(600px, calc(100vw - 32px)) !important;
-    height: auto !important;
-}
-
-#dialogBusca .modal_box {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
-    box-sizing: border-box !important;
-}
-
-#listaSugestoes {
-    max-height: none !important;
-    overflow: visible !important;
-}
-
-/* PAGAMENTO EM DINHEIRO */
-#dialogDinheiro {
-    width: min(430px, calc(100vw - 32px)) !important;
-    height: auto !important;
-    padding: 0 !important;
-}
-
-#dialogDinheiro .conteudo-dinheiro {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
-    box-sizing: border-box !important;
-}
-
-/* PAGAMENTO NO CRÉDITO */
-#dialogCredito {
-    width: min(450px, calc(100vw - 32px)) !important;
-    height: auto !important;
-    padding: 0 !important;
-}
-
-#dialogCredito .conteudo-credito {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
-    box-sizing: border-box !important;
-}
-
 #dialogCredito .conteudo-credito h2 {
+    margin: 0 35px 25px 0;
+    text-align: center;
+    font-size: 23px;
     width: auto !important;
+    color: #efac4a;
     max-width: 100% !important;
 }
 
-/* DIVIDIR PAGAMENTO */
-#dialogDividirPagamento {
-    width: min(520px, calc(100vw - 32px)) !important;
-    height: auto !important;
-    padding: 0 !important;
-}
-
-#dialogDividirPagamento .split-box {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
+dialog > div, dialog > article, dialog > section, dialog > footer {
     box-sizing: border-box !important;
 }
 
-/* ESCOLHA DO CLIENTE FIADO */
-#d_fiado {
-    width: min(450px, calc(100vw - 32px)) !important;
-    height: auto !important;
-    padding: 0 !important;
-}
-
-#d_fiado .modal_titulo {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
-    box-sizing: border-box !important;
-}
-
-/* BUSCAR COMANDA */
-#dialogComanda {
-    width: min(500px, calc(100vw - 32px)) !important;
-    height: auto !important;
-    padding: 0 !important;
-}
-
-#dialogComanda .modal_box {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
-    box-sizing: border-box !important;
-}
-
-/* FECHAMENTO DIÁRIO */
-#dialogFechamentoDiario {
-    width: min(980px, calc(100vw - 32px)) !important;
-    height: auto !important;
-    min-height: 0 !important;
-    padding: 0 !important;
-}
-
-#dialogFechamentoDiario .fechamento-box {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
-    box-sizing: border-box !important;
-}
-
-/* Quando Registrar abertura aparece, mantém somente a largura extra necessária. */
-#dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]),
-#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]),
-#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) {
+#dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]), #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]), #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) {
     width: min(1060px, calc(100vw - 32px)) !important;
-}
-
-/* MODAL NOVA COMPRA FIADO */
-#d_modal_fiado {
-    width: min(650px, calc(100vw - 32px)) !important;
-    height: auto !important;
-    padding: 0 !important;
-}
-
-#d_modal_fiado .modal_box {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
-    box-sizing: border-box !important;
-}
-
-/* MODAL DE PRODUTOS, caso esteja aberto pelo PDV */
-#d_modal_produtos {
-    width: min(700px, calc(100vw - 32px)) !important;
-    height: auto !important;
-    padding: 0 !important;
-}
-
-#d_modal_produtos .modal_box {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
-    box-sizing: border-box !important;
-}
-
-/* Nenhuma caixa interna cria espaço vertical artificial. */
-dialog > div,
-dialog > article,
-dialog > section,
-dialog > footer {
-    box-sizing: border-box !important;
-}
-
-@media (max-width: 700px) {
-    dialog {
-        max-width: calc(100vw - 20px) !important;
-    }
-
-    #d_modal,
-    #dialogBusca,
-    #dialogDinheiro,
-    #dialogCredito,
-    #dialogDividirPagamento,
-    #d_fiado,
-    #dialogComanda,
-    #dialogFechamentoDiario,
-    #d_modal_fiado,
-    #d_modal_produtos {
-        width: calc(100vw - 20px) !important;
-    }
-}
-
-
-/* ============================================================
-   TAMANHOS DOS MODAIS — AJUSTE DEFINITIVO
-   Cada modal recebe uma altura própria, baseada no conteúdo real.
-   Não há uma altura global aplicada a todos.
-============================================================ */
-
-/* FINALIZAÇÃO DA VENDA */
-#d_modal {
-    height: 730px !important;
-    max-height: calc(100dvh - 32px) !important;
-}
-
-#d_modal article {
-    height: 100% !important;
-    min-height: 0 !important;
-}
-
-#d_modal article section {
-    flex: 1 1 auto !important;
-    height: auto !important;
-    min-height: 0 !important;
-    overflow: hidden !important;
-}
-
-#d_modal footer {
-    flex: 0 0 auto !important;
-}
-
-/* BUSCA DE PRODUTO */
-#dialogBusca {
-    height: 500px !important;
-    max-height: calc(100dvh - 32px) !important;
-}
-
-#dialogBusca .modal_box {
-    height: 100% !important;
-    min-height: 0 !important;
-    box-sizing: border-box !important;
-}
-
-/* A pesquisa já limita o resultado a 5 itens; 240px comporta os cinco sem cortar. */
-#listaSugestoes {
-    max-height: 240px !important;
-    overflow: hidden !important;
-}
-
-
-/* BUSCAR COMANDA */
-#dialogComanda {
-    height: 280px !important;
-    max-height: calc(100dvh - 32px) !important;
-}
-
-#dialogComanda .modal_box {
-    height: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* PAGAMENTO EM DINHEIRO */
-#dialogDinheiro {
-    height: 360px !important;
-    max-height: calc(100dvh - 32px) !important;
-}
-
-#dialogDinheiro .conteudo-dinheiro {
-    height: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* PAGAMENTO NO CRÉDITO */
-#dialogCredito {
-    height: 500px !important;
-    max-height: calc(100dvh - 32px) !important;
-}
-
-#dialogCredito .conteudo-credito {
-    height: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* Quando o crédito é usado como parte de um pagamento dividido,
-   aparece mais um campo de valor e o modal ganha somente esse espaço. */
-#dialogCredito:has(#campoValorCreditoDivisao[style*="display: block"]) {
-    height: 530px !important;
-}
-
-/* DIVIDIR PAGAMENTO */
-#dialogDividirPagamento {
-    height: 620px !important;
-    max-height: calc(100dvh - 32px) !important;
-}
-
-#dialogDividirPagamento .split-box {
-    height: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* ESCOLHA DO CLIENTE — FIADO */
-#d_fiado {
-    height: 300px !important;
-    max-height: calc(100dvh - 32px) !important;
-}
-
-#d_fiado .modal_titulo {
-    height: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* FECHAMENTO DIÁRIO */
-#dialogFechamentoDiario {
-    height: 850px !important;
-    max-height: calc(100dvh - 32px) !important;
-}
-
-#dialogFechamentoDiario .fechamento-box {
-    height: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* Com Registrar abertura visível, acrescenta somente o espaço extra necessário. */
-#dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]),
-#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]),
-#dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) {
     height: 830px !important;
 }
 
-/* NOVA COMPRA FIADO */
-#d_modal_fiado {
-    height: 620px !important;
-    max-height: calc(100dvh - 32px) !important;
-}
-
-#d_modal_fiado .modal_box {
-    height: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* MODAL DE PRODUTOS, quando criado pelo fluxo do PDV */
-#d_modal_produtos {
-    height: 600px !important;
-    max-height: calc(100dvh - 32px) !important;
-}
-
-#d_modal_produtos .modal_box {
-    height: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* Em telas muito estreitas, não reduzimos a altura arbitrariamente.
-   O limite de viewport continua impedindo que o modal ultrapasse a tela. */
-@media (max-width: 700px) {
-    #d_modal,
-    #dialogBusca,
-    #dialogDinheiro,
-    #dialogCredito,
-    #dialogDividirPagamento,
-    #d_fiado,
-    #dialogComanda,
-    #dialogFechamentoDiario,
-    #d_modal_fiado,
-    #d_modal_produtos {
-        max-height: calc(100dvh - 20px) !important;
-    }
-}
 #b_desbloquear_pagamento {
     width: 100%;
     min-height: 52px;
     padding: 10px 16px;
-
     display: none;
     align-items: center;
     justify-content: center;
-
     color: #f8c471;
     background: transparent;
     border: 2px solid #efac4a;
     border-radius: 9px;
-
     font-family: "Roca One", sans-serif !important;
     font-size: 1rem;
     font-weight: bold;
-
     cursor: pointer;
-
     grid-column: 1 / -1;
 }
 
@@ -4535,53 +2651,45 @@ dialog > footer {
     background: #efac4a;
 }
 
-
-#d_aviso .aviso_box {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: visible !important;
-    box-sizing: border-box !important;
-}
-
-#msg_aviso {
-    width: 100% !important;
-    max-width: 100% !important;
-    overflow: visible !important;
-    white-space: pre-wrap !important;
-    box-sizing: border-box !important;
-}
-
-/* ============================================================
-   PDV — A TELA INTEIRA NÃO ROLA
-   O scroll fica somente na área do carrinho.
-   O cabeçalho e as colunas permanecem alinhados.
-============================================================ */
-html,
-body {
+html, body {
     overflow: hidden !important;
 }
 
 body {
-    height: 100dvh !important;
+    background-color: var(--cor-laranja);
+    font-family: "Roca One", sans-serif;
+    display: grid;
+    width: 100%;
     min-height: 100dvh !important;
+    height: 100dvh !important;
+    overflow: hidden;
+    grid-template-columns: minmax(0, 1.6fr) minmax(420px, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas: "inputs tabela"
+        "modal tabela";
+    gap: clamp(12px, 1vw, 15px);
+    padding: 75px 15px 15px;
     max-height: 100dvh !important;
 }
 
-/*
-   O container é a única área que rola.
-   Assim o thead e o tbody continuam fazendo parte da mesma tabela
-   e nunca perdem o alinhamento das colunas.
-*/
 #sc_tabela {
+    grid-area: tabela;
+    width: 100%;
     min-width: 0 !important;
     min-height: 0 !important;
+    height: auto;
+    max-height: none;
+    margin-top: 15px;
+    margin-right: 10px;
+    margin-bottom: 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 12px;
     overflow-x: hidden !important;
     overflow-y: auto !important;
-    box-sizing: border-box !important;
     scrollbar-width: thin !important;
     scrollbar-color: #dbb57c #ffffff !important;
+    box-sizing: border-box !important;
 }
 
 #sc_tabela table {
@@ -4593,7 +2701,6 @@ body {
     border-collapse: collapse !important;
 }
 
-/* Mantém a estrutura de tabela normal para as colunas baterem. */
 #sc_tabela table thead {
     display: table-header-group !important;
     width: auto !important;
@@ -4606,14 +2713,12 @@ body {
     overflow: visible !important;
 }
 
-#sc_tabela table tbody tr,
-#sc_tabela table thead tr {
+#sc_tabela table tbody tr, #sc_tabela table thead tr {
     display: table-row !important;
     width: auto !important;
     table-layout: auto !important;
 }
 
-/* Scroll da área do carrinho. */
 #sc_tabela::-webkit-scrollbar {
     width: 7px !important;
     height: 0 !important;
@@ -4621,6 +2726,7 @@ body {
 
 #sc_tabela::-webkit-scrollbar-track {
     background: #ffffff !important;
+    border-radius: 0 12px 12px 0;
 }
 
 #sc_tabela::-webkit-scrollbar-thumb {
@@ -4633,9 +2739,7 @@ body {
     background: #c2904b !important;
 }
 
-/* Evita rolagem horizontal e mantém o texto contido nas células. */
-#sc_tabela table th,
-#sc_tabela table td {
+#sc_tabela table th, #sc_tabela table td {
     min-width: 0 !important;
     max-width: none !important;
     white-space: normal !important;
@@ -4644,78 +2748,91 @@ body {
 }
 
 @media (max-width: 850px) {
-    html,
-    body {
+    #sc_inputs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #img_prod {
+        grid-column: 1 / -1;
+        grid-row: auto;
+        width: min(100%, 340px);
+        margin: 15px auto 0;
+    }
+
+    #grupo_estoque, #total {
+        grid-column: auto;
+        grid-row: auto;
+    }
+
+    #relogio_pdv {
+        grid-column: 1 / -1;
+        margin-left: 0;
+    }
+
+    #d_botoes {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        min-height: auto;
+        gap: 10px;
+        padding: 0;
+    }
+
+    #b_final {
+        grid-column: 1 / -1;
+        height: 80px;
+    }
+
+    html, body {
         overflow: hidden !important;
     }
 
     body {
         height: 100dvh !important;
         min-height: 100dvh !important;
+        overflow-x: hidden;
+        overflow-y: auto;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto minmax(320px, 55dvh) auto;
+        grid-template-areas: "inputs"
+            "tabela"
+            "modal";
+        gap: 12px;
+        padding: 12px;
         max-height: 100dvh !important;
     }
 
     #sc_tabela {
         min-height: 0 !important;
+        height: auto;
+        margin: 0;
         overflow-x: hidden !important;
         overflow-y: auto !important;
     }
-}
-/* Trava o tamanho do d_aviso e impede que ele ocupe a tela toda */
-#d_aviso {
-    /* Largura e altura estritamente controladas */
-    width: 380px !important;
-    max-width: 90vw !important;
-    height: auto !important;
-    max-height: 25vh !important;
-    scrollbar-width: none;
-    /* Centralização exata na tela */
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    margin: 0 !important;
-    
-    /* Fundo escuro (padrão PDV) para não ficar aquele bloco branco gigante */
-    background-color: #1c1c1c !important;
-    color: #ffffff !important;
-    
-    /* Bordas e acabamento */
-    border: 1px solid #efac4a !important;
-    border-radius: 12px !important;
-    padding: 20px !important;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6) !important;
-    
-    /* Evita que elementos internos estourem a caixa */
-    box-sizing: border-box !important;
-    overflow-y: auto !important;
-}
-#d_aviso ::-webkit-scrollbar {
-  display: none;
+
 }
 
-/* Fundo escurecido atrás do aviso */
+#d_aviso ::-webkit-scrollbar {
+    display: none;
+}
+
 #d_aviso::backdrop {
     background: rgba(0, 0, 0, 0.75) !important;
     backdrop-filter: blur(3px) !important;
 }
 
-/* Garante que botões e textos dentro do aviso fiquem contidos */
 #d_aviso * {
     box-sizing: border-box !important;
     max-width: 100% !important;
 }
+
 #btnFecharFechamento {
     position: absolute;
     top: 8px;
     right: 10px;
     transform: none;
     z-index: 10;
-
     width: 34px;
     height: 34px;
     padding: 0;
-
     background: transparent;
     color: #efac4a;
     border: none;
@@ -4731,21 +2848,6 @@ body {
     border-radius: 50%;
 }
 
-/* ============================================================
-   AJUSTE FINAL — FECHAMENTO SEM DESLOCAR AO REGISTRAR ABERTURA
-   O modal permanece centralizado mesmo quando o conteúdo muda.
-============================================================ */
-#dialogFechamentoDiario {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    right: auto !important;
-    bottom: auto !important;
-    inset: auto auto auto auto !important;
-    margin: 0 !important;
-    transform: translate(-50%, -50%) !important;
-}
-
 #dialogFechamentoDiario[open] {
     position: fixed !important;
     top: 50% !important;
@@ -4754,14 +2856,7 @@ body {
     transform: translate(-50%, -50%) !important;
 }
 
-
-/* ============================================================
-   AJUSTE DEFINITIVO — MODAL DE FECHAMENTO CENTRALIZADO
-   Registrar abertura de outro dia altera o conteúdo, mas o modal
-   continua preso ao centro da viewport e não "desce".
-============================================================ */
-#dialogFechamentoDiario,
-#dialogFechamentoDiario[open] {
+#dialogFechamentoDiario, #dialogFechamentoDiario[open] {
     position: fixed !important;
     inset: auto !important;
     top: 50% !important;
@@ -4772,167 +2867,19 @@ body {
     transform: translate(-50%, -50%) !important;
 }
 
-#dialogFechamentoDiario .fechamento-box {
-    box-sizing: border-box !important;
-}
-
-
-/* ============================================================
-   CORREÇÃO FINAL — FECHAMENTO + MONITOR
-============================================================ */
-#dialogFechamentoDiario {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    margin: 0 !important;
-
-    width: min(1120px, calc(100vw - 24px)) !important;
-    height: min(820px, calc(100dvh - 24px)) !important;
-    max-width: calc(100vw - 24px) !important;
-    max-height: calc(100dvh - 24px) !important;
-
-    padding: 0 !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-
-    background: #1c1c1c !important;
-    border: 2px solid #efac4a !important;
-    border-radius: 16px !important;
-    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.7) !important;
-}
-
-#dialogFechamentoDiario .fechamento-box {
-    width: 100% !important;
-    height: 100% !important;
-    max-height: none !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-}
-
-/* O campo e o botão de abertura manual ficam ocultos por padrão.
-   O JavaScript só os torna visíveis nos dias antigos que ainda não foram abertos. */
-#fechamentoTrocoInicialInput,
-#btnRegistrarAbertura,
-.fechamento-abertura-acao {
-    display: none !important;
-}
-
-#fechamentoTrocoInicialInput[style*="display: block"] {
-    display: block !important;
-}
-
-#btnRegistrarAbertura[style*="display: inline-flex"],
-#btnRegistrarAbertura[style*="display: inline-block"] {
-    display: inline-flex !important;
-}
-
-.fechamento-abertura-acao:has(#fechamentoTrocoInicialInput[style*="display: block"]) {
-    display: flex !important;
-}
-
-@media (max-height: 850px) {
-    #dialogFechamentoDiario {
-        height: calc(100dvh - 18px) !important;
-    }
-
-    #dialogFechamentoDiario .fechamento-box {
-        padding: 15px !important;
-        gap: 8px !important;
-    }
-
-    #dialogFechamentoDiario .fechamento-linha {
-        padding: 8px !important;
-        gap: 8px !important;
-    }
-
-    #dialogFechamentoDiario .fechamento-grid {
-        gap: 7px !important;
-    }
-
-    #dialogFechamentoDiario .fechamento-card {
-        padding: 7px !important;
-    }
-}
-
-
-/* ============================================================
-   MONITOR — MANTÉM O MODAL PRINCIPAL VISÍVEL ATRÁS DO PAGAMENTO
-============================================================ */
-body.modo-monitor #d_modal[open] {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    z-index: 999990 !important;
-}
-
-body.modo-monitor #d_modal[open] article {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
 body.modo-monitor #d_modal[open] article section {
     display: flex !important;
     visibility: visible !important;
     opacity: 1 !important;
 }
 
-body.modo-monitor #d_modal[open] footer,
-body.modo-monitor #d_modal[open] #b_nv_venda {
+body.modo-monitor #d_modal[open] footer, body.modo-monitor #d_modal[open] #b_nv_venda {
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
 }
 
-body.modo-monitor #dialogDinheiro[open]::backdrop,
-body.modo-monitor #dialogCredito[open]::backdrop,
-body.modo-monitor #dialogDividirPagamento[open]::backdrop,
-body.modo-monitor #d_fiado[open]::backdrop {
-    background: transparent !important;
-    backdrop-filter: none !important;
-}
-
-
-/* ============================================================
-   V5 — FECHAMENTO FIXO E MONITOR
-============================================================ */
-#dialogFechamentoDiario {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    right: auto !important;
-    bottom: auto !important;
-    transform: translate(-50%, -50%) !important;
-    margin: 0 !important;
-
-    width: min(1120px, calc(100vw - 24px)) !important;
-    height: min(820px, calc(100dvh - 24px)) !important;
-    max-width: calc(100vw - 24px) !important;
-    max-height: calc(100dvh - 24px) !important;
-
-    padding: 0 !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-
-    background: #1c1c1c !important;
-    color: #fff !important;
-    border: 2px solid #efac4a !important;
-    border-radius: 16px !important;
-    box-shadow: 0 10px 50px rgba(0,0,0,.7) !important;
-}
-
-#dialogFechamentoDiario .fechamento-box {
-    width: 100% !important;
-    height: 100% !important;
-    max-height: none !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-}
-
-#fechamentoTrocoInicialInput,
-#btnRegistrarAbertura,
-.fechamento-abertura-acao {
+#fechamentoTrocoInicialInput, #btnRegistrarAbertura, .fechamento-abertura-acao {
     display: none !important;
 }
 
@@ -4940,8 +2887,7 @@ body.modo-monitor #d_fiado[open]::backdrop {
     display: block !important;
 }
 
-#btnRegistrarAbertura[style*="display: inline-flex"],
-#btnRegistrarAbertura[style*="display: inline-block"] {
+#btnRegistrarAbertura[style*="display: inline-flex"], #btnRegistrarAbertura[style*="display: inline-block"] {
     display: inline-flex !important;
 }
 
@@ -4949,7 +2895,6 @@ body.modo-monitor #d_fiado[open]::backdrop {
     display: flex !important;
 }
 
-/* Monitor: o modal principal permanece visível e o botão interno não some. */
 body.modo-monitor #d_modal[open] {
     display: block !important;
     visibility: visible !important;
@@ -4959,9 +2904,9 @@ body.modo-monitor #d_modal[open] {
 
 body.modo-monitor #d_modal[open] article {
     display: flex !important;
-    flex-direction: column !important;
     visibility: visible !important;
     opacity: 1 !important;
+    flex-direction: column !important;
 }
 
 body.modo-monitor #d_modal[open] article > section {
@@ -4982,235 +2927,231 @@ body.modo-monitor #d_modal[open] #b_nv_venda {
     opacity: 1 !important;
 }
 
-/* Pagamentos não escurecem/encobrem o modal principal no espelhamento. */
-body.modo-monitor #dialogDinheiro[open]::backdrop,
-body.modo-monitor #dialogCredito[open]::backdrop,
-body.modo-monitor #dialogDividirPagamento[open]::backdrop,
-body.modo-monitor #d_fiado[open]::backdrop {
+body.modo-monitor #dialogDinheiro[open]::backdrop, body.modo-monitor #dialogCredito[open]::backdrop, body.modo-monitor #dialogDividirPagamento[open]::backdrop, body.modo-monitor #d_fiado[open]::backdrop {
     background: transparent !important;
     backdrop-filter: none !important;
 }
 
+#dialogFechamentoDiario::backdrop {
+    background: rgba(0,0,0,.82) !important;
+    backdrop-filter: blur(3px);
+}
+
 @media (max-height: 850px) {
-    #dialogFechamentoDiario {
-        height: calc(100dvh - 16px) !important;
+    #d_modal article section {
+        padding: 12px 16px;
+        gap: 7px;
     }
+
+    #d_modal .bloco-info-venda {
+        gap: 7px;
+        margin: 7px 0;
+    }
+
+    #d_modal .total-box {
+        padding: 9px;
+    }
+
+    #d_modal footer {
+        padding: 8px 14px 10px;
+    }
+
+    #dialogFechamentoDiario .fechamento-dinheiro, #dialogFechamentoDiario .fechamento-proximo {
+        padding: 10px !important;
+    }
+
     #dialogFechamentoDiario .fechamento-box {
         padding: 15px !important;
         gap: 8px !important;
     }
+
     #dialogFechamentoDiario .fechamento-linha {
         padding: 8px !important;
         gap: 8px !important;
     }
+
     #dialogFechamentoDiario .fechamento-grid {
         gap: 7px !important;
     }
+
     #dialogFechamentoDiario .fechamento-card {
         padding: 7px !important;
     }
-}
 
-/* ============================================================
-   V6 — FECHAMENTO: CENTRALIZAÇÃO REAL, SEM DESLOCAR AO
-   MOSTRAR/ESCONDER A ABERTURA MANUAL
-============================================================ */
-#dialogFechamentoDiario {
-    position: fixed !important;
-    inset: 0 !important;
-    margin: auto !important;
-    width: min(1120px, calc(100vw - 24px)) !important;
-    height: min(860px, calc(100dvh - 24px)) !important;
-    max-width: calc(100vw - 24px) !important;
-    max-height: calc(100dvh - 24px) !important;
-    transform: none !important;
-    padding: 0 !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-    background: #1c1c1c !important;
-    color: #fff !important;
-    border: 2px solid #efac4a !important;
-    border-radius: 16px !important;
-    box-shadow: 0 10px 50px rgba(0,0,0,.7) !important;
-}
-
-#dialogFechamentoDiario .fechamento-box {
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-}
-
-#dialogFechamentoDiario::backdrop {
-    background: rgba(0,0,0,.82) !important;
-}
-
-@media (max-height: 850px) {
     #dialogFechamentoDiario {
-        width: min(1120px, calc(100vw - 18px)) !important;
         height: calc(100dvh - 18px) !important;
+        width: min(1120px, calc(100vw - 18px)) !important;
         max-width: calc(100vw - 18px) !important;
         max-height: calc(100dvh - 18px) !important;
     }
+
 }
 
-/* Depois de registrar uma abertura, o bloco manual desaparece sem alterar
-   a altura nem a posição do modal. */
 #dialogFechamentoDiario .fechamento-abertura-acao:has(#fechamentoTrocoInicialInput[style*="display: none"]) {
     display: none !important;
 }
 
-/* Ajuste pontual do modal de fechamento: um pouco maior e estável. */
-#dialogFechamentoDiario {
-    width: min(980px, calc(100vw - 24px));
-    min-height: 720px;
-}
-
-#dialogFechamentoDiario .fechamento-box {
-    min-height: 720px;
-}
-
 @media (max-height: 900px) {
+    #dialogFechamentoDiario:has(#fechamentoTrocoInicialInput[style*="display: block"]), #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-flex"]), #dialogFechamentoDiario:has(#btnRegistrarAbertura[style*="display: inline-block"]) {
+        width: min(1000px, calc(100vw - 20px));
+    }
+
+    #dialogFechamentoDiario .fechamento-linha {
+        gap: 11px;
+        padding: 12px;
+    }
+
+    #dialogFechamentoDiario .fechamento-grid {
+        gap: 9px;
+    }
+
+    #dialogFechamentoDiario .fechamento-card {
+        padding: 9px;
+    }
+
+    #dialogFechamentoDiario .fechamento-dinheiro {
+        padding: 11px;
+        gap: 6px;
+    }
+
+    #dialogFechamentoDiario .fechamento-proximo {
+        padding: 11px;
+    }
+
+    #dialogFechamentoDiario .fechamento-acoes {
+        margin-top: 0;
+    }
+
     #dialogFechamentoDiario {
+        width: min(930px, calc(100vw - 20px));
         min-height: 0;
     }
 
     #dialogFechamentoDiario .fechamento-box {
+        padding: 18px;
+        gap: 11px;
         min-height: 0;
     }
+
 }
-
-
-/* ============================================================
-   AVISO DE ESTOQUE
-   Somente o aviso longo de estoque recebe este ajuste.
-   O "Sem Estoque" permanece sem alteração.
-============================================================ */
 
 #d_aviso.aviso-estoque {
     width: min(560px, calc(100vw - 32px)) !important;
     max-width: calc(100vw - 32px) !important;
-
     height: auto !important;
     min-height: 0 !important;
-
-    /* REMOVE o limite antigo de 25vh */
     max-height: calc(100dvh - 32px) !important;
-
     position: fixed !important;
     top: 50% !important;
     left: 50% !important;
     right: auto !important;
     bottom: auto !important;
-
     transform: translate(-50%, -50%) !important;
-
     margin: 0 !important;
-
     padding: 20px !important;
-
     box-sizing: border-box !important;
-
     overflow: hidden !important;
 }
 
-
-/* Área interna do aviso */
 #d_aviso.aviso-estoque .aviso_box {
     width: 100% !important;
-
     height: auto !important;
     min-height: 0 !important;
-
-    /*
-       O conteúdo pode ocupar praticamente toda a tela,
-       mas sempre deixa uma margem de segurança.
-    */
     max-height: calc(100dvh - 72px) !important;
-
     display: flex !important;
     flex-direction: column !important;
-
     align-items: stretch !important;
     justify-content: center !important;
-
     gap: 18px !important;
-
     overflow-y: auto !important;
     overflow-x: hidden !important;
-
     box-sizing: border-box !important;
 }
 
-
-/* Texto do aviso */
 #d_aviso.aviso-estoque #msg_aviso {
     width: 100% !important;
     max-width: 100% !important;
-
     height: auto !important;
     min-height: 0 !important;
-
     margin: 0 !important;
     padding: 0 !important;
-
     box-sizing: border-box !important;
-
     white-space: pre-wrap !important;
-
     overflow-wrap: anywhere !important;
     word-break: break-word !important;
-
     overflow: visible !important;
-
     text-align: center !important;
-
     line-height: 1.5 !important;
-
     font-size: clamp(15px, 1.25vw, 20px) !important;
 }
 
-
-/* Área dos botões */
 #d_aviso.aviso-estoque .aviso_botoes {
     width: 100% !important;
-
     flex-shrink: 0 !important;
-
     display: flex !important;
     flex-wrap: wrap !important;
-
     justify-content: center !important;
     align-items: center !important;
-
     gap: 12px !important;
-
     margin: 0 !important;
     padding: 0 !important;
 }
 
-
-/* Botões */
-#d_aviso.aviso-estoque #b_confirmar_aviso,
-#d_aviso.aviso-estoque #b_cancelar_aviso {
+#d_aviso.aviso-estoque #b_confirmar_aviso, #d_aviso.aviso-estoque #b_cancelar_aviso {
     flex: 0 1 auto !important;
-
     min-width: 100px !important;
     max-width: 100% !important;
-
     padding: 10px 24px !important;
-
     box-sizing: border-box !important;
 }
 
-
-/* ============================================================
-   NOTEBOOK / TELA COM POUCA ALTURA
-============================================================ */
-
 @media (max-height: 700px) {
+    #d_modal article section {
+        padding: 10px 12px;
+        gap: 5px;
+    }
+
+    #d_modal .bloco-info-venda {
+        margin: 5px 0;
+        gap: 5px;
+    }
+
+    #d_modal .label-pagamento {
+        margin-top: 4px;
+        margin-bottom: 3px;
+    }
+
+    #d_modal .area_pagamento {
+        gap: 5px;
+        padding: 4px;
+    }
+
+    #d_modal .pagamento, #d_modal #b_dividir_pagamento {
+        min-height: 40px;
+        padding: 6px 8px;
+    }
+
+    #d_modal footer {
+        padding: 6px 10px 8px;
+    }
+
+    #dialogFechamentoDiario .fechamento-box {
+        padding: 13px !important;
+        gap: 7px !important;
+    }
+
+    #dialogFechamentoDiario .fechamento-linha {
+        padding: 8px !important;
+        gap: 7px !important;
+    }
+
+    #dialogFechamentoDiario .fechamento-grid {
+        gap: 6px !important;
+    }
+
+    #dialogFechamentoDiario .fechamento-card {
+        padding: 6px !important;
+    }
 
     #d_aviso.aviso-estoque {
         max-height: calc(100dvh - 20px) !important;
@@ -5226,15 +3167,10 @@ body.modo-monitor #d_fiado[open]::backdrop {
         font-size: 15px !important;
         line-height: 1.4 !important;
     }
+
 }
 
-
-/* ============================================================
-   TELA MUITO BAIXA
-============================================================ */
-
 @media (max-height: 500px) {
-
     #d_aviso.aviso-estoque {
         max-height: calc(100dvh - 10px) !important;
         padding: 10px !important;
@@ -5250,24 +3186,17 @@ body.modo-monitor #d_fiado[open]::backdrop {
         line-height: 1.3 !important;
     }
 
-    #d_aviso.aviso-estoque #b_confirmar_aviso,
-    #d_aviso.aviso-estoque #b_cancelar_aviso {
+    #d_aviso.aviso-estoque #b_confirmar_aviso, #d_aviso.aviso-estoque #b_cancelar_aviso {
         min-width: 90px !important;
         padding: 8px 18px !important;
     }
+
 }
 
-
-/* ============================================================
-   CELULAR / TELA ESTREITA
-============================================================ */
-
 @media (max-width: 500px) {
-
     #d_aviso.aviso-estoque {
         width: calc(100vw - 20px) !important;
         max-width: calc(100vw - 20px) !important;
-
         padding: 14px !important;
     }
 
@@ -5279,483 +3208,361 @@ body.modo-monitor #d_fiado[open]::backdrop {
         flex-direction: column !important;
     }
 
-    #d_aviso.aviso-estoque #b_confirmar_aviso,
-    #d_aviso.aviso-estoque #b_cancelar_aviso {
+    #d_aviso.aviso-estoque #b_confirmar_aviso, #d_aviso.aviso-estoque #b_cancelar_aviso {
         width: 100% !important;
         min-width: 0 !important;
     }
+
 }
-
-/* ============================================================
-   DIMENSIONAMENTO DOS MODAIS — PADRÃO DEFINITIVO
-   ============================================================
-   IMPORTANTE:
-   - Não altera media queries.
-   - Não altera breakpoints.
-   - Não altera responsividade.
-   - Altura passa a ser determinada pelo conteúdo.
-   - A viewport funciona somente como limite máximo.
-============================================================ */
-
-
-/* ============================================================
-   PADRÃO GERAL
-============================================================ */
 
 dialog {
-    box-sizing: border-box !important;
-
-    height: auto !important;
-
-    min-height: 0 !important;
-
+    width: auto !important;
     max-height: calc(100dvh - 32px) !important;
-
     margin: auto;
-
+    padding: 0;
+    color: #efac4a;
+    background: #1c1c1c;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     overflow: hidden !important;
+    box-sizing: border-box !important;
+    height: auto !important;
+    max-width: calc(100vw - 32px) !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
 }
 
-
-/* ============================================================
-   FINALIZAÇÃO DA VENDA
-============================================================ */
-
 #d_modal {
+    width: min(600px, calc(100vw - 32px)) !important;
     height: auto !important;
-
-    min-height: 0 !important;
-
-    max-height: calc(100dvh - 32px) !important;
-
+    max-width: 95%;
+    padding: 0;
     overflow: hidden !important;
-
+    color: #f8c471;
+    background: #1c1c1c;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.7);
+    min-height: 0 !important;
+    max-height: calc(100dvh - 32px) !important;
     box-sizing: border-box !important;
 }
 
 #d_modal article {
-    height: auto !important;
-
-    min-height: 0 !important;
-
-    max-height: calc(100dvh - 32px) !important;
-
     display: flex !important;
     flex-direction: column !important;
-
+    height: auto !important;
+    min-height: 0 !important;
     overflow: hidden !important;
-
+    max-height: calc(100dvh - 32px) !important;
     box-sizing: border-box !important;
 }
 
 #d_modal article section {
-    height: auto !important;
-
-    min-height: 0 !important;
-
+    display: flex;
     flex: 1 1 auto !important;
-
+    flex-direction: column;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    gap: clamp(8px, 1.3vw, 14px);
+    padding: clamp(14px, 2vw, 24px);
     overflow-y: auto !important;
+    height: auto !important;
+    max-height: none !important;
     overflow-x: hidden !important;
-
     box-sizing: border-box !important;
 }
 
 #d_modal footer {
-    height: auto !important;
-
-    min-height: 0 !important;
-
+    padding: 10px 16px 14px;
+    background: #1c1c1c;
+    text-align: center;
     flex: 0 0 auto !important;
-
-    box-sizing: border-box !important;
-}
-
-
-/* ============================================================
-   BUSCA DE PRODUTO
-============================================================ */
-
-#dialogBusca {
     height: auto !important;
-
     min-height: 0 !important;
-
-    max-height: calc(100dvh - 32px) !important;
-
-    overflow: hidden !important;
-
     box-sizing: border-box !important;
 }
-
-#dialogBusca .modal_box {
-    height: auto !important;
-
-    min-height: 0 !important;
-
-    max-height: calc(100dvh - 32px) !important;
-
-    display: flex !important;
-    flex-direction: column !important;
-
-    overflow: hidden !important;
-
-    box-sizing: border-box !important;
-}
-
-#listaSugestoes {
-    min-height: 0 !important;
-
-    max-height: 240px !important;
-
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-
-    box-sizing: border-box !important;
-}
-
-
-/* ============================================================
-   BUSCAR COMANDA
-============================================================ */
-
-#dialogComanda {
-    height: auto !important;
-
-    min-height: 0 !important;
-
-    max-height: calc(100dvh - 32px) !important;
-
-    overflow: hidden !important;
-
-    box-sizing: border-box !important;
-}
-
-#dialogComanda .modal_box {
-    height: auto !important;
-
-    min-height: 0 !important;
-
-    max-height: calc(100dvh - 32px) !important;
-
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-
-    box-sizing: border-box !important;
-}
-
-
-/* ============================================================
-   PAGAMENTO EM DINHEIRO
-============================================================ */
 
 #dialogDinheiro {
+    width: min(430px, calc(100vw - 32px)) !important;
+    padding: 0 !important;
+    color: #f1b869;
+    background: #1c1c1c;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
     height: auto !important;
-
-    min-height: 0 !important;
-
     max-height: calc(100dvh - 32px) !important;
-
+    min-height: 0 !important;
     overflow: hidden !important;
-
     box-sizing: border-box !important;
 }
 
 #dialogDinheiro .conteudo-dinheiro {
+    position: relative;
+    width: 100% !important;
+    max-width: 90vw;
+    padding: 30px;
+    background: #1c1c1c;
+    border: 2px solid #efac4a;
+    border-radius: 12px;
+    box-sizing: border-box !important;
+    color: #ffffff;
     height: auto !important;
-
     min-height: 0 !important;
-
     max-height: calc(100dvh - 32px) !important;
-
+    overflow: visible !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-
-    box-sizing: border-box !important;
 }
 
-
-/* ============================================================
-   PAGAMENTO NO CRÉDITO
-============================================================ */
-
 #dialogCredito {
+    width: min(450px, calc(100vw - 32px)) !important;
     height: auto !important;
-
-    min-height: 0 !important;
-
+    padding: 0 !important;
     max-height: calc(100dvh - 32px) !important;
-
+    min-height: 0 !important;
     overflow: hidden !important;
-
     box-sizing: border-box !important;
 }
 
 #dialogCredito .conteudo-credito {
+    position: relative;
+    width: 100% !important;
+    max-width: 90vw;
+    padding: 30px;
+    background: #1c1c1c;
+    border-radius: 12px;
+    border: 2px solid #efac4a;
+    box-sizing: border-box !important;
+    color: #f8c471;
     height: auto !important;
-
     min-height: 0 !important;
-
     max-height: calc(100dvh - 32px) !important;
-
+    overflow: visible !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-
-    box-sizing: border-box !important;
 }
 
-
-/*
-   Quando o campo adicional de crédito é exibido,
-   o modal continua crescendo pelo conteúdo.
-*/
 #dialogCredito:has(#campoValorCreditoDivisao[style*="display: block"]) {
     height: auto !important;
-
     max-height: calc(100dvh - 32px) !important;
 }
 
-
-/* ============================================================
-   DIVIDIR PAGAMENTO
-============================================================ */
-
 #dialogDividirPagamento {
-    height: auto !important;
-
-    min-height: 0 !important;
-
+    width: min(520px, calc(100vw - 32px)) !important;
+    max-width: 95%;
     max-height: calc(100dvh - 32px) !important;
-
+    padding: 0 !important;
     overflow: hidden !important;
-
+    color: #f8c471;
+    background: #1c1c1c;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    height: auto !important;
+    min-height: 0 !important;
     box-sizing: border-box !important;
 }
 
 #dialogDividirPagamento .split-box {
-    height: auto !important;
-
-    min-height: 0 !important;
-
     max-height: calc(100dvh - 32px) !important;
-
     overflow-y: auto !important;
-    overflow-x: hidden !important;
-
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
     box-sizing: border-box !important;
+    overflow-x: hidden !important;
 }
 
-
-/* ============================================================
-   FIADO
-============================================================ */
-
 #d_fiado {
-    height: auto !important;
-
-    min-height: 0 !important;
-
-    max-height: calc(100dvh - 32px) !important;
-
+    width: min(450px, calc(100vw - 32px)) !important;
+    max-width: 95%;
+    padding: 0 !important;
+    color: #f8c471;
+    background: #1c1c1c;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.65);
     overflow: hidden !important;
-
+    height: auto !important;
+    max-height: calc(100dvh - 32px) !important;
+    min-height: 0 !important;
     box-sizing: border-box !important;
 }
 
 #d_fiado .modal_titulo {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    width: 100% !important;
+    padding: 28px;
+    color: #f8c471;
+    background: #1c1c1c;
+    text-align: left;
     height: auto !important;
-
     min-height: 0 !important;
-
     max-height: calc(100dvh - 32px) !important;
-
+    overflow: visible !important;
+    box-sizing: border-box !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-
-    box-sizing: border-box !important;
 }
 
-
-/* ============================================================
-   AVISO
-============================================================ */
-
 #d_aviso {
+    width: 380px !important;
+    max-width: 90vw !important;
     height: auto !important;
-
-    min-height: 0 !important;
-
-    /*
-       Antes estava em 25vh.
-       Isso cortava avisos maiores.
-    */
     max-height: calc(100dvh - 32px) !important;
-
-    overflow: hidden !important;
-
+    scrollbar-width: none;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    background-color: #1c1c1c !important;
+    color: #ffffff !important;
+    border: 1px solid #efac4a !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6) !important;
     box-sizing: border-box !important;
+    overflow-y: auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
 }
 
 #d_aviso .aviso_box {
     width: 100% !important;
-
     height: auto !important;
-
     min-height: 0 !important;
-
     max-height: calc(100dvh - 72px) !important;
-
+    overflow: visible !important;
+    box-sizing: border-box !important;
     display: flex !important;
-
     flex-direction: column !important;
-
     overflow-y: auto !important;
     overflow-x: hidden !important;
-
-    box-sizing: border-box !important;
 }
 
 #msg_aviso {
+    margin: 0;
+    color: #f1b256;
+    font-size: clamp(1rem, 1.3vw, 22px);
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    text-align: center;
     width: 100% !important;
-
-    height: auto !important;
-
-    min-height: 0 !important;
-
     max-width: 100% !important;
-
+    overflow: visible !important;
     white-space: pre-wrap !important;
-
-    overflow-wrap: anywhere !important;
-
-    word-break: break-word !important;
-
     box-sizing: border-box !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
 }
 
 #d_aviso .aviso_botoes {
     width: 100% !important;
-
     flex: 0 0 auto !important;
-
     display: flex !important;
-
     flex-wrap: wrap !important;
-
     justify-content: center !important;
-
     align-items: center !important;
-
     box-sizing: border-box !important;
 }
 
-
-/* ============================================================
-   FECHAMENTO DIÁRIO
-============================================================ */
-
 #dialogFechamentoDiario {
-    height: auto !important;
-
-    min-height: 0 !important;
-
+    border: 2px solid #efac4a !important;
+    border-radius: 16px !important;
+    padding: 0 !important;
+    width: min(980px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px) !important;
+    background-color: #242628;
+    color: #fff !important;
+    box-shadow: 0 10px 50px rgba(0,0,0,.7) !important;
     max-height: calc(100dvh - 32px) !important;
-
+    background: #1c1c1c !important;
     overflow: hidden !important;
-
+    height: auto !important;
     box-sizing: border-box !important;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: none !important;
+    margin: auto !important;
+    overflow-y: auto;
+    min-height: 0 !important;
+    right: auto !important;
+    bottom: auto !important;
+    inset: 0 !important;
 }
 
 #dialogFechamentoDiario .fechamento-box {
-    height: auto !important;
-
-    min-height: 0 !important;
-
     max-height: calc(100dvh - 32px) !important;
-
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    height: auto !important;
+    width: 100% !important;
+    min-height: 0 !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-
-    box-sizing: border-box !important;
 }
 
-
-/* ============================================================
-   NOVA COMPRA FIADO
-============================================================ */
-
 #d_modal_fiado {
+    width: min(650px, calc(100vw - 32px)) !important;
+    max-width: 95%;
     height: auto !important;
-
-    min-height: 0 !important;
-
+    padding: 0 !important;
     max-height: calc(100dvh - 32px) !important;
-
+    min-height: 0 !important;
     overflow: hidden !important;
-
     box-sizing: border-box !important;
 }
 
 #d_modal_fiado .modal_box {
+    width: 100% !important;
     height: auto !important;
-
     min-height: 0 !important;
-
     max-height: calc(100dvh - 32px) !important;
-
+    overflow: visible !important;
+    box-sizing: border-box !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-
-    box-sizing: border-box !important;
 }
 
-
-/* ============================================================
-   MODAL DE PRODUTOS
-============================================================ */
-
 #d_modal_produtos {
+    width: min(700px, calc(100vw - 32px)) !important;
+    max-width: 95%;
     height: auto !important;
-
-    min-height: 0 !important;
-
+    padding: 0 !important;
     max-height: calc(100dvh - 32px) !important;
-
+    min-height: 0 !important;
     overflow: hidden !important;
-
     box-sizing: border-box !important;
 }
 
 #d_modal_produtos .modal_box {
+    width: 100% !important;
     height: auto !important;
-
     min-height: 0 !important;
-
     max-height: calc(100dvh - 32px) !important;
-
+    overflow: visible !important;
+    box-sizing: border-box !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-
-    box-sizing: border-box !important;
 }
-
-
-/* ============================================================
-   BOTÕES DOS MODAIS
-   Impede que flex ou conteúdo rolável esconda os botões.
-============================================================ */
 
 dialog button {
     flex: 0 0 auto;
 }
 
-
-
-
-/* CORREÇÃO FINAL — PESQUISAR PRODUTO E BUSCAR COMANDA */
-
-#dialogBusca,
-#dialogComanda {
+#dialogBusca, #dialogComanda {
     display: none;
     width: max-content !important;
     height: fit-content !important;
@@ -5767,15 +3574,12 @@ dialog button {
     box-sizing: border-box !important;
 }
 
-/* Quando abertos pelo método showModal() */
-#dialogBusca[open],
-#dialogComanda[open] {
+#dialogBusca[open], #dialogComanda[open] {
     display: block;
     overflow: visible !important;
 }
 
-#dialogBusca .modal_box,
-#dialogComanda .modal_box {
+#dialogBusca .modal_box, #dialogComanda .modal_box {
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -5790,98 +3594,79 @@ dialog button {
     box-sizing: border-box !important;
 }
 
-/* Evita que o tamanho seja forçado em telas menores */
 @media (max-width: 700px) {
-    #dialogBusca,
-    #dialogComanda {
+    dialog {
+        max-width: calc(100vw - 20px) !important;
+    }
+
+    #d_modal, #dialogBusca, #dialogDinheiro, #dialogCredito, #dialogDividirPagamento, #d_fiado, #dialogComanda, #dialogFechamentoDiario, #d_modal_fiado, #d_modal_produtos {
+        width: calc(100vw - 20px) !important;
+        max-height: calc(100dvh - 20px) !important;
+    }
+
+    #dialogBusca, #dialogComanda {
         max-width: calc(100vw - 24px) !important;
         max-height: calc(100dvh - 24px) !important;
     }
 
-    #dialogBusca .modal_box,
-    #dialogComanda .modal_box {
+    #dialogBusca .modal_box, #dialogComanda .modal_box {
         max-width: calc(100vw - 24px) !important;
         max-height: calc(100dvh - 24px) !important;
     }
+
 }
-
-/* ============================================================
-   AJUSTE FINAL — PESQUISAR PRODUTO
-   Tamanho fixo
-============================================================ */
 
 #dialogBusca {
     width: 600px !important;
     height: 500px !important;
-    min-width: 600px !important;
-    min-height: 500px !important;
     max-width: calc(100vw - 32px) !important;
-    max-height: calc(100dvh - 32px) !important;
-
     padding: 0 !important;
-    box-sizing: border-box !important;
     overflow: hidden !important;
+    color: #f8c471;
+    background: #1c1c1c;
+    border: 2px solid #efac4a;
+    border-radius: 16px;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.7);
+    max-height: calc(100dvh - 32px) !important;
+    min-height: 500px !important;
+    box-sizing: border-box !important;
+    min-width: 600px !important;
 }
 
 #dialogBusca .modal_box {
-    width: 100% !important;
+    position: relative;
+    display: flex !important;
+    flex-direction: column !important;
     height: 100% !important;
-    min-width: 0 !important;
     min-height: 0 !important;
-    max-width: 100% !important;
+    gap: 20px;
+    padding: clamp(16px, 2vw, 24px);
+    color: #f8c471;
+    background: #1c1c1c;
+    border-radius: 16px;
     max-height: 100% !important;
-
-    box-sizing: border-box !important;
     overflow: hidden !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
 }
 
 #listaSugestoes {
+    width: 100%;
+    min-height: 0 !important;
     max-height: 240px !important;
+    padding: 0;
+    color: #f8c471;
+    background: #1c1c1c;
+    border: 2px solid #efac4a;
+    border-radius: 8px;
+    list-style: none;
     overflow-y: auto !important;
-    overflow-x: hidden !important;
-}
-
-
-/* ============================================================
-   AJUSTE FINAL — BUSCAR COMANDA
-   Modal maior
-============================================================ */
-
-#dialogComanda {
-    width: 600px !important;
-    min-width: 0 !important;
-    height: auto !important;
-    min-height: 360px !important;
-    max-width: calc(100vw - 32px) !important;
-    max-height: calc(100dvh - 32px) !important;
-
-    padding: 0 !important;
-    box-sizing: border-box !important;
     overflow: hidden !important;
-}
-
-#dialogComanda .modal_box {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 360px !important;
-    max-width: 100% !important;
-    max-height: calc(100dvh - 32px) !important;
-
-    padding: 36px !important;
-    box-sizing: border-box !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: flex-start !important;
-    gap: 22px !important;
-
-    overflow-y: auto !important;
     overflow-x: hidden !important;
+    box-sizing: border-box !important;
 }
-
-
-/* ============================================================
-   RESPONSIVIDADE
-============================================================ */
 
 @media (max-width: 640px) {
     #dialogBusca {
@@ -5905,94 +3690,78 @@ dialog button {
         padding: 24px !important;
         gap: 18px !important;
     }
+
 }
 
-/* MODAL BUSCAR COMANDA — TAMANHO CONTROLADO */
-
 #dialogComanda {
-    width: 520px !important;
-    height: fit-content !important;
-    min-width: 0 !important;
-    min-height: 0 !important;
-
-    max-width: calc(100vw - 32px) !important;
-    max-height: calc(100dvh - 32px) !important;
-
-    padding: 0 !important;
-    margin: auto !important;
-    box-sizing: border-box !important;
-
     border: 2px solid #efac4a !important;
     border-radius: 16px !important;
+    padding: 0 !important;
+    width: 520px !important;
+    max-width: calc(100vw - 32px) !important;
     background: #1c1c1c !important;
-    color: white !important;
-
     overflow: visible !important;
+    color: white !important;
+    height: fit-content !important;
+    max-height: calc(100dvh - 32px) !important;
+    min-height: 0 !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    margin: auto !important;
 }
 
 #dialogComanda .modal_box {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 30px !important;
     display: flex !important;
     flex-direction: column !important;
-    justify-content: flex-start !important;
-    align-items: stretch !important;
     gap: 18px !important;
-
-    width: 100% !important;
+    overflow-x: hidden !important;
     height: auto !important;
-    min-width: 0 !important;
     min-height: 0 !important;
     max-height: none !important;
-
-    margin: 0 !important;
-    padding: 30px !important;
-    box-sizing: border-box !important;
-
     overflow: visible !important;
+    overflow-y: auto !important;
+    max-width: 100% !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    min-width: 0 !important;
+    margin: 0 !important;
 }
 
-#dialogComanda .modal_titulo,
-#dialogComanda .modal_linha,
-#dialogComanda .modal_footer {
+#dialogComanda .modal_titulo, #dialogComanda .modal_linha, #dialogComanda .modal_footer {
     flex: 0 0 auto !important;
 }
 
 #dialogComanda #inputComanda {
     width: 100% !important;
     box-sizing: border-box !important;
+    padding: 13px 15px;
+    border: 2px solid #555;
+    border-radius: 10px;
+    background: #292929;
+    color: white;
+    font-size: 16px;
+    outline: none;
+    transition: 0.2s;
 }
-
-@media (max-width: 600px) {
-    #dialogComanda {
-        width: calc(100vw - 32px) !important;
-    }
-
-    #dialogComanda .modal_box {
-        padding: 22px !important;
-    }
-}
-
-/* AVISO "SEM ESTOQUE" — TAMANHO COMPACTO */
 
 #d_aviso:not(.aviso-estoque) {
     width: 380px !important;
     height: fit-content !important;
-
     min-width: 0 !important;
     min-height: 0 !important;
-
     max-width: calc(100vw - 32px) !important;
     max-height: calc(100dvh - 32px) !important;
-
     position: fixed !important;
     top: 50% !important;
     left: 50% !important;
     right: auto !important;
     bottom: auto !important;
-
     transform: translate(-50%, -50%) !important;
     margin: 0 !important;
     padding: 20px !important;
-
     box-sizing: border-box !important;
     overflow: hidden !important;
 }
@@ -6000,17 +3769,14 @@ dialog button {
 #d_aviso:not(.aviso-estoque) .aviso_box {
     width: 100% !important;
     height: fit-content !important;
-
     min-width: 0 !important;
     min-height: 0 !important;
     max-height: none !important;
-
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
     align-items: stretch !important;
     gap: 16px !important;
-
     padding: 0 !important;
     margin: 0 !important;
     box-sizing: border-box !important;
@@ -6021,42 +3787,11 @@ dialog button {
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
-
     margin: 0 !important;
     padding: 0 !important;
-
     white-space: normal !important;
     overflow-wrap: anywhere !important;
     text-align: center !important;
-}
-
-/* =========================================================
-   AJUSTE DOS MODAIS DE VENDA DO PDV
-   Venda Finalizada, Venda Fiada e Dividir Pagamento
-========================================================= */
-
-/* VENDA FINALIZADA */
-#d_modal[open] {
-    box-sizing: border-box !important;
-    width: min(620px, calc(100vw - 32px)) !important;
-    max-width: calc(100vw - 32px) !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: calc(100dvh - 32px) !important;
-    margin: auto !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-}
-
-#d_modal[open] article {
-    display: flex !important;
-    flex-direction: column !important;
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: calc(100dvh - 32px) !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
 }
 
 #d_modal[open] article > section {
@@ -6074,7 +3809,6 @@ dialog button {
     box-sizing: border-box !important;
 }
 
-/* VENDA FIADA */
 #d_fiado[open] {
     box-sizing: border-box !important;
     width: min(450px, calc(100vw - 32px)) !important;
@@ -6087,9 +3821,7 @@ dialog button {
     overflow: hidden !important;
 }
 
-#d_fiado[open] .conteudo-fiado,
-#d_fiado[open] .modal-conteudo,
-#d_fiado[open] .modal_box {
+#d_fiado[open] .conteudo-fiado, #d_fiado[open] .modal-conteudo, #d_fiado[open] .modal_box {
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
@@ -6099,7 +3831,6 @@ dialog button {
     overflow-y: auto !important;
 }
 
-/* DIVIDIR PAGAMENTO */
 #dialogDividirPagamento[open] {
     box-sizing: border-box !important;
     width: min(520px, calc(100vw - 32px)) !important;
@@ -6112,8 +3843,7 @@ dialog button {
     overflow: hidden !important;
 }
 
-#dialogDividirPagamento[open] .split-box,
-#dialogDividirPagamento[open] .conteudo-dividir {
+#dialogDividirPagamento[open] .split-box, #dialogDividirPagamento[open] .conteudo-dividir {
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
@@ -6123,83 +3853,65 @@ dialog button {
     overflow-y: auto !important;
 }
 
-/* IMPEDE ELEMENTOS INTERNOS DE FORÇAREM A LARGURA */
-#d_modal *,
-#d_fiado *,
-#dialogDividirPagamento * {
+#d_modal *, #d_fiado *, #dialogDividirPagamento * {
     box-sizing: border-box;
     min-width: 0;
 }
 
-
-/* ============================================================
-   MODAL VENDA FINALIZADA — ALTURA ADAPTÁVEL
-============================================================ */
-
 #d_modal[open] {
     box-sizing: border-box !important;
-
     width: min(600px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px) !important;
     height: fit-content !important;
     min-height: 0 !important;
     max-height: calc(100dvh - 32px) !important;
-
     margin: auto !important;
     padding: 0 !important;
-
     overflow: hidden !important;
 }
-
-/* Estrutura interna do modal */
 
 #d_modal[open] article {
     display: flex !important;
     flex-direction: column !important;
-
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
     max-height: calc(100dvh - 32px) !important;
-
-    overflow: hidden !important;
     box-sizing: border-box !important;
+    overflow: hidden !important;
 }
-
-/* Conteúdo: ocupa o espaço necessário e rola se necessário */
 
 #d_modal[open] article section {
     flex: 0 1 auto !important;
-
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
     max-height: calc(100dvh - 120px) !important;
-
     padding: clamp(14px, 2vw, 24px) !important;
     gap: clamp(8px, 1.3vw, 14px) !important;
-
     overflow-x: hidden !important;
     overflow-y: auto !important;
     box-sizing: border-box !important;
 }
 
-/* Rodapé e botão de nova venda */
-
 #d_modal[open] footer {
     flex: 0 0 auto !important;
-
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
-
     padding: 16px 20px !important;
-
     box-sizing: border-box !important;
 }
 
-/* Ajuste para celulares */
-
 @media (max-width: 600px) {
+    #dialogComanda {
+        width: calc(100vw - 32px) !important;
+    }
+
+    #dialogComanda .modal_box {
+        padding: 22px !important;
+    }
+
     #d_modal[open] {
         width: calc(100vw - 24px) !important;
         max-width: calc(100vw - 24px) !important;
@@ -6218,26 +3930,22 @@ dialog button {
     #d_modal[open] footer {
         padding: 12px 16px !important;
     }
+
 }
 
-/* CENTRALIZAÇÃO DOS MODAIS DE PAGAMENTO */
-#dialogDinheiro[open],
-#dialogCredito[open] {
+#dialogDinheiro[open], #dialogCredito[open] {
     position: fixed !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-
     top: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
     left: 0 !important;
-
     width: 100vw !important;
     height: 100dvh !important;
     max-width: 100vw !important;
     max-height: 100dvh !important;
-
     margin: 0 !important;
     padding: 16px !important;
     transform: none !important;
@@ -6261,10 +3969,6 @@ dialog button {
     max-width: 100% !important;
 }
 
-/* ============================================================
-   BUSCA E AUTOCOMPLETE DE CLIENTES — MODAL VENDA FIADO
-============================================================ */
-
 #d_fiado .campo-busca-cliente-fiado {
     position: relative;
     width: 100%;
@@ -6277,15 +3981,11 @@ dialog button {
     height: 48px;
     margin: 0;
     padding: 0 12px;
-
     color: #1c1c1c;
     background: #f8c471;
-
     border: 2px solid #efac4a;
     border-radius: 9px;
-
     outline: none;
-
     font-family: "Roca One", sans-serif !important;
     font-size: 1rem;
 }
@@ -6300,82 +4000,54 @@ dialog button {
     box-shadow: 0 0 0 3px rgba(239, 172, 74, .22);
 }
 
-/* Select original fica oculto */
 #d_fiado #sl_cliente[hidden] {
     display: none !important;
 }
 
-/* Lista de resultados */
-#d_fiado .lista-clientes-fiado {
-    position: absolute;
-    z-index: 1000;
-
-    top: calc(100% + 5px);
-    left: 0;
-    right: 0;
-
-    max-height: 220px;
-
-    margin: 0;
-    padding: 5px;
-
-    overflow-x: hidden;
-    overflow-y: auto;
-
-    list-style: none;
-
-    color: #1c1c1c;
-    background: #f8c471;
-
-    border: 2px solid #efac4a;
-    border-radius: 9px;
-
-    box-shadow: 0 8px 22px rgba(0, 0, 0, .35);
-}
-
-/* Esconde a lista quando necessário */
 #d_fiado .lista-clientes-fiado[hidden] {
     display: none !important;
 }
 
-/* Opções de clientes */
-#d_fiado .opcao-cliente-fiado,
-#d_fiado .cliente-fiado-vazio {
+#d_fiado .opcao-cliente-fiado, #d_fiado .cliente-fiado-vazio {
     padding: 11px 12px;
-
     border-radius: 6px;
-
     font-family: "Roca One", sans-serif;
     font-size: 1rem;
-
     overflow-wrap: anywhere;
 }
 
-/* Interação com as opções */
-#d_fiado .opcao-cliente-fiado {
-    cursor: pointer;
-}
-
-#d_fiado .opcao-cliente-fiado:hover,
-#d_fiado .opcao-cliente-fiado:focus {
+#d_fiado .opcao-cliente-fiado:hover, #d_fiado .opcao-cliente-fiado:focus {
     color: #f8c471;
     background: #2b1f14;
 }
 
-/* Mensagem quando não encontrar clientes */
 #d_fiado .cliente-fiado-vazio {
     color: #5b4325;
     text-align: center;
     cursor: default;
 }
 
-/* Lista de seleção de clientes do Fiado */
 #d_fiado .lista-clientes-fiado {
+    position: absolute;
+    z-index: 1000;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
     max-height: 150px;
+    margin: 0;
+    padding: 5px;
+    overflow-x: hidden;
     overflow-y: auto;
+    list-style: none;
+    color: #1c1c1c;
+    background: #f8c471;
+    border: 2px solid #efac4a;
+    border-radius: 9px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .35);
 }
 
 #d_fiado .opcao-cliente-fiado {
+    cursor: pointer;
     padding: 8px 12px;
     font-size: 14px;
 }

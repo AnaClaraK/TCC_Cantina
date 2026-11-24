@@ -16,8 +16,6 @@ import { useNavigation } from "@react-navigation/native";
 import NotificacaoModal from '../Components/Modal'; 
 import { BASE_URL } from '../../config';
 
-const MODO_DEV = true; 
-
 const CORES = {
   marromEscuro: '#341d04',
   marromDestaque: '#713b00',

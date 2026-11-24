@@ -68,7 +68,6 @@
 
     </div>
 
-    <!-- Script de controle global da Sidebar e Autenticação -->
     <script src="sidebar_header.js"></script>
 
     <script>
@@ -77,10 +76,6 @@
 
             const btnEntrar = document.getElementById("btn_entrar");
             const inputs = document.querySelectorAll(".input-field");
-
-            // =====================================================
-            // NORMALIZAR FOTO
-            // =====================================================
 
             function normalizarFoto(foto) {
 
@@ -105,11 +100,6 @@
                 return "/imagens/" + foto;
             }
 
-
-            // =====================================================
-            // LOGIN
-            // =====================================================
-
             const realizarLogin = async (e) => {
 
                 if (e) {
@@ -119,10 +109,6 @@
                 const email = document.getElementById("email").value.trim();
                 const senha = document.getElementById("senha").value;
                 const pMessageEl = document.getElementById("respostas");
-
-                // =================================================
-                // VALIDAÇÃO
-                // =================================================
 
                 if (!email || !senha) {
                     pMessageEl.innerText = "Preencha todos os campos.";
@@ -151,18 +137,10 @@
 
                     console.log("3. Dados retornados:", dados);
 
-                    // =================================================
-                    // LOGIN OK
-                    // =================================================
-
                     if (resposta.ok) {
                         sessionStorage.removeItem("estoqueBaixoExibido");
                         pMessageEl.innerText = "Login realizado! Redirecionando...";
                         pMessageEl.style.color = "green";
-
-                        // =================================================
-                        // SALVAMENTO NO LOCALSTORAGE
-                        // =================================================
 
                         if (dados.token) {
                             localStorage.setItem("token", dados.token);
@@ -180,7 +158,6 @@
 
                         console.log("4. Token e dados salvos no LocalStorage. Redirecionando...");
 
-                        // Aguarda 100ms para garantir a gravação síncrona do Storage antes do carregamento da index.html
                         setTimeout(() => {
                             window.location.replace("index.html");
                         }, 100);
@@ -202,11 +179,6 @@
 
             };
 
-
-            // =====================================================
-            // ENTER NOS CAMPOS
-            // =====================================================
-
             inputs.forEach((input, index) => {
 
                 input.addEventListener("keydown", (e) => {
@@ -225,16 +197,11 @@
 
             });
 
-
-            // =====================================================
-            // BOTÃO ENTRAR
-            // =====================================================
-
             btnEntrar.addEventListener("click", realizarLogin);
 
         });
 
-    </script>
+</script>
 
 </body>
 

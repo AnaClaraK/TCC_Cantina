@@ -12,30 +12,25 @@ export default function NotificacaoModal({ visivel, fechar }) {
     >
       <View style={styles.fundoEscuro}>
         <View style={styles.modalContainer}>
-          
-          {/* Botão de Fechar (X) */}
           <TouchableOpacity style={styles.botaoFechar} onPress={fechar}>
             <Ionicons name="close" size={28} color="#242628" />
           </TouchableOpacity>
 
           <Text style={styles.titulo}>
-          Ative as notificações para receber avisos sobre novidades, notícias e atualizações assim que acontecerem.
+            Ative as notificações para receber avisos sobre novidades, notícias e atualizações assim que acontecerem.
           </Text>
 
-
-          {/* Área da Logo (Quadrado Escuro) */}
           <View style={styles.areaLogo}>
-          <Text style={styles.texto}>
-                CANTINA
+            <Text style={styles.texto}>
+              CANTINA
             </Text>
-             <Image 
-                source={require('../../assets/images/logo_c.png')}
-                style={styles.imagemLogo}
-                resizeMode="contain"
-             />
+            <Image 
+              source={require('../../assets/images/logo_c.png')}
+              style={styles.imagemLogo}
+              resizeMode="contain"
+            />
           </View>
 
-          {/* Botões de Ação */}
           <TouchableOpacity style={[styles.botao, styles.botaoPermitir]} onPress={fechar}>
             <Text style={styles.textoBotaoPermitir}>Permitir</Text>
           </TouchableOpacity>
@@ -43,7 +38,6 @@ export default function NotificacaoModal({ visivel, fechar }) {
           <TouchableOpacity style={[styles.botao, styles.botaoNegar]} onPress={fechar}>
             <Text style={styles.textoBotaoNegar}>Não permitir</Text>
           </TouchableOpacity>
-
         </View>
       </View>
     </Modal>
@@ -53,13 +47,13 @@ export default function NotificacaoModal({ visivel, fechar }) {
 const styles = StyleSheet.create({
   fundoEscuro: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)', // Deixa o fundo atrás meio transparente
+    backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContainer: {
     width: '85%',
-    backgroundColor: '#F5F5F5', // Cor clara do fundo do card
+    backgroundColor: '#F5F5F5',
     borderRadius: 20,
     padding: 25,
     alignItems: 'center',
@@ -73,19 +67,19 @@ const styles = StyleSheet.create({
     color: '#444444',
     fontSize: 16,
     textAlign: 'center',
-    fontFamily: 'Montserrat', // Ou a fonte que você estiver usando
+    fontFamily: 'Montserrat',
     fontWeight: 'bold',
     marginBottom: 20,
     lineHeight: 22,
   },
   texto: {
-        color: '#efac4a',
-        fontFamily: 'BebasNeue-Regular',
-        fontSize: 50,
-        marginTop: -10, // Aproxima o texto do ícone de cima
-        marginBottom: -20,
-        fontWeight: '100',
-    },
+    color: '#efac4a',
+    fontFamily: 'BebasNeue-Regular',
+    fontSize: 50,
+    marginTop: -10,
+    marginBottom: -20,
+    fontWeight: '100',
+  },
   areaLogo: {
     backgroundColor: '#242628',
     width: 300,

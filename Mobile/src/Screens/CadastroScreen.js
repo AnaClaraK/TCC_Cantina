@@ -4,12 +4,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { Botao } from '../Components/Botoes';
 import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
-
 import { BASE_URL } from '../../config';
 import CampoSenhaProtegida from '../Components/CampoSenhaProtegida';
 
 export default function CadastroScreen() {
-    // Hooks para todos os campos
     const [nome, setNome] = useState("");
     const [cpf, setCpf] = useState("");
     const [email, setEmail] = useState("");
@@ -22,7 +20,6 @@ export default function CadastroScreen() {
     const navigation = useNavigation();
 
     async function CriarCadastro() {
-        // Validações básicas
         if (nome.length < 3) return Alert.alert("Erro", "Digite seu nome completo");
         if (cpf.length < 11) return Alert.alert("Erro", "CPF inválido");
         if (!email.includes("@")) return Alert.alert("Erro", "E-mail inválido");
@@ -65,7 +62,6 @@ export default function CadastroScreen() {
             </View>
 
             <View style={styles.quadrado}>
-                {/* NOME */}
                 <View style={styles.inputArea}>
                     <Ionicons name="person-outline" size={24} color="#eeaf55" />
                     <TextInput
@@ -77,7 +73,6 @@ export default function CadastroScreen() {
                     />
                 </View>
 
-                {/* CPF */}
                 <View style={styles.inputArea}>
                     <Ionicons name="document-text-outline" size={24} color="#eeaf55" />
                     <TextInput
@@ -90,7 +85,6 @@ export default function CadastroScreen() {
                     />
                 </View>
 
-                {/* EMAIL */}
                 <View style={styles.inputArea}>
                     <Ionicons name="mail-outline" size={24} color="#eeaf55" />
                     <TextInput
@@ -102,7 +96,6 @@ export default function CadastroScreen() {
                     />
                 </View>
 
-                {/* SENHA */}
                 <View style={styles.inputArea}>
                     <Ionicons name="lock-closed-outline" size={24} color="#eeaf55" />
                     <CampoSenhaProtegida
@@ -117,7 +110,6 @@ export default function CadastroScreen() {
                     />
                 </View>
 
-                {/* REPITA A SENHA */}
                 <View style={styles.inputArea}>
                     <Ionicons name="lock-closed-outline" size={24} color="#eeaf55" />
                     <CampoSenhaProtegida

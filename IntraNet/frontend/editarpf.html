@@ -13,7 +13,7 @@
 		if (!token) {
 			window.location.replace("login.html");
 		}
-	</script>
+</script>
 </head>
 <body class="fundo-escuro">
 	<form id="formPerfil" enctype="multipart/form-data">
@@ -437,7 +437,7 @@
                 }
 
                 if (
-                    !/[!@#$%^&*(),.?":{}|<>_\-+=]/.test(
+                    !/[[!@#$%^&*(),.?":{}|<>_\-+=]/.test(
                         novaSenha
                     )
                 ) {
@@ -508,9 +508,6 @@
                     return;
                 }
 
-                /*
-                 * Primeiro salva nome/e-mail recebidos.
-                 */
                 if (dados.novoNome) {
                     localStorage.setItem(
                         "usuarioNome",
@@ -528,10 +525,6 @@
                         dados.novoEmail;
                 }
 
-                /*
-                 * NÃO depende somente de novaFoto.
-                 * Busca novamente o perfil no banco.
-                 */
                 const respostaPerfil =
                     await fetch(
                         "http://localhost:3000/perfil/meus-dados",
@@ -581,10 +574,6 @@
                             perfilAtualizado.email;
                     }
 
-                    /*
-                     * Essa é a parte importante:
-                     * pega a foto REALMENTE salva no banco.
-                     */
                     if (
                         perfilAtualizado.foto
                     ) {
@@ -606,9 +595,6 @@
                     );
                 }
 
-                /*
-                 * Limpa os campos de senha.
-                 */
                 document.getElementById(
                     "senha_atual"
                 ).value = "";
@@ -621,11 +607,6 @@
                     "conf_senha"
                 ).value = "";
 
-                /*
-                 * Não recarrega a página.
-                 * Assim a foto recém salva permanece
-                 * imediatamente visível.
-                 */
                 exibirAviso(
                     dados.resposta ||
                     "Perfil atualizado com sucesso!"

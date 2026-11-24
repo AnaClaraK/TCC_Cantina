@@ -96,7 +96,6 @@
     </div>
 </div>
 
-
 <section id="sc_tabela" class="container mt-5">
 
     <table class="tabela table-striped table-hover border">
@@ -119,7 +118,6 @@
     </table>
 
 </section>
-
 
 <dialog id="d_aviso">
 
@@ -145,7 +143,6 @@
 
 </dialog>
 
-
 <dialog id="modalRankingProdutos">
 
     <div class="modal_box">
@@ -166,13 +163,11 @@
 
 </dialog>
 
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
 <script src="./gerarpdf.js"></script>
-
 
 <script>
 
@@ -191,7 +186,6 @@ const menuFiltro =
 const itensFiltro =
     document.querySelectorAll(".itemFiltro");
 
-
 let pedidosCarregados = [];
 
 let filtroOrigemAtual = "todos";
@@ -199,11 +193,6 @@ let filtroOrigemAtual = "todos";
 let rankingProdutos = [];
 
 let contadorOrdenacao = 0;
-
-
-/* ============================================================
-   ORDENAÇÃO DA TABELA
-============================================================ */
 
 function aplicarOrdenacaoTabela(
     idTbody,
@@ -222,12 +211,10 @@ function aplicarOrdenacaoTabela(
 
     if (!tabela) return;
 
-
     const linhasOriginais =
         Array.from(
             tbody.querySelectorAll("tr")
         );
-
 
     linhasOriginais.forEach((tr, index) => {
 
@@ -237,12 +224,10 @@ function aplicarOrdenacaoTabela(
 
     });
 
-
     const cabecalhos =
         Array.from(
             tabela.querySelectorAll("thead th")
         );
-
 
     cabecalhos.forEach((th, indice) => {
 
@@ -250,18 +235,14 @@ function aplicarOrdenacaoTabela(
             return;
         }
 
-
         th.classList.add("sortable");
-
 
         if (!th.dataset.ordem) {
             th.dataset.ordem = "none";
         }
 
-
         const novoTh =
             th.cloneNode(true);
-
 
         novoTh.dataset.ordem =
             th.dataset.ordem || "none";
@@ -269,12 +250,10 @@ function aplicarOrdenacaoTabela(
         novoTh.dataset.prioridadeOrdenacao =
             th.dataset.prioridadeOrdenacao || "";
 
-
         th.parentNode.replaceChild(
             novoTh,
             th
         );
-
 
         novoTh.addEventListener(
             "click",
@@ -283,7 +262,6 @@ function aplicarOrdenacaoTabela(
                 const estadoAtual =
                     novoTh.dataset.ordem || "none";
 
-
                 const novoEstado =
                     estadoAtual === "none"
                         ? "asc"
@@ -291,16 +269,13 @@ function aplicarOrdenacaoTabela(
                             ? "desc"
                             : "none";
 
-
                 novoTh.dataset.ordem =
                     novoEstado;
-
 
                 novoTh.classList.remove(
                     "sort-asc",
                     "sort-desc"
                 );
-
 
                 if (novoEstado === "asc") {
 
@@ -331,7 +306,6 @@ function aplicarOrdenacaoTabela(
 
                 }
 
-
                 const ordenacoesAtivas =
                     Array.from(
                         tabela.querySelectorAll(
@@ -359,12 +333,10 @@ function aplicarOrdenacaoTabela(
                             a.prioridade
                     );
 
-
                 const linhas =
                     Array.from(
                         tbody.querySelectorAll("tr")
                     );
-
 
                 if (
                     ordenacoesAtivas.length === 0
@@ -406,14 +378,12 @@ function aplicarOrdenacaoTabela(
                                 : celula.textContent.trim();
                         };
 
-
                     const eAgendamento =
                         tabela.querySelectorAll(
                             "thead th"
                         ).length === 7 &&
                         tbody.id ===
                             "tb_tbl_produtos";
-
 
                     linhas.sort((a, b) => {
 
@@ -423,7 +393,6 @@ function aplicarOrdenacaoTabela(
                         ) {
 
                             let resultado;
-
 
                             if (
                                 eAgendamento &&
@@ -461,7 +430,6 @@ function aplicarOrdenacaoTabela(
                                         ordem.indice
                                     );
 
-
                                 const textoA =
                                     String(
                                         valA || ""
@@ -471,7 +439,6 @@ function aplicarOrdenacaoTabela(
                                     String(
                                         valB || ""
                                     ).trim();
-
 
                                 const numA =
                                     parseFloat(
@@ -495,7 +462,6 @@ function aplicarOrdenacaoTabela(
                                             .trim()
                                     );
 
-
                                 const numB =
                                     parseFloat(
                                         textoB
@@ -517,7 +483,6 @@ function aplicarOrdenacaoTabela(
                                             )
                                             .trim()
                                     );
-
 
                                 if (
                                     !Number.isNaN(numA) &&
@@ -547,7 +512,6 @@ function aplicarOrdenacaoTabela(
 
                             }
 
-
                             if (resultado !== 0) {
 
                                 return ordem.estado === "asc"
@@ -557,7 +521,6 @@ function aplicarOrdenacaoTabela(
                             }
 
                         }
-
 
                         return (
                             Number(
@@ -574,7 +537,6 @@ function aplicarOrdenacaoTabela(
 
                 }
 
-
                 linhas.forEach(
                     linha =>
                         tbody.appendChild(linha)
@@ -587,14 +549,6 @@ function aplicarOrdenacaoTabela(
 
 }
 
-
-/* ============================================================
-   FORMA DE PAGAMENTO
-   CORREÇÃO:
-   O valor vindo do banco NÃO é mais convertido para o
-   formato antigo.
-============================================================ */
-
 function formatarFormaPagamento(texto) {
 
     if (
@@ -605,25 +559,8 @@ function formatarFormaPagamento(texto) {
         return "-";
     }
 
-
     const valorOriginal =
         String(texto).trim();
-
-
-    /*
-     * PAGAMENTO DIVIDIDO
-     *
-     * Exemplo salvo no banco:
-     *
-     * Dinheiro=2.00, Cartão de Crédito=5.00
-     *
-     * O histórico apresenta:
-     *
-     * Dinheiro: R$ 2,00
-     * Cartão de Crédito: R$ 5,00
-     *
-     * Sem modificar a forma de pagamento.
-     */
 
     if (valorOriginal.includes("=")) {
 
@@ -633,20 +570,17 @@ function formatarFormaPagamento(texto) {
                 .map(parte => parte.trim())
                 .filter(Boolean);
 
-
         const pagamentos =
             partes.map(parte => {
 
                 const indiceIgual =
                     parte.lastIndexOf("=");
 
-
                 if (indiceIgual <= 0) {
 
                     return escapeHtml(parte);
 
                 }
-
 
                 const forma =
                     parte
@@ -656,14 +590,12 @@ function formatarFormaPagamento(texto) {
                         )
                         .trim();
 
-
                 const valorTexto =
                     parte
                         .slice(
                             indiceIgual + 1
                         )
                         .trim();
-
 
                 const valorNumerico =
                     Number(
@@ -672,7 +604,6 @@ function formatarFormaPagamento(texto) {
                             "."
                         )
                     );
-
 
                 if (
                     !Number.isFinite(
@@ -686,7 +617,6 @@ function formatarFormaPagamento(texto) {
 
                 }
 
-
                 return `
                     <div style="line-height:1.5;">
                         ${escapeHtml(forma)}:
@@ -698,37 +628,14 @@ function formatarFormaPagamento(texto) {
 
             });
 
-
         return pagamentos.join("");
 
     }
-
-
-    /*
-     * IMPORTANTE:
-     *
-     * Para pagamentos que NÃO são divididos,
-     * o valor é mostrado exatamente como veio
-     * do banco.
-     *
-     * Não remove:
-     * - FIADO
-     * - F1/F2...
-     * - parênteses
-     * - parcelas
-     * - nomes novos
-     * - qualquer outra informação
-     */
 
     return escapeHtml(
         valorOriginal
     );
 }
-
-
-/* ============================================================
-   PROTEÇÃO CONTRA HTML
-============================================================ */
 
 function escapeHtml(valor) {
 
@@ -756,11 +663,6 @@ function escapeHtml(valor) {
 
 }
 
-
-/* ============================================================
-   INICIALIZAÇÃO
-============================================================ */
-
 document.addEventListener(
     "DOMContentLoaded",
     () => {
@@ -772,20 +674,13 @@ document.addEventListener(
     }
 );
 
-
-/* ============================================================
-   BUSCAR HISTÓRICO
-============================================================ */
-
 async function buscarProdutosEstoque() {
 
     if (!corpoTabela) {
         return;
     }
 
-
     corpoTabela.innerHTML = "";
-
 
     try {
 
@@ -800,7 +695,6 @@ async function buscarProdutosEstoque() {
                 }
             );
 
-
         if (!response.ok) {
 
             throw new Error(
@@ -809,10 +703,8 @@ async function buscarProdutosEstoque() {
 
         }
 
-
         const dadosHistorico =
             await response.json();
-
 
         pedidosCarregados =
             Array.isArray(dadosHistorico)
@@ -827,9 +719,7 @@ async function buscarProdutosEstoque() {
                 )
                 : [];
 
-
         calcularRankingProdutos();
-
 
         if (
             pedidosCarregados.length === 0
@@ -845,15 +735,12 @@ async function buscarProdutosEstoque() {
                 </tr>
             `;
 
-
             atualizarMetricas();
 
             return;
         }
 
-
         aplicarFiltrosEBusca();
-
 
     }
 
@@ -863,7 +750,6 @@ async function buscarProdutosEstoque() {
             "Erro ao carregar histórico:",
             erro
         );
-
 
         corpoTabela.innerHTML = `
             <tr>
@@ -878,11 +764,6 @@ async function buscarProdutosEstoque() {
     }
 
 }
-
-
-/* ============================================================
-   FILTROS
-============================================================ */
 
 function configurarEventosFiltro() {
 
@@ -903,7 +784,6 @@ function configurarEventosFiltro() {
 
     }
 
-
     document.addEventListener(
         "click",
         () => {
@@ -916,7 +796,6 @@ function configurarEventosFiltro() {
 
         }
     );
-
 
     itensFiltro.forEach(item => {
 
@@ -931,17 +810,14 @@ function configurarEventosFiltro() {
                         )
                 );
 
-
                 item.classList.add(
                     "ativo"
                 );
-
 
                 filtroOrigemAtual =
                     item.getAttribute(
                         "data-origem"
                     );
-
 
                 aplicarFiltrosEBusca();
 
@@ -949,7 +825,6 @@ function configurarEventosFiltro() {
         );
 
     });
-
 
     if (inputBusca) {
 
@@ -966,11 +841,6 @@ function configurarEventosFiltro() {
 
 }
 
-
-/* ============================================================
-   FILTROS + BUSCA
-============================================================ */
-
 function aplicarFiltrosEBusca() {
 
     const termoBusca =
@@ -979,7 +849,6 @@ function aplicarFiltrosEBusca() {
                 .toLowerCase()
                 .trim()
             : "";
-
 
     const pedidosFiltrados =
         pedidosCarregados.filter(
@@ -991,13 +860,11 @@ function aplicarFiltrosEBusca() {
                         ""
                     ).toLowerCase();
 
-
                 const formaPedido =
                     String(
                         pedido.form_pag ||
                         ""
                     ).toLowerCase();
-
 
                 const ehCreditoParcelado =
                     formaPedido.includes(
@@ -1006,7 +873,6 @@ function aplicarFiltrosEBusca() {
                     /\d+x/.test(
                         formaPedido
                     );
-
 
                 const atendeOrigem =
 
@@ -1032,13 +898,11 @@ function aplicarFiltrosEBusca() {
                         filtroOrigemAtual.toLowerCase()
                     );
 
-
                 const nomeCliente =
                     (
                         pedido.nome ||
                         "consumidor final"
                     ).toLowerCase();
-
 
                 const numPedido =
                     (
@@ -1051,7 +915,6 @@ function aplicarFiltrosEBusca() {
                             .toString()
                             .toLowerCase()
                         : "";
-
 
                 const atendeBusca =
                     nomeCliente.includes(
@@ -1070,7 +933,6 @@ function aplicarFiltrosEBusca() {
                         termoBusca
                     );
 
-
                 return (
                     atendeOrigem &&
                     atendeBusca
@@ -1079,20 +941,13 @@ function aplicarFiltrosEBusca() {
             }
         );
 
-
     renderizarTabela(
         pedidosFiltrados
     );
 
-
     atualizarMetricas();
 
 }
-
-
-/* ============================================================
-   RENDERIZAR TABELA
-============================================================ */
 
 function renderizarTabela(pedidos) {
 
@@ -1100,11 +955,9 @@ function renderizarTabela(pedidos) {
         return;
     }
 
-
     corpoTabela.innerHTML = "";
 
     delete corpoTabela.dataset.ordemOriginal;
-
 
     if (
         !pedidos ||
@@ -1125,7 +978,6 @@ function renderizarTabela(pedidos) {
 
     }
 
-
     pedidos.forEach(
         pedido => {
 
@@ -1138,12 +990,10 @@ function renderizarTabela(pedidos) {
                     )
                     : "-";
 
-
             const valorTotalNum =
                 Number(
                     pedido.valor_total
                 ) || 0;
-
 
             const valorFormatado =
                 valorTotalNum.toLocaleString(
@@ -1154,23 +1004,13 @@ function renderizarTabela(pedidos) {
                     }
                 );
 
-
-            /*
-             * AQUI está a parte importante:
-             *
-             * Sempre usa o form_pag que veio
-             * diretamente do banco.
-             */
-
             const pagamentoFormatado =
                 formatarFormaPagamento(
                     pedido.form_pag
                 );
 
-
             const tr =
                 document.createElement("tr");
-
 
             tr.innerHTML = `
 
@@ -1214,14 +1054,12 @@ function renderizarTabela(pedidos) {
 
             `;
 
-
             corpoTabela.appendChild(
                 tr
             );
 
         }
     );
-
 
     aplicarOrdenacaoTabela(
         "tb_tbl_produtos",
@@ -1230,24 +1068,16 @@ function renderizarTabela(pedidos) {
 
 }
 
-
-/* ============================================================
-   PEDIDOS DO MÊS
-============================================================ */
-
 function obterPedidosDoMesAtual() {
 
     const agora =
         new Date();
 
-
     const mesAtual =
         agora.getMonth();
 
-
     const anoAtual =
         agora.getFullYear();
-
 
     return pedidosCarregados.filter(
         pedido => {
@@ -1256,12 +1086,10 @@ function obterPedidosDoMesAtual() {
                 return false;
             }
 
-
             const dataPedido =
                 new Date(
                     pedido.data
                 );
-
 
             return (
                 dataPedido.getMonth() ===
@@ -1276,19 +1104,12 @@ function obterPedidosDoMesAtual() {
 
 }
 
-
-/* ============================================================
-   MÉTRICAS
-============================================================ */
-
 function atualizarMetricas() {
 
     const pedidosDoMes =
         obterPedidosDoMesAtual();
 
-
     let totalFaturado = 0;
-
 
     pedidosDoMes.forEach(
         pedido => {
@@ -1302,12 +1123,10 @@ function atualizarMetricas() {
         }
     );
 
-
     const elementoTotal =
         document.getElementById(
             "lbl_total_mes"
         );
-
 
     if (elementoTotal) {
 
@@ -1325,15 +1144,9 @@ function atualizarMetricas() {
 
 }
 
-
-/* ============================================================
-   RANKING DE PRODUTOS
-============================================================ */
-
 function calcularRankingProdutos() {
 
     const contador = {};
-
 
     pedidosCarregados.forEach(
         pedido => {
@@ -1342,7 +1155,6 @@ function calcularRankingProdutos() {
                 pedido.itens ||
                 pedido.produtos ||
                 [];
-
 
             if (
                 typeof listaProds ===
@@ -1366,7 +1178,6 @@ function calcularRankingProdutos() {
 
             }
 
-
             if (
                 Array.isArray(
                     listaProds
@@ -1381,14 +1192,12 @@ function calcularRankingProdutos() {
                             prod.nome_produto ||
                             "Produto Sem Nome";
 
-
                         const qtd =
                             Number(
                                 prod.qtd ||
                                 prod.quantidade ||
                                 1
                             );
-
 
                         if (nome) {
 
@@ -1408,7 +1217,6 @@ function calcularRankingProdutos() {
         }
     );
 
-
     rankingProdutos =
         Object.entries(
             contador
@@ -1427,11 +1235,6 @@ function calcularRankingProdutos() {
 
 }
 
-
-/* ============================================================
-   ABRIR RANKING
-============================================================ */
-
 function abrirRankingProdutos() {
 
     const lista =
@@ -1439,9 +1242,7 @@ function abrirRankingProdutos() {
             "listaRankingProdutos"
         );
 
-
     lista.innerHTML = "";
-
 
     if (
         rankingProdutos.length === 0
@@ -1496,7 +1297,6 @@ function abrirRankingProdutos() {
 
     }
 
-
     document
         .getElementById(
             "modalRankingProdutos"
@@ -1504,11 +1304,6 @@ function abrirRankingProdutos() {
         .showModal();
 
 }
-
-
-/* ============================================================
-   BACKUP + LIMPAR HISTÓRICO
-============================================================ */
 
 function confirmarBackupEApagar() {
 
@@ -1519,7 +1314,6 @@ function confirmarBackupEApagar() {
         async () => {
 
             gerarPDFMensalPedidos();
-
 
             try {
 
@@ -1536,17 +1330,14 @@ function confirmarBackupEApagar() {
                         }
                     );
 
-
                 const data =
                     await res.json();
-
 
                 if (res.ok) {
 
                     exibirAviso(
                         "Histórico limpo com sucesso!"
                     );
-
 
                     buscarProdutosEstoque();
 
@@ -1570,7 +1361,6 @@ function confirmarBackupEApagar() {
                     err
                 );
 
-
                 exibirAviso(
                     "Erro de conexão ao tentar limpar histórico."
                 );
@@ -1585,11 +1375,6 @@ function confirmarBackupEApagar() {
 
 }
 
-
-/* ============================================================
-   AVISOS
-============================================================ */
-
 function exibirAviso(
     mensagem,
     acaoConfirmar = null,
@@ -1601,55 +1386,45 @@ function exibirAviso(
             "d_aviso"
         );
 
-
     const msg =
         document.getElementById(
             "msg_aviso"
         );
-
 
     const btnConfirmar =
         document.getElementById(
             "b_confirmar_aviso"
         );
 
-
     const btnCancelar =
         document.getElementById(
             "b_cancelar_aviso"
         );
 
-
     if (!dialog) {
 
         alert(mensagem);
-
 
         if (acaoConfirmar) {
             acaoConfirmar();
         }
 
-
         return;
 
     }
 
-
     msg.innerText =
         mensagem;
-
 
     btnCancelar.style.display =
         mostrarCancelar
             ? "inline-block"
             : "none";
 
-
     btnConfirmar.onclick =
         () => {
 
             dialog.close();
-
 
             if (acaoConfirmar) {
                 acaoConfirmar();
@@ -1657,14 +1432,12 @@ function exibirAviso(
 
         };
 
-
     btnCancelar.onclick =
         () => {
 
             dialog.close();
 
         };
-
 
     dialog.showModal();
 

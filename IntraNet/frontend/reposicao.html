@@ -8,18 +8,17 @@
     <link rel="stylesheet" href="layout.css">
     <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
     <title>Reposição</title>
-    
 
     <script>
-        // Verifica se existe um token no localStorage
+
         const token = localStorage.getItem("token");
-   
+
         if (!token) {
-            // Se não tem token, nem carrega o resto da página
+
             exibirAviso("Acesso restrito! Redirecionando para o login...");
             window.location.href = "login.html";
         }
-    </script>
+</script>
 </head>
 <body class="fundo-escuro pagina-reposicao">
     <div class="d_util">
@@ -65,23 +64,23 @@
             </thead>
             <tbody id="tb_tbl_estoque"></tbody>
         </table>
-    </section>    
+    </section>
 
     <dialog id="d_modal">
         <div class="modal_box">
             <button id="b_close_modal">x</button>
-            
+
             <h2 class="modal_titulo">Reposição</h2>
-            
+
             <div class="autocomplete-box">
                 <input type="text" class="inp_m" id="inp_busca_modal" placeholder="Pesquisar produto" autocomplete="off">
                 <ul id="lista_sugestoes"></ul>
             </div>
-            
+
             <div style="margin-top: 20px;">
                 <p class="pm">Produto: <span id="s_produto">---</span></p>
                 <p class="pm">Estoque atual: <span id="s_qtda">0</span></p>
-                
+
                 <label class="pm">Quantidade prevista:</label>
                 <input type="number" class="inp_m" id="inp_add_qtd" placeholder="">
 
@@ -117,9 +116,9 @@
 
                 </div>
             </div>
-        
+
             <button class="b_addf">Confirmar</button>
-        
+
             <div class="modal_footer_instrucao">
                 <p>Use as setas ↑ ↓ e Enter para selecionar</p>
             </div>
@@ -173,7 +172,6 @@
 
     let produtosCache = [];
 
-    // Função universal para aplicar ordenação com setas visuais nas tabelas
     function aplicarOrdenacaoTabela(idTbody, colunasIgnoradas = []) {
     const tbody = document.getElementById(idTbody);
     if (!tbody) return;
@@ -183,7 +181,6 @@
 
     const cabecalhos = Array.from(tabela.querySelectorAll("thead th"));
 
-    // Guarda a ordem em que as linhas foram renderizadas.
     const linhasAtuais = Array.from(tbody.querySelectorAll("tr"));
     if (linhasAtuais.length > 0) {
         linhasAtuais.forEach((tr, index) => {
@@ -198,7 +195,6 @@
 
         th.classList.add("sortable");
 
-        // Evita acumular listeners quando a tabela é renderizada novamente.
         const novoTh = th.cloneNode(true);
         novoTh.classList.remove("sort-asc", "sort-desc");
         novoTh.dataset.ordem = th.dataset.ordem || "none";
@@ -228,15 +224,13 @@
 
             const linhas = Array.from(tbody.querySelectorAll("tr"));
 
-            // Nenhuma coluna ordenada: volta exatamente para a ordem original.
             if (estados.length === 0) {
                 linhas.sort((a, b) =>
                     Number(a.dataset.indexOriginal || 0) -
                     Number(b.dataset.indexOriginal || 0)
                 );
             } else {
-                // Permite manter várias colunas com ordenação.
-                // A primeira coluna ativa é o critério principal.
+
                 linhas.sort((a, b) => {
                     for (const item of estados) {
                         const coluna = item.coluna;
@@ -254,7 +248,6 @@
 
                         let resultado = 0;
 
-                        // Datas.
                         if (
                             (a.dataset.data && coluna === 5) ||
                             (a.dataset.data && coluna === 3 && idTbody === "tb_tbl_produtos")
@@ -267,7 +260,6 @@
                             }
                         }
 
-                        // Números / valores em R$.
                         if (resultado === 0) {
                             const textoA = valA
                                 .replace(/R\$\s*/g, "")
@@ -290,7 +282,6 @@
                             }
                         }
 
-                        // Texto.
                         if (resultado === 0) {
                             resultado = valA.localeCompare(
                                 valB,
@@ -328,14 +319,14 @@
     ) {
         const tr = document.createElement('tr');
         tr.dataset.codigo = codigo;
-        
+
         tr.innerHTML = `
             <td>${nome}${alertaEstoqueMinimo ? '<span style="display:inline-block;margin-left:8px;padding:3px 7px;border-radius:5px;background:#7a1f1f;color:#fff;font-size:11px;font-weight:bold;">Estoque Mínimo Atingido</span>' : ''}</td>
             <td>${qtd}</td>
             <td><input type="number" value="${valorComprado}" class="input-reposicao input-qtd">
             </td>
             <td>${prioridade}</td>
-            <td><input 
+            <td><input
                 type="text"
                 value="${local}"
                 class="input-reposicao input-local">
@@ -363,7 +354,7 @@
                     try {
                         await apiFetch(`http://localhost:3000/reposicao/${prodCodigo}/concluir`, {
                             method: "PUT",
-                            headers: { 
+                            headers: {
                                 "Content-Type": "application/json",
                                 "Authorization": `Bearer ${localStorage.getItem("token")}`
                             },
@@ -372,7 +363,7 @@
                                 local: tr.querySelector(".input-local").value
                             })
                         });
-                        
+
                         exibirAviso(`Reposição de ${qtdFinal} un. adicionada ao estoque!`, () => {
                             tr.remove();
                         });
@@ -520,7 +511,7 @@
             const linhaClicada = e.target.closest('tr');
             if (linhaClicada && corpoTabela.contains(linhaClicada)) {
                 const nomeProd = linhaClicada.cells[0].innerText;
-                
+
                 exibirAviso(`Deseja realmente remover o produto: ${nomeProd}?`, async () => {
                     const codigo = linhaClicada.dataset.codigo;
 
@@ -640,7 +631,7 @@
     function normalizarBusca(valor) {
         return String(valor ?? "")
             .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[[\u0300-\u036f]/g, "")
             .toLowerCase()
             .trim();
     }
@@ -659,7 +650,7 @@
         }
 
         const somenteNumeros = termo.replace(/\D/g, "");
-        const buscaPorCodigo = somenteNumeros !== "" && /^[\d\s\-./]+$/.test(String(termoAtual));
+        const buscaPorCodigo = somenteNumeros !== "" && /^[[\d\s\-./]+$/.test(String(termoAtual));
 
         const filtrados = (Array.isArray(produtos) ? produtos : [])
             .filter(p => Number(p.ativo) === 1)
@@ -701,8 +692,6 @@
                         else prioridade = 2;
                     }
 
-                    // Só usa o código como complemento para buscas que
-                    // tenham números misturados ao termo.
                     if (!encontrou && somenteNumeros !== "") {
                         encontrou = codigoBusca.includes(somenteNumeros);
 
@@ -829,7 +818,7 @@
     function normalizarBusca(valor) {
         return String(valor ?? "")
             .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[[\u0300-\u036f]/g, "")
             .toLowerCase()
             .trim();
     }
@@ -876,11 +865,9 @@
             );
         });
 
-        // Aplica e reativa o evento de clique e setas nos cabeçalhos após carregar os dados
         aplicarOrdenacaoTabela("tb_tbl_estoque", [5]);
     }
 
-    // Atualiza a lista automaticamente para mostrar reposições criadas por vendas do app.
     setInterval(() => {
         const modalAberto = document.getElementById("d_modal")?.open;
         const editandoTabela = document.activeElement?.classList?.contains("input-reposicao");
@@ -928,6 +915,6 @@
         carregarReposicao();
     });
 
-    </script>
+</script>
 </body>
 </html>

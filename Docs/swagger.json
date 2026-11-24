@@ -837,45 +837,6 @@
         }
       }
     },
-    "/contas-fiado/abertas": {
-      "get": {
-        "summary": "Listar contas fiado em aberto com itens e juros calculados",
-        "description": "Lista todas as contas fiado com status 'ABERTO' agrupadas por cliente, recalculando dinamicamente o valor atualizado de cada item de acordo com a taxa de juros (diária ou mensal) e o tempo decorrido.",
-        "tags": [
-          "SITE — Funcionários — Fiado"
-        ],
-        "responses": {
-          "200": {
-            "description": "Lista de contas fiado abertas retornada com sucesso",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ContaFiadoAberta"
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Erro interno ao buscar contas fiado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "erro": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/contas-fiado/juros/aplicar": {
       "put": {
         "summary": "Aplicar juros a produtos específicos de contas fiado",
@@ -3843,6 +3804,143 @@
             }
           }
         ]
+      }
+    },
+    "/agendamento/clientes-app": {
+      "get": {
+        "tags": [
+          "Agendamentos"
+        ],
+        "summary": "Lista clientes do app para agendamento",
+        "parameters": [
+          {
+            "name": "dias",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filtro de dias"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de clientes do app"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/agendamento/clientes-app/{id_user}/bloqueio": {
+      "put": {
+        "tags": [
+          "Agendamentos"
+        ],
+        "summary": "Atualiza bloqueio de compras do cliente do app",
+        "parameters": [
+          {
+            "name": "id_user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID do usuario"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bloqueado": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status de bloqueio atualizado com sucesso"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/app/bloqueio-compras": {
+      "get": {
+        "tags": [
+          "App"
+        ],
+        "summary": "Verifica status de bloqueio de compras do usuario autenticado",
+        "responses": {
+          "200": {
+            "description": "Status de bloqueio retornado com sucesso"
+          },
+          "401": {
+            "description": "Nao autorizado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/app/avisos-pendentes": {
+      "get": {
+        "tags": [
+          "App"
+        ],
+        "summary": "Lista avisos pendentes de pedidos para o app",
+        "responses": {
+          "200": {
+            "description": "Avisos pendentes retornados com sucesso"
+          },
+          "401": {
+            "description": "Nao autorizado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/app/avisos-pendentes/{id_pedido}/visualizado": {
+      "put": {
+        "tags": [
+          "App"
+        ],
+        "summary": "Marca aviso de pedido como visualizado",
+        "parameters": [
+          {
+            "name": "id_pedido",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID do pedido"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aviso marcado como visualizado"
+          },
+          "401": {
+            "description": "Nao autorizado"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
       }
     }
   }

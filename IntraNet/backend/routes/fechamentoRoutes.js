@@ -7,10 +7,6 @@ const router = express.Router();
 const conexao = require('../db');
 const verificarToken = require('../middlewares/auth');
 
-
-// ESTRUTURA DA TABELA DE FECHAMENTOS
- 
-
 async function garantirEstruturaFechamentos(conn = conexao) {
 
     await conn.query(`
@@ -74,9 +70,6 @@ async function garantirEstruturaFechamentos(conn = conexao) {
     }
 }
 
-
-//IDENTIFICA O USUÁRIO LOGADO
-
 function obterUsuarioId(req) {
 
     return (
@@ -86,9 +79,6 @@ function obterUsuarioId(req) {
         null
     );
 }
-
-
-// VALIDAÇÃO DE DATA
 
 function validarData(data) {
 
@@ -111,9 +101,6 @@ function validarData(data) {
     return String(data);
 }
 
-
-// FORMAS DE PAGAMENTO
-
 function normalizarForma(texto) {
 
     return String(texto || '')
@@ -129,7 +116,6 @@ function normalizarForma(texto) {
         .trim()
         .toUpperCase();
 }
-
 
 function classificarForma(texto) {
 
@@ -177,7 +163,6 @@ function classificarForma(texto) {
     return null;
 }
 
-
 function extrairPagamentos(
     formPag,
     valorTotal
@@ -200,9 +185,6 @@ function extrairPagamentos(
         };
     }
 
-
-    //Pagamento dividido
-
     if (
         texto.includes('=')
     ) {
@@ -217,7 +199,6 @@ function extrairPagamentos(
             fiado: 0,
             outros: 0
         };
-
 
         texto
             .split(',')
@@ -244,7 +225,6 @@ function extrairPagamentos(
                         return;
                     }
 
-
                     const forma =
                         parte
                             .slice(
@@ -252,7 +232,6 @@ function extrairPagamentos(
                                 pos
                             )
                             .trim();
-
 
                     const valor =
                         Number(
@@ -267,7 +246,6 @@ function extrairPagamentos(
                                 )
                         );
 
-
                     if (
                         !Number.isFinite(valor) ||
                         valor <= 0
@@ -275,12 +253,10 @@ function extrairPagamentos(
                         return;
                     }
 
-
                     const chave =
                         classificarForma(
                             forma
                         );
-
 
                     if (chave) {
 
@@ -295,10 +271,8 @@ function extrairPagamentos(
                 }
             );
 
-
         return resultado;
     }
-
 
     const resultado = {
 
@@ -311,12 +285,10 @@ function extrairPagamentos(
         outros: 0
     };
 
-
     const chave =
         classificarForma(
             texto
         );
-
 
     if (chave) {
 
@@ -329,13 +301,8 @@ function extrairPagamentos(
             total;
     }
 
-
     return resultado;
 }
-
-
-// DATA ATUAL DO BANCO
-
 
 async function obterHojeBanco(
     conn = conexao
@@ -354,9 +321,6 @@ async function obterHojeBanco(
 
     return linhas[0].hoje;
 }
-
-
-// RESUMO DAS VENDAS DO DIA
 
 async function buscarResumoDia(
     conn,
@@ -378,7 +342,6 @@ async function buscarResumoDia(
             `,
             [data]
         );
-
 
     const resumo = {
 
@@ -410,7 +373,6 @@ async function buscarResumoDia(
             0
     };
 
-
     for (
         const venda of vendas
     ) {
@@ -420,13 +382,11 @@ async function buscarResumoDia(
                 venda.valor_total || 0
             );
 
-
         const pagamentos =
             extrairPagamentos(
                 venda.form_pag,
                 venda.valor_total
             );
-
 
         Object.keys(
             pagamentos
@@ -440,7 +400,6 @@ async function buscarResumoDia(
             }
         );
     }
-
 
     Object.keys(
         resumo
@@ -460,12 +419,8 @@ async function buscarResumoDia(
         }
     );
 
-
     return resumo;
 }
-
-
-// BUSCA O ÚLTIMO TROCO FECHADO ANTERIOR
 
 async function buscarTrocoAnterior(
     conn,
@@ -488,7 +443,6 @@ async function buscarTrocoAnterior(
             [data]
         );
 
-
     if (
         !linhas.length
     ) {
@@ -506,7 +460,6 @@ async function buscarTrocoAnterior(
         };
     }
 
-
     return {
 
         valor:
@@ -523,10 +476,6 @@ async function buscarTrocoAnterior(
             false
     };
 }
-
-
-// BUSCA DIA PENDENTE
-
 
 async function buscarPendencia(
     conn,
@@ -558,23 +507,16 @@ async function buscarPendencia(
             [hoje]
         );
 
-
     return (
         linhas[0]?.data_pendente ||
         null
     );
 }
 
-
-// BACKUP DO BANCO
-
-
 async function criarBackupBanco(
     conn,
     dataReferencia
 ) {
-
-    //Este arquivo fica em: backend/routes/fechamentoRoutes.js
 
     const pastaBackup =
         path.resolve(
@@ -584,7 +526,6 @@ async function criarBackupBanco(
             'backups'
         );
 
-
     await fs.mkdir(
         pastaBackup,
         {
@@ -592,16 +533,13 @@ async function criarBackupBanco(
         }
     );
 
-
     const agora =
         new Date();
-
 
     const pad =
         valor =>
             String(valor)
                 .padStart(2, '0');
-
 
     const ms =
         String(
@@ -611,15 +549,12 @@ async function criarBackupBanco(
             '0'
         );
 
-
     const carimbo =
         `${agora.getFullYear()}${pad(agora.getMonth() + 1)}${pad(agora.getDate())}_` +
         `${pad(agora.getHours())}${pad(agora.getMinutes())}${pad(agora.getSeconds())}_${ms}`;
 
-
     const nomeArquivo =
         `cantina_fechamento_${dataReferencia}_${carimbo}.sql`;
-
 
     const caminhoFinal =
         path.join(
@@ -627,10 +562,8 @@ async function criarBackupBanco(
             nomeArquivo
         );
 
-
     const caminhoTemporario =
         `${caminhoFinal}.tmp`;
-
 
     try {
 
@@ -642,14 +575,12 @@ async function criarBackupBanco(
         const banco =
             bancoRows[0]?.banco;
 
-
         if (!banco) {
 
             throw new Error(
                 'A conexão do banco não possui um banco selecionado.'
             );
         }
-
 
         const [tabelas] =
             await conn.query(
@@ -665,9 +596,7 @@ async function criarBackupBanco(
                 `
             );
 
-
         let sql = '';
-
 
         sql +=
             '-- =====================================================\n';
@@ -690,7 +619,6 @@ async function criarBackupBanco(
         sql +=
             '-- =====================================================\n\n';
 
-
         sql +=
             'SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";\n';
 
@@ -703,20 +631,14 @@ async function criarBackupBanco(
         sql +=
             'SET NAMES utf8mb4;\n\n';
 
-
         sql +=
             `CREATE DATABASE IF NOT EXISTS ${mysql.escapeId(banco)} ` +
             `CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;\n`;
 
-
         sql +=
             `USE ${mysql.escapeId(banco)};\n\n`;
 
-
         const views = [];
-
-
-        // TABELAS
 
         for (
             const tabela of tabelas
@@ -725,12 +647,10 @@ async function criarBackupBanco(
             const nomeTabela =
                 tabela.TABLE_NAME;
 
-
             const tipo =
                 String(
                     tabela.TABLE_TYPE || ''
                 ).toUpperCase();
-
 
             if (
                 tipo === 'VIEW'
@@ -743,22 +663,18 @@ async function criarBackupBanco(
                 continue;
             }
 
-
             const nomeSeguro =
                 mysql.escapeId(
                     nomeTabela
                 );
-
 
             const [definicaoRows] =
                 await conn.query(
                     `SHOW CREATE TABLE ${nomeSeguro}`
                 );
 
-
             const definicao =
                 definicaoRows[0];
-
 
             const chaveCreate =
                 Object.keys(
@@ -769,7 +685,6 @@ async function criarBackupBanco(
                         'create table'
                 );
 
-
             if (
                 !chaveCreate
             ) {
@@ -779,27 +694,22 @@ async function criarBackupBanco(
                 );
             }
 
-
             sql +=
                 `DROP TABLE IF EXISTS ${nomeSeguro};\n`;
 
-
             sql +=
                 `${definicao[chaveCreate]};\n\n`;
-
 
             const [linhas] =
                 await conn.query(
                     `SELECT * FROM ${nomeSeguro}`
                 );
 
-
             if (
                 !linhas.length
             ) {
                 continue;
             }
-
 
             const colunas =
                 Object.keys(
@@ -812,7 +722,6 @@ async function criarBackupBanco(
                         )
                 )
                 .join(', ');
-
 
             const valores =
                 linhas.map(
@@ -829,24 +738,18 @@ async function criarBackupBanco(
                                     )
                             );
 
-
                         return (
                             `(${listaValores.join(', ')})`
                         );
                     }
                 );
 
-
             sql +=
                 `INSERT INTO ${nomeSeguro} (${colunas}) VALUES\n`;
-
 
             sql +=
                 `${valores.join(',\n')};\n\n`;
         }
-
-
-        // VIEWS
 
         for (
             const nomeView of views
@@ -857,16 +760,13 @@ async function criarBackupBanco(
                     nomeView
                 );
 
-
             const [definicaoRows] =
                 await conn.query(
                     `SHOW CREATE VIEW ${nomeSeguro}`
                 );
 
-
             const definicao =
                 definicaoRows[0];
-
 
             const chaveCreate =
                 Object.keys(
@@ -877,7 +777,6 @@ async function criarBackupBanco(
                         'create view'
                 );
 
-
             if (
                 !chaveCreate
             ) {
@@ -887,15 +786,12 @@ async function criarBackupBanco(
                 );
             }
 
-
             sql +=
                 `DROP VIEW IF EXISTS ${nomeSeguro};\n`;
-
 
             sql +=
                 `${definicao[chaveCreate]};\n\n`;
         }
-
 
         sql +=
             'SET UNIQUE_CHECKS = 1;\n';
@@ -903,23 +799,16 @@ async function criarBackupBanco(
         sql +=
             'SET FOREIGN_KEY_CHECKS = 1;\n';
 
-
-        // Primeiro cria .tmp
-
         await fs.writeFile(
             caminhoTemporario,
             sql,
             'utf8'
         );
 
-
-        // Depois renomeia para .sql
-
         await fs.rename(
             caminhoTemporario,
             caminhoFinal
         );
-
 
         return {
 
@@ -942,20 +831,15 @@ async function criarBackupBanco(
             );
 
         } catch (_) {
-            // Pode não existir.
+            
         }
-
 
         throw erro;
     }
 }
 
-
-//STATUS INICIAL
-
-
-router.get(
-    '/fechamentos-diarios/status-inicial',
+// status inicial do fechamento //
+router.get("/fechamentos-diarios/status-inicial",
     verificarToken,
     async (
         req,
@@ -969,20 +853,17 @@ router.get(
             const hoje =
                 await obterHojeBanco();
 
-
             const pendencia =
                 await buscarPendencia(
                     conexao,
                     hoje
                 );
 
-
             const abertura =
                 await buscarTrocoAnterior(
                     conexao,
                     hoje
                 );
-
 
             return res.json({
 
@@ -991,8 +872,6 @@ router.get(
 
                 hoje,
 
-                // A data pendente continua sendo informativa,
-                // mas NÃO deve ser aberta automaticamente pelo PDV.
                 data_pendente:
                     null,
 
@@ -1013,7 +892,6 @@ router.get(
                 erro
             );
 
-
             return res.status(
                 500
             ).json({
@@ -1028,11 +906,8 @@ router.get(
     }
 );
 
-
-// CONSULTAR FECHAMENTO DE UMA DATA
-
-router.get(
-    '/fechamentos-diarios/:data',
+// consultar fechamento por data //
+router.get("/fechamentos-diarios/:data",
     verificarToken,
     async (
         req,
@@ -1048,10 +923,8 @@ router.get(
                     req.params.data
                 );
 
-
             const hoje =
                 await obterHojeBanco();
-
 
             if (
                 data > hoje
@@ -1069,7 +942,6 @@ router.get(
                 });
             }
 
-
             const [linhas] =
                 await conexao.query(
                     `
@@ -1081,11 +953,9 @@ router.get(
                     [data]
                 );
 
-
             const fechamento =
                 linhas[0] ||
                 null;
-
 
             const resumo =
                 await buscarResumoDia(
@@ -1093,13 +963,11 @@ router.get(
                     data
                 );
 
-
             const abertura =
                 await buscarTrocoAnterior(
                     conexao,
                     data
                 );
-
 
             return res.json({
 
@@ -1139,7 +1007,6 @@ router.get(
                 erro
             );
 
-
             return res.status(
                 erro.statusCode || 500
             ).json({
@@ -1155,11 +1022,8 @@ router.get(
     }
 );
 
-
-// ABERTURA DO CAIXA
-
-router.post(
-    '/fechamentos-diarios/abertura',
+// registrar abertura de caixa //
+router.post("/fechamentos-diarios/abertura",
     verificarToken,
     async (
         req,
@@ -1168,7 +1032,6 @@ router.post(
 
         const conn =
             await conexao.getConnection();
-
 
         try {
 
@@ -1179,12 +1042,8 @@ router.post(
                     req.body.data_referencia
                 );
 
-
             const hoje =
                 await obterHojeBanco();
-
-
-            // CORREÇÃO
 
             if (
                 data > hoje
@@ -1201,7 +1060,6 @@ router.post(
                 throw erro;
             }
 
-
             const trocoInicial =
                 Number(
                     String(
@@ -1211,7 +1069,6 @@ router.post(
                         '.'
                     )
                 );
-
 
             if (
                 !Number.isFinite(
@@ -1231,9 +1088,7 @@ router.post(
                 throw erro;
             }
 
-
             await conn.beginTransaction();
-
 
             const [existente] =
                 await conn.query(
@@ -1246,9 +1101,6 @@ router.post(
                     [data]
                 );
 
-
-            // Se já está FECHADO,não pode abrir novamente.
-        
             if (
                 existente.length &&
                 existente[0].status ===
@@ -1266,17 +1118,11 @@ router.post(
                 throw erro;
             }
 
-
-            // Busca a origem do troco,caso exista um fechamento anterior.
-
             const aberturaAnterior =
                 await buscarTrocoAnterior(
                     conn,
                     data
                 );
-
-
-            // Se já existe registro ABERTO, apenas atualiza o troco informado.
 
             if (
                 existente.length
@@ -1306,8 +1152,6 @@ router.post(
                 );
 
             } else {
-
-                // Cria a abertura para a data escolhida.Isso agora funciona também para dias anteriores.
 
                 await conn.query(
                     `
@@ -1343,9 +1187,7 @@ router.post(
                 );
             }
 
-
             await conn.commit();
-
 
             return res.status(
                 201
@@ -1372,12 +1214,10 @@ router.post(
 
             await conn.rollback();
 
-
             console.error(
                 'Erro na abertura do caixa:',
                 erro
             );
-
 
             return res.status(
                 erro.statusCode || 500
@@ -1398,12 +1238,8 @@ router.post(
     }
 );
 
-
-// FECHAR DIA + BACKUP
-
-
-router.post(
-    '/fechamentos-diarios',
+// registrar fechamento diario //
+router.post("/fechamentos-diarios",
     verificarToken,
     async (
         req,
@@ -1413,10 +1249,8 @@ router.post(
         const conn =
             await conexao.getConnection();
 
-
         let caminhoBackupCriado =
             null;
-
 
         try {
 
@@ -1427,10 +1261,8 @@ router.post(
                     req.body.data_referencia
                 );
 
-
             const hoje =
                 await obterHojeBanco();
-
 
             if (
                 data > hoje
@@ -1447,7 +1279,6 @@ router.post(
                 throw erro;
             }
 
-
             const trocoProximoDia =
                 Number(
                     String(
@@ -1457,7 +1288,6 @@ router.post(
                         '.'
                     )
                 );
-
 
             if (
                 !Number.isFinite(
@@ -1477,9 +1307,7 @@ router.post(
                 throw erro;
             }
 
-
             await conn.beginTransaction();
-
 
             const [existente] =
                 await conn.query(
@@ -1491,7 +1319,6 @@ router.post(
                     `,
                     [data]
                 );
-
 
             if (
                 existente.length &&
@@ -1510,15 +1337,11 @@ router.post(
                 throw erro;
             }
 
-
-            // Datas anteriores podem ser fechadas manualmente.Não bloqueamos o fechamento só porque já existe outro fechamento posterior no banco.
-
             const resumo =
                 await buscarResumoDia(
                     conn,
                     data
                 );
-
 
             const abertura =
                 existente.length
@@ -1542,7 +1365,6 @@ router.post(
                         data
                     );
 
-
             const dinheiroEsperado =
                 Number(
                     (
@@ -1551,7 +1373,6 @@ router.post(
                     ).toFixed(2)
                 );
 
-
             const diferenca =
                 Number(
                     (
@@ -1559,9 +1380,6 @@ router.post(
                         dinheiroEsperado
                     ).toFixed(2)
                 );
-
-
-            // SALVA O FECHAMENTO
 
             if (
                 existente.length
@@ -1730,16 +1548,7 @@ router.post(
                 );
             }
 
-
-            // Primeiro confirma o fechamento no banco. Assim, um problema no backup não desfaz o fechamento que já foi salvo.
-
             await conn.commit();
-
-
-            /* =====================================================
-               BACKUP AUTOMÁTICO
-               backend/config/backups
-            ===================================================== */
 
             let backup = null;
 
@@ -1763,7 +1572,6 @@ router.post(
                         'Não foi possível criar o backup.'
                 };
             }
-
 
             return res.status(
                 201
@@ -1806,22 +1614,16 @@ router.post(
 
         } catch (erro) {
 
-            /*
-                Só desfaz a transação quando o erro aconteceu
-                antes do commit do fechamento.
-            */
             try {
                 await conn.rollback();
             } catch (_) {
-                // A transação já pode ter sido confirmada.
+                
             }
-
 
             console.error(
                 'Erro ao salvar fechamento:',
                 erro
             );
-
 
             return res.status(
                 erro.statusCode || 500
@@ -1841,6 +1643,5 @@ router.post(
         }
     }
 );
-
 
 module.exports = router;

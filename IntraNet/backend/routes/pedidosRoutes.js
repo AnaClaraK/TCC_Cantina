@@ -1,4 +1,3 @@
-
 const express = require('express');
 const router = express.Router();
 const conexao = require('../db');
@@ -11,23 +10,13 @@ const {
     regularizarPedidoApp
 } = require('../utils/controlePedidosApp');
 
-// Função auxiliar para sanitizar o nome da forma de pagamento
-function limparFormaPagamento(valor) {
-    return String(valor || "")
-        .replace(/\s*\(F\d+\)\s*/gi, "")
-        .trim();
-}
-
-// ==================== PRÓXIMO NÚMERO DO PEDIDO ====================
+// proximo numero do pedido //
 router.get("/pedidos/proximo-numero", verificarToken, async (req, res) => {
     try {
-        const [resultado] = await conexao.query(
-            `
-            SELECT
-                COALESCE(MAX(num_pedido), 0) AS ultimoNumero
+        const [resultado] = await conexao.query(`
+            SELECT COALESCE(MAX(num_pedido), 0) AS ultimoNumero
             FROM pedidos
-            `
-        );
+        `);
 
         const proximo_numero = Number(resultado[0]?.ultimoNumero || 0) + 1;
 
@@ -36,7 +25,6 @@ router.get("/pedidos/proximo-numero", verificarToken, async (req, res) => {
             num_pedido: proximo_numero,
             proximo_numero
         });
-
     } catch (erro) {
         console.error("Erro ao buscar próximo número do pedido:", erro);
         return res.status(500).json({
@@ -46,18 +34,17 @@ router.get("/pedidos/proximo-numero", verificarToken, async (req, res) => {
     }
 });
 
-// ==================== PDV: ROTA DE PEDIDOS ====================
+// criar ou finalizar pedido //
 router.post("/pedidos", verificarToken, async (req, res) => {
     const conn = await conexao.getConnection();
 
     try {
-        // Cria as tabelas auxiliares antes da transação, evitando DDL dentro da venda.
         await garantirTabelasLiquidos();
         await garantirTabelaControleApp(conexao);
         await conn.beginTransaction();
 
         const {
-            id_pedido,       // usado quando o PDV está finalizando uma comanda
+            id_pedido,
             id_user,
             valor_total,
             qtd_total,
@@ -72,24 +59,16 @@ router.post("/pedidos", verificarToken, async (req, res) => {
         const alertas = [];
 
         let data;
-
-        if (
-            typeof data_referencia === "string" &&
-            /^\d{4}-\d{2}-\d{2}$/.test(data_referencia)
-        ) {
+        if (typeof data_referencia === "string" && /^\d{4}-\d{2}-\d{2}$/.test(data_referencia)) {
             const agora = new Date();
             const hora = String(agora.getHours()).padStart(2, "0");
             const minuto = String(agora.getMinutes()).padStart(2, "0");
             const segundo = String(agora.getSeconds()).padStart(2, "0");
-
             data = `${data_referencia} ${hora}:${minuto}:${segundo}`;
         } else {
             data = new Date();
         }
 
-        /* ============================================================
-           CASO 1: Finalização de Comanda Existente
-        ============================================================ */
         if (id_pedido) {
             const [comandas] = await conn.query(
                 `SELECT id_pedido, num_pedido, codigo_comanda, status, origem
@@ -104,7 +83,6 @@ router.post("/pedidos", verificarToken, async (req, res) => {
                 throw new Error("Esta comanda já foi finalizada.");
             }
 
-            // Busca itens incluindo a validação de status ativo
             const [itensComanda] = await conn.query(
                 `SELECT
                     pi.id_produto,
@@ -124,7 +102,6 @@ router.post("/pedidos", verificarToken, async (req, res) => {
                 throw new Error("A comanda não possui itens.");
             }
 
-            // Desconta unidades normais ou os insumos da receita (ex.: ml de café).
             for (const item of itensComanda) {
                 const resultadoEstoque = await consumirEstoqueProduto(
                     conn,
@@ -147,9 +124,7 @@ router.post("/pedidos", verificarToken, async (req, res) => {
                 [status, valor_total, qtd_total, form_pag, data, id_pedido]
             );
 
-            // Se esta comanda era uma pendência por não retirada, encerra o bloqueio.
             await regularizarPedidoApp(id_pedido, conn);
-
             await conn.commit();
 
             return res.status(200).json({
@@ -162,10 +137,7 @@ router.post("/pedidos", verificarToken, async (req, res) => {
             });
         }
 
-        /* ============================================================
-           CASO 2: Venda direta do PDV (Novo Pedido)
-        ============================================================ */
-        const [ultimoPedido] = await conn.query(`SELECT MAX(num_pedido) AS ultimoNumero FROM pedidos`);
+        const [ultimoPedido] = await conn.query("SELECT MAX(num_pedido) AS ultimoNumero FROM pedidos");
         const num_pedido = (ultimoPedido[0].ultimoNumero || 0) + 1;
 
         const [resultadoPedido] = await conn.query(
@@ -207,20 +179,18 @@ router.post("/pedidos", verificarToken, async (req, res) => {
             num_pedido,
             alertas
         });
-
     } catch (erro) {
         await conn.rollback();
         console.error("ERRO AO SALVAR PEDIDO:", erro);
         return res.status(400).json({
             resposta: erro.message || "Erro ao salvar pedido."
         });
-
     } finally {
         conn.release();
     }
 });
 
-// ==================== HISTÓRICO DE PEDIDOS ====================
+// listar historico de pedidos //
 router.get("/historico-pedidos", verificarToken, async (req, res) => {
     try {
         const apenasMeus = req.query.apenas_meus === 'true';
@@ -238,11 +208,11 @@ router.get("/historico-pedidos", verificarToken, async (req, res) => {
         const params = [];
 
         if (apenasMeus && idUserLogado) {
-            queryPedidos += ` WHERE p.id_user = ?`;
+            queryPedidos += " WHERE p.id_user = ?";
             params.push(idUserLogado);
         }
 
-        queryPedidos += ` ORDER BY p.data DESC`;
+        queryPedidos += " ORDER BY p.data DESC";
 
         const [pedidos] = await conexao.execute(queryPedidos, params);
 
@@ -268,14 +238,13 @@ router.get("/historico-pedidos", verificarToken, async (req, res) => {
         }));
 
         return res.json(resultadoFinal);
-
     } catch (error) {
         console.error("Erro ao buscar histórico:", error);
         return res.status(500).json({ erro: "Erro ao processar consulta no banco." });
     }
 });
 
-// ==================== LIMPAR HISTÓRICO DE PEDIDOS ====================
+// limpar historico de pedidos //
 router.delete("/historico-pedidos/limpar", verificarToken, async (req, res) => {
     let conn;
     try {
@@ -291,7 +260,6 @@ router.delete("/historico-pedidos/limpar", verificarToken, async (req, res) => {
             sucesso: true,
             mensagem: "Histórico de pedidos e itens limpos com sucesso!"
         });
-
     } catch (error) {
         if (conn) await conn.rollback();
         console.error("Erro ao limpar histórico no banco:", error);
@@ -301,11 +269,10 @@ router.delete("/historico-pedidos/limpar", verificarToken, async (req, res) => {
     }
 });
 
-// ==================== ROTA DE COMANDAS (APP) ====================
-router.post("/comandas",verificarToken, async (req, res) => {
-    const { id_user, carrinho, valor_total, qtd_total, status, forma_pagamento, form_pag } = req.body;
+// cadastrar comanda //
+router.post("/comandas", verificarToken, async (req, res) => {
+    const { carrinho, valor_total, qtd_total, status, forma_pagamento, form_pag } = req.body;
     const pagamentoSelecionado = forma_pagamento || form_pag;
-    // Usa o ID do token quando disponível; o ID enviado pelo aplicativo fica como compatibilidade.
     const idUserPedido = obterIdUsuarioToken(req);
 
     if (!Number.isInteger(idUserPedido) || idUserPedido <= 0 || !carrinho || carrinho.length === 0) {
@@ -319,7 +286,6 @@ router.post("/comandas",verificarToken, async (req, res) => {
     let conn;
 
     try {
-        // O bloqueio é validado no servidor, mesmo antes da integração visual no APP.
         await garantirTabelaControleApp(conexao);
         const bloqueioApp = await obterBloqueioApp(idUserPedido, conexao);
         if (bloqueioApp.bloqueado) {
@@ -332,34 +298,22 @@ router.post("/comandas",verificarToken, async (req, res) => {
 
         conn = await conexao.getConnection();
         await conn.beginTransaction();
-// ============================================================
-// VALIDA TODOS OS PRODUTOS DA COMANDA
-// ============================================================
 
-for (const item of carrinho) {
+        for (const item of carrinho) {
+            const idProd = item.id_produto || item.id;
+            const [prodValida] = await conn.execute(
+                "SELECT nome, ativo FROM produtos WHERE id_produto = ?",
+                [idProd]
+            );
 
-    const idProd = item.id_produto || item.id;
+            if (prodValida.length === 0) {
+                throw new Error(`O produto código ${idProd} não existe.`);
+            }
 
-    const [prodValida] = await conn.execute(
-        `SELECT nome, ativo
-         FROM produtos
-         WHERE id_produto = ?`,
-        [idProd]
-    );
-
-    if (prodValida.length === 0) {
-        throw new Error(
-            `O produto código ${idProd} não existe.`
-        );
-    }
-
-    if (Number(prodValida[0].ativo) !== 1) {
-        throw new Error(
-            `O produto "${prodValida[0].nome}" está inativo e não pode ser adicionado à comanda.`
-        );
-    }
-}
-
+            if (Number(prodValida[0].ativo) !== 1) {
+                throw new Error(`O produto "${prodValida[0].nome}" está inativo e não pode ser adicionado à comanda.`);
+            }
+        }
 
         const primeiroItem = carrinho[0];
         let dataAgFormatada = null;
@@ -410,7 +364,6 @@ for (const item of carrinho) {
             num_pedido: proximoNumero,
             codigo_comanda
         });
-
     } catch (error) {
         if (conn) await conn.rollback();
         console.error("Erro ao criar comanda:", error);
@@ -423,7 +376,7 @@ for (const item of carrinho) {
     }
 });
 
-// ==================== BUSCAR COMANDA PELO CÓDIGO ====================
+// buscar comanda por codigo //
 router.get("/comandas/:codigo", verificarToken, async (req, res) => {
     const { codigo } = req.params;
     let conn;
@@ -451,7 +404,6 @@ router.get("/comandas/:codigo", verificarToken, async (req, res) => {
             });
         }
 
-        // Traz as informações incluindo o flag de ativo
         const [itens] = await conn.execute(
             `SELECT
                 pi.id_produto, pi.qtd, pi.preco_unitario AS preco,
@@ -471,7 +423,6 @@ router.get("/comandas/:codigo", verificarToken, async (req, res) => {
             form_pag: pedido.form_pag,
             carrinho: itens
         });
-
     } catch (erro) {
         console.error("Erro ao buscar comanda:", erro);
         return res.status(500).json({ sucesso: false, erro: "Erro interno." });
@@ -479,187 +430,5 @@ router.get("/comandas/:codigo", verificarToken, async (req, res) => {
         if (conn) conn.release();
     }
 });
-// ==================== HISTÓRICO DE PEDIDOS ====================
-
-router.get(
-    "/historico-pedidos",
-    verificarToken,
-    async (req, res) => {
-
-        try {
-
-            const apenasMeus =
-                req.query.apenas_meus === "true";
-
-
-            const idUserLogado =
-                req.user?.id_user ||
-                req.user?.id;
-
-
-            let queryPedidos = `
-                SELECT
-                    p.id_pedido,
-                    p.num_pedido,
-                    p.codigo_comanda,
-                    p.id_user,
-                    p.data,
-                    p.data_ag,
-                    p.status,
-                    p.origem,
-                    p.valor_total,
-                    p.form_pag,
-
-                    COALESCE(
-                        u.nome,
-                        'Consumidor Final'
-                    ) AS nome
-
-                FROM pedidos p
-
-                LEFT JOIN users u
-                    ON p.id_user =
-                       u.id_user
-
-                WHERE LOWER(
-                    TRIM(
-                        COALESCE(
-                            p.status,
-                            ''
-                        )
-                    )
-                ) = 'finalizado'
-            `;
-
-
-            const params = [];
-
-
-            if (
-                apenasMeus &&
-                idUserLogado
-            ) {
-
-                queryPedidos += `
-                    AND p.id_user = ?
-                `;
-
-                params.push(
-                    idUserLogado
-                );
-            }
-
-
-            queryPedidos += `
-                ORDER BY
-                    p.data DESC
-            `;
-
-
-            const [
-                pedidos
-            ] =
-                await conexao.execute(
-                    queryPedidos,
-                    params
-                );
-
-
-            if (
-                !pedidos ||
-                pedidos.length === 0
-            ) {
-                return res.json([]);
-            }
-
-
-            const idsPedidos =
-                pedidos.map(
-                    p =>
-                        p.id_pedido
-                );
-
-
-            const placeholders =
-                idsPedidos
-                    .map(() => "?")
-                    .join(",");
-
-
-            const queryItens = `
-                SELECT
-                    pi.id_pedido,
-                    pi.id_produto,
-                    pi.qtd,
-                    pi.preco_unitario,
-
-                    COALESCE(
-                        prod.nome,
-                        'Produto Indisponível'
-                    ) AS nome
-
-                FROM pedidos_itens pi
-
-                LEFT JOIN produtos prod
-                    ON pi.id_produto =
-                       prod.id_produto
-
-                WHERE pi.id_pedido IN (
-                    ${placeholders}
-                )
-            `;
-
-
-            const [
-                itens
-            ] =
-                await conexao.execute(
-                    queryItens,
-                    idsPedidos
-                );
-
-
-            const resultadoFinal =
-                pedidos.map(
-                    pedido => ({
-                        ...pedido,
-
-                        itens:
-                            itens.filter(
-                                item =>
-                                    String(
-                                        item.id_pedido
-                                    ) ===
-                                    String(
-                                        pedido.id_pedido
-                                    )
-                            )
-                    })
-                );
-
-
-            return res.json(
-                resultadoFinal
-            );
-
-
-        } catch (
-            error
-        ) {
-
-            console.error(
-                "Erro ao buscar histórico:",
-                error
-            );
-
-
-            return res.status(500).json({
-                erro:
-                    "Erro ao processar consulta no banco."
-            });
-        }
-    }
-);
 
 module.exports = router;
-

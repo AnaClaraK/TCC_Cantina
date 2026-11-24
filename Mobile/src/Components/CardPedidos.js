@@ -2,8 +2,6 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 
 const CardPedidos = ({ item, onConcluirPedido }) => {
-
-  // Formatação segura de Data/Hora (Criado em e Agendamento)
   const formatarDataHora = (dataString) => {
     if (!dataString) return null;
 
@@ -26,12 +24,10 @@ const CardPedidos = ({ item, onConcluirPedido }) => {
   const dataCriacao = formatarDataHora(item?.data);
   const dataAgendada = formatarDataHora(item?.data_ag);
 
-  // Garante que 'itens' seja sempre uma lista válida
   const itensDoPedido = Array.isArray(item?.itens) ? item.itens : [];
 
   return (
     <View style={styles.card}>
-      {/* CABEÇALHO */}
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
           <Text style={styles.numPedido}>
@@ -48,7 +44,6 @@ const CardPedidos = ({ item, onConcluirPedido }) => {
         </View>
       </View>
 
-      {/* BOTÃO DA COMANDA DE FÁCIL ACESSO */}
       {item?.codigo_comanda ? (
         <TouchableOpacity 
           style={styles.botaoComanda}
@@ -65,7 +60,6 @@ const CardPedidos = ({ item, onConcluirPedido }) => {
         </TouchableOpacity>
       ) : null}
 
-      {/* BLOCAGEM DE DIA E HORÁRIO AGENDADO */}
       {dataAgendada ? (
         <View style={styles.boxAgendamento}>
           <Text style={styles.labelAgendamento}>⏰ Agendado para Retirada:</Text>
@@ -75,7 +69,6 @@ const CardPedidos = ({ item, onConcluirPedido }) => {
 
       <View style={styles.divisor} />
 
-      {/* LISTA DE ITENS DO PEDIDO */}
       <Text style={styles.tituloSecao}>Itens do Pedido:</Text>
 
       {itensDoPedido.length > 0 ? (
@@ -102,7 +95,6 @@ const CardPedidos = ({ item, onConcluirPedido }) => {
 
       <View style={styles.divisor} />
 
-      {/* RODAPÉ DO CARD */}
       <View style={styles.footer}>
         <View>
           <Text style={styles.pagamentoLabel}>Forma de Pagamento:</Text>
@@ -110,7 +102,6 @@ const CardPedidos = ({ item, onConcluirPedido }) => {
           <Text style={styles.valorTotal}>Total: R$ {Number(item?.valor_total || 0).toFixed(2)}</Text>
         </View>
 
-        {/* BOTÃO PARA CONCLUIR POSTERIORMENTE */}
         {(item?.status || '').toLowerCase() !== 'finalizado' && (
           <TouchableOpacity 
             style={styles.botaoConcluir}

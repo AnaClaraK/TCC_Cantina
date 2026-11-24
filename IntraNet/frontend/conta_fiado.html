@@ -27,9 +27,8 @@
             }
 
         })();
-    </script>
+</script>
 </head>
-
 
 <body class="fundo-escuro">
 
@@ -69,11 +68,6 @@
     </div>
 </dialog>
 
-<!-- ======================================================
-     CABEÇALHO
-====================================================== -->
-
-
 <div class="d_util">
 
     <h2 class="h_ag">
@@ -112,8 +106,6 @@
         Compras parceladas
     </button>
 
-
-
     <dialog id="modalNotificacoesFiado" class="modal-notificacoes-fiado">
         <div class="conteudo-notificacoes-fiado">
             <button type="button" id="fecharNotificacoesFiado" class="fechar-notificacoes-fiado" aria-label="Fechar">×</button>
@@ -123,7 +115,6 @@
         </div>
     </dialog>
 
-    
     <div id="notificacaoParcelasConcluidas" class="notificacao-parcela-pagina" aria-live="polite"></div>
 
 <div id="d_inp">
@@ -167,11 +158,7 @@
         <tbody id="tbodyComJuros"></tbody>
     </table>
 
-
 </section>
-<!-- ======================================================
-     MODAL NOVO CLIENTE
-====================================================== -->
 
 <dialog id="modal_cliente">
     <div class="modal_box cliente-cadastro-box">
@@ -386,16 +373,9 @@
     </div>
 </dialog>
 
-
-
-<!-- ======================================================
-     MODAL NOVA COMPRA
-====================================================== -->
-
 <dialog id="d_modal_fiado">
 
     <div class="modal_box">
-
 
         <button
             id="b_close_modal"
@@ -404,11 +384,9 @@
             x
         </button>
 
-
         <h2 class="modal_titulo">
             Nova Compra Fiado
         </h2>
-
 
         <input
             type="text"
@@ -417,9 +395,7 @@
             placeholder="Buscar cliente..."
         >
 
-
         <ul id="lista_clientes"></ul>
-
 
         <p class="pm">
 
@@ -431,7 +407,6 @@
 
         </p>
 
-
         <button
             id="b_abrir_produtos"
             type="button"
@@ -439,9 +414,7 @@
             Adicionar Produtos
         </button>
 
-
         <div id="produtos_selecionados"></div>
-
 
         <p class="pm">
 
@@ -453,14 +426,12 @@
 
         </p>
 
-
         <input
             type="text"
             class="inp_m"
             id="inp_origem_fiado"
             placeholder="Origem (ex: Loja, WhatsApp, Instagram...)"
         >
-
 
         <p class="pm">
 
@@ -471,7 +442,6 @@
             </span>
 
         </p>
-
 
         <button
             id="b_salvar_fiado"
@@ -484,16 +454,9 @@
 
 </dialog>
 
-
-
-<!-- ======================================================
-     MODAL SIMULAÇÃO DE JUROS POR CLIENTE
-====================================================== -->
-
 <dialog id="modalSimularJuros">
 
     <div class="modal_box modal_juros_box">
-
 
         <button
             id="btnFecharSimulacaoJuros"
@@ -502,19 +465,13 @@
             x
         </button>
 
-
         <h2 class="modal_titulo">
             Simular juros
         </h2>
 
-
-
-        <!-- CLIENTE -->
-
         <label for="buscaClienteJuros">
             Cliente
         </label>
-
 
         <div class="campo-busca-cliente-juros">
             <input
@@ -526,7 +483,6 @@
             >
             <ul id="listaClientesJuros"></ul>
         </div>
-
 
         <p class="pm">
 
@@ -543,19 +499,13 @@
             <span id="statusBloqueioClienteJuros" class="info-atrasado" hidden>Cliente bloqueado</span>
         </div>
 
-
-
-        <!-- CONTROLES -->
-
         <div class="juros_config">
-
 
             <div class="juros_campo">
 
                 <label for="tipoJuros">
                     Tipo de juros
                 </label>
-
 
                 <select
                     class="inp_m"
@@ -574,14 +524,11 @@
 
             </div>
 
-
-
             <div class="juros_campo">
 
                 <label for="porcentagemJuros">
                     Porcentagem
                 </label>
-
 
                 <div class="campo_porcentagem">
 
@@ -591,7 +538,7 @@
                         id="porcentagemJuros"
                         min="0"
                         step="0.01"
-                        
+
                         placeholder="Ex: 2"
                     >
 
@@ -605,12 +552,7 @@
 
         </div>
 
-
-
-        <!-- SELEÇÃO -->
-
         <div class="juros_acoes_selecao">
-
 
             <button
                 id="btnSelecionarTodosJuros"
@@ -618,7 +560,6 @@
             >
                 Selecionar todos os produtos
             </button>
-
 
             <button
                 id="btnDesmarcarTodosJuros"
@@ -629,10 +570,6 @@
 
         </div>
 
-
-
-        <!-- CONTAS -->
-
         <div id="listaContasJuros">
 
             <p class="juros_vazio">
@@ -640,10 +577,6 @@
             </p>
 
         </div>
-
-
-
-        <!-- RESUMO -->
 
         <div
             id="resumoSimulacaoJuros"
@@ -663,7 +596,6 @@
 
             </div>
 
-
             <div>
 
                 <span>
@@ -675,7 +607,6 @@
                 </strong>
 
             </div>
-
 
             <div class="resumo_total">
 
@@ -691,14 +622,9 @@
 
         </div>
 
-
-
-        <!-- BOTÕES -->
-
         <p class="juros_escolha_hint">Depois de simular, escolha o que fazer com os produtos selecionados:</p>
 
         <div class="aviso_botoes juros_botoes">
-
 
             <button
                 id="btnCancelarSimulacaoJuros"
@@ -707,21 +633,12 @@
                 Cancelar
             </button>
 
-
             <button
                 id="btnSimularJuros"
                 type="button"
             >
                 Simular Juros
             </button>
-
-
-            <!--
-                IMPORTANTE:
-                Este ID fica somente neste modal.
-                O outro botão de aplicar juros que
-                existia no HTML foi renomeado.
-            -->
 
             <button
                 id="btnAplicarJuros"
@@ -730,7 +647,6 @@
             >
                 Aplicar Juros
             </button>
-
 
             <button
                 id="btnConcluirSelecionados"
@@ -745,12 +661,6 @@
 
 </dialog>
 
-
-
-
-<!-- ======================================================
-     COMPRAS PARCELADAS NO CARTÃO
-====================================================== -->
 <dialog id="modalComprasParceladas">
     <div class="modal_box modal-parceladas-box">
         <button id="btnFecharComprasParceladas" type="button">x</button>
@@ -761,14 +671,9 @@
     </div>
 </dialog>
 
-<!-- ======================================================
-     MODAL PRODUTOS
-====================================================== -->
-
 <dialog id="d_modal_produtos">
 
     <div class="modal_box">
-
 
         <button
             id="b_close_produtos"
@@ -777,11 +682,9 @@
             x
         </button>
 
-
         <h2 class="modal_titulo">
             Selecionar Produtos
         </h2>
-
 
         <input
             type="text"
@@ -790,12 +693,9 @@
             placeholder="Buscar produto..."
         >
 
-
         <ul id="lista_produtos"></ul>
 
-
         <div id="area_produtos_modal"></div>
-
 
         <button
             id="b_salvar_produtos"
@@ -808,19 +708,11 @@
 
 </dialog>
 
-
-
-<!-- ======================================================
-     MODAL AVISO
-====================================================== -->
-
 <dialog id="d_aviso">
 
     <div class="aviso_box">
 
-
         <div id="msg_aviso"></div>
-
 
         <div class="aviso_botoes">
 
@@ -830,7 +722,6 @@
             >
                 OK
             </button>
-
 
             <button
                 id="b_cancelar_aviso"
@@ -844,12 +735,6 @@
     </div>
 
 </dialog>
-
-
-
-<!-- ======================================================
-     MODAL CONCLUSÃO / PAGAMENTO — VISUAL DO PDV
-====================================================== -->
 
 <dialog id="modalConclusaoFiado">
     <article>
@@ -902,11 +787,6 @@
         </footer>
     </article>
 </dialog>
-
-
-<!-- ======================================================
-     MODAIS DE PAGAMENTO — MESMA BASE DO PDV
-====================================================== -->
 
 <dialog id="dialogDinheiro">
     <div class="conteudo-dinheiro">
@@ -1051,8 +931,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const API = "http://localhost:3000";
 
-    // ELEMENTOS
-
     const modalFiado = document.getElementById("d_modal_fiado");
     const modalProdutos = document.getElementById("d_modal_produtos");
     const modalCliente = document.getElementById("modal_cliente");
@@ -1133,9 +1011,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const jurosValorCalculado = document.getElementById("jurosValorCalculado");
     const jurosValorFinal = document.getElementById("jurosValorFinal");
 
-
-    // ESTADO
-
     let clientesCache = [];
     let produtosCache = [];
     let comprasParceladasCache = [];
@@ -1172,8 +1047,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch {
         jurosConfigPorConta = {};
     }
-
-    // UTILITÁRIOS
 
     function obterToken() {
         return localStorage.getItem("token");
@@ -1277,7 +1150,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function normalizarTexto(valor) {
         return String(valor || "")
             .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[[\u0300-\u036f]/g, "")
             .trim()
             .toLowerCase();
     }
@@ -1320,8 +1193,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         );
     }
-
-    // AVISOS
 
     function exibirAviso(
         mensagem,
@@ -1410,7 +1281,6 @@ msgAviso.textContent = avisoCpfDuplicado
         campo.value = n.length > 5 ? `${n.slice(0, 5)}-${n.slice(5)}` : n;
     }
 
-    // Os handlers inline do HTML precisam acessar as funções pelo window.
     window.formatarCPF = formatarCPF;
     window.formatarTelefone = formatarTelefone;
     window.formatarCEP = formatarCEP;
@@ -1426,12 +1296,9 @@ msgAviso.textContent = avisoCpfDuplicado
         return true;
     }
 
-
-    // Consulta e edição em modal, com seleção por lista (sem digitar CPF/nome).
     let clienteEmEdicao = null;
     let listaClientesGerenciar = [];
 
-    
 const modalGerenciarHTML = `
   <dialog id="modal_gerenciar_cliente" class="modal-gerenciar-cliente">
     <div class="modal_box">
@@ -1446,7 +1313,7 @@ const modalGerenciarHTML = `
       <div class="modal-cabecalho">
         <span class="modal-cabecalho-kicker">CLIENTES FIADO</span>
         <h2 class="modal_titulo">Consultar / editar cliente</h2>
-        
+
       </div>
 
       <div class="cliente-campo">
@@ -1490,9 +1357,6 @@ const modalGerenciarHTML = `
     </div>
   </dialog>`;
 
-
-    
-    // Insere o modal no HTML antes de buscar seus elementos.
     if (!document.getElementById("modal_gerenciar_cliente")) {
         document.body.insertAdjacentHTML("beforeend", modalGerenciarHTML);
     }
@@ -1588,7 +1452,6 @@ function preencherDetalhesCliente(c) {
     atualizarBotaoBloqueioConsulta(c);
 }
 
-
     document.getElementById("b_gerenciar_cliente")?.addEventListener("click", async () => {
         try {
             const resposta = await apiFetch("/clientes-fiado");
@@ -1613,7 +1476,7 @@ function preencherDetalhesCliente(c) {
     botaoEditarCliente.addEventListener("click", () => {
         clienteEmEdicao = listaClientesGerenciar.find(c => Number(c.id_cliente) === Number(selectGerenciarCliente.value));
         if (!clienteEmEdicao) return;
-        // Preenche o próprio modal de cadastro, mantendo o visual e os campos existentes.
+
         const valores = {
             nome: clienteEmEdicao.nome_completo, cpf: clienteEmEdicao.cpf,
             telefone: clienteEmEdicao.telefone, email: clienteEmEdicao.email,
@@ -1640,8 +1503,6 @@ function preencherDetalhesCliente(c) {
         modalGerenciarCliente.close();
         modalCliente?.showModal();
     });
-
-    // NOVO CLIENTE
 
     document.getElementById(
         "b_addq"
@@ -1775,7 +1636,7 @@ function preencherDetalhesCliente(c) {
                 document.getElementById("cidade").focus();
                 return;
             }
-            if (!/^[A-Z]{2}$/.test(estado)) {
+            if (!/^[[A-Z]{2}$/.test(estado)) {
                 exibirAviso("O campo Estado (UF) deve conter exatamente 2 letras. Exemplo: SP.");
                 document.getElementById("estado").focus();
                 return;
@@ -1788,7 +1649,7 @@ function preencherDetalhesCliente(c) {
 
             if (
                 email &&
-                !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+                !/^[[^\s@]+@[[^\s@]+\.[[^\s@]+$/.test(email)
             ) {
                 exibirAviso(
                     "Informe um e-mail válido ou deixe o campo em branco."
@@ -1928,8 +1789,6 @@ function preencherDetalhesCliente(c) {
             }
         }
     );
-
-    // NOVA COMPRA FIADO
 
     document.getElementById(
         "b_nova_compra"
@@ -2112,8 +1971,6 @@ function preencherDetalhesCliente(c) {
             );
         }
     );
-
-    // PRODUTOS
 
     document.getElementById(
         "b_abrir_produtos"
@@ -2528,8 +2385,6 @@ function preencherDetalhesCliente(c) {
             `R$ ${formatarMoeda(total)}`;
     }
 
-    // SALVAR COMPRA
-
     document.getElementById(
         "b_salvar_fiado"
     )?.addEventListener(
@@ -2695,8 +2550,6 @@ function preencherDetalhesCliente(c) {
 
         listaProdutos.innerHTML = "";
     }
-
-    // CONCLUSÃO DE CONTAS / PRODUTOS
 
     function abrirModalConclusaoContaFiado(conta, itens = null) {
         contaParaConcluirFiado = conta || null;
@@ -2866,9 +2719,6 @@ function preencherDetalhesCliente(c) {
         }
     }
 
-    // A confirmação do pagamento é tratada pelo script de pagamento abaixo,
-// que usa explicitamente o backend em http://localhost:3000.
-
     btnFecharConclusao?.addEventListener("click", () => {
         modalConclusao.close();
         contaParaConcluirFiado = null;
@@ -2934,8 +2784,6 @@ function preencherDetalhesCliente(c) {
 
         limparResultadoSimulacao();
     };
-
-    // MODAL DE COMPRAS DO CLIENTE
 
     const modalComprasCliente =
         document.getElementById("modalComprasCliente");
@@ -3340,8 +3188,6 @@ function preencherDetalhesCliente(c) {
         }
     );
 
-    // TABELAS PRINCIPAIS
-
     function normalizarProdutosConta(conta) {
         const entrada = conta?.itens || conta?.produtos;
 
@@ -3355,7 +3201,7 @@ function preencherDetalhesCliente(c) {
                     const quantidade = Number(item.quantidade ?? item.qtd ?? 0);
                     const valorUnitario = Number(item.valor_unitario ?? item.valor_unit ?? item.preco ?? 0);
                     const valorBaseInformado = Number(item.valor_base);
-                    // Algumas respostas antigas trazem valor_base como 0 mesmo havendo quantidade e preço.
+
                     const valorBase = Number.isFinite(valorBaseInformado) && valorBaseInformado > 0
                         ? valorBaseInformado
                         : valueRound(quantidade * valorUnitario);
@@ -3565,8 +3411,6 @@ function preencherDetalhesCliente(c) {
         }
     }
 
-    // BUSCA DA TABELA
-
     inputBusca?.addEventListener(
         "input",
         function () {
@@ -3599,8 +3443,6 @@ function preencherDetalhesCliente(c) {
                 );
         }
     );
-
-    // SIMULAÇÃO DE JUROS
 
     function limparModalJuros() {
 
@@ -4036,8 +3878,6 @@ function preencherDetalhesCliente(c) {
             clienteSelecionadoJuros.bloqueado = novoBloqueio ? 1 : 0;
             atualizarBotaoBloqueioClienteJuros();
 
-            // O bloqueio impede novas compras, mas não impede
-            // consultar contas atrasadas nem simular/aplicar juros.
             await carregarContasClienteJuros();
 
             exibirAviso(
@@ -4139,17 +3979,6 @@ function preencherDetalhesCliente(c) {
             `;
         }
     }
-// SIMULAÇÃO DE JUROS — VERSÃO ÚNICA
-
-// IMPORTANTE:
-// Cada checkbox representa UM PRODUTO.
-// Não usamos mais uma função para calcular
-// a conta inteira e outra para calcular produto.
-// Tudo é calculado produto por produto.
-
-
-
-// RENDERIZAR CONTAS/PRODUTOS PARA SIMULAÇÃO
 
 function renderContasParaJuros() {
     listaContasJuros.innerHTML = "";
@@ -4167,7 +3996,6 @@ function renderContasParaJuros() {
             return String(produto.statusPagamento || "Pendente").trim().toLowerCase() !== "pago";
         });
 
-        // Produtos já concluídos/pagos não aparecem no modal.
         if (!produtos.length) return;
         encontrouProdutoPendente = true;
 
@@ -4239,8 +4067,6 @@ function renderContasParaJuros() {
 
 }
 
-
-// CONCLUIR SOMENTE OS PRODUTOS SELECIONADOS DA CONTA
 listaContasJuros?.addEventListener("click", event => {
     const desbloquear = event.target.closest(".btn-desbloquear-juros");
     if (desbloquear) {
@@ -4333,9 +4159,6 @@ function obterProdutosSelecionadosJuros() {
     return selecionados;
 }
 
-
-// SELECIONAR TODOS
-
 btnSelecionarTodosJuros?.addEventListener(
     "click",
     () => {
@@ -4355,9 +4178,6 @@ btnSelecionarTodosJuros?.addEventListener(
     }
 );
 
-
-// DESMARCAR TODOS
-
 btnDesmarcarTodosJuros?.addEventListener(
     "click",
     () => {
@@ -4376,9 +4196,6 @@ btnDesmarcarTodosJuros?.addEventListener(
         atualizarResumoSelecaoJuros();
     }
 );
-
-
-// QUANDO ALTERAR UM PRODUTO
 
 function atualizarResumoSelecaoJuros() {
     const selecionados = obterProdutosSelecionadosJuros();
@@ -4409,9 +4226,6 @@ listaContasJuros?.addEventListener(
     }
 );
 
-
-// CALCULAR JUROS DE UM PRODUTO
-
 function calcularJurosProduto(
     produto,
     conta,
@@ -4434,17 +4248,12 @@ function calcularJurosProduto(
             0
         );
 
-    // Valor original daquele produto.
-// NÃO usamos valor_original da conta,
-// porque uma compra pode possuir vários produtos.
-
     let valorOriginal =
         Number(
             produto.valorBase ??
             produto.valor_base
         );
 
-    // O valor_base pode vir zerado mesmo quando o produto tem preço.
     if (
         !Number.isFinite(valorOriginal) ||
         valorOriginal <= 0
@@ -4452,24 +4261,15 @@ function calcularJurosProduto(
         valorOriginal = quantidade * valorUnitario;
     }
 
-
     valorOriginal =
         valueRound(
             valorOriginal
         );
 
-
-    // Cada produto possui o vencimento
-// da própria compra.
-
     const dataVencimento =
         produto.dataVencimento ||
         produto.data_vencimento ||
         conta?.data_vencimento;
-
-
-    // Calcula novamente aqui para não
-// depender de um valor antigo.
 
     const diasAtraso =
         Math.max(
@@ -4479,17 +4279,10 @@ function calcularJurosProduto(
             )
         );
 
-
     const taxa =
         Number(
             percentual
         );
-
-
-    // 0% é válido.
-// Produto ainda não vencido:
-// dias = 0
-// juros = 0
 
     if (
         !Number.isFinite(
@@ -4514,15 +4307,11 @@ function calcularJurosProduto(
         };
     }
 
-
     let periodos;
-
 
     if (
         tipo === "mes"
     ) {
-
-        // 30 dias = 1 mês.
 
         periodos =
             diasAtraso /
@@ -4530,15 +4319,9 @@ function calcularJurosProduto(
 
     } else {
 
-        // 1 dia = 1 período.
-
         periodos =
             diasAtraso;
     }
-
-
-    // JUROS SIMPLES
-// valor × taxa × período
 
     const juros =
         valorOriginal *
@@ -4548,19 +4331,16 @@ function calcularJurosProduto(
         ) *
         periodos;
 
-
     const jurosArredondado =
         valueRound(
             juros
         );
-
 
     const valorFinal =
         valueRound(
             valorOriginal +
             jurosArredondado
         );
-
 
     return {
 
@@ -4578,18 +4358,10 @@ function calcularJurosProduto(
     };
 }
 
-
-// LIMPAR SIMULAÇÃO
-
 function limparResultadoSimulacao() {
-
-    // A simulação antiga deixa de existir.
 
     simulacaoJurosAtual =
         null;
-
-
-    // Zera o resumo.
 
     if (
         resumoSimulacaoJuros
@@ -4599,7 +4371,6 @@ function limparResultadoSimulacao() {
             "none";
     }
 
-
     if (
         btnAplicarJuros
     ) {
@@ -4607,7 +4378,6 @@ function limparResultadoSimulacao() {
         btnAplicarJuros.disabled =
             true;
     }
-
 
     if (
         jurosValorOriginal
@@ -4617,7 +4387,6 @@ function limparResultadoSimulacao() {
             "R$ 0,00";
     }
 
-
     if (
         jurosValorCalculado
     ) {
@@ -4626,7 +4395,6 @@ function limparResultadoSimulacao() {
             "R$ 0,00";
     }
 
-
     if (
         jurosValorFinal
     ) {
@@ -4634,10 +4402,6 @@ function limparResultadoSimulacao() {
         jurosValorFinal.innerText =
             "R$ 0,00";
     }
-
-
-    // Zera o juros mostrado
-// ao lado de cada produto.
 
     document
         .querySelectorAll(
@@ -4660,19 +4424,13 @@ function limparResultadoSimulacao() {
             }
         );
 
-
-    // Também limpa caso a versão
-// do HTML esteja usando
-// data-juros-produto.
-
     document
         .querySelectorAll(
             "[data-juros-produto]"
         )
         .forEach(
             elemento => {
-                // Se o elemento também representa um produto já com juros,
-                // não apaga o valor existente ao trocar a seleção.
+
                 const chave = String(elemento.dataset.jurosProduto || "");
                 const partes = chave.split("-");
                 const idConta = Number(partes[0] || 0);
@@ -4691,9 +4449,6 @@ function limparResultadoSimulacao() {
         );
 }
 
-
-// SIMULAR JUROS
-
 btnSimularJuros?.addEventListener(
     "click",
     () => {
@@ -4709,10 +4464,8 @@ btnSimularJuros?.addEventListener(
             return;
         }
 
-
         const produtosSelecionados =
             obterProdutosSelecionadosJuros();
-
 
         if (
             produtosSelecionados.length === 0
@@ -4727,14 +4480,10 @@ btnSimularJuros?.addEventListener(
             return;
         }
 
-
         const percentual =
             Number(
                 porcentagemJuros.value
             );
-
-
-        // 0% É PERMITIDO.
 
         if (
             !Number.isFinite(
@@ -4750,12 +4499,10 @@ btnSimularJuros?.addEventListener(
             return;
         }
 
-
         const tipo =
             tipoJuros.value === "mes"
                 ? "mes"
                 : "dia";
-
 
         let valorOriginalTotal =
             0;
@@ -4766,12 +4513,8 @@ btnSimularJuros?.addEventListener(
         let valorFinalTotal =
             0;
 
-
         const detalhes =
             [];
-
-
-        // CALCULAR CADA PRODUTO
 
         produtosSelecionados.forEach(
             item => {
@@ -4784,18 +4527,14 @@ btnSimularJuros?.addEventListener(
                         tipo
                     );
 
-
                 valorOriginalTotal +=
                     resultado.valorOriginal;
-
 
                 jurosTotal +=
                     resultado.juros;
 
-
                 valorFinalTotal +=
                     resultado.valorFinal;
-
 
                 detalhes.push({
 
@@ -4833,17 +4572,10 @@ btnSimularJuros?.addEventListener(
                     )
                 });
 
-
-                // MOSTRAR JUROS NO PRODUTO
-
                 let campoJuros =
                     document.querySelector(
                         `.valor-juros-produto[data-id-conta="${item.id_conta}"][data-id-produto="${item.id_produto}"]`
                     );
-
-
-                // Compatibilidade com a
-// outra marcação do HTML.
 
                 if (!campoJuros) {
 
@@ -4852,7 +4584,6 @@ btnSimularJuros?.addEventListener(
                             `[data-juros-produto="${item.id_conta}-${item.id_produto}"]`
                         );
                 }
-
 
                 if (
                     campoJuros
@@ -4866,27 +4597,20 @@ btnSimularJuros?.addEventListener(
             }
         );
 
-
         valorOriginalTotal =
             valueRound(
                 valorOriginalTotal
             );
-
 
         jurosTotal =
             valueRound(
                 jurosTotal
             );
 
-
         valorFinalTotal =
             valueRound(
                 valorFinalTotal
             );
-
-
-        // GUARDA A SIMULAÇÃO ATUAL.
-// Só essa seleção poderá ser aplicada.
 
         simulacaoJurosAtual = {
 
@@ -4903,10 +4627,6 @@ btnSimularJuros?.addEventListener(
 
             itens:
                 detalhes,
-
-            // Mantém também contas
-// por compatibilidade com
-// partes antigas do HTML.
 
             contas:
                 detalhes.map(
@@ -4926,41 +4646,28 @@ btnSimularJuros?.addEventListener(
                 valorFinalTotal
         };
 
-
-        // RESUMO
-
         jurosValorOriginal.innerText =
             `R$ ${formatarMoeda(
                 valorOriginalTotal
             )}`;
-
 
         jurosValorCalculado.innerText =
             `R$ ${formatarMoeda(
                 jurosTotal
             )}`;
 
-
         jurosValorFinal.innerText =
             `R$ ${formatarMoeda(
                 valorFinalTotal
             )}`;
 
-
         resumoSimulacaoJuros.style.display =
             "block";
-
-
-        // Mesmo com 0%,
-// a simulação é válida.
 
         btnAplicarJuros.disabled =
             false;
     }
 );
-
-
-// ARREDONDAMENTO
 
 function valueRound(
     valor
@@ -4972,9 +4679,6 @@ function valueRound(
         ) * 100
     ) / 100;
 }
-
-
-// APLICAR JUROS
 
 btnAplicarJuros?.addEventListener(
     "click",
@@ -4995,10 +4699,6 @@ btnAplicarJuros?.addEventListener(
             return;
         }
 
-
-        // Usa o seu modal de confirmação,
-// não window.confirm().
-
         exibirAviso(
             "Deseja realmente aplicar os juros aos produtos selecionados?",
 
@@ -5012,9 +4712,6 @@ btnAplicarJuros?.addEventListener(
         );
     }
 );
-
-
-// EXECUTAR APLICAÇÃO
 
 async function executarAplicacaoDeJuros() {
 
@@ -5034,7 +4731,6 @@ async function executarAplicacaoDeJuros() {
 
             return;
         }
-
 
         const res =
             await apiFetch(
@@ -5068,9 +4764,6 @@ async function executarAplicacaoDeJuros() {
                 }
             );
 
-
-        // Sessão expirada.
-
         if (
             res.status === 401 ||
             res.status === 403
@@ -5081,10 +4774,8 @@ async function executarAplicacaoDeJuros() {
             return;
         }
 
-
         const resposta =
             await res.json();
-
 
         if (
             !res.ok
@@ -5097,10 +4788,6 @@ async function executarAplicacaoDeJuros() {
 
             return;
         }
-
-
-        // Guarda a configuração
-// para a tabela de juros.
 
         simulacaoJurosAtual.itens
             .forEach(
@@ -5121,22 +4808,9 @@ async function executarAplicacaoDeJuros() {
                 }
             );
 
-
         salvarConfiguracoesJuros();
 
-
-        // ATENÇÃO:
-// A função correta no seu HTML é:
-// carregarContasFiado()
-// e não:
-// carregarContas()
-
         await carregarContasFiado();
-
-
-        // Atualiza novamente
-// os produtos do cliente
-// dentro do modal.
 
         if (
             clienteSelecionadoJuros
@@ -5145,24 +4819,15 @@ async function executarAplicacaoDeJuros() {
             await carregarContasClienteJuros();
         }
 
-
-        // Fecha o modal somente depois
-// de atualizar os dados.
-
         fecharModalJuros();
-
 
         exibirAviso(
             resposta.mensagem ||
             "Juros aplicados com sucesso!"
         );
 
-
-        // Limpa a simulação antiga.
-
         simulacaoJurosAtual =
             null;
-
 
     } catch (erro) {
 
@@ -5177,10 +4842,6 @@ async function executarAplicacaoDeJuros() {
         );
     }
 }
-    // ACOMPANHAMENTO DE CRÉDITO PARCELADO
-// As parcelas NÃO são concluídas manualmente.
-// O backend verifica a data de vencimento de cada parcela
-// e conclui automaticamente quando ela chega.
 
     function escaparHtmlParcela(valor) {
         return String(valor ?? "")
@@ -5229,7 +4890,6 @@ async function executarAplicacaoDeJuros() {
                 ? dados
                 : (Array.isArray(dados.compras) ? dados.compras : []);
 
-            // Mais recentes primeiro, independentemente da ordem retornada pela API.
             comprasParceladasCache = compras.slice().sort((a, b) => {
                 const dataA = new Date(a.data_compra || a.data || 0).getTime() || 0;
                 const dataB = new Date(b.data_compra || b.data || 0).getTime() || 0;
@@ -5237,8 +4897,6 @@ async function executarAplicacaoDeJuros() {
                 return Number(b.id_pedido || 0) - Number(a.id_pedido || 0);
             });
 
-            // As parcelas são atualizadas automaticamente pelo backend.
-            // Não exibimos mais um aviso dizendo que elas precisam ser concluídas manualmente.
             if (notificacaoParcelasConcluidas) {
                 notificacaoParcelasConcluidas.innerHTML = "";
             }
@@ -5251,7 +4909,7 @@ async function executarAplicacaoDeJuros() {
     }
 
     function escaparTextoNotificacao(valor) {
-        return String(valor ?? "").replace(/[&<>"']/g, caractere => ({
+        return String(valor ?? "").replace(/[[&<>"']/g, caractere => ({
             "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#039;"
         }[caractere]));
     }
@@ -5318,13 +4976,11 @@ async function executarAplicacaoDeJuros() {
         throw new Error("Não foi possível remover a notificação.");
     }
 
-    // Remove a notificação da lista
   const [resultado] = await conexao.query(
     `DELETE FROM notificacoes_fiado WHERE id_notificacao = ?`,
     [id]
 );
 
-    // Atualiza o contador
     const naoLidas = notificacoesFiadoCache.length;
 
     if (contadorNotificacoesFiado) {
@@ -5334,7 +4990,6 @@ async function executarAplicacaoDeJuros() {
         contadorNotificacoesFiado.hidden = naoLidas === 0;
     }
 
-    // Atualiza o modal
     renderNotificacoesFiado();
 }
 
@@ -5420,8 +5075,6 @@ async function executarAplicacaoDeJuros() {
         modalComprasParceladas.close();
     });
 
-    // INICIALIZAÇÃO
-
     const campoDiaVencimentoInicial =
         document.getElementById("s_dia_vencimento");
 
@@ -5445,13 +5098,11 @@ async function executarAplicacaoDeJuros() {
     carregarComprasParceladas(true).then(carregarNotificacoesFiado);
     carregarNotificacoesFiado();
 
-    // Atualiza as compras parceladas e o contador do sininho automaticamente.
     setInterval(async () => {
         await carregarComprasParceladas(true);
         await carregarNotificacoesFiado();
     }, 60000);
 
-    // O fundo da página não rola enquanto o modal está aberto.
     modalSimularJuros?.addEventListener("wheel", event => {
         const alvoRolavel = event.target.closest("#listaContasJuros, #listaClientesJuros");
         if (alvoRolavel) return;
@@ -5463,14 +5114,12 @@ async function executarAplicacaoDeJuros() {
         modalSimularJuros.classList.remove("modal-cliente-direto");
     });
 
-    // Pontes usadas pelos scripts externos desta página.
     window.exibirAviso = exibirAviso;
     window.tratarSessaoExpirada = tratarSessaoExpirada;
     window.carregarContasFiado = carregarContasFiado;
     window.carregarComprasParceladas = carregarComprasParceladas;
     window.carregarNotificacoesFiado = carregarNotificacoesFiado;
 
-    // Abre o modal de juros diretamente ao clicar no nome da conta.
     window.abrirClienteDiretoNoModal = async function (idCliente) {
         const cliente =
             clientesJuros.find(c => Number(c.id_cliente) === Number(idCliente)) ||
@@ -5500,7 +5149,6 @@ async function executarAplicacaoDeJuros() {
 
 });
 </script>
-
 
 <script>
 (function(){
@@ -5549,8 +5197,7 @@ async function executarAplicacaoDeJuros() {
 })();
 </script>
 <script>
-// PAGAMENTO DA CONTA FIADO — MESMA EXPERIÊNCIA DO PDV
-// Dinheiro / Crédito / Dividido + parcelamento 1x–12x
+
 document.addEventListener("DOMContentLoaded", () => {
     const conclusao = document.getElementById("modalConclusaoFiado");
     const forma = document.getElementById("formaPagamentoFiado");
@@ -5558,8 +5205,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmar = document.getElementById("btnConfirmarConclusao");
     const cancelar = document.getElementById("btnCancelarConclusao");
 
-    // API deste script: não usa o apiFetch global do sidebar_header.js,
-// pois ele recebe URLs relativas e acabaria indo para o Live Server (5501).
     const API_CONTA_FIADO = "http://localhost:3000";
 
     async function apiFetchContaFiado(url, opcoes = {}) {
@@ -5632,7 +5277,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function totalConclusao() {
         const totalVisual = document.getElementById("s_total_conclusao");
         const textoVisual = totalVisual?.textContent || "";
-        const matchVisual = textoVisual.match(/R\$\s*([\d.,]+)/);
+        const matchVisual = textoVisual.match(/R\$\s*([[\d.,]+)/);
 
         if (matchVisual) {
             const valorVisual = Number(matchVisual[1].replace(/\./g, "").replace(",", "."));
@@ -5653,7 +5298,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 0) * 100) / 100;
         }
         const texto = document.getElementById("infoConclusaoFiado")?.textContent || "";
-        const m = texto.match(/R\$\s*([\d.,]+)/);
+        const m = texto.match(/R\$\s*([[\d.,]+)/);
         if (!m) return 0;
         return Number(m[1].replace(/\./g, "").replace(",", ".")) || 0;
     }
@@ -5911,8 +5556,6 @@ document.addEventListener("DOMContentLoaded", () => {
         dividir.close();
     });
 
-    // Captura antes do listener antigo do HTML.
-// Assim o botão só finaliza depois que o modal correto foi concluído.
     confirmar?.addEventListener("click", async event => {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -6013,14 +5656,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     cancelar?.addEventListener("click", () => resetarPagamento());
 
-    // Torna o estado acessível ao restante do HTML, sem substituir as funções existentes.
     window.pagamentoContaFiado = pagamento;
 });
 </script>
 
-
 <script>
-// Consulta o endereço diretamente na internet pelo serviço ViaCEP.
+
 (() => {
     const campoCep = document.getElementById("cep");
     const modalCliente = document.getElementById("modal_cliente");
@@ -6040,8 +5681,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function limparEnderecoAutomatico() {
         Object.entries(valoresPreenchidosAutomaticamente).forEach(([id, valor]) => {
             const campo = camposEndereco[id];
-            // Só apaga se o campo ainda contém o valor que foi preenchido pelo CEP.
-            // Assim, não apaga uma alteração manual feita pela pessoa.
+
             if (campo && campo.value === valor) campo.value = "";
         });
         valoresPreenchidosAutomaticamente = {};
@@ -6071,7 +5711,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!resposta.ok) throw new Error(`Falha na consulta do CEP (HTTP ${resposta.status})`);
 
             const endereco = await resposta.json();
-            // Ignora a resposta se a pessoa já alterou o CEP enquanto a consulta ocorria.
+
             if (idRequisicao !== requisicaoAtual || campoCep.value.replace(/\D/g, "") !== cep) return;
 
             if (endereco.erro) {
@@ -6107,7 +5747,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     campoCep.addEventListener("blur", preencherEnderecoPeloCep);
 
-    // Fechar o modal sempre descarta o cadastro incompleto, inclusive com Esc ou clique fora.
     modalCliente?.addEventListener("close", () => {
         modalCliente.querySelectorAll("input, textarea, select").forEach(campo => {
             if (campo.type === "checkbox" || campo.type === "radio") campo.checked = false;

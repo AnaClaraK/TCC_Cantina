@@ -18,7 +18,6 @@
 
         <form id="form_cadastrar_produto" enctype="multipart/form-data">
 
-            <!-- NOME E CATEGORIA -->
             <div class="form-row">
                 <div class="form-group" style="flex: 2;">
                     <label for="nome">Nome do Produto *</label>
@@ -33,7 +32,6 @@
                 </div>
             </div>
 
-            <!-- VALOR BRUTO, LUCRO E PREÇO DE VENDA -->
             <div class="form-row">
                 <div class="form-group">
                     <label for="valor_bruto">Valor Custo/Bruto (R$) *</label>
@@ -51,7 +49,6 @@
                 </div>
             </div>
 
-            <!-- CÓDIGO DE BARRAS E ESTOQUE -->
             <div class="form-row">
                 <div class="form-group">
                     <label for="codigo">Código de Barras *</label>
@@ -69,7 +66,6 @@
                 </div>
             </div>
 
-            <!-- DESCRIÇÃO E IMAGEM -->
             <div class="form-row">
                 <div class="form-group">
                     <label for="descricao">Descrição</label>
@@ -88,7 +84,6 @@
         </form>
     </div>
 
-    <!-- MODAL NOVA CATEGORIA -->
     <dialog id="modalNovaCategoria">
         <div class="modal-categoria-box">
             <h2>Nova Categoria</h2>
@@ -112,7 +107,6 @@
         </div>
     </dialog>
 
-    <!-- MODAL DE AVISO PADRÃO (IGUAL AO PDV) -->
     <dialog id="d_aviso">
         <div class="aviso_box">
             <p id="msg_aviso"></p>
@@ -126,13 +120,11 @@
     <script>
         const API_BASE_URL = "http://localhost:3000";
 
-        // Seletores do modal de aviso customizado
         const aviso = document.getElementById("d_aviso");
         const msgAviso = document.getElementById("msg_aviso");
         const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
         const bCancelarAviso = document.getElementById("b_cancelar_aviso");
 
-        // Função padronizada para exibir avisos em substituição ao alert/confirm
         function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
             msgAviso.innerText = mensagem;
             bCancelarAviso.style.display = mostrarCancelar ? "block" : "none";
@@ -157,7 +149,6 @@
             event.preventDefault();
         });
 
-        // 1. Carregar Categorias no <select>
         async function carregarCategorias() {
             const selectCategoria = document.getElementById("id_categoria");
 
@@ -189,7 +180,6 @@
             }
         }
 
-        // 2. Abrir modal de nova categoria a partir do header
         window.abrirModalNovaCategoria = function () {
             const modal = document.getElementById("modalNovaCategoria");
             const input = document.getElementById("nomeNovaCategoria");
@@ -206,12 +196,10 @@
             }, 80);
         };
 
-        // 3. Fechar modal de nova categoria
         document.getElementById("btnCancelarCategoria")?.addEventListener("click", () => {
             document.getElementById("modalNovaCategoria")?.close();
         });
 
-        // 4. Cadastrar nova categoria
         document.getElementById("formNovaCategoria")?.addEventListener("submit", async event => {
             event.preventDefault();
 
@@ -267,7 +255,6 @@
             }
         });
 
-        // 5. Buscar o Próximo Código de Barras
         async function carregarProximoCodigo() {
             const inputCodigo = document.getElementById("codigo");
 
@@ -294,7 +281,6 @@
             }
         }
 
-        // 6. Cálculo Dinâmico do Preço Final
         function calcularPrecoVenda() {
             const valorBruto =
                 parseFloat(document.getElementById("valor_bruto").value) || 0;
@@ -317,7 +303,6 @@
             .getElementById("porcentagem_lucro")
             .addEventListener("input", calcularPrecoVenda);
 
-        // 7. Envio do Formulário de Cadastro
         document
             .getElementById("form_cadastrar_produto")
             .addEventListener("submit", async e => {
@@ -359,12 +344,10 @@
                     precoCalculado
                 );
 
-                // Tratamento: Se nada for digitado no campo de quantidade, define como 0
                 const qtdDigitada = document.getElementById("quantidade").value.trim();
                 const qtdFinal = qtdDigitada === "" ? 0 : parseInt(qtdDigitada, 10);
                 formData.append("quantidade", qtdFinal);
 
-                // Tratamento: Se nada for digitado em qtd_min, define como 0
                 const qtdMinDigitada = document.getElementById("qtd_min").value.trim();
                 const qtdMinFinal = qtdMinDigitada === "" ? 0 : parseInt(qtdMinDigitada, 10);
                 formData.append("qtd_min", qtdMinFinal);
@@ -422,12 +405,11 @@
                 }
             });
 
-        // Inicialização ao carregar a página
         document.addEventListener("DOMContentLoaded", () => {
             carregarCategorias();
             carregarProximoCodigo();
         });
-    </script>
+</script>
 
 </body>
 </html>

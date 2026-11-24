@@ -14,7 +14,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
-
 import { BASE_URL } from '../../config';
 
 const CORES = {
@@ -26,7 +25,6 @@ const CORES = {
   cinzaCard: '#4a2c0a',
 };
 
-// Função auxiliar para formatar a data/hora do agendamento
 const formatarDataAgendada = (dataString) => {
   if (!dataString) return 'Retirada Imediata / Não agendado';
 
@@ -50,10 +48,7 @@ export default function PedidosScreen() {
   const [pedidosPendentes, setPedidosPendentes] = useState([]);
   const [pedidosConcluidos, setPedidosConcluidos] = useState([]);
   const [carregando, setCarregando] = useState(false);
-  
   const [modalVisible, setModalVisible] = useState(false);
-  
-  // Guardamos o objeto do pedido completo selecionado para a Modal
   const [pedidoSelecionado, setPedidoSelecionado] = useState(null);
 
   const buscarPedidosDoUsuario = async () => {
@@ -84,7 +79,6 @@ export default function PedidosScreen() {
       setPedidosPendentes(pendentes);
       setPedidosConcluidos(concluidos);
     } catch (erro) {
-      console.error("Erro detalhado na requisição:", erro);
       Alert.alert("Erro de Sincronização", "Não foi possível carregar seus agendamentos.");
     } finally {
       setCarregando(false);
@@ -97,7 +91,6 @@ export default function PedidosScreen() {
     }, [])
   );
 
-  // Apenas seleciona o pedido que já contém a propriedade 'itens' trazida do backend
   const abrirQrCodeComanda = (pedido) => {
     setPedidoSelecionado(pedido);
     setModalVisible(true);
@@ -139,96 +132,92 @@ export default function PedidosScreen() {
     ...pedidosConcluidos.map(p => ({ ...p, keyType: 'CONCLUIDO' }))
   ];
 
-  // Garante o array de itens para exibição na modal
   const itensDoModal = Array.isArray(pedidoSelecionado?.itens) ? pedidoSelecionado.itens : [];
 
   return (
     <SafeAreaView style={styles.safeAreaTopo} edges={['top']}>
       <View style={styles.container}>
-
-      {carregando && (
-        <ActivityIndicator size="large" color={CORES.dourado} style={styles.loadingStyle} />
-      )}
-
-      <FlatList
-        data={dadosUnificados}
-        keyExtractor={(item, index) => String(item.id_pedido || index)}
-        contentContainerStyle={styles.listaConteudo}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => {
-          if (item.tipo) {
-            return <Text style={styles.tituloSecao}>{item.titulo}</Text>;
-          }
-          return renderCardPedido({ item, isPendente: item.keyType === 'PENDENTE' });
-        }}
-        ListEmptyComponent={!carregando && (
-          <View style={styles.containerVazio}>
-            <Ionicons name="reader-outline" size={60} color={CORES.creme} />
-            <Text style={styles.txtVazio}>Nenhum agendamento encontrado.</Text>
-          </View>
+        {carregando && (
+          <ActivityIndicator size="large" color={CORES.dourado} style={styles.loadingStyle} />
         )}
-      />
 
-      {/* MODAL FICHA DE RETIRADA */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.fundoModal}>
-          <View style={styles.conteudoModal}>
-            <Text style={styles.tituloModal}>FICHA DE RETIRADA</Text>
-            
-            <View style={styles.boxQrCode}>
-              {pedidoSelecionado?.codigo_comanda ? (
-                <QRCode 
-                  value={String(pedidoSelecionado.codigo_comanda)} 
-                  size={180} 
-                  backgroundColor='#FFF' 
-                  color='#000' 
-                />
-              ) : null}
+        <FlatList
+          data={dadosUnificados}
+          keyExtractor={(item, index) => String(item.id_pedido || index)}
+          contentContainerStyle={styles.listaConteudo}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => {
+            if (item.tipo) {
+              return <Text style={styles.tituloSecao}>{item.titulo}</Text>;
+            }
+            return renderCardPedido({ item, isPendente: item.keyType === 'PENDENTE' });
+          }}
+          ListEmptyComponent={!carregando && (
+            <View style={styles.containerVazio}>
+              <Ionicons name="reader-outline" size={60} color={CORES.creme} />
+              <Text style={styles.txtVazio}>Nenhum agendamento encontrado.</Text>
             </View>
+          )}
+        />
 
-            <Text style={styles.textoCodigoComanda}>{pedidoSelecionado?.codigo_comanda}</Text>
-            
-            {/* DESTACADO: DATA E HORÁRIO DE AGENDAMENTO */}
-            <View style={styles.boxAgendamentoModal}>
-              <Ionicons name="time-outline" size={20} color={CORES.dourado} />
-              <View style={{ marginLeft: 8 }}>
-                <Text style={styles.labelAgendamentoModal}>Horário de Retirada:</Text>
-                <Text style={styles.valorAgendamentoModal}>
-                  {formatarDataAgendada(pedidoSelecionado?.data_ag)}
-                </Text>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.fundoModal}>
+            <View style={styles.conteudoModal}>
+              <Text style={styles.tituloModal}>FICHA DE RETIRADA</Text>
+              
+              <View style={styles.boxQrCode}>
+                {pedidoSelecionado?.codigo_comanda ? (
+                  <QRCode 
+                    value={String(pedidoSelecionado.codigo_comanda)} 
+                    size={180} 
+                    backgroundColor='#FFF' 
+                    color='#000' 
+                  />
+                ) : null}
               </View>
-            </View>
 
-            <Text style={styles.txtSubtituloItens}>Itens do seu Agendamento:</Text>
-            
-            <View style={styles.containerListaItens}>
-              {itensDoModal.length > 0 ? (
-                itensDoModal.map((prod, idx) => (
-                  <View key={idx} style={styles.linhaItemModal}>
-                    <Text style={styles.txtNomeProdModal}>
-                      {prod.qtd}x {prod.nome_produto || prod.nome || 'Produto'}
-                    </Text>
-                    <Text style={styles.txtHorarioProdModal}>
-                      R$ {parseFloat(prod.preco_unitario || 0).toFixed(2).replace('.', ',')}
-                    </Text>
-                  </View>
-                ))
-              ) : (
-                <Text style={styles.txtSemItens}>Nenhum item listado.</Text>
-              )}
-            </View>
+              <Text style={styles.textoCodigoComanda}>{pedidoSelecionado?.codigo_comanda}</Text>
+              
+              <View style={styles.boxAgendamentoModal}>
+                <Ionicons name="time-outline" size={20} color={CORES.dourado} />
+                <View style={{ marginLeft: 8 }}>
+                  <Text style={styles.labelAgendamentoModal}>Horário de Retirada:</Text>
+                  <Text style={styles.valorAgendamentoModal}>
+                    {formatarDataAgendada(pedidoSelecionado?.data_ag)}
+                  </Text>
+                </View>
+              </View>
 
-            <TouchableOpacity style={styles.btnFecharModal} onPress={() => setModalVisible(false)}>
-              <Text style={styles.txtFecharModal}>VOLTAR</Text>
-            </TouchableOpacity>
+              <Text style={styles.txtSubtituloItens}>Itens do seu Agendamento:</Text>
+              
+              <View style={styles.containerListaItens}>
+                {itensDoModal.length > 0 ? (
+                  itensDoModal.map((prod, idx) => (
+                    <View key={idx} style={styles.linhaItemModal}>
+                      <Text style={styles.txtNomeProdModal}>
+                        {prod.qtd}x {prod.nome_produto || prod.nome || 'Produto'}
+                      </Text>
+                      <Text style={styles.txtHorarioProdModal}>
+                        R$ {parseFloat(prod.preco_unitario || 0).toFixed(2).replace('.', ',')}
+                      </Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text style={styles.txtSemItens}>Nenhum item listado.</Text>
+                )}
+              </View>
+
+              <TouchableOpacity style={styles.btnFecharModal} onPress={() => setModalVisible(false)}>
+                <Text style={styles.txtFecharModal}>VOLTAR</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
       </View>
     </SafeAreaView>
   );
@@ -242,12 +231,6 @@ const styles = StyleSheet.create({
   container: { 
     flex: 1, 
     backgroundColor: '#242628' 
-  },
-  txtTituloTela: { 
-    color: CORES.marromEscuro, 
-    fontFamily: 'BebasNeue-Regular', 
-    fontSize: 24, 
-    letterSpacing: 2 
   },
   loadingStyle: {
     marginTop: 20

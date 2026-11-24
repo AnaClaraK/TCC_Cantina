@@ -17,8 +17,8 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { File } from 'expo-file-system';
 import { fetch as expoFetch } from 'expo/fetch';
-
 import { BASE_URL } from '../../config';
+
 const CORES = {
   fundo: '#242628',
   marromEscuro: '#341d04',
@@ -36,7 +36,6 @@ export default function PerfilScreen() {
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
 
-  // Estados
   const [idUser, setIdUser] = useState('');
   const [emailAntigo, setEmailAntigo] = useState('');
   const [nome, setNome] = useState('');
@@ -44,17 +43,14 @@ export default function PerfilScreen() {
   const [fotoUri, setFotoUri] = useState(null);
   const [fotoServidor, setFotoServidor] = useState(null);
 
-  // Senhas
   const [senhaAtual, setSenhaAtual] = useState('');
   const [novaSenha, setNovaSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
 
-  // 1. Carregar Dados do Perfil
   const carregarDadosDoPerfil = async () => {
     try {
       setCarregando(true);
 
-      // Busca do AsyncStorage
       const idSalvo = await AsyncStorage.getItem("id_user") || "";
       const nomeSalvo = await AsyncStorage.getItem("nome_user") || "";
       const emailSalvo = await AsyncStorage.getItem("email_user") || "";
@@ -63,11 +59,9 @@ export default function PerfilScreen() {
       setIdUser(idSalvo);
       setNome(nomeSalvo);
       setEmail(emailSalvo);
-      setEmailAntigo(emailSalvo); // Guarda o e-mail atual para busca no backend
+      setEmailAntigo(emailSalvo);
       setFotoServidor(fotoSalva);
-
     } catch (erro) {
-      console.error("Erro ao carregar dados locais:", erro);
       Alert.alert("Erro", "Não foi possível carregar as informações do perfil.");
     } finally {
       setCarregando(false);
@@ -80,7 +74,6 @@ export default function PerfilScreen() {
     }, [])
   );
 
-  // 2. Selecionar Foto da Galeria
   const selecionarImagem = async () => {
     const permResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     
@@ -101,9 +94,7 @@ export default function PerfilScreen() {
     }
   };
 
-  // 3. Salvar Alterações
   const handleSalvarPerfil = async () => {
-    // Validação de segurança: emailAntigo não pode estar vazio
     if (!emailAntigo && !idUser) {
       Alert.alert(
         "Atenção", 
@@ -112,7 +103,6 @@ export default function PerfilScreen() {
       return;
     }
 
-    // Validações de senha
     if (novaSenha || senhaAtual || confirmarSenha) {
       if (!senhaAtual) {
         Alert.alert("Atenção", "Informe sua senha atual para alterar a senha.");
@@ -132,13 +122,12 @@ export default function PerfilScreen() {
       formData.append("id_user", idUser);
       formData.append("nome", nome);
       formData.append("email", email);
-      formData.append("emailAntigo", emailAntigo); // Envia o e-mail antigo correto
+      formData.append("emailAntigo", emailAntigo);
       formData.append("senha_atual", senhaAtual);
       formData.append("nova_senha", novaSenha);
       formData.append("conf_senha", confirmarSenha);
 
       if (fotoUri) {
-        // O Expo SDK 57 exige um objeto File, não o objeto { uri, name, type } antigo.
         formData.append("imagem", new File(fotoUri));
       }
 
@@ -153,7 +142,6 @@ export default function PerfilScreen() {
       const dados = await response.json();
 
       if (response.ok) {
-        // Atualiza os dados salvos no celular
         if (dados.novoNome) await AsyncStorage.setItem("nome_user", dados.novoNome);
         if (dados.novoEmail) {
           await AsyncStorage.setItem("email_user", dados.novoEmail);
@@ -170,14 +158,12 @@ export default function PerfilScreen() {
         Alert.alert("Aviso", dados.resposta || "Erro ao salvar alterações.");
       }
     } catch (erro) {
-      console.error("Erro ao atualizar perfil:", erro);
       Alert.alert("Erro", "Falha de conexão com o servidor.");
     } finally {
       setSalvando(false);
     }
   };
 
-  // 4. Logout
   const efetuarLogout = () => {
     Alert.alert("Sair", "Deseja encerrar a sessão?", [
       { text: "Cancelar", style: "cancel" },
@@ -215,94 +201,94 @@ export default function PerfilScreen() {
   return (
     <SafeAreaView style={styles.safeAreaTopo} edges={['top']}>
       <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <View style={styles.containerAvatar}>
-          <View style={styles.circuloAvatar}>{renderAvatar()}</View>
-          <TouchableOpacity style={styles.btnTrocarFoto} onPress={selecionarImagem}>
-            <Ionicons name="camera-outline" size={18} color={CORES.branco} />
-            <Text style={styles.txtBtnTrocarFoto}>Trocar Foto</Text>
-          </TouchableOpacity>
-        </View>
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <View style={styles.containerAvatar}>
+            <View style={styles.circuloAvatar}>{renderAvatar()}</View>
+            <TouchableOpacity style={styles.btnTrocarFoto} onPress={selecionarImagem}>
+              <Ionicons name="camera-outline" size={18} color={CORES.branco} />
+              <Text style={styles.txtBtnTrocarFoto}>Trocar Foto</Text>
+            </TouchableOpacity>
+          </View>
 
-        <View style={styles.cardSecao}>
-          <Text style={styles.tituloSecao}>INFORMAÇÕES PESSOAIS</Text>
-          
-          <Text style={styles.label}>Nome</Text>
-          <TextInput
-            style={styles.input}
-            value={nome}
-            onChangeText={setNome}
-            placeholder="Seu nome"
-            placeholderTextColor="#888"
-          />
+          <View style={styles.cardSecao}>
+            <Text style={styles.tituloSecao}>INFORMAÇÕES PESSOAIS</Text>
+            
+            <Text style={styles.label}>Nome</Text>
+            <TextInput
+              style={styles.input}
+              value={nome}
+              onChangeText={setNome}
+              placeholder="Seu nome"
+              placeholderTextColor="#888"
+            />
 
-          <Text style={styles.label}>E-mail</Text>
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            placeholder="Seu e-mail"
-            placeholderTextColor="#888"
-          />
-        </View>
+            <Text style={styles.label}>E-mail</Text>
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              placeholder="Seu e-mail"
+              placeholderTextColor="#888"
+            />
+          </View>
 
-        <View style={styles.cardSecao}>
-          <Text style={styles.tituloSecao}>SEGURANÇA</Text>
-          
-          <Text style={styles.label}>Senha Atual</Text>
-          <TextInput
-            style={styles.input}
-            value={senhaAtual}
-            onChangeText={setSenhaAtual}
-            secureTextEntry
-            placeholder="Senha atual"
-            placeholderTextColor="#888"
-          />
+          <View style={styles.cardSecao}>
+            <Text style={styles.tituloSecao}>SEGURANÇA</Text>
+            
+            <Text style={styles.label}>Senha Atual</Text>
+            <TextInput
+              style={styles.input}
+              value={senhaAtual}
+              onChangeText={setSenhaAtual}
+              secureTextEntry
+              placeholder="Senha atual"
+              placeholderTextColor="#888"
+            />
 
-          <Text style={styles.label}>Nova Senha</Text>
-          <TextInput
-            style={styles.input}
-            value={novaSenha}
-            onChangeText={setNovaSenha}
-            secureTextEntry
-            placeholder="Nova senha"
-            placeholderTextColor="#888"
-          />
+            <Text style={styles.label}>Nova Senha</Text>
+            <TextInput
+              style={styles.input}
+              value={novaSenha}
+              onChangeText={setNovaSenha}
+              secureTextEntry
+              placeholder="Nova senha"
+              placeholderTextColor="#888"
+            />
 
-          <Text style={styles.label}>Confirmar Senha</Text>
-          <TextInput
-            style={styles.input}
-            value={confirmarSenha}
-            onChangeText={setConfirmarSenha}
-            secureTextEntry
-            placeholder="Confirme a senha"
-            placeholderTextColor="#888"
-          />
-        </View>
+            <Text style={styles.label}>Confirmar Senha</Text>
+            <TextInput
+              style={styles.input}
+              value={confirmarSenha}
+              onChangeText={setConfirmarSenha}
+              secureTextEntry
+              placeholder="Confirme a senha"
+              placeholderTextColor="#888"
+            />
+          </View>
 
-        <View style={styles.fileiraBotoes}>
-          <TouchableOpacity 
-            style={[styles.btnAcao, { backgroundColor: CORES.dourado }]} 
-            onPress={handleSalvarPerfil}
-            disabled={salvando}
-          >
-            {salvando ? (
-              <ActivityIndicator color={CORES.marromEscuro} />
-            ) : (
-              <Text style={[styles.txtBtn, { color: CORES.marromEscuro }]}>Salvar</Text>
-            )}
-          </TouchableOpacity>
+          <View style={styles.fileiraBotoes}>
+            <TouchableOpacity 
+              style={[styles.btnAcao, { backgroundColor: CORES.dourado }]} 
+              onPress={handleSalvarPerfil}
+              disabled={salvando}
+            >
+              {salvando ? (
+                <ActivityIndicator color={CORES.marromEscuro} />
+              ) : (
+                <Text style={[styles.txtBtn, { color: CORES.marromEscuro }]}>Salvar</Text>
+              )}
+            </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={[styles.btnAcao, { backgroundColor: CORES.vermelho }]} 
-            onPress={efetuarLogout}
-          >
-            <Text style={styles.txtBtn}>Sair</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+            <TouchableOpacity 
+              style={[styles.btnAcao, { backgroundColor: CORES.vermelho }]} 
+              onPress={efetuarLogout}
+            >
+              <Text style={styles.txtBtn}>Sair</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </View>
     </SafeAreaView>
   );

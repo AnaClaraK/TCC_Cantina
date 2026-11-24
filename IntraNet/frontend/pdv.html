@@ -9,22 +9,22 @@
     <link rel="stylesheet" href="stylepdv.css">
 <script src="sidebar_header.js"></script>
     <script>
-        // Verifica se existe um token no localStorage
+
         const token = localStorage.getItem("token");
         if (!token) {
-            // Se não tem token, espera carregar o DOM para disparar o modal e depois redirecionar
+
             document.addEventListener("DOMContentLoaded", () => {
                 exibirAviso("Acesso restrito! Redirecionando para o login...", () => {
-                    window.location.href = "login.html"; 
+                    window.location.href = "login.html";
                 });
             });
         }
-    </script>
+</script>
 </head>
 <body class="sem-sidebar fundo-marrom">
 <section id="sc_inputs">
     <div class="grupo-input" style="grid-column: 1 / span 3;">
-        <h2 class="titulo">Código do Produto</h2> 
+        <h2 class="titulo">Código do Produto</h2>
         <input type="text" id="inp_codb" autofocus inputmode="none" autocomplete="off" placeholder="Aguardando Leitor...">
     </div>
     <div class="grupo-input">
@@ -36,16 +36,16 @@
         <div id="d_vl_und" class="inp_val">R$ 0,00</div>
     </div>
     <div class="grupo-input">
-        <h2 id="h_ttl_i" class="titulo">Total do Item</h2>  
+        <h2 id="h_ttl_i" class="titulo">Total do Item</h2>
         <div id="d_ttl_i" class="inp_val">R$ 0,00</div>
     </div>
 
     <div class="grupo-input">
-        <h2 class="titulo">Quantidade Total</h2>  
+        <h2 class="titulo">Quantidade Total</h2>
         <div id="d_qtd_geral" class="inp_val">0</div>
         <h2 class="titulo" id="est_til">Estoque Disponível</h2>
         <div id="d_estoque" class="inp_val">-</div>
-    
+
         <small id="aviso_estoque" style="color: red; display: none; font-weight: bold;">
             Quantidade acima do estoque disponível!
         </small>
@@ -100,7 +100,7 @@
                         <h2 class="info-label">Data e Hora</h2>
                         <span id="s_dt" class="info-valor">16/04/2026, 17:00:14</span>
                     </div>
-                
+
                     <div class="info-item total-box">
                         <h2 class="info-label">Total da Compra</h2>
                         <span id="s_tot" class="info-valor-total">R$ 2,26</span>
@@ -111,9 +111,9 @@
                     </div>
                 </div>
                 <div class="secao-pagamento">
-                    <h2 class="label-pagamento">Forma de Pagamento</h2> 
+                    <h2 class="label-pagamento">Forma de Pagamento</h2>
                     <div class="area_pagamento">
-                        <!-- Só aparece quando a venda veio do APP -->
+
         <button type="button" id="b_desbloquear_pagamento" title="Desbloquear forma de pagamento" style="display: none;">🔒</button>
                         <button type="button" id="b_dividir_pagamento" class="botao-dividir-pagamento" title="Dividir pagamento">💰 DIVIDIR</button>
                         <button type="button" class="pagamento" id="pg_fiado">FIADO (F9)</button>
@@ -139,7 +139,6 @@
      <div id="relogio_pdv"></div>
 </div>
 
-     
     </div>
 </section>
 <div id="erro_overlay">
@@ -178,7 +177,6 @@
             ></ul>
         </div>
 
-        <!-- Select oculto para manter a integração com o código existente -->
         <select
             id="sl_cliente"
             class="inp_m"
@@ -216,7 +214,7 @@
       <button type="button" class="split-metodo" data-pag="Cartão de Débito">Cartão de Débito</button>
       <button type="button" class="split-metodo" data-pag="PIX">PIX</button>
       <button type="button" class="split-metodo" data-pag="Voucher/Ticket">Voucher/Ticket</button>
-      
+
     </div>
     <div class="split-entrada">
       <input type="number" min="0.01" step="0.01" id="split_valor" placeholder="Valor desta forma">
@@ -266,7 +264,7 @@
         </div>
     </div>
 </dialog>
-<!-- MODAL: PAGAMENTO EM DINHEIRO -->
+
 <dialog id="dialogDinheiro">
   <div class="conteudo-dinheiro">
 
@@ -334,7 +332,6 @@
         <div data-value="12">12x</div>
     </div>
 
-    <!-- Continua existindo para o seu JavaScript -->
     <select id="sel_parcelas_credito" class="select-original">
         <option value="">Selecione a quantidade de parcelas</option>
         <option value="1">1x</option>
@@ -357,9 +354,6 @@
     </div>
 </dialog>
 
-<!-- =========================================================
-     MODAL FECHAMENTO DIÁRIO
-========================================================= -->
 <dialog id="dialogFechamentoDiario">
     <div class="fechamento-box">
         <div class="fechamento-topo">
@@ -436,7 +430,6 @@
     </div>
 </dialog>
 
-    <!-- MODAL ADICIONAR COMPRA -->
     <dialog id="d_modal_fiado">
         <div class="modal_box">
             <button id="b_close_modal">x</button>
@@ -467,19 +460,17 @@
     </dialog>
 
 <script>
-    // Seletores do novo aviso customizado
+
     const aviso = document.getElementById("d_aviso");
     const msgAviso = document.getElementById("msg_aviso");
     const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
     const bCancelarAviso = document.getElementById("b_cancelar_aviso");
 
-    // Função para exibir aviso customizado no lugar do alert/confirm nativo
     function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
     console.log("abrindo aviso");
 
     msgAviso.innerText = mensagem;
 
-/* Identifica somente o aviso de estoque */
 aviso.classList.toggle(
     "aviso-estoque",
     String(mensagem).startsWith("⚠️ AVISO DE ESTOQUE:")
@@ -507,7 +498,6 @@ aviso.addEventListener("cancel", (event) => {
     event.preventDefault();
 });
 
-    // Seletores
     const inp_codb = document.getElementById("inp_codb");
     const tbody = document.getElementById("tb_tbl_produtos");
     const img_prod = document.getElementById("img_prod");
@@ -523,11 +513,9 @@ let produtosFiltrados = [];
 let indexSelecionado = -1;
     const sl_cliente = document.getElementById("sl_cliente");
     const inp_vencimento = document.getElementById("inp_vencimento");
-    // Configurações
+
     const URL_BACKEND_CAD = "http://localhost:3000";
 
-    // Elementos do modal de busca/comanda.
-    // Declarados explicitamente para não depender dos globals criados pelos IDs HTML.
     const b_pesq = document.getElementById("b_pesq");
     const b_comanda = document.getElementById("b_comanda");
     const dialogComanda = document.getElementById("dialogComanda");
@@ -535,25 +523,18 @@ let indexSelecionado = -1;
     const b_close_comanda = document.getElementById("b_close_comanda");
     const b_buscar_comanda = document.getElementById("b_buscar_comanda");
 
-    // =====================================================
-    // CARREGA O PRÓXIMO NÚMERO DO PEDIDO ASSIM QUE
-    // A VENDA NORMAL DO PDV RECEBE O PRIMEIRO PRODUTO.
-    // =====================================================
   let carregandoNumeroPedido = false;
 
 async function atualizarNumeroPedidoPreview(forcar = false) {
 
-    // Só busca número para venda normal do PDV
     if (comandaAtual || origemVenda !== "PDV" || carrinho.length === 0) {
         return null;
     }
 
-    // Se já estiver buscando, não faz duas requisições ao mesmo tempo
     if (carregandoNumeroPedido) {
         return numeroPedidoAtual;
     }
 
-    // Só impede nova consulta quando NÃO estamos forçando atualização
    if (!forcar && numeroPedidoAtual !== null) return;
 if (carregandoNumeroPedido) return;
 
@@ -630,10 +611,8 @@ if (carregandoNumeroPedido) return;
     let totalCompra = 0;
     let formaPagamento = "";
 
-// Forma de pagamento original enviada pelo APP
 let formaPagamentoComanda = "";
 
-// Controla se a forma de pagamento da comanda pode ser alterada
 let pagamentoComandaDesbloqueado = false;
 let pagamentoComandaBloqueado = false;
 let origemVenda = "PDV";
@@ -641,7 +620,7 @@ let numeroPedidoAtual = null;
 let parcelasCredito = 1;
     let pedidoFinalizado = false;
     let estaProcessando = false;
-    // ===== SONS DO PDV =====
+
     const beepSucesso = new Audio("sounds/success.mp3");
     const beepErro = new Audio("sounds/error.mp3");
     const beepBeep = new Audio("sounds/beep.mp3");
@@ -719,7 +698,7 @@ function atualizarBloqueioPagamento() {
 function normalizarFormaPagamento(valor) {
     return String(valor || "")
         .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[[\u0300-\u036f]/g, "")
         .toLowerCase()
         .replace(/\s*\(f\d+\)/g, "")
         .trim();
@@ -766,13 +745,12 @@ const botaoDesbloquearPagamento = document.getElementById("b_desbloquear_pagamen
 if (botaoDesbloquearPagamento) {
     botaoDesbloquearPagamento.addEventListener("click", desbloquearPagamentoComanda);
 }
-    
-    // Impede que o input perca o foco, exceto se alguma modal estiver aberta
+
     inp_codb.addEventListener("blur", () => {
         const fiadoModal = document.getElementById("d_fiado");
-        const algumaModalAberta = 
-            (modal && modal.open) || 
-            (dialogBusca && dialogBusca.open) || 
+        const algumaModalAberta =
+            (modal && modal.open) ||
+            (dialogBusca && dialogBusca.open) ||
             (fiadoModal && fiadoModal.open) ||
             (aviso && aviso.open);
         if (!algumaModalAberta) {
@@ -784,7 +762,6 @@ if (botaoDesbloquearPagamento) {
         return Number(valor).toFixed(2).replace(".", ",");
     }
 
-    // Nunca permite que um estoque inválido/negativo seja usado pelo PDV.
     function normalizarEstoque(valor) {
         const numero = Number(valor);
         if (!Number.isFinite(numero) || numero <= 0) {
@@ -793,10 +770,8 @@ if (botaoDesbloquearPagamento) {
         return Math.floor(numero);
     }
 
-    // Os produtos configurados para estoque compartilhado mantêm a quantidade
-    // de venda em unidades para validação, mas exibem o saldo real em ml.
     function obterVolumeMl(nome) {
-        const match = String(nome || '').match(/(?:^|\s)(\d+(?:[.,]\d+)?)\s*ml(?:\b|$)/i);
+        const match = String(nome || '').match(/(?:^|\s)(\d+(?:[[.,]\d+)?)\s*ml(?:\b|$)/i);
         if (!match) return 0;
         const volume = Number(match[1].replace(',', '.'));
         return Number.isFinite(volume) && volume > 0 ? volume : 0;
@@ -821,8 +796,8 @@ if (botaoDesbloquearPagamento) {
     }
 
     function atualizarTabelaNoTopo() {
-        tbody.innerHTML = ""; 
-        
+        tbody.innerHTML = "";
+
         carrinho.forEach(item => {
             const tr = document.createElement("tr");
             tr.id = "linha_" + item.codigo;
@@ -835,7 +810,6 @@ if (botaoDesbloquearPagamento) {
             tbody.appendChild(tr);
         });
 
-        // Preenche com linhas vazias até completar 18
         for (let i = 0; i < (18 - carrinho.length); i++){
             const tr = document.createElement("tr");
             tr.innerHTML = "<td>&nbsp;</td><td></td><td></td><td></td>";
@@ -853,7 +827,7 @@ if (botaoDesbloquearPagamento) {
         });
 
         const totalFormatado = "R$ " + formatar(totalCompra);
-        
+
         document.getElementById("d_ttl_c").innerText = totalFormatado;
         document.getElementById("s_tot").innerText = totalFormatado;
         const visorQtdGeral = document.getElementById("d_qtd_geral");
@@ -872,7 +846,7 @@ if (botaoDesbloquearPagamento) {
         const avisoEl = document.getElementById("aviso_estoque");
         const saldoParaAviso = ehMl ? saldoRestanteMl : estoqueRestante;
         const minimoParaAviso = ehMl ? Number(item.minimoMl ?? 100) : Number(item.qtd_min || 0);
-        // estoque baixo
+
         if (saldoParaAviso > 0 && saldoParaAviso <= minimoParaAviso){
             avisoEl.style.display = "block";
             avisoEl.innerText = ehMl ? `Estoque baixo! Restam ${saldoParaAviso} ml.` : `Estoque baixo! Restam ${saldoParaAviso} unidade(s).`;
@@ -881,7 +855,7 @@ if (botaoDesbloquearPagamento) {
             avisoEl.style.display = "block";
             avisoEl.innerText = "Estoque esgotado!";
         }
-        // estoque normal
+
         else {
             avisoEl.style.display = "none";
         }
@@ -902,7 +876,7 @@ if (botaoDesbloquearPagamento) {
             botaoFinalizar.disabled = false;
         }
     }
-    // Inicializa a tabela vazia
+
     atualizarTabelaNoTopo();
 
     inp_codb.addEventListener("keypress", (e) => {
@@ -978,19 +952,19 @@ if (event.key.length === 1) {
         if (inp_codb.value.length > 0) {
             const tempoAtual = Date.now();
             const intervalo = tempoAtual - ultimaTeclaTempo;
-            
+
             if (intervalo > 40 && event.key !== "Enter") {
-                event.preventDefault(); 
+                event.preventDefault();
                 return;
             }
         }
-        
+
         ultimaTeclaTempo = Date.now();
-            
+
        if (event.key !== "Enter") {
     return;
 }
-        event.preventDefault(); 
+        event.preventDefault();
         if (estaProcessando) return;
 
         const codigo = inp_codb.value.trim();
@@ -998,9 +972,6 @@ if (event.key.length === 1) {
 
         estaProcessando = true;
 
-        // Leitura do código de barras usa a rota específica do código.
-        // A busca /produtos/busca possui LIMIT 10 e é destinada à pesquisa
-        // por nome/código, então não deve ser usada para validar o scanner.
         const buscarPorCodigo = async () => {
             const codigoBusca = String(codigo).trim();
 
@@ -1024,13 +995,16 @@ if (event.key.length === 1) {
                 );
             }
 
-            const produtos = Array.isArray(buscaJson)
-                ? buscaJson
-                : (Array.isArray(buscaJson.produtos) ? buscaJson.produtos : []);
+            let produtoEncontrado = null;
+            if (Array.isArray(buscaJson)) {
+                produtoEncontrado = buscaJson[0];
+            } else if (buscaJson && Array.isArray(buscaJson.produtos)) {
+                produtoEncontrado = buscaJson.produtos[0];
+            } else if (buscaJson && (buscaJson.id_produto || buscaJson.codigo_barras || buscaJson.nome)) {
+                produtoEncontrado = buscaJson;
+            }
 
-            const produtoEncontrado = produtos[0];
-
-            if (!produtoEncontrado || Number(produtoEncontrado.ativo) !== 1) {
+            if (!produtoEncontrado || (produtoEncontrado.ativo !== undefined && Number(produtoEncontrado.ativo) !== 1)) {
                 throw new Error("Produto não encontrado ou está inativo.");
             }
 
@@ -1044,7 +1018,6 @@ if (event.key.length === 1) {
             const produto = Array.isArray(data) ? data[0] : data;
             if (!produto) throw new Error("Dados do produto inválidos.");
 
-            // Produto inativo nunca pode entrar no PDV.
             if (Number(produto.ativo) === 0) {
                 throw new Error(`O produto "${produto.nome}" está inativo e não pode ser vendido.`);
             }
@@ -1059,7 +1032,6 @@ if (event.key.length === 1) {
             const estoqueAtual = normalizarEstoque(produto.qtd);
             const dadosMl = dadosEstoqueMl(produto);
 
-            // Produto sem estoque nunca entra no carrinho.
             if (estoqueAtual <= 0) {
                 exibirAviso(`O produto "${produto.nome}" está sem estoque.`);
                 carrinho = carrinho.filter(p => p.codigo != codigo);
@@ -1121,30 +1093,26 @@ if (event.key.length === 1) {
                 atualizarNumeroPedidoPreview();
             }
 
-            // Depois de adicionar pelo scanner, deixa a caixa pronta
-            // para a próxima leitura.
             finalizarLeitura("");
         })
         .catch(err => {
             tocarErro();
             console.error("Erro na requisição:", err);
-            
+
             const overlay = document.getElementById("erro_overlay");
             if (overlay) {
                 tocarErro();
                 overlay.style.display = "flex";
                 setTimeout(() => { overlay.style.display = "none"; }, 1500);
             }
-            
+
             img_prod.src = IMG_PADRAO;
-            finalizarLeitura(""); 
+            finalizarLeitura("");
         });
     });
 
    b_final.addEventListener("click", async () => {
 
-    // Última barreira antes de abrir o pagamento: estoque zero/negativo
-    // ou quantidade inválida nunca pode seguir para a venda.
     if (carrinhoPossuiEstoqueInvalido()) {
 
         const itemInvalido = carrinho.find(i => {
@@ -1160,7 +1128,6 @@ if (event.key.length === 1) {
 
         const estoqueSeguro = normalizarEstoque(itemInvalido.estoque);
 
-        // Se o estoque chegou a zero/negativo, remove o item.
         if (estoqueSeguro <= 0) {
             carrinho = carrinho.filter(i => i.codigo !== itemInvalido.codigo);
             atualizarTabelaNoTopo();
@@ -1171,7 +1138,6 @@ if (event.key.length === 1) {
             return;
         }
 
-        // Para estoque positivo, ajusta somente até o máximo disponível.
         exibirAviso(
             `O produto "${itemInvalido.nome}" possui apenas ${estoqueSeguro} unidade(s) em estoque.\n\nDeseja ajustar automaticamente a quantidade?`,
             async () => {
@@ -1208,7 +1174,6 @@ if (event.key.length === 1) {
     document.getElementById("s_dt").innerText =
         new Date().toLocaleString();
 
-    // VENDA NORMAL DO PDV
     if (
     !comandaAtual &&
     origemVenda === "PDV" &&
@@ -1217,7 +1182,6 @@ if (event.key.length === 1) {
     await atualizarNumeroPedidoPreview(true);
 }
 
-    // COMANDA: mostra o número que já pertence à comanda
     if (comandaAtual) {
         const numeroComanda =
             comandaAtual.num_pedido ??
@@ -1249,10 +1213,6 @@ document.querySelectorAll(".pagamento").forEach(botao => {
 
     botao.addEventListener("click", () => {
 
-        // =====================================================
-        // 1. COMANDA DO APP BLOQUEADA
-        // =====================================================
-
         if (
             comandaAtual &&
             pagamentoComandaBloqueado &&
@@ -1274,10 +1234,6 @@ document.querySelectorAll(".pagamento").forEach(botao => {
             return;
         }
 
-        // =====================================================
-        // 2. IDENTIFICA A FORMA DE PAGAMENTO
-        // =====================================================
-
         const forma = botao.innerText
             .replace(/\s*\(F\d+\)\s*/gi, "")
             .trim();
@@ -1286,10 +1242,6 @@ document.querySelectorAll(".pagamento").forEach(botao => {
             "Forma de pagamento escolhida:",
             forma
         );
-
-        // =====================================================
-        // 3. DINHEIRO
-        // =====================================================
 
         if (
             forma
@@ -1302,10 +1254,6 @@ document.querySelectorAll(".pagamento").forEach(botao => {
             return;
         }
 
-        // =====================================================
-        // 4. CARTÃO DE CRÉDITO
-        // =====================================================
-
         if (
             forma
                 .toLowerCase()
@@ -1316,10 +1264,6 @@ document.querySelectorAll(".pagamento").forEach(botao => {
 
             return;
         }
-
-        // =====================================================
-        // 5. FIADO
-        // =====================================================
 
         if (
             forma
@@ -1344,10 +1288,8 @@ document.querySelectorAll(".pagamento").forEach(botao => {
 
 if (dFiado) {
 
-    // Limpa o cliente selecionado anteriormente
     limparSelecaoClienteFiado();
 
-    // Mantém a data exatamente como já estava
     inp_vencimento.value =
         new Date()
             .toISOString()
@@ -1358,10 +1300,6 @@ if (dFiado) {
 
             return;
         }
-
-        // =====================================================
-        // 6. PIX / DÉBITO
-        // =====================================================
 
         formaPagamento = forma;
 
@@ -1428,7 +1366,6 @@ if (visorPedido) {
         pedidoFinalizado = false;
         parcelasCredito = null;
 
-        // Reseta também o seletor visual de parcelas.
         if (typeof selParcelasCredito !== "undefined" && selParcelasCredito) {
             selParcelasCredito.value = "";
             selParcelasCredito.classList.add("parcela-nao-selecionada");
@@ -1474,9 +1411,6 @@ if (visorPedido) {
             inp_codb.focus();
         }, 50);
     }
-    // =====================================================
-// CONTROLE DE SAÍDA DO PDV
-// =====================================================
 
 window.pdvPossuiVendaEmAndamento = function () {
     return (
@@ -1497,10 +1431,9 @@ window.pdvConfirmarSaida = function (continuar) {
         "Se você sair do PDV, os produtos adicionados serão perdidos.\n\n" +
         "Deseja realmente sair?",
         () => {
-            // Cancela a venda atual antes de sair
+
             resetarPDV();
 
-            // Pequeno atraso para garantir que o modal feche
             setTimeout(() => {
                 continuar();
             }, 50);
@@ -1510,8 +1443,7 @@ window.pdvConfirmarSaida = function (continuar) {
 };
 
     function selecionarProduto(prod) {
-        // O item escolhido na lista já contém os dados do produto.
-        // Não precisa fazer uma segunda chamada para /produtos/cod/:codigo.
+
         const codigoProduto = String(prod.codigo_barras ?? prod.codigo ?? "").trim();
         if (!codigoProduto) {
             exibirAviso("Código do produto inválido.");
@@ -1566,7 +1498,6 @@ window.pdvConfirmarSaida = function (continuar) {
             });
         }
 
-        // Atualiza a imagem imediatamente ao selecionar pela busca.
         if (imagemProduto) {
             const nomeArquivo = String(imagemProduto)
                 .replace(/.*\/images\//, "")
@@ -1635,8 +1566,6 @@ window.pdvConfirmarSaida = function (continuar) {
         return;
     }
 
-    // Revalidação local final: nenhuma venda pode ser enviada com
-    // estoque zero/negativo ou quantidade maior que o estoque disponível.
     if (carrinhoPossuiEstoqueInvalido()) {
         estaProcessando = false;
         nova_venda.disabled = false;
@@ -1653,16 +1582,10 @@ window.pdvConfirmarSaida = function (continuar) {
 
     tocarSucesso();
 
-    // =====================================================
-    // DEFINE A FORMA DE PAGAMENTO
-    // =====================================================
-
     let pagamentoFinal = "";
 
     if (comandaAtual) {
 
-        // Se veio do APP e continua bloqueada,
-        // SEMPRE usa a forma que veio do APP.
         if (!pagamentoComandaDesbloqueado) {
 
             pagamentoFinal = formaPagamentoComanda;
@@ -1670,8 +1593,6 @@ window.pdvConfirmarSaida = function (continuar) {
         }
         else {
 
-            // Se o operador desbloqueou,
-            // pode usar a forma escolhida no PDV.
             pagamentoFinal =
                 formaPagamento ||
                 formaPagamentoComanda;
@@ -1681,7 +1602,6 @@ window.pdvConfirmarSaida = function (continuar) {
     }
     else {
 
-        // Venda normal do PDV
         pagamentoFinal = formaPagamento;
     }
 
@@ -1693,7 +1613,6 @@ window.pdvConfirmarSaida = function (continuar) {
     console.log("Pagamento final:", pagamentoFinal);
     console.log("=================================");
 
-    // Segurança
     if (!pagamentoFinal) {
 
         exibirAviso(
@@ -1739,10 +1658,9 @@ if (!pagamentoFinalLimpo) {
             (soma, item) =>
                 soma + item.qtd,
             0
-            
+
         ),
-        
-        // ENVIA A FORMA CORRETA
+
         form_pag: pagamentoFinalLimpo === "Cartão de Crédito"
             ? `Cartão de Crédito — ${Number(parcelasCredito || 1)}x`
             : pagamentoFinalLimpo,
@@ -1753,12 +1671,9 @@ if (!pagamentoFinalLimpo) {
             ? "APP"
             : "PDV",
 
-        // Dia de caixa atualmente aberto.
         data_referencia: dataReferenciaPDV()
     };
 
-    // Se veio de uma comanda,
-    // manda o ID do pedido original
     if (comandaAtual) {
 
         dadosPedido.id_pedido =
@@ -1770,8 +1685,6 @@ if (!pagamentoFinalLimpo) {
         dadosPedido
     );
 
-    // Se veio de uma comanda,
-    // manda o ID do pedido original
     if (comandaAtual) {
 
         dadosPedido.id_pedido =
@@ -1783,9 +1696,6 @@ if (!pagamentoFinalLimpo) {
         dadosPedido
     );
 
-    // Cartão de crédito parcelado (2x ou mais) fica no controle
-    // de parcelas do Conta Fiado enquanto houver parcelas pendentes.
-    // Cartão 1x e as demais formas continuam indo para /pedidos.
     const endpointPedido = ehCreditoParceladoPDV
         ? `${URL_BACKEND_CAD}/credito-parcelado-pdv`
         : `${URL_BACKEND_CAD}/pedidos`;
@@ -1912,7 +1822,6 @@ if (!pagamentoFinalLimpo) {
 });
 function confirmarCancelamento() {
 
-    // COMANDA CARREGADA
     if (comandaAtual !== null) {
 
         exibirAviso(
@@ -1926,7 +1835,6 @@ function confirmarCancelamento() {
         return;
     }
 
-    // VENDA NORMAL
     if (carrinho.length === 0) {
         resetarPDV();
         return;
@@ -1941,7 +1849,6 @@ function confirmarCancelamento() {
     );
 }
 
-    // ===== BOTÃO CANCELAR =====
     const b_canc = document.getElementById("b_canc");
 
     b_canc.addEventListener("click", () => {
@@ -1953,12 +1860,12 @@ function confirmarCancelamento() {
             event.preventDefault();
             indexSelecionado = (indexSelecionado + 1) % itens.length;
             atualizarDestaque(itens);
-        } 
+        }
         else if (event.key === "ArrowUp") {
             event.preventDefault();
             indexSelecionado = (indexSelecionado - 1 + itens.length) % itens.length;
             atualizarDestaque(itens);
-        } 
+        }
         else if (event.key === "Enter") {
             event.preventDefault();
             if (indexSelecionado > -1 && produtosFiltrados[indexSelecionado]) {
@@ -1970,7 +1877,7 @@ function confirmarCancelamento() {
     function atualizarDestaque(itens) {
         itens.forEach((li, i) => {
             if (i === indexSelecionado) {
-                li.style.backgroundColor = "#efac4a"; 
+                li.style.backgroundColor = "#efac4a";
                 li.style.color = "#1c1c1c";
                 li.scrollIntoView({ block: "nearest" });
             } else {
@@ -1983,7 +1890,7 @@ function confirmarCancelamento() {
     function normalizarTextoBusca(texto) {
         return String(texto || "")
             .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[[\u0300-\u036f]/g, "")
             .toLowerCase()
             .trim();
     }
@@ -1995,7 +1902,6 @@ function confirmarCancelamento() {
         indexSelecionado = -1;
     }
 
-    // Limpa a pesquisa sempre que o modal for fechado.
     dialogBusca.addEventListener("close", limparPesquisaProdutos);
 
     inputBusca.addEventListener("input", async () => {
@@ -2030,9 +1936,6 @@ function confirmarCancelamento() {
                 )
             );
 
-            // Alguns backends filtram a busca apenas por início/exato.
-            // Se isso acontecer, busca a lista completa somente nesta situação
-            // para manter a pesquisa por trecho e sem acentos no navegador.
             if (dados.length === 0) {
                 const respostaCompleta = await apiFetch(`${URL_BACKEND_CAD}/produtos`, {
                     headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
@@ -2056,8 +1959,6 @@ function confirmarCancelamento() {
                 );
             }
 
-            // Prioriza correspondência no começo do nome, depois no começo
-            // de alguma palavra e, por último, em qualquer posição.
             dados.sort((a, b) => {
                 const nomeA = normalizarTextoBusca(a.nome);
                 const nomeB = normalizarTextoBusca(b.nome);
@@ -2094,7 +1995,7 @@ function confirmarCancelamento() {
                 li.style.transition = "background 0.2s";
                 const dadosMlLista = dadosEstoqueMl(prod);
                 const estoqueLista = normalizarEstoque(prod.qtd ?? prod.quantidade ?? prod.estoque ?? 0);
-                // Exibe o saldo real em ml, não a quantidade de unidades vendáveis.
+
                 const saldoExibido = dadosMlLista.volumeMl > 0
                     ? Number(dadosMlLista.estoqueMl ?? prod.qtd_base_produto ?? prod.qtd ?? 0)
                     : estoqueLista;
@@ -2168,7 +2069,6 @@ inp_cliente_fiado.addEventListener("keydown", (e) => {
         );
     });
 
-    // Mostra no campo o nome destacado pelas setas
 inpClienteFiado.value =
     opcoes[indiceClienteFiadoSelecionado].textContent.trim();
 
@@ -2184,7 +2084,7 @@ let indiceClienteFiadoSelecionado = -1;
 function normalizarBuscaCliente(valor) {
     return String(valor ?? "")
         .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[[\u0300-\u036f]/g, "")
         .toLocaleLowerCase("pt-BR")
         .trim();
 }
@@ -2257,22 +2157,18 @@ function limparSelecaoClienteFiado() {
     fecharListaClientesFiado();
 }
 
-// Abre a lista ao clicar no campo
 inpClienteFiado.addEventListener("focus", () => {
     renderizarClientesFiado(inpClienteFiado.value);
 });
 
-// Pesquisa em tempo real
 inpClienteFiado.addEventListener("input", () => {
 
-    // Obriga o usuário a selecionar novamente após alterar o texto
     sl_cliente.value = "";
     sl_cliente.selectedIndex = -1;
 
     renderizarClientesFiado(inpClienteFiado.value);
 });
 
-// Navegação pelo teclado
 inpClienteFiado.addEventListener("keydown", event => {
 
     if (event.key === "Escape") {
@@ -2327,10 +2223,8 @@ inpClienteFiado.addEventListener("keydown", event => {
 
     const opcaoAtiva = opcoes[indiceClienteFiadoSelecionado];
 
-    // Exibe o nome destacado no campo
     inpClienteFiado.value = opcaoAtiva.textContent.trim();
 
-    // Aguarda o Enter para confirmar o cliente
     sl_cliente.value = "";
     sl_cliente.selectedIndex = -1;
 
@@ -2339,7 +2233,6 @@ inpClienteFiado.addEventListener("keydown", event => {
     });
 });
 
-// Fecha a lista ao clicar fora dela
 document.addEventListener("click", event => {
 
     if (!event.target.closest(".campo-busca-cliente-fiado")) {
@@ -2348,7 +2241,6 @@ document.addEventListener("click", event => {
 
 });
 
-// Carrega os clientes da API
 async function carregarClientesFiado() {
 
     try {
@@ -2372,10 +2264,8 @@ async function carregarClientesFiado() {
             ? clientes
             : [];
 
-        // Limpa o select oculto
         sl_cliente.innerHTML = "";
 
-        // Opção vazia: nenhum cliente começa selecionado
         const opcaoVazia = document.createElement("option");
 
         opcaoVazia.value = "";
@@ -2385,7 +2275,6 @@ async function carregarClientesFiado() {
 
         sl_cliente.value = "";
 
-        // Adiciona os clientes ao select oculto
         clientesFiadoCarregados.forEach(cliente => {
 
             const option = document.createElement("option");
@@ -2393,7 +2282,6 @@ async function carregarClientesFiado() {
             option.value = cliente.id_cliente;
             option.textContent = cliente.nome_completo;
 
-            // Mantém a verificação de cliente bloqueado
             option.dataset.bloqueado =
                 Number(cliente.bloqueado) === 1 ? "1" : "0";
 
@@ -2480,7 +2368,7 @@ carregarClientesFiado();
                 const numeroFiado = data.num_pedido ?? data.numero_pedido ?? data.id_pedido;
                 numeroPedidoAtual = numeroFiado;
                 document.getElementById("s_pedido").innerText = numeroFiado ?? "---";
-                
+
                 if (data.alertas && data.alertas.length > 0) {
                     exibirAviso("⚠️ AVISO DE ESTOQUE:\n\n" + data.alertas.join("\n"), async () => {
                         const qtdAdicionados = await verificarReposicaoAutomatica();
@@ -2517,7 +2405,7 @@ carregarClientesFiado();
             })
             .catch(err => {
                 console.error("Erro ao salvar pedido do fiado:", err);
-                exibirAviso("A conta fiado foi criada, mas houve um erro ao fechar o pedido da cantina."); 
+                exibirAviso("A conta fiado foi criada, mas houve um erro ao fechar o pedido da cantina.");
             });
         } catch (erro) {
             console.error("Erro ao salvar conta fiado:", erro);
@@ -2558,7 +2446,6 @@ function carregarComanda() {
             console.error("Resposta não é JSON:", texto);
         }
 
-        // Se o backend retornou erro, usa a mensagem dele
         if (!res.ok) {
 
             const mensagemErro =
@@ -2580,16 +2467,8 @@ function carregarComanda() {
 
     .then(comanda => {
 
-        // =====================================================
-        // GUARDA A COMANDA ORIGINAL
-        // =====================================================
-
         comandaAtual = comanda;
         origemVenda = "APP";
-
-        // =====================================================
-        // PEGA A FORMA DE PAGAMENTO DO APP
-        // =====================================================
 
         let pagamentoRecebido = "";
 
@@ -2638,18 +2517,10 @@ function carregarComanda() {
             formaPagamento
         );
 
-        // =====================================================
-        // BLOQUEIA ALTERAÇÃO POR PADRÃO
-        // =====================================================
-
         pagamentoComandaDesbloqueado = false;
         pagamentoComandaBloqueado = true;
 
         atualizarBloqueioPagamento();
-
-        // =====================================================
-        // VERIFICA SE A COMANDA POSSUI PRODUTOS
-        // =====================================================
 
         if (
             !comanda.carrinho ||
@@ -2672,10 +2543,6 @@ function carregarComanda() {
 
             return;
         }
-
-        // =====================================================
-        // CARREGA O CARRINHO
-        // =====================================================
 
         carrinho = [];
 
@@ -2705,19 +2572,11 @@ function carregarComanda() {
 
         });
 
-        // =====================================================
-        // ATUALIZA PDV
-        // =====================================================
-
         atualizarTabelaNoTopo();
 
         atualizarTotalCompra();
 
         verificarBotao();
-
-        // =====================================================
-        // MOSTRA O PRIMEIRO PRODUTO
-        // =====================================================
 
         if (carrinho.length > 0) {
 
@@ -2741,15 +2600,7 @@ function carregarComanda() {
             }
         }
 
-        // =====================================================
-        // PERMITE FINALIZAR
-        // =====================================================
-
         nova_venda.disabled = false;
-
-        // =====================================================
-        // FECHA MODAL
-        // =====================================================
 
         dialogComanda.close();
 
@@ -2778,7 +2629,6 @@ function carregarComanda() {
 
         tocarErro();
 
-        // Agora mostra exatamente o erro vindo do backend
         exibirAviso(
             err.message ||
             "Não foi possível carregar a comanda."
@@ -2787,7 +2637,6 @@ function carregarComanda() {
 }
 b_comanda.addEventListener("click", () => {
 
-    // Não abre comanda se outro modal estiver aberto
     if (
         dialogBusca.open ||
         modal.open ||
@@ -2799,7 +2648,6 @@ b_comanda.addEventListener("click", () => {
         return;
     }
 
-    // Sempre inicia uma nova busca com o campo vazio.
     inputComanda.value = "";
 
     dialogComanda.showModal();
@@ -2855,8 +2703,6 @@ window.addEventListener("keydown", (event) => {
     const active = document.activeElement;
     const tag = active?.tagName;
 
-    // Se estiver digitando em um campo, ignora atalhos comuns,
-    // mas PERMITE Escape e teclas F1-F12.
     if (
         (tag === "INPUT" ||
          tag === "TEXTAREA" ||
@@ -2868,7 +2714,6 @@ window.addEventListener("keydown", (event) => {
         return;
     }
 
-    // Bloqueia recarregar a página por F5 ou atalhos de desenvolvedor
     if (
         event.key === "F5" ||
         (event.ctrlKey && event.key.toLowerCase() === "r") ||
@@ -2885,12 +2730,11 @@ window.addEventListener("keydown", (event) => {
             event.preventDefault();
             event.stopPropagation();
 
-            // Fechamento diário
             if (dialogFechamentoDiario?.open) {
                 fecharModalFechamento();
                 break;
             }
-            // Modal buscar comanda
+
             if (dialogComanda?.open) {
                 inputComanda.value = "";
                 dialogComanda.close();
@@ -2898,35 +2742,30 @@ window.addEventListener("keydown", (event) => {
                 break;
             }
 
-            // Modal busca produto
             if (dialogBusca?.open) {
                 dialogBusca.close();
                 voltarFoco();
                 break;
             }
 
-            // Modal dinheiro
             if (dialogDinheiro?.open) {
                 dialogDinheiro.close();
                 voltarFoco();
                 break;
             }
 
-            // Modal crédito
             if (dialogCredito?.open) {
                 dialogCredito.close();
                 voltarFoco();
                 break;
             }
 
-            // Tela de pagamento
             if (modal?.open) {
                 modal.close();
                 voltarFoco();
                 break;
             }
 
-            // Fiado
             const dFiado = document.getElementById("d_fiado");
 
             if (dFiado?.open) {
@@ -2935,7 +2774,6 @@ window.addEventListener("keydown", (event) => {
                 break;
             }
 
-            // Comanda carregada
             if (comandaAtual !== null) {
                 exibirAviso(
                     "Deseja realmente voltar e cancelar o carregamento desta comanda?",
@@ -2947,10 +2785,8 @@ window.addEventListener("keydown", (event) => {
                 break;
             }
 
-            // Venda normal
             confirmarCancelamento();
             break;
-
 
         case "ArrowDown":
 
@@ -2965,7 +2801,6 @@ window.addEventListener("keydown", (event) => {
             }
 
             break;
-
 
         case "ArrowUp":
 
@@ -2993,7 +2828,6 @@ window.addEventListener("keydown", (event) => {
 
             break;
 
-
         case "F3":
             event.preventDefault();
 
@@ -3016,7 +2850,6 @@ window.addEventListener("keydown", (event) => {
 
             break;
 
-
         case "F4":
             event.preventDefault();
 
@@ -3028,7 +2861,6 @@ window.addEventListener("keydown", (event) => {
             }
 
             break;
-
 
         case "F6":
             event.preventDefault();
@@ -3042,7 +2874,6 @@ window.addEventListener("keydown", (event) => {
 
             break;
 
-
         case "F9":
             event.preventDefault();
 
@@ -3055,7 +2886,6 @@ window.addEventListener("keydown", (event) => {
 
             break;
 
-        // F: ABRIR FECHAMENTO DIÁRIO
         case "f":
         case "F":
             event.preventDefault();
@@ -3063,7 +2893,6 @@ window.addEventListener("keydown", (event) => {
             if (typeof window.abrirFechamentoDiario === "function") window.abrirFechamentoDiario();
             break;
 
-        // F11: NOVA VENDA
         case "F11":
 
             event.preventDefault();
@@ -3074,8 +2903,6 @@ window.addEventListener("keydown", (event) => {
 
             break;
 
-
-        // F12: FINALIZAR COMPRA
         case "F12":
 
             event.preventDefault();
@@ -3086,8 +2913,6 @@ window.addEventListener("keydown", (event) => {
 
             break;
 
-
-        // F8: AGENDAMENTO
         case "F8":
 
             event.preventDefault();
@@ -3096,8 +2921,6 @@ window.addEventListener("keydown", (event) => {
 
             break;
 
-
-        // C: ABRIR COMANDA
         case "c":
         case "C":
 
@@ -3136,9 +2959,6 @@ window.addEventListener("keydown", (event) => {
             break;
     }
 });
-// =====================================================
-// CONTROLE DOS MODAIS DE PAGAMENTO
-// =====================================================
 
 const dialogDinheiro = document.getElementById("dialogDinheiro");
 const lblDinheiroTotal = document.getElementById("lbl_dinheiro_total");
@@ -3186,7 +3006,6 @@ let splitPagamentos = [];
 let splitMetodoSelecionado = "";
 let splitCreditoValorPendente = null;
 let creditoEmDivisao = false;
-
 
 function valorSplitSomado() {
     return splitPagamentos.reduce((soma, p) => soma + Number(p.valor), 0);
@@ -3269,9 +3088,6 @@ function totalAtualPDV() {
 
 }
 
-// O modal principal de formas de pagamento permanece aberto por baixo
-// dos modais específicos. Este helper só reabre se, por algum motivo,
-// ele tiver sido fechado.
 function reabrirModalFormasPagamento() {
     if (pedidoFinalizado) return;
     if (!carrinho || carrinho.length === 0) return;
@@ -3285,8 +3101,6 @@ function reabrirModalFormasPagamento() {
     }
 }
 
-// Garante que o modal principal continue aberto enquanto um pagamento
-// específico estiver sendo usado.
 function garantirModalFormasPagamentoAberto() {
     if (pedidoFinalizado) return;
     if (!Array.isArray(carrinho) || carrinho.length === 0) return;
@@ -3299,11 +3113,6 @@ function garantirModalFormasPagamentoAberto() {
         }
     }
 }
-
-
-// =====================================================
-// DINHEIRO
-// =====================================================
 
 function abrirModalDinheiro() {
 
@@ -3319,12 +3128,6 @@ function abrirModalDinheiro() {
     lblTroco.innerText =
         "R$ 0,00";
 
-    /*
-     * IMPORTANTE:
-     * Não altera formaPagamento aqui.
-     * Só altera quando o pagamento for confirmado.
-     */
-
     dialogDinheiro.showModal();
 
     setTimeout(() => {
@@ -3332,9 +3135,6 @@ function abrirModalDinheiro() {
     }, 100);
 
 }
-
-
-// Fechar pelo X
 
 if (bFecharDinheiro) {
 
@@ -3348,9 +3148,6 @@ if (bFecharDinheiro) {
     });
 
 }
-
-
-// Fechar dinheiro com ESC
 
 if (dialogDinheiro) {
 
@@ -3366,9 +3163,6 @@ if (dialogDinheiro) {
     });
 
 }
-
-
-// Calcular troco
 
 if (inpValorPago) {
 
@@ -3392,9 +3186,6 @@ if (inpValorPago) {
 
 }
 
-
-// Confirmar dinheiro
-
 if (bConfirmarDinheiro) {
 
     bConfirmarDinheiro.addEventListener("click", () => {
@@ -3417,9 +3208,6 @@ if (bConfirmarDinheiro) {
 
         }
 
-
-        // Só agora define o pagamento
-
         formaPagamento = "Dinheiro";
 
         atualizarSelecaoPagamento(
@@ -3429,7 +3217,6 @@ if (bConfirmarDinheiro) {
         atualizarFormaPagamentoFinal(
             formaPagamento
         );
-
 
         dialogDinheiro.close();
         reabrirModalFormasPagamento();
@@ -3442,10 +3229,6 @@ if (bConfirmarDinheiro) {
 
 }
 
-// =====================================================
-// CARTÃO DE CRÉDITO
-// =====================================================
-
 function atualizarParcelamentoCredito() {
 
     const totalReal =
@@ -3454,13 +3237,9 @@ function atualizarParcelamentoCredito() {
     const valorSelecionado =
         selParcelasCredito.value;
 
-
     lblCreditoTotal.innerText =
         "R$ " +
         formatar(totalReal);
-
-
-    // Ainda não escolheu parcela
 
     if (!valorSelecionado) {
 
@@ -3477,10 +3256,8 @@ function atualizarParcelamentoCredito() {
 
     }
 
-
     parcelasCredito =
         Number(valorSelecionado);
-
 
     lblValorParcela.innerText =
         "R$ " +
@@ -3488,15 +3265,11 @@ function atualizarParcelamentoCredito() {
             totalReal / parcelasCredito
         );
 
-
     selParcelasCredito.classList.remove(
         "parcela-nao-selecionada"
     );
 
 }
-
-
-// Abrir crédito
 
 function abrirModalCredito(valorParcial = null) {
 
@@ -3504,7 +3277,6 @@ function abrirModalCredito(valorParcial = null) {
 
     const totalReal =
         totalAtualPDV();
-
 
     lblCreditoTotal.innerText =
         "R$ " +
@@ -3518,12 +3290,6 @@ function abrirModalCredito(valorParcial = null) {
         inpValorCreditoDivisao.value = valorParcial !== null ? String(valorParcial.toFixed(2)) : "";
     }
 
-
-    /*
-     * IMPORTANTE:
-     * começa sem nenhuma parcela selecionada.
-     */
-
     selParcelasCredito.value = "";
 
     parcelasCredito = null;
@@ -3535,7 +3301,6 @@ function abrirModalCredito(valorParcial = null) {
         "parcela-nao-selecionada"
     );
 
-    // Reseta também o seletor visual personalizado.
     if (typeof selectParcelasVisual !== "undefined" && selectParcelasVisual) {
         const textoParcelas = selectParcelasVisual.querySelector("span");
         if (textoParcelas) {
@@ -3553,20 +3318,9 @@ function abrirModalCredito(valorParcial = null) {
         selectPersonalizado.classList.remove("aberto");
     }
 
-
-    /*
-     * NÃO define formaPagamento aqui.
-     *
-     * Se o usuário abrir crédito e desistir,
-     * continua com a forma de pagamento anterior.
-     */
-
     dialogCredito.showModal();
 
 }
-
-
-// Atualização ao selecionar parcelas
 
 if (selParcelasCredito) {
 
@@ -3576,9 +3330,6 @@ if (selParcelasCredito) {
     );
 
 }
-
-
-// Fechar crédito pelo X
 
 if (bFecharCredito && dialogCredito) {
 
@@ -3616,9 +3367,6 @@ if (bFecharCredito && dialogCredito) {
     });
 
 }
-
-
-// Fechar crédito com ESC
 
 if (dialogCredito) {
 
@@ -3659,10 +3407,6 @@ if (dialogCredito) {
 
 }
 
-// =====================================================
-// FIADO
-// =====================================================
-
 if (bFecharFiado && dialogFiado) {
 
     bFecharFiado.addEventListener("click", () => {
@@ -3688,16 +3432,9 @@ if (dialogFiado) {
 
 }
 
-
-// Confirmar crédito
-
 if (bConfirmarCredito && dialogCredito) {
 
     bConfirmarCredito.addEventListener("click", () => {
-
-        /*
-         * NÃO permite confirmar sem escolher parcelas.
-         */
 
         if (
             !selParcelasCredito.value ||
@@ -3715,7 +3452,6 @@ if (bConfirmarCredito && dialogCredito) {
             return;
 
         }
-
 
         if (creditoEmDivisao) {
             const valorCredito = Number(String(inpValorCreditoDivisao?.value || splitCreditoValorPendente || "").replace(",", "."));
@@ -3767,11 +3503,10 @@ if (bConfirmarCredito && dialogCredito) {
 
 }
 
-
 function iniciarRelogioLinha() {
     const el = document.getElementById("data_hora_pdv");
     if (!el) return;
-    
+
     function atualizar() {
         const agora = new Date();
         const data = agora.toLocaleDateString("pt-BR");
@@ -3783,17 +3518,11 @@ function iniciarRelogioLinha() {
     setInterval(atualizar, 1000);
 }
 
-// Garante a execução assim que carregar
 if (document.readyState === "complete" || document.readyState === "interactive") {
     iniciarRelogioLinha();
 } else {
     document.addEventListener("DOMContentLoaded", iniciarRelogioLinha);
 }
-
-
-/* =========================================================
-   SELECT PERSONALIZADO - PARCELAS
-========================================================= */
 
 const selectParcelasVisual =
     document.getElementById("selectParcelasVisual");
@@ -3804,11 +3533,9 @@ const opcoesParcelas =
 const selectPersonalizado =
     document.querySelector(".select-personalizado");
 
-
 selectParcelasVisual.addEventListener("click", () => {
     selectPersonalizado.classList.toggle("aberto");
 });
-
 
 opcoesParcelas.querySelectorAll("div").forEach(opcao => {
 
@@ -3817,19 +3544,15 @@ opcoesParcelas.querySelectorAll("div").forEach(opcao => {
         const valor = opcao.dataset.value;
         const texto = opcao.textContent;
 
-        /* Atualiza o select original */
         selParcelasCredito.value = valor;
 
-        /* Faz o seu JavaScript atual perceber a mudança */
         selParcelasCredito.dispatchEvent(
             new Event("change", { bubbles: true })
         );
 
-        /* Atualiza o visual */
         selectParcelasVisual.querySelector("span").textContent =
             texto;
 
-        /* Marca a opção */
         opcoesParcelas
             .querySelectorAll("div")
             .forEach(item => {
@@ -3838,14 +3561,11 @@ opcoesParcelas.querySelectorAll("div").forEach(opcao => {
 
         opcao.classList.add("selecionada");
 
-        /* Fecha */
         selectPersonalizado.classList.remove("aberto");
     });
 
 });
 
-
-/* Fecha se clicar fora */
 document.addEventListener("click", (event) => {
 
     if (!selectPersonalizado.contains(event.target)) {
@@ -3856,10 +3576,7 @@ document.addEventListener("click", (event) => {
 </script>
 
 <script>
-/* =========================================================
-   FECHAMENTO DIÁRIO / CONTROLE DE CAIXA - PDV
-   Todo o JavaScript fica neste bloco, sem criar arquivo .js novo.
-========================================================= */
+
 const dialogFechamentoDiario = document.getElementById("dialogFechamentoDiario");
 const fechamentoData = document.getElementById("fechamentoData");
 const fechamentoDataConsulta = document.getElementById("fechamentoDataConsulta");
@@ -3882,11 +3599,6 @@ let fechamentoForcado = false;
 let fechamentoInicializado = false;
 let caixaHojeFechado = false;
 
-/*
-   DATA ATIVA DO CAIXA
-   Não usa a data real do computador depois que outro dia foi aberto.
-   A data só muda quando um caixa é aberto/fechado.
-*/
 let dataReferenciaPDVAtiva =
     normalizarDataFechamento(
         localStorage.getItem("pdv_data_referencia_ativa"),
@@ -3894,9 +3606,7 @@ let dataReferenciaPDVAtiva =
     );
 
 function dataReferenciaPDV() {
-    // As vendas do PDV sempre pertencem ao dia atual.
-    // Uma data escolhida para consultar/fechar um fechamento antigo
-    // nunca deve alterar a data das novas vendas.
+
     return dataLocalPDV();
 }
 
@@ -3918,9 +3628,7 @@ function limparDataReferenciaPDV() {
 }
 
 function dataLocalPDV() {
-    // O sistema é usado no Brasil. Força a data do caixa para
-    // o fuso de São Paulo e evita salvar o dia anterior por
-    // causa do fuso configurado no navegador/computador.
+
     const partes = new Intl.DateTimeFormat("en-CA", {
         timeZone: "America/Sao_Paulo",
         year: "numeric",
@@ -3943,34 +3651,25 @@ function normalizarDataFechamento(data, usarHojeComoFallback = true) {
 
     const texto = String(data).trim();
 
-    // Data SQL/HTML correta.
     if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) {
         return texto;
     }
 
-    // ISO retornado pelo backend/MySQL: YYYY-MM-DDTHH:mm:ss...
     const iso = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
     if (iso) {
         return `${iso[1]}-${iso[2]}-${iso[3]}`;
     }
 
-    // Data brasileira.
-    const br = texto.match(/^(\d{2})[\\/](\d{2})[\\/](\d{4})/);
+    const br = texto.match(/^(\d{2})[[\\/](\d{2})[[\\/](\d{4})/);
     if (br) {
         return `${br[3]}-${br[2]}-${br[1]}`;
     }
 
-    // Datas textuais sem ano, como "Thu Sep 17", são AMBÍGUAS.
-    // Não podemos transformá-las em 2026-09-17, porque isso pode fazer
-    // o PDV considerar um fechamento antigo como pendente e tentar
-    // carregar uma data que o backend não reconhece.
-    //
-    // Só aceitamos uma data textual se ela trouxer o ano explicitamente.
     const mesMap = {
         jan: "01", feb: "02", mar: "03", apr: "04", may: "05", jun: "06",
         jul: "07", aug: "08", sep: "09", oct: "10", nov: "11", dec: "12"
     };
-    const comAno = texto.match(/(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+([A-Za-z]{3})\s+(\d{1,2})\s+(\d{4})/i);
+    const comAno = texto.match(/(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+([[A-Za-z]{3})\s+(\d{1,2})\s+(\d{4})/i);
     if (comAno) {
         const mes = mesMap[comAno[1].toLowerCase()];
         if (mes) {
@@ -3997,7 +3696,7 @@ function formatarDataFechamento(data) {
     }
 
     const textual = texto.match(
-        /(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)?\s*([A-Za-z]{3})\s+(\d{1,2})(?:\s+(\d{4}))?/i
+        /(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)?\s*([[A-Za-z]{3})\s+(\d{1,2})(?:\s+(\d{4}))?/i
     );
 
     if (textual) {
@@ -4117,8 +3816,7 @@ function atualizarCamposFechamento(dados) {
         (fechamento.status !== "FECHADO" && fechamento.status !== "ABERTO");
 
     if (fechamentoTrocoInicialInput && btnRegistrarAbertura) {
-        // Hoje é aberto automaticamente. A abertura manual só existe
-        // para outro dia que ainda não esteja ABERTO ou FECHADO.
+
         const podeRegistrarAbertura = !ehHoje && podeAbrirData && !datasComAberturaRegistrada.has(dataReferenciaNormalizada);
 
         if (podeRegistrarAbertura) {
@@ -4185,11 +3883,6 @@ async function carregarDadosFechamento(data, abrir = true) {
 
         atualizarCamposFechamento(dados);
 
-        /*
-           Se o dia consultado está ABERTO, ele passa a ser
-           o dia ativo do PDV. Assim, adicionar/finalizar venda
-           não volta para a data real do computador.
-        */
         if (dados.fechamento?.status === "ABERTO") {
             definirDataReferenciaPDV(dados.data_referencia);
         }
@@ -4297,9 +3990,6 @@ async function registrarAberturaCaixa() {
 
         await carregarDadosFechamento(data, false);
 
-        // A data aberta passa a ser o caixa ativo, mesmo que seja
-        // um dia diferente de hoje. Portanto, o PDV deve ser liberado
-        // sempre que essa data estiver ABERTA.
         fechamentoForcado = false;
         if (data === dataLocalPDV()) {
             caixaHojeFechado = false;
@@ -4337,13 +4027,6 @@ async function verificarFechamentoInicial() {
 
         const hoje = normalizarDataFechamento(dados.hoje || dataLocalPDV());
 
-        /*
-           Se o usuário abriu outro dia anteriormente, esse dia é o
-           caixa ativo. Primeiro recuperamos essa data e verificamos
-           seu estado; só voltamos para hoje se ela não estiver aberta.
-        */
-        // Nunca recupera como caixa ativo uma data antiga salva no navegador.
-        // Ao iniciar o PDV, o caixa ativo deve ser sempre o dia atual.
         if (dataReferenciaPDVAtiva && dataReferenciaPDVAtiva !== hoje) {
             limparDataReferenciaPDV();
         }
@@ -4370,8 +4053,6 @@ async function verificarFechamentoInicial() {
             }
         }
 
-        // O dia pendente não é aberto automaticamente.
-        // Datas antigas continuam disponíveis para consulta/fechamento manual.
         fechamentoForcado = false;
         const chaveAberturaPDV = `pdv_fechamento_apresentado_${hoje}`;
         const jaApresentadoHoje = localStorage.getItem(chaveAberturaPDV) === "1";
@@ -4445,9 +4126,6 @@ function liberarPDVDepoisDoFechamento() {
     const caixaAtivoAberto =
         fechamentoDadosAtual?.fechamento?.status === "ABERTO";
 
-    // O bloqueio deve considerar o CAIXA ATIVO, e não somente o dia
-    // atual do computador. Assim, um dia anterior aberto manualmente
-    // também libera o scanner e o botão Finalizar.
     if (fechamentoForcado) return;
 
     if (!caixaAtivoAberto && caixaHojeFechado) return;
@@ -4514,8 +4192,7 @@ async function executarSalvamentoFechamento() {
             limparDataReferenciaPDV();
             fecharTravaPDV(true);
         } else {
-            // Depois de fechar uma data antiga, volta para o caixa de hoje.
-            // Não altera nem reabre automaticamente o caixa atual.
+
             const hoje = dataLocalPDV();
 
             fechamentoForcado = false;
@@ -4580,7 +4257,6 @@ dialogFechamentoDiario?.addEventListener("cancel", event => {
     fecharModalFechamento();
 });
 
-// O fechamento abre automaticamente ao entrar no PDV.
 window.addEventListener("load", () => {
     if (window.modoMonitorExibicao) return;
 
@@ -4590,11 +4266,8 @@ window.addEventListener("load", () => {
 });
 </script>
 
-
 <script>
-// =====================================================
-// MONITOR DO PDV — SEGUNDO MONITOR
-// =====================================================
+
 (function () {
     const MONITOR_CHAVE = "grano_vita_monitor_venda";
     const modoMonitor =
@@ -4671,9 +4344,6 @@ window.addEventListener("load", () => {
             campo.dispatchEvent(new Event("change", { bubbles: false }));
         });
 
-        // O select do Fiado é um <select> normal: atualizar o value muda
-        // somente o nome visível selecionado. As opções não são abertas.
-        // O monitor continua sem interação por causa do pointer-events: none.
     }
 
     function publicarVendaNoMonitor() {
@@ -4686,9 +4356,6 @@ window.addEventListener("load", () => {
 
             const elementoModalPrincipal = document.getElementById("d_modal");
 
-            // Durante uma venda, o d_modal é a base do fluxo e deve continuar
-            // disponível no espelhamento mesmo se o navegador alternar a ordem
-            // dos dialogs por alguns milissegundos.
             if (!Array.isArray(carrinho) || carrinho.length === 0) {
                 ultimoModalPrincipalPublicavel = null;
             } else if (elementoModalPrincipal?.open) {
@@ -4712,10 +4379,9 @@ window.addEventListener("load", () => {
                         0
                     )
                     : 0,
-                // Modal que está por cima neste momento.
+
                 modal: obterModalAberto(),
-                // Conteúdo do modal principal, que continua aberto por baixo
-                // dos modais específicos no PDV.
+
                 modalPrincipal,
                 atualizadoEm: Date.now()
             };
@@ -4767,7 +4433,6 @@ window.addEventListener("load", () => {
         const principal = document.getElementById("d_modal");
         let principalFoiReaberto = false;
 
-        // O d_modal é sempre mantido como base do fluxo no monitor.
         if (modalPrincipalEstado?.id === "d_modal" && principal) {
             const assinaturaPrincipal = modalPrincipalEstado.html || "";
 
@@ -4794,7 +4459,6 @@ window.addEventListener("load", () => {
             ? document.getElementById(modalEstado.id)
             : null;
 
-        // Se não existe modal específico no estado, mantém o principal aberto.
         if (!modalEstado?.id) {
             fecharModaisEspecificosMonitor();
             if (modalPrincipalEstado?.id === "d_modal" && principal) {
@@ -4829,8 +4493,6 @@ window.addEventListener("load", () => {
             return;
         }
 
-        // Para Dinheiro, Crédito, Dividir, Fiado ou Aviso, o d_modal NÃO é
-        // fechado. Ele continua atrás do modal específico.
         [
             "dialogDinheiro",
             "dialogCredito",
@@ -4863,8 +4525,7 @@ window.addEventListener("load", () => {
         aplicarEstadoCamposModal(modal, modalEstado.campos);
 
         try {
-            // Se precisamos reabrir o principal, o específico precisa voltar
-            // ao topo da camada de dialogs.
+
             if (principalFoiReaberto && modal.open) {
                 modal.close();
             }

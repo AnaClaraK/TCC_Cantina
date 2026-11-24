@@ -1,8 +1,5 @@
 import Constants from 'expo-constants';
 
-// Endereço central do backend.
-// No Expo Go, tenta detectar automaticamente o IP do computador que executa o Expo.
-// Em build APK standalone no celular, usa o IP da máquina na rede da escola (ou emulador se local).
 const IP_SERVIDOR_PADRAO = '10.111.9.70';
 
 const hostUri =

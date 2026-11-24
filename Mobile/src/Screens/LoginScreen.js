@@ -16,7 +16,6 @@ import { Botao } from '../Components/Botoes';
 import { BASE_URL } from '../../config';
 import CampoSenhaProtegida from '../Components/CampoSenhaProtegida';
 
-
 export default function LoginScreen() {
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
@@ -28,12 +27,6 @@ export default function LoginScreen() {
 
     const FazerLogin = async () => {
         const urlAPI = `${BASE_URL}/logar`;
-        
-        console.log("\n========================================");
-        console.log("🚀 [LOGIN] Botão clicado!");
-        console.log(`📡 Conectando em: ${urlAPI}`);
-        console.log(`📧 Email: "${email}"`);
-        console.log("========================================");
 
         if (!email.trim() || !senha.trim()) {
             Alert.alert("Campos Obrigatórios", "Por favor, preencha o e-mail e a senha.");
@@ -54,14 +47,9 @@ export default function LoginScreen() {
                 }),
             });
 
-            console.log(`📥 Status HTTP: ${resposta.status}`);
-            
             const dados = await resposta.json();
-            console.log("📦 Resposta do servidor:", dados);
-        
+
             if (dados.resposta === "true") {
-                console.log("✅ Login realizado com sucesso! Gravando sessão...");
-                
                 const idLogado = dados.id_user ? String(dados.id_user) : "";
                 const donoFotoSalva = await AsyncStorage.getItem("foto_owner_id");
 
@@ -69,7 +57,6 @@ export default function LoginScreen() {
                     await AsyncStorage.setItem("foto_user", dados.foto);
                     if (idLogado) await AsyncStorage.setItem("foto_owner_id", idLogado);
                 } else if (idLogado && donoFotoSalva && donoFotoSalva !== idLogado) {
-                    // Não mostra a foto do usuário anterior se outra conta entrar no mesmo aparelho.
                     await AsyncStorage.multiRemove(["foto_user", "foto_owner_id"]);
                 }
 
@@ -78,26 +65,13 @@ export default function LoginScreen() {
                 if (dados.nome) await AsyncStorage.setItem("nome_user", dados.nome);
                 await AsyncStorage.setItem("email_user", dados.email || email);
                 await AsyncStorage.setItem("senha_user", String(senha));
-                const emailSalvo = await AsyncStorage.getItem("email_user");
-const senhaSalva = await AsyncStorage.getItem("senha_user");
 
-if (emailSalvo) setEmail(emailSalvo);
-if (senhaSalva) setSenha(senhaSalva);
-
-                console.log("🔀 Redirecionando para MainApp...");
-                
-                // Redireciona para o TabNavigator registrado no App.js como "MainApp"
                 navigation.replace("MainApp"); 
             } else {
                 Alert.alert("Erro de Autenticação", dados.mensagem || "Usuário ou senha inválidos.");
             }
-        
         } catch (erro) {
-            console.error("🛑 ERRO DE CONEXÃO:", erro.message);
-            Alert.alert(
-                "Falha na Rede", 
-                "Não foi possível conectar ao servidor."
-            );
+            Alert.alert("Falha na Rede", "Não foi possível conectar ao servidor.");
         } finally {
             setCarregando(false);
         }
@@ -112,7 +86,6 @@ if (senhaSalva) setSenha(senhaSalva);
             </View>
 
             <View style={styles.quadrado}>
-                {/* Campo E-mail */}
                 <View style={styles.inputArea}>
                     <Ionicons name="mail-outline" size={28} color="#eeaf55" />
                     <TextInput 
@@ -126,7 +99,6 @@ if (senhaSalva) setSenha(senhaSalva);
                     />
                 </View>
 
-                {/* Campo Senha */}
                 <View style={[styles.inputArea, senhaEmFoco && styles.inputAreaFoco]}>
                     <Ionicons name="lock-closed-outline" size={28} color="#eeaf55" />
                     <CampoSenhaProtegida
@@ -142,27 +114,19 @@ if (senhaSalva) setSenha(senhaSalva);
                     />
                 </View>
 
-                {/* Botão Esqueceu a Senha */}
                 <TouchableOpacity 
                     style={styles.esqueceuBtn}
-                    onPress={() => {
-                        console.log("👉 [NAVEGAÇÃO] Indo para RecuperarScreen");
-                        navigation.navigate("RecuperarScreen");
-                    }}
+                    onPress={() => navigation.navigate("RecuperarScreen")}
                 >
                     <Text style={styles.esqueceuTexto}>Esqueceu a senha?</Text>
                 </TouchableOpacity>
 
-                {/* Botão Entrar */}
                 {carregando ? (
                     <ActivityIndicator size="large" color="#efac4a" style={{ marginVertical: 15 }} />
                 ) : (
                     <Botao texto="ENTRAR" acao={FazerLogin} tamFonte={20} />
                 )}
 
-                
-
-                {/* Botão Cadastre-se */}
                 <Botao 
                     texto="CADASTRE-SE" 
                     acao={() => navigation.navigate("CadastroScreen")} 
@@ -213,7 +177,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     inputAreaFoco: { borderColor: "#efac4a", borderWidth: 2 },
-  inputArea: {
+    inputArea: {
         flexDirection: 'row',
         backgroundColor: '#FFFFFF',
         width: '100%',
@@ -239,10 +203,4 @@ const styles = StyleSheet.create({
         textDecorationLine: 'underline',
         fontSize: 16 
     },
-    ouTexto: { 
-        marginVertical: 10, 
-        color: '#444', 
-        fontFamily: 'Montserrat',
-        fontSize: 20
-    }
 });

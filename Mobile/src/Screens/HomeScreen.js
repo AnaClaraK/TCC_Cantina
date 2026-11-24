@@ -1,6 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { useFonts } from 'expo-font';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 import { Botao } from '../Components/Botoes';
 import React, { useEffect } from 'react';
@@ -10,36 +9,32 @@ export default function HomeScreen(){
   const navigation = useNavigation();
 
   useEffect(() => {
-      const verificarSessao = async () => {
-          const logado = await AsyncStorage.getItem('@usuario_logado');
-          if (logado === 'true') {
-              // Se já estiver logado, pula direto para o Cardápio
-              navigation.replace("CardapioScreen"); 
-          }
-      };
-      verificarSessao();
+    const verificarSessao = async () => {
+      const logado = await AsyncStorage.getItem('@usuario_logado');
+      if (logado === 'true') {
+        navigation.replace("CardapioScreen"); 
+      }
+    };
+    verificarSessao();
   }, []);
 
-    function navegarc(){
-        navigation.navigate("CadastroScreen")
-    }
-    function navegarl(){
-        navigation.navigate("LoginScreen")
-    }
+  function navegarl(){
+    navigation.navigate("LoginScreen");
+  }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.texto} >BEM VINDO AO APP DA CANTINA</Text>
+      <Text style={styles.texto}>BEM VINDO AO APP DA CANTINA</Text>
       <Image 
-      source={require('../../assets/images/logo_c.png')}
-      style={styles.imagem}
+        source={require('../../assets/images/logo_c.png')}
+        style={styles.imagem}
       />
       <Image 
-      source={require('../../assets/images/logo.png')}
-      style={styles.imageml}
+        source={require('../../assets/images/logo.png')}
+        style={styles.imageml}
       />
       <StatusBar style="auto" />
       <Botao acao={navegarl} texto={"Fazer Login"} cor={"green"}/>
-
     </View>
   );
 }
@@ -63,10 +58,5 @@ const styles = StyleSheet.create({
   imageml: {
     height: 182,
     width: 130
-  },
-  botao:{
-    backgroundColor: 'green',
-    padding: 15,
-    marginTop:30
   }
 });

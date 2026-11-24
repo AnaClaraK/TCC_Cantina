@@ -1,4 +1,4 @@
-// 🔒 PROTEÇÃO DE PÁGINA
+
 
 (function () {
 
@@ -67,8 +67,6 @@
 
 })();
 
-
-
 function parseJwt(token) {
 
     try {
@@ -86,8 +84,6 @@ function parseJwt(token) {
     }
 
 }
-
-
 
 function tokenExpirado() {
 
@@ -115,8 +111,6 @@ function tokenExpirado() {
 
 }
 
-
-
 function logoutForcado() {
 
     const paginasPublicas = [
@@ -140,8 +134,6 @@ function logoutForcado() {
     }
 
 }
-
-
 
 function checarSessao() {
 
@@ -167,14 +159,10 @@ function checarSessao() {
 
 }
 
-
-
 setInterval(
     checarSessao,
     5000
 );
-
-
 
 function interceptarEventos() {
 
@@ -200,8 +188,6 @@ function interceptarEventos() {
 
 }
 
-
-
 [
     "click",
     "keydown",
@@ -217,10 +203,6 @@ function interceptarEventos() {
 
     }
 );
-
-
-
-// 👁️ MOSTRAR TELA
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -252,10 +234,6 @@ document.addEventListener(
     }
 );
 
-
-
-// 🚪 LOGOUT
-
 function logout() {
 
     localStorage.removeItem(
@@ -278,10 +256,6 @@ function logout() {
         "login.html";
 
 }
-
-
-
-// 🌐 FETCH GLOBAL
 
 async function apiFetch(
     url,
@@ -322,8 +296,6 @@ async function apiFetch(
 
 }
 
-
-
 function validarSessao() {
 
     const paginasPublicas = [
@@ -355,20 +327,12 @@ function validarSessao() {
 
 }
 
-
-
 validarSessao();
 
 setInterval(
     validarSessao,
     3000
 );
-
-
-
-// =====================================================
-// PROTEÇÃO DE SAÍDA DO PDV
-// =====================================================
 
 function irParaGranoVita(event) {
 
@@ -401,12 +365,6 @@ function irParaGranoVita(event) {
 
 }
 
-
-
-// =====================================================
-// HEADER & SIDEBAR
-// =====================================================
-
 const headerHTML = `
 
 <header class="custom-header">
@@ -426,8 +384,6 @@ const headerHTML = `
         >
             ☰
         </button>
-
-
 
         <span>
 
@@ -452,8 +408,6 @@ const headerHTML = `
 
 `;
 
-
-
 const paginaAtualSidebar =
     window.location.pathname
         .split("/")
@@ -467,8 +421,6 @@ const ehPDV =
 const ehCadastroProduto =
     paginaAtualSidebar ===
     "cadastrop.html";
-
-
 
 const sidebarHTML = `
 
@@ -507,8 +459,6 @@ const sidebarHTML = `
 
     </a>
 
-
-
     <nav>
 
         <a
@@ -528,8 +478,6 @@ const sidebarHTML = `
 
         </a>
 
-
-
         <a
             href="pdv.html"
             class="nav-link"
@@ -546,8 +494,6 @@ const sidebarHTML = `
             </span>
 
         </a>
-
-
 
         <a
             href="estoque.html"
@@ -566,8 +512,6 @@ const sidebarHTML = `
 
         </a>
 
-
-
         <a
             href="agendamento.html"
             class="nav-link"
@@ -584,8 +528,6 @@ const sidebarHTML = `
             </span>
 
         </a>
-
-
 
         <a
             href="pedidos.html"
@@ -604,8 +546,6 @@ const sidebarHTML = `
 
         </a>
 
-
-
         <a
             href="conta_fiado.html"
             class="nav-link"
@@ -622,8 +562,6 @@ const sidebarHTML = `
             </span>
 
         </a>
-
-
 
         <a
             href="editarprod.html"
@@ -643,8 +581,6 @@ const sidebarHTML = `
 
         </a>
 
-
-
         <a
             href="reposicao.html"
             class="nav-link"
@@ -662,8 +598,6 @@ const sidebarHTML = `
             </span>
 
         </a>
-
-
 
         <a
             href="cadastrop.html"
@@ -683,8 +617,6 @@ const sidebarHTML = `
             </span>
 
         </a>
-
-
 
         <a
             href="cadastrof.html"
@@ -712,11 +644,6 @@ const sidebarHTML = `
 
 `;
 
-
-
-// =====================================================
-// AÇÕES ESPECIAIS NO HEADER
-// =====================================================
 function instalarEstiloAcoesEspeciaisHeader() {
 
     if (
@@ -920,7 +847,6 @@ function instalarEstiloAcoesEspeciaisHeader() {
 
 }
 
-
 function criarModalCategoriaSidebar() {
 
     let dialog =
@@ -1067,7 +993,6 @@ function criarModalCategoriaSidebar() {
 
 }
 
-
 async function abrirCriarCategoriaSidebar() {
 
     const dialog =
@@ -1144,8 +1069,6 @@ async function abrirCriarCategoriaSidebar() {
         },
         80
     );
-
-
 
     const salvar =
         async () => {
@@ -1249,12 +1172,6 @@ async function abrirCriarCategoriaSidebar() {
 
                 }
 
-                /*
-                 * O cadastrop.html atual declara
-                 * carregarCategorias() no script da página.
-                 * Atualizamos a lista existente sem
-                 * alterar o seletor original.
-                 */
                 if (
                     typeof window
                         .carregarCategorias ===
@@ -1321,14 +1238,10 @@ async function abrirCriarCategoriaSidebar() {
 
         };
 
-
-
     const botaoSalvarElemento =
         document.getElementById(
             "btnSalvarNovaCategoriaSidebar"
         );
-
-
 
     if (
         botaoSalvarElemento
@@ -1340,7 +1253,6 @@ async function abrirCriarCategoriaSidebar() {
     }
 
 }
-
 
 function instalarAcoesEspeciaisHeader() {
 
@@ -1355,14 +1267,10 @@ function instalarAcoesEspeciaisHeader() {
         return;
     }
 
-
-
     let container =
         document.getElementById(
             "acoes-especiais-header"
         );
-
-
 
     if (!container) {
 
@@ -1377,30 +1285,14 @@ function instalarAcoesEspeciaisHeader() {
         container.className =
             "acoes-especiais-header";
 
-        /*
-         * Fica dentro do header no DOM,
-         * mas é position:fixed.
-         *
-         * Portanto não aumenta nem empurra
-         * a altura do header.
-         */
-
         header.appendChild(
             container
         );
 
     }
 
-
-
     container.innerHTML =
         "";
-
-
-
-    // -------------------------------------------------
-    // PDV: FECHAMENTO
-    // -------------------------------------------------
 
     if (ehPDV) {
 
@@ -1426,8 +1318,6 @@ function instalarAcoesEspeciaisHeader() {
             "Fechamento do Caixa"
         );
 
-
-
         const imagem =
             document.createElement(
                 "img"
@@ -1439,8 +1329,6 @@ function instalarAcoesEspeciaisHeader() {
         imagem.alt =
             "Fechamento do Caixa";
 
-
-
         imagem.onerror =
             () => {
 
@@ -1451,8 +1339,6 @@ function instalarAcoesEspeciaisHeader() {
 
             };
 
-
-
         botao.appendChild(
             imagem
         );
@@ -1461,16 +1347,12 @@ function instalarAcoesEspeciaisHeader() {
             botao
         );
 
-
-
         botao.addEventListener(
             "click",
             event => {
 
                 event.preventDefault();
                 event.stopPropagation();
-
-
 
                 function tentarAbrirFechamento(
                     tentativa = 0
@@ -1489,8 +1371,6 @@ function instalarAcoesEspeciaisHeader() {
 
                     }
 
-
-
                     if (
                         tentativa < 60
                     ) {
@@ -1507,15 +1387,11 @@ function instalarAcoesEspeciaisHeader() {
 
                     }
 
-
-
                     console.error(
                         "A função abrirFechamentoDiario não ficou disponível no PDV."
                     );
 
                 }
-
-
 
                 tentarAbrirFechamento();
 
@@ -1523,12 +1399,6 @@ function instalarAcoesEspeciaisHeader() {
         );
 
     }
-
-
-
-    // -------------------------------------------------
-    // CADASTRO DE PRODUTO: CRIAR CATEGORIA
-    // -------------------------------------------------
 
     if (ehCadastroProduto) {
 
@@ -1554,8 +1424,6 @@ function instalarAcoesEspeciaisHeader() {
             "Criar categoria"
         );
 
-
-
         const imagem =
             document.createElement(
                 "img"
@@ -1567,8 +1435,6 @@ function instalarAcoesEspeciaisHeader() {
         imagem.alt =
             "Criar categoria";
 
-
-
         imagem.onerror =
             () => {
 
@@ -1579,8 +1445,6 @@ function instalarAcoesEspeciaisHeader() {
 
             };
 
-
-
         botao.appendChild(
             imagem
         );
@@ -1588,8 +1452,6 @@ function instalarAcoesEspeciaisHeader() {
         container.appendChild(
             botao
         );
-
-
 
         botao.addEventListener(
             "click",
@@ -1606,12 +1468,6 @@ function instalarAcoesEspeciaisHeader() {
     }
 
 }
-
-
-
-// =====================================================
-// FOTO DO USUÁRIO
-// =====================================================
 
 function obterCandidatosFotoUsuario(
     foto
@@ -1646,8 +1502,6 @@ function obterCandidatosFotoUsuario(
 
     }
 
-
-
     if (
         valor.startsWith("data:image/")
     ) {
@@ -1658,8 +1512,6 @@ function obterCandidatosFotoUsuario(
         ];
 
     }
-
-
 
     if (
         valor.startsWith("http://") ||
@@ -1674,8 +1526,6 @@ function obterCandidatosFotoUsuario(
 
     }
 
-
-
     if (
         valor.startsWith(
             "../backend/"
@@ -1688,8 +1538,6 @@ function obterCandidatosFotoUsuario(
 
     }
 
-
-
     if (
         valor.startsWith("/backend/")
     ) {
@@ -1701,8 +1549,6 @@ function obterCandidatosFotoUsuario(
 
     }
 
-
-
     if (
         valor.startsWith("/")
     ) {
@@ -1713,8 +1559,6 @@ function obterCandidatosFotoUsuario(
         );
 
     }
-
-
 
     if (
         valor.startsWith("backend/")
@@ -1732,8 +1576,6 @@ function obterCandidatosFotoUsuario(
 
     }
 
-
-
     if (
         valor.startsWith("imagens/")
     ) {
@@ -1749,8 +1591,6 @@ function obterCandidatosFotoUsuario(
         );
 
     }
-
-
 
     if (
         !valor.startsWith("../") &&
@@ -1775,13 +1615,9 @@ function obterCandidatosFotoUsuario(
 
     }
 
-
-
     candidatos.push(
         valor
     );
-
-
 
     const nomeArquivo =
         valor.split("/").pop();
@@ -1805,13 +1641,9 @@ function obterCandidatosFotoUsuario(
 
     }
 
-
-
     candidatos.push(
         padrao
     );
-
-
 
     return [
         ...new Set(
@@ -1820,8 +1652,6 @@ function obterCandidatosFotoUsuario(
     ];
 
 }
-
-
 
 function atualizarFotoSidebar(
     foto
@@ -1836,19 +1666,13 @@ function atualizarFotoSidebar(
         return;
     }
 
-
-
     const candidatos =
         obterCandidatosFotoUsuario(
             foto
         );
 
-
-
     let indice =
         0;
-
-
 
     function tentarFoto() {
 
@@ -1867,14 +1691,10 @@ function atualizarFotoSidebar(
 
         }
 
-
-
         const url =
             candidatos[indice];
 
         indice++;
-
-
 
         elFoto.onerror =
             () => {
@@ -1883,24 +1703,14 @@ function atualizarFotoSidebar(
 
             };
 
-
-
         elFoto.src =
             url;
 
     }
 
-
-
     tentarFoto();
 
 }
-
-
-
-// =====================================================
-// CARREGAR MENU
-// =====================================================
 
 function carregarMenu() {
 
@@ -1921,12 +1731,6 @@ function carregarMenu() {
     const body =
         document.body;
 
-
-
-    // -------------------------------------------------
-    // DETECÇÃO AUTOMÁTICA DE TEMA (FUNDO ESCURO OU LARANJA)
-    // -------------------------------------------------
-
     const paginasFundoEscuro = [
         "editarprod.html",
         "cadastrop.html",
@@ -1942,12 +1746,6 @@ function carregarMenu() {
 
     }
 
-
-
-    // -------------------------------------------------
-    // HEADER
-    // -------------------------------------------------
-
     if (
         !document.querySelector(
             ".custom-header"
@@ -1961,29 +1759,7 @@ function carregarMenu() {
 
     }
 
-
-
-    // -------------------------------------------------
-    // AÇÕES ESPECIAIS — SOMENTE NO HEADER
-    // -------------------------------------------------
-
     instalarAcoesEspeciaisHeader();
-
-
-
-    // -------------------------------------------------
-    // SIDEBAR
-    // -------------------------------------------------
-
-    /*
-     * IMPORTANTE:
-     *
-     * O PDV usa:
-     *
-     * <body class="sem-sidebar fundo-marrom">
-     *
-     * Portanto ele continua SEM sidebar.
-     */
 
     if (
         !body.classList.contains(
@@ -2004,28 +1780,20 @@ function carregarMenu() {
 
         }
 
-
-
         const nomeBanco =
             localStorage.getItem(
                 "usuarioNome"
             );
-
-
 
         const fotoBanco =
             localStorage.getItem(
                 "usuarioFoto"
             );
 
-
-
         const elNome =
             document.getElementById(
                 "sidebar-nome"
             );
-
-
 
         if (elNome) {
 
@@ -2035,33 +1803,18 @@ function carregarMenu() {
 
         }
 
-
-
-        /*
-         * FOTO DE PERFIL
-         *
-         * Continua sendo tratada
-         * separadamente dos botões.
-         */
-
         atualizarFotoSidebar(
             fotoBanco
         );
-
-
 
         body.classList.add(
             "sidebar-closed"
         );
 
-
-
         const btn =
             document.getElementById(
                 "btn-menu"
             );
-
-
 
         if (btn) {
 
@@ -2084,16 +1837,8 @@ function carregarMenu() {
 
     }
 
-
-
-    // =================================================
-    // CORES DOS ÍCONES
-    // =================================================
-
     let sufixo =
         "_l";
-
-
 
     if (
         body.classList.contains(
@@ -2109,14 +1854,10 @@ function carregarMenu() {
 
     }
 
-
-
     const imagens =
         document.querySelectorAll(
             ".i_img, .l_img"
         );
-
-
 
     imagens.forEach(
         img => {
@@ -2125,8 +1866,6 @@ function carregarMenu() {
                 img.getAttribute(
                     "data-name"
                 );
-
-
 
             if (nomeBase) {
 
@@ -2138,18 +1877,10 @@ function carregarMenu() {
         }
     );
 
-
-
-    // =================================================
-    // MARCAR PÁGINA ATUAL
-    // =================================================
-
     const links =
         document.querySelectorAll(
             ".nav-link"
         );
-
-
 
     links.forEach(
         link => {
@@ -2158,8 +1889,6 @@ function carregarMenu() {
                 link.getAttribute(
                     "href"
                 );
-
-
 
             if (
                 href ===
@@ -2177,8 +1906,6 @@ function carregarMenu() {
 
 }
 
-
-
 function normalizarTexto(
     texto
 ) {
@@ -2195,12 +1922,6 @@ function normalizarTexto(
         .trim();
 
 }
-
-
-
-// =====================================================
-// SINCRONIZAR DADOS DO USUÁRIO COM O BANCO
-// =====================================================
 
 async function sincronizarPerfilUsuario() {
 
@@ -2223,8 +1944,6 @@ async function sincronizarPerfilUsuario() {
             "token"
         );
 
-
-
     if (
         !token ||
         token === "undefined" ||
@@ -2234,8 +1953,6 @@ async function sincronizarPerfilUsuario() {
         return;
 
     }
-
-
 
     try {
 
@@ -2256,8 +1973,6 @@ async function sincronizarPerfilUsuario() {
                 }
             );
 
-
-
         if (
             response.status === 401 ||
             response.status === 403
@@ -2271,8 +1986,6 @@ async function sincronizarPerfilUsuario() {
 
         }
 
-
-
         if (!response.ok) {
 
             console.error(
@@ -2284,12 +1997,8 @@ async function sincronizarPerfilUsuario() {
 
         }
 
-
-
         const dados =
             await response.json();
-
-
 
         const nome =
             dados.nome ||
@@ -2298,21 +2007,15 @@ async function sincronizarPerfilUsuario() {
             ) ||
             "Convidado";
 
-
-
         localStorage.setItem(
             "usuarioNome",
             nome
         );
 
-
-
         const elNome =
             document.getElementById(
                 "sidebar-nome"
             );
-
-
 
         if (elNome) {
 
@@ -2320,8 +2023,6 @@ async function sincronizarPerfilUsuario() {
                 nome;
 
         }
-
-
 
         if (
             dados.foto !==
@@ -2338,8 +2039,6 @@ async function sincronizarPerfilUsuario() {
                 dados.foto
             );
 
-
-
             atualizarFotoSidebar(
                 dados.foto
             );
@@ -2350,15 +2049,11 @@ async function sincronizarPerfilUsuario() {
                 "usuarioFoto"
             );
 
-
-
             atualizarFotoSidebar(
                 null
             );
 
         }
-
-
 
     } catch (erro) {
 
@@ -2367,34 +2062,24 @@ async function sincronizarPerfilUsuario() {
             erro
         );
 
-
-
         const fotoLocal =
             localStorage.getItem(
                 "usuarioFoto"
             );
 
-
-
         atualizarFotoSidebar(
             fotoLocal
         );
-
-
 
         const nomeLocal =
             localStorage.getItem(
                 "usuarioNome"
             );
 
-
-
         const elNome =
             document.getElementById(
                 "sidebar-nome"
             );
-
-
 
         if (elNome) {
 
@@ -2407,12 +2092,6 @@ async function sincronizarPerfilUsuario() {
     }
 
 }
-
-
-
-// =====================================================
-// DOM READY
-// =====================================================
 
 document.addEventListener(
     "DOMContentLoaded",

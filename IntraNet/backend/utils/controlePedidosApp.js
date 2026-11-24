@@ -1,10 +1,5 @@
 const conexao = require('../db');
 
-/**
- * Tabela auxiliar para controlar pedidos do APP que não foram retirados.
- * Cada pedido gera um registro próprio; assim, um cliente só é desbloqueado
- * quando todos os pedidos que causaram bloqueio forem regularizados.
- */
 async function garantirTabelaControleApp(executor = conexao) {
     await executor.query(`
         CREATE TABLE IF NOT EXISTS app_pedidos_nao_retirados (

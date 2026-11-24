@@ -2,9 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const conexaoPadrao = require('../db');
 
-// A configuração fica em JSON no backend, não no banco de dados.
-// Assim, a tabela produtos permanece intacta: qtd/qtd_min são ml apenas
-// para os produtos listados nos grupos abaixo.
 const ARQUIVO_CONFIG = path.join(__dirname, 'estoqueLiquidosConfig.json');
 let fila_gravacao = Promise.resolve();
 
@@ -51,8 +48,6 @@ async function configurarGrupoLiquido(idsProdutos) {
     const ids = [...new Set((idsProdutos || []).map(Number).filter(id => Number.isInteger(id) && id > 0))];
     if (!ids.length) throw new Error('Selecione pelo menos um produto.');
     const config = await lerConfiguracao();
-    // Produtos selecionados deixam seus grupos anteriores; os outros membros
-    // continuam juntos, desde que ainda haja pelo menos um integrante.
     const gruposRestantes = [];
     for (const grupo of config.grupos) {
         const restantes = (grupo.ids || []).map(Number).filter(id => !ids.includes(id));
@@ -103,8 +98,6 @@ async function aplicarDisponibilidadeReceitas(produtos, conn = conexaoPadrao, op
 async function consumirEstoqueProduto(conn, idProduto, quantidade, nomeFallback = 'produto') {
     const qtdVenda = Number(quantidade);
     if (!Number.isInteger(qtdVenda) || qtdVenda <= 0) throw new Error(`Quantidade inválida para ${nomeFallback}.`);
-    // Consulta sem bloqueio primeiro para descobrir se o produto pertence
-    // a um grupo. Para grupos, os saldos são bloqueados em ordem de ID.
     const [consulta] = await conn.query(
         'SELECT id_produto, nome, qtd, qtd_min, ativo FROM produtos WHERE id_produto = ?',
         [idProduto]
@@ -148,9 +141,6 @@ async function consumirEstoqueProduto(conn, idProduto, quantidade, nomeFallback 
     return { nome: produtoNormal.nome, qtdRestante: novoSaldo, qtdMin: Number(produtoNormal.qtd_min || 0), mapeado: false, volume: false };
 }
 
-
-// Zera o reservatório compartilhado dos dois cafés uma única vez por dia.
-// A data é registrada no próprio JSON para continuar válida após reinicializações.
 function obterDataAtualSaoPaulo() {
     const partes = new Intl.DateTimeFormat('en-US', {
         timeZone: 'America/Sao_Paulo',
@@ -192,7 +182,6 @@ async function zerarEstoqueCafeDiario() {
             .map(Number)
             .filter(id => Number.isInteger(id) && id > 0))];
 
-        // Evita zerar produtos errados se a configuração deixar de ser a esperada.
         if (ids.length !== 2) {
             throw new Error('O grupo ml_cafe_coado precisa conter exatamente os dois produtos de café.');
         }
@@ -234,7 +223,6 @@ async function zerarEstoqueCafeDiario() {
     }
 }
 
-// Mantido apenas para compatibilidade com rotas antigas. Não executa DDL.
 async function garantirTabelasLiquidos() { return true; }
 
 module.exports = {
@@ -246,4 +234,3 @@ module.exports = {
     configurarGrupoLiquido,
     zerarEstoqueCafeDiario
 };
-

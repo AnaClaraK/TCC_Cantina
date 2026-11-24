@@ -1,13 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-
 const conexao = require('../db');
 const verificarToken = require('../middlewares/auth');
 const { uploadPerfil } = require('../config/multer');
 
-// Atualizar perfil (protegido). Primeiro tenta o ID presente no token;
-// se o middleware não expuser esse campo, usa o e-mail atual enviado pelo APP.
+// atualizar perfil //
 router.put('/perfil/atualizar', verificarToken, uploadPerfil.single('imagem'), async (req, res) => {
     try {
         const { nome, email, emailAntigo, senha_atual, nova_senha } = req.body;
@@ -24,7 +22,6 @@ router.put('/perfil/atualizar', verificarToken, uploadPerfil.single('imagem'), a
             usuarios = Array.isArray(resultadoId[0]) ? resultadoId[0] : resultadoId;
         }
 
-        // Compatibilidade com o middleware/token atual e com versões anteriores do APP.
         if ((!usuarios || usuarios.length === 0) && emailAntigo && emailAntigo.trim()) {
             const resultadoEmail = await conexao.query(
                 'SELECT id_cadastro, nome, email, senha, img FROM cadastro WHERE email = ? LIMIT 1',
@@ -40,7 +37,6 @@ router.put('/perfil/atualizar', verificarToken, uploadPerfil.single('imagem'), a
         const usuario = usuarios[0];
         const usuarioId = usuario.id_cadastro;
 
-        // Evita trocar o e-mail por outro já cadastrado.
         const emailNovo = typeof email === 'string' && email.trim() ? email.trim() : usuario.email;
         if (emailNovo !== usuario.email) {
             const resultadoEmailExistente = await conexao.query(
@@ -94,15 +90,11 @@ router.put('/perfil/atualizar', verificarToken, uploadPerfil.single('imagem'), a
     }
 });
 
-// Obter dados do usuário logado (mantém o contrato usado pelo sistema existente).
+// consultar dados do perfil //
 router.get('/perfil/meus-dados', verificarToken, async (req, res) => {
     try {
         const usuarioId = req.usuario?.id;
-        const sql = `
-            SELECT id_cadastro, nome, email, img
-            FROM cadastro
-            WHERE id_cadastro = ?
-        `;
+        const sql = 'SELECT id_cadastro, nome, email, img FROM cadastro WHERE id_cadastro = ?';
         const [usuarios] = await conexao.query(sql, [usuarioId]);
 
         if (!usuarios || usuarios.length === 0) {

@@ -10,9 +10,9 @@
     <script>
         const token = localStorage.getItem("token");
         if (!token) {
-            window.location.replace("login.html"); 
+            window.location.replace("login.html");
         }
-    </script>
+</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="./gerarpdf.js"></script>
@@ -30,7 +30,6 @@
             <img src="../backend/imagens/lupa.png" class="icone-busca">
             <input type="text" id="inputBusca" placeholder="Buscar por nome ou código...">
 
-        
         </div>
     </div>
     <button id="btnExportarPDF" class="btn-baixar-pdf" onclick="gerarPDFReposicaoEstoque()">Baixar PDF</button>
@@ -138,7 +137,7 @@ const inputBusca = document.getElementById("inputBusca");
 function normalizarTexto(texto) {
     return String(texto || "")
         .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[[\u0300-\u036f]/g, "")
         .toLowerCase()
         .trim();
 }
@@ -197,7 +196,6 @@ b_addq.addEventListener("click", () => {
             inpAddQtd.focus();
         };
 
-        // Sincroniza o teclado caso o mouse passe por cima
         li.addEventListener("mouseenter", () => {
             indexSelecionado = i;
             atualizarDestaqueModal(lista.querySelectorAll("li"));
@@ -227,7 +225,7 @@ b_addf.addEventListener("click", async () => {
     try {
         await apiFetch(`http://localhost:3000/produtos/cod/${codigo}/add`, {
             method: "PUT",
-            headers: { 
+            headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${localStorage.getItem("token")}`
             },
@@ -247,7 +245,7 @@ function limparModal() {
     inpBuscaModal.dataset.codigo = "";
     document.getElementById("s_produto").innerText = "---";
     document.getElementById("s_qtda").innerText = "0";
-    inpAddQtd.value = 0; 
+    inpAddQtd.value = 0;
     lista.innerHTML = "";
     indexSelecionado = -1;
 }
@@ -334,7 +332,6 @@ function aplicarOrdenacaoTabela(idTbody, colunasIgnoradas = []) {
                     for (const ordem of ordenacoesAtivas) {
                         let resultado;
 
-                        // No Agendamento, a coluna Data usa o valor original guardado no <tr>.
                         if (eAgendamento && ordem.indice === 5) {
                             const dataA = new Date(a.dataset.data || 0).getTime();
                             const dataB = new Date(b.dataset.data || 0).getTime();
@@ -393,7 +390,7 @@ async function carregarProdutos() {
         tabela.innerHTML = "";
 
         const produtosOrdenados = [...produtos].sort((a, b) => {
-    // Produtos ativos primeiro; inativos sempre no final.
+
     const statusA = Number(a.ativo) === 1 ? 0 : 1;
     const statusB = Number(b.ativo) === 1 ? 0 : 1;
 
@@ -401,7 +398,6 @@ async function carregarProdutos() {
         return statusA - statusB;
     }
 
-    // Mantém a ordenação existente por categoria e nome.
     const aSalgado = normalizarTexto(a.categoria_nome) === "salgados";
     const bSalgado = normalizarTexto(b.categoria_nome) === "salgados";
 
@@ -436,14 +432,13 @@ async function carregarProdutos() {
             `;
         });
 
-        // Configura os ouvintes do select de status
         tabela.querySelectorAll(".select-status-produto").forEach(select => {
             select.addEventListener("change", async (e) => {
                 const idProduto = e.target.getAttribute("data-id");
                 const novoStatus = e.target.value;
 
                 try {
-                   // Em estoque.html (por volta da linha 400)
+
                 const resStatus = await apiFetch(`http://localhost:3000/produtos/id/${idProduto}/status`, {
                     method: "PUT",
                     headers: {
@@ -455,7 +450,7 @@ async function carregarProdutos() {
 
                     if (!resStatus.ok) {
                         exibirAviso("Erro ao atualizar o status do produto.");
-                        carregarProdutos(); // Reverte a seleção visual em caso de falha
+                        carregarProdutos();
                     }
                 } catch (errStatus) {
                     console.error("Erro na requisição de atualização de status:", errStatus);
@@ -465,7 +460,6 @@ async function carregarProdutos() {
             });
         });
 
-        // ATIVA A ORDENAÇÃO NA TABELA DE ESTOQUE
         aplicarOrdenacaoTabela(document.querySelector(".tabela"));
 
     } catch (err) {
@@ -487,7 +481,7 @@ function selecionarProdutoModal(produto) {
 
     lista.innerHTML = "";
     indexSelecionado = -1;
-    
+
     inpAddQtd.focus();
 }
 
@@ -530,7 +524,7 @@ modal.addEventListener("keydown", (e) => {
     (normalizarTexto(p.nome).includes(termo) ||
     normalizarTexto(p.codigo_barras).startsWith(termo))
 );
-        
+
         const listaTratada = termo === ""
     ? produtosCache.filter(p => Number(p.ativo) === 1 && (p.qtd || 0) <= 10).sort((a, b) => (a.qtd || 0) - (b.qtd || 0))
     : filtrados.slice(0, 5);
@@ -545,7 +539,7 @@ inpBuscaModal.addEventListener("input", () => {
     const termo = inpBuscaModal.value.toLowerCase();
     lista.innerHTML = "";
     indexSelecionado = -1;
-    
+
     const filtrados = produtosCache.filter(p =>
         (p.nome || "").toLowerCase().includes(termo) ||
         (p.codigo_barras || "").startsWith(termo)
@@ -555,8 +549,7 @@ inpBuscaModal.addEventListener("input", () => {
         const li = document.createElement("li");
         li.textContent = p.nome;
         li.onclick = () => selecionarProdutoModal(p);
-        
-        // Sincroniza o teclado caso o mouse passe por cima da lista filtrada
+
         li.addEventListener("mouseenter", () => {
             indexSelecionado = i;
             atualizarDestaqueModal(lista.querySelectorAll("li"));
@@ -584,7 +577,6 @@ b_close_modal_btn.addEventListener("click", () => {
 });
 modal.addEventListener("close", limparModal);
 
-// Estoque de liquidos
 const modalLiquidos = document.getElementById("d_modal_liquidos");
 const btnAbrirLiquidos = document.getElementById("btnEstoqueLiquidos");
 const btnFecharLiquidos = document.getElementById("btnFecharModalLiquidos");
@@ -618,8 +610,6 @@ async function apiLiquidos(url, options = {}) {
 
 let produtosMlSelecionados = [];
 
-// Os produtos configurados no grupo ml_cafe_coado são fixos.
-// A tela não permite mais escolher ou desmarcar produtos manualmente.
 function preencherProdutosMl() {
     produtosMlSelecionados = produtosCache.filter(p => Number(p.estoque_em_ml) === 1);
 
@@ -638,7 +628,6 @@ function preencherProdutosMl() {
         container.appendChild(item);
     });
 
-    // O saldo é compartilhado; ambos os produtos devem apresentar o mesmo valor.
     const quantidade = Number(
         produtosMlSelecionados[0].quantidade_ml ??
         produtosMlSelecionados[0].qtd ??
@@ -696,4 +685,4 @@ document.getElementById("btnSalvarEstoqueMl").addEventListener("click", async ()
 document.addEventListener("DOMContentLoaded", carregarProdutos);
 </script>
 </body>
-</html> 
+</html>

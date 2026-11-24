@@ -9,22 +9,22 @@
     <link rel="stylesheet" href="stylecadp.css">
     <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
 </head>
-<body class="fundo-escuro"> 
+<body class="fundo-escuro">
     <main class="main-cadastro">
-        <div class="quadrado"> 
+        <div class="quadrado">
             <form id="formFuncionario">
                 <h2 class="lb_cad">Cadastro de Funcionário</h2>
 
                 <div class="container-respostas">
                     <label class="lb_" for="nome">Nome</label>
                     <input type="text" id="nome" class="inp_p input-field" placeholder="Digite o nome" required>
-                
+
                     <label class="lb_" for="email">E-mail</label>
                     <input type="email" id="email" class="inp_p input-field" placeholder="Digite o email para cadastro" required>
-                    
+
                     <label class="lb_" for="senha">Senha</label>
                     <input type="password" id="senha" class="inp_p input-field" placeholder="Digite a senha da conta" required>
-                    
+
                     <label class="lb_" for="confsenha">Confirmar Senha</label>
                     <input type="password" id="confsenha" class="inp_p input-field" placeholder="Confirme a senha" required>
                 </div>
@@ -49,13 +49,12 @@
     </dialog>
 
     <script>
-    // Variáveis para o novo aviso globais (acessíveis em todo o script)
+
     const aviso = document.getElementById("d_aviso");
     const msgAviso = document.getElementById("msg_aviso");
     const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
     const bCancelarAviso = document.getElementById("b_cancelar_aviso");
 
-    // Função para exibir aviso bonitinho
     function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
         msgAviso.innerText = mensagem;
         bCancelarAviso.style.display = mostrarCancelar ? "block" : "none";
@@ -83,27 +82,24 @@
         const pMessageEl = document.getElementById("respostas");
         const inputs = document.querySelectorAll(".input-field");
 
-        // --- FUNÇÃO DE CADASTRO REUTILIZÁVEL ---
         const realizarCadastro = async () => {
             const nome = document.getElementById("nome").value;
             const email = document.getElementById("email").value;
             const senha = document.getElementById("senha").value;
             const confsenha = document.getElementById("confsenha").value;
 
-            // Validação básica de preenchimento usando o modal de aviso
             if (nome.trim().length < 3) {
                 pMessageEl.innerText = "O nome deve possuir pelo menos 3 caracteres.";
                 pMessageEl.style.color = "red";
                 return;
             }
 
-            if (!/^[A-Za-zÀ-ÿ\s]+$/.test(nome.trim())) {
+            if (!/^[[A-Za-zÀ-ÿ\s]+$/.test(nome.trim())) {
                 pMessageEl.innerText = "O nome deve conter apenas letras.";
                 pMessageEl.style.color = "red";
                 return;
             }
 
-            // Validação local de senha usando o modal de aviso
             if (senha !== confsenha) {
                 pMessageEl.innerText = "As senhas não coincidem!";
                 pMessageEl.style.color = "red";
@@ -111,7 +107,7 @@
             }
 
             pMessageEl.innerText = "Realizando cadastro...";
-            pMessageEl.style.color = "white"; 
+            pMessageEl.style.color = "white";
 
             const formData = new FormData();
             formData.append("nome", nome);
@@ -150,29 +146,27 @@
             }
         };
 
-        // --- LÓGICA PARA NAVEGAÇÃO COM ENTER ---
         inputs.forEach((input, index) => {
             input.addEventListener("keydown", (e) => {
                 if (e.key === "Enter") {
-                    e.preventDefault(); // Impede o envio prematuro do formulário
-                    
+                    e.preventDefault();
+
                     if (index < inputs.length - 1) {
-                        // Se não for o último, foca no próximo
+
                         inputs[index + 1].focus();
                     } else {
-                        // Se for o último campo, dispara o cadastro
+
                         realizarCadastro();
                     }
                 }
             });
         });
 
-        // Evento padrão de clique no botão ou submit do formulário
         formFunc.addEventListener("submit", (e) => {
             e.preventDefault();
             realizarCadastro();
         });
     });
-    </script>
+</script>
 </body>
 </html>

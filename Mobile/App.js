@@ -16,14 +16,10 @@ import {
   StyleSheet 
 } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context'; 
-
-// Silencia avisos residuais no console
-LogBox.ignoreLogs(['InteractionManager', 'Invariant Violation: InteractionManager']);
-
-// ÍCONES
 import { Ionicons, Feather } from '@expo/vector-icons'; 
 
-// Alertas personalizados da Grano Vita
+LogBox.ignoreLogs(['InteractionManager', 'Invariant Violation: InteractionManager']);
+
 const EVENTO_ALERTA_GRANO_VITA = 'grano-vita-alerta';
 Alert.alert = (titulo, mensagem, botoes) => {
   DeviceEventEmitter.emit(EVENTO_ALERTA_GRANO_VITA, {
@@ -33,7 +29,6 @@ Alert.alert = (titulo, mensagem, botoes) => {
   });
 };
 
-// IMPORTAÇÃO DAS TELAS
 import HomeScreen from './src/Screens/HomeScreen';
 import CadastroScreen from './src/Screens/CadastroScreen';
 import LoginScreen from './src/Screens/LoginScreen';
@@ -48,7 +43,6 @@ import RecuperarScreen from './src/Screens/RecuperarScreen';
 const PilhasTelas = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// --- 1. CONFIGURAÇÃO DO MENU DE ABAS (BOTTOM TABS) ---
 function TabNavigator() {
   const insets = useSafeAreaInsets();
   return (
@@ -139,7 +133,6 @@ function TabNavigator() {
   );
 }
 
-// --- 2. COMPONENTE PRINCIPAL (APP) ---
 export default function App() {
   const [alertaSistema, setAlertaSistema] = React.useState(null);
   const [fontsLoaded] = useFonts({

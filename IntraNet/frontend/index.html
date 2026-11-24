@@ -9,17 +9,17 @@
     <link rel="icon" type="image/png" href="../backend/imagens/logo_insta.png">
     <title>Grano Vita</title>
     <script>
-        // Verifica se existe um token no localStorage
+
         const token = localStorage.getItem("token");
-    
+
         if (!token) {
-            // Se não tem token, impede o carregamento visual e joga para o login limpo
-            window.location.replace("login.html"); 
+
+            window.location.replace("login.html");
         }
-    </script>
+</script>
 </head>
 <body class="fundo-laranja">
-    
+
     <section class="s_btn">
         <div>
         <a href="pdv.html" class="a_btn">
@@ -69,7 +69,7 @@
                 <button class="btn-seta" onclick="mudarMes(1)">▶</button>
             </div>
         </header>
-    
+
         <div class="corpo-agenda">
             <div class="dias-grid dias-cabecalho">
                 <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
@@ -77,7 +77,7 @@
             <div class="dias-grid" id="calendario-numeros">
                 </div>
         </div>
-    
+
         <footer class="f_agenda">
             <a href="agendamento.html" class="btn-agenda-footer">Ver agenda</a>
         </footer>
@@ -88,7 +88,7 @@
                 <h3>Próximos agendamentos</h3>
                 <span>Ver todos</span>
             </div>
-    
+
             <table class="tabela-agendamentos-home">
                 <thead>
                     <tr>
@@ -118,7 +118,7 @@
 </dialog>
 
     <script>
-        // Variáveis para controlar qual mês estamos vendo
+
 let dataExibicao = new Date();
 
 const modalAviso = document.getElementById("d_aviso");
@@ -126,10 +126,9 @@ const msgAviso = document.getElementById("msg_aviso");
 const bConfirmarAviso = document.getElementById("b_confirmar_aviso");
 const bCancelarAviso = document.getElementById("b_cancelar_aviso");
 
-// Função genérica de aviso estruturada com o seu layout CSS
 function exibirAviso(mensagem, callback = null, mostrarCancelar = false) {
     msgAviso.innerHTML = mensagem;
-    
+
     bCancelarAviso.style.display = mostrarCancelar ? "inline-block" : "none";
 
     modalAviso.showModal();
@@ -150,32 +149,28 @@ function atualizarCalendario() {
     const txtMes = document.getElementById("nome-mes-js");
     const txtHoje = document.getElementById("hoje-texto-js");
 
-    const diaAtual = new Date(); // Data real de hoje
+    const diaAtual = new Date();
     const mes = dataExibicao.getMonth();
     const ano = dataExibicao.getFullYear();
 
-    // 1. Atualizar Textos do Topo
     const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
     const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-    
+
     txtMes.innerText = meses[mes];
-    txtDiaGrande.innerText = diaAtual.getDate(); // Mantém o dia de hoje no destaque
+    txtDiaGrande.innerText = diaAtual.getDate();
     txtHoje.innerText = `Hoje, ${diasSemana[diaAtual.getDay()]}`;
 
-    // 2. Lógica da Grade de Dias
     const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
     const ultimoDiaMes = new Date(ano, mes + 1, 0).getDate();
 
-    listaDias.innerHTML = ""; // Limpa a grade
+    listaDias.innerHTML = "";
 
-    // Criar espaços vazios
     for (let i = 0; i < primeiroDiaSemana; i++) {
         const divVazia = document.createElement("div");
         divVazia.style.padding = "8px 0";
         listaDias.appendChild(divVazia);
     }
 
-    // Criar os números
     for (let dia = 1; dia <= ultimoDiaMes; dia++) {
     const divDia = document.createElement("div");
     divDia.classList.add("dia-numero");
@@ -213,13 +208,11 @@ function atualizarCalendario() {
 }
 }
 
-// Função para as setinhas funcionarem
 function mudarMes(direcao) {
     dataExibicao.setMonth(dataExibicao.getMonth() + direcao);
     atualizarCalendario();
 }
 
-// Converte datas vindas da API de forma consistente, inclusive YYYY-MM-DD HH:mm:ss.
 function converterDataAgenda(valor) {
     if (!valor) return null;
 
@@ -239,7 +232,7 @@ function converterDataAgenda(valor) {
     const data = new Date(normalizado);
     if (!Number.isNaN(data.getTime())) return data;
 
-    const partes = texto.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?/);
+    const partes = texto.match(/^(\d{4})-(\d{2})-(\d{2})(?:[[ T](\d{2}):(\d{2})(?::(\d{2}))?)?/);
     if (partes) {
         const [, ano, mes, dia, hora = "0", minuto = "0", segundo = "0"] = partes;
         const fallback = new Date(
@@ -269,7 +262,6 @@ function formatarDataAgenda(valor) {
     });
 }
 
-// Iniciar ao carregar a página
 async function carregarAgendamentosHome() {
     const tbody = document.getElementById("tb_agendamentos_home");
 
@@ -283,12 +275,11 @@ async function carregarAgendamentosHome() {
         if (!resposta.ok) {
             throw new Error(`Erro HTTP: ${resposta.status}`);
         }
-            
+
         const dados = await resposta.json();
         agendamentosCalendario = dados;
 atualizarCalendario();
 
-        // ORDENAÇÃO: Data mais próxima primeiro
         dados.sort((a, b) => {
             const dataA = converterDataAgenda(a.data_ag || a.data);
             const dataB = converterDataAgenda(b.data_ag || b.data);
@@ -334,7 +325,7 @@ atualizarCalendario();
 }
 
 async function verificarEstoqueBaixo() {
-    // Impede nova abertura durante a sessão
+
     if (sessionStorage.getItem("estoqueBaixoExibido")) {
         return;
     }
@@ -356,7 +347,6 @@ async function verificarEstoqueBaixo() {
             p => (p.qtd || 0) < (p.qtd_min || 0)
         );
 
-        // Não grava a flag se não houver produtos abaixo do mínimo
         if (baixoEstoque.length === 0) {
             return;
         }
@@ -378,7 +368,6 @@ async function verificarEstoqueBaixo() {
             </ul>
         `;
 
-        // Marca antes de abrir para impedir chamadas duplicadas
         sessionStorage.setItem("estoqueBaixoExibido", "true");
 
         exibirAviso(
@@ -409,7 +398,6 @@ function confirmarLeituraEstoqueBaixo() {
 
 window.addEventListener("load", () => {
 
-    // Se não estiver logado, não executa nada do sistema
     if (!localStorage.getItem("token")) {
         return;
     }
@@ -417,7 +405,6 @@ window.addEventListener("load", () => {
     atualizarCalendario();
     carregarAgendamentosHome();
 
-    // Mostra o aviso somente uma vez após o login
     if (!sessionStorage.getItem("estoqueBaixoExibido")) {
         verificarEstoqueBaixo();
     }
@@ -461,6 +448,6 @@ function mostrarAgendamentosDoDia(dataSelecionada) {
         `;
     });
 }
-    </script>
+</script>
 </body>
 </html>
