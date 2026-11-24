@@ -232,10 +232,67 @@ router.get("/historico-pedidos", verificarToken, async (req, res) => {
 
         const [itens] = await conexao.execute(queryItens, idsPedidos);
 
-        const resultadoFinal = pedidos.map(pedido => ({
-            ...pedido,
-            itens: itens.filter(item => String(item.id_pedido) === String(pedido.id_pedido))
-        }));
+        let parcelasCredito = [];
+
+        try {
+            const [resultadoParcelas] = await conexao.execute(
+                `
+                SELECT
+                    id_pedido,
+                    COUNT(*) AS total_parcelas_credito,
+                    SUM(
+                        CASE
+                            WHEN LOWER(COALESCE(status, 'Pendente')) = 'pago'
+                            THEN 1
+                            ELSE 0
+                        END
+                    ) AS parcelas_pagas_credito,
+                    AVG(valor) AS valor_parcela_credito,
+                    SUM(valor) AS valor_credito_total,
+                    SUM(
+                        CASE
+                            WHEN LOWER(COALESCE(status, 'Pendente')) = 'pago'
+                            THEN valor
+                            ELSE 0
+                        END
+                    ) AS valor_credito_pago,
+                    SUM(
+                        CASE
+                            WHEN LOWER(COALESCE(status, 'Pendente')) <> 'pago'
+                            THEN valor
+                            ELSE 0
+                        END
+                    ) AS valor_credito_pendente
+                FROM conta_fiado_parcelas
+                WHERE id_pedido IN (${placeholders})
+                GROUP BY id_pedido
+                `,
+                idsPedidos
+            );
+
+            parcelasCredito = resultadoParcelas;
+        } catch (erroParcelas) {
+            if (erroParcelas.code !== "ER_NO_SUCH_TABLE" && Number(erroParcelas.errno) !== 1146) {
+                throw erroParcelas;
+            }
+        }
+
+        const resultadoFinal = pedidos.map(pedido => {
+            const parcelas = parcelasCredito.find(
+                item => String(item.id_pedido) === String(pedido.id_pedido)
+            );
+
+            return {
+                ...pedido,
+                total_parcelas_credito: Number(parcelas?.total_parcelas_credito || 0),
+                parcelas_pagas_credito: Number(parcelas?.parcelas_pagas_credito || 0),
+                valor_parcela_credito: Number(parcelas?.valor_parcela_credito || 0),
+                valor_credito_total: Number(parcelas?.valor_credito_total || 0),
+                valor_credito_pago: Number(parcelas?.valor_credito_pago || 0),
+                valor_credito_pendente: Number(parcelas?.valor_credito_pendente || 0),
+                itens: itens.filter(item => String(item.id_pedido) === String(pedido.id_pedido))
+            };
+        });
 
         return res.json(resultadoFinal);
     } catch (error) {

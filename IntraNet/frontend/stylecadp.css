@@ -1639,3 +1639,143 @@ body:has(#formProduto) #d_aviso #b_confirmar_aviso, body:has(#formProduto) #d_av
     }
 
 }
+
+
+.preco-venda-controle {
+    position: relative;
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.preco-venda-controle input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding-right: 48px !important;
+    cursor: not-allowed !important;
+}
+
+.preco-venda-controle input:read-only, .preco-venda-controle input:disabled {
+    cursor: not-allowed !important;
+}
+
+.preco-venda-controle input:not(:read-only):not(:disabled) {
+    cursor: text !important;
+}
+
+.botao-desbloquear-preco {
+    position: absolute !important;
+    top: 50% !important;
+    right: 7px !important;
+    transform: translateY(-50%) !important;
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 0 !important;
+    border-radius: 6px !important;
+    background: transparent !important;
+    line-height: 0 !important;
+    cursor: pointer !important;
+    transition: none !important;
+}
+
+.botao-desbloquear-preco:hover, .botao-desbloquear-preco:focus, .botao-desbloquear-preco:active {
+    transform: translateY(-50%) !important;
+    filter: none !important;
+    opacity: 1 !important;
+    background: transparent !important;
+}
+
+.botao-desbloquear-preco img {
+    display: block;
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.botao-desbloquear-preco:disabled {
+    opacity: .55 !important;
+    cursor: not-allowed !important;
+}
+
+body:has(#formProduto) #d_aviso {
+    width: 350px !important;
+    max-width: calc(100vw - 32px) !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border: 3px solid #efac4a !important;
+    border-radius: 12px !important;
+    background: #1c1c1c !important;
+    color: #f8c471 !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8) !important;
+    text-align: center !important;
+}
+
+body:has(#formProduto) #d_aviso::backdrop {
+    background: rgba(0, 0, 0, 0.7) !important;
+}
+
+body:has(#formProduto) #d_aviso .aviso_box {
+    min-height: 0 !important;
+    padding: 25px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    gap: 20px !important;
+    box-sizing: border-box !important;
+}
+
+body:has(#formProduto) #d_aviso #msg_aviso {
+    margin: 0 !important;
+    color: #f8c471 !important;
+    font-size: 20px !important;
+    font-weight: bold !important;
+    line-height: normal !important;
+    text-align: center !important;
+}
+
+body:has(#formProduto) #d_aviso .aviso_botoes {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 15px !important;
+    flex-wrap: wrap !important;
+}
+
+body:has(#formProduto) #d_aviso #b_confirmar_aviso, body:has(#formProduto) #d_aviso #b_cancelar_aviso {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 10px 25px !important;
+    border: none !important;
+    border-radius: 5px !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    transition: 0.2s !important;
+}
+
+body:has(#formProduto) #d_aviso #b_confirmar_aviso {
+    background: #efac4a !important;
+    color: #1c1c1c !important;
+}
+
+body:has(#formProduto) #d_aviso #b_cancelar_aviso {
+    background: #333 !important;
+    color: #f8c471 !important;
+    border: 1px solid #efac4a !important;
+}
+
+body:has(#formProduto) #d_aviso #b_confirmar_aviso:hover, body:has(#formProduto) #d_aviso #b_cancelar_aviso:hover {
+    transform: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+}

@@ -304,10 +304,6 @@
         <button type="button" id="b_fechar_credito" class="fechar-modal-pagamento" onclick="document.getElementById('dialogCredito').close();">×</button>
         <h2>PAGAMENTO NO CARTÃO DE CRÉDITO</h2>
         <div class="credito-total"><span>Total da compra</span><strong id="lbl_credito_total">R$ 0,00</strong></div>
-        <div class="credito-campo" id="campoValorCreditoDivisao" style="display:none;">
-            <label for="inp_valor_credito_divisao">Valor pago no cartão de crédito</label>
-            <input type="number" id="inp_valor_credito_divisao" min="0.01" step="0.01" placeholder="Ex.: 25,00">
-        </div>
         <div class="credito-campo">
             <label for="sel_parcelas_credito">Quantidade de parcelas</label>
             <div class="select-personalizado">
@@ -408,7 +404,7 @@
 
         <div class="fechamento-dinheiro">
             <div class="fd-linha"><span>Troco inicial</span><strong id="fechDinTrocoInicial">R$ 0,00</strong></div>
-            <div class="fd-linha"><span>+ Vendas em dinheiro</span><strong id="fechDinVendas">R$ 0,00</strong></div>
+            <div class="fd-linha"><span>Vendas em dinheiro</span><strong id="fechDinVendas">R$ 0,00</strong></div>
             <div class="fd-linha fd-total"><span>Dinheiro esperado no caixa</span><strong id="fechDinEsperado">R$ 0,00</strong></div>
         </div>
 
@@ -2986,8 +2982,6 @@ if (dialogFiado) {
 const dialogCredito = document.getElementById("dialogCredito");
 const selParcelasCredito = document.getElementById("sel_parcelas_credito");
 const lblCreditoTotal = document.getElementById("lbl_credito_total");
-const campoValorCreditoDivisao = document.getElementById("campoValorCreditoDivisao");
-const inpValorCreditoDivisao = document.getElementById("inp_valor_credito_divisao");
 const lblValorParcela = document.getElementById("lbl_valor_parcela");
 const bFecharCredito = document.getElementById("b_fechar_credito");
 const bConfirmarCredito = document.getElementById("b_confirmar_credito");
@@ -3006,6 +3000,7 @@ let splitPagamentos = [];
 let splitMetodoSelecionado = "";
 let splitCreditoValorPendente = null;
 let creditoEmDivisao = false;
+let valorCreditoAtual = null;
 
 function valorSplitSomado() {
     return splitPagamentos.reduce((soma, p) => soma + Number(p.valor), 0);
@@ -3231,15 +3226,14 @@ if (bConfirmarDinheiro) {
 
 function atualizarParcelamentoCredito() {
 
-    const totalReal =
-        totalAtualPDV();
+    const totalCredito = Number(valorCreditoAtual ?? totalAtualPDV());
 
     const valorSelecionado =
         selParcelasCredito.value;
 
     lblCreditoTotal.innerText =
         "R$ " +
-        formatar(totalReal);
+        formatar(totalCredito);
 
     if (!valorSelecionado) {
 
@@ -3262,7 +3256,7 @@ function atualizarParcelamentoCredito() {
     lblValorParcela.innerText =
         "R$ " +
         formatar(
-            totalReal / parcelasCredito
+            totalCredito / parcelasCredito
         );
 
     selParcelasCredito.classList.remove(
@@ -3275,20 +3269,13 @@ function abrirModalCredito(valorParcial = null) {
 
     garantirModalFormasPagamentoAberto();
 
-    const totalReal =
-        totalAtualPDV();
+    valorCreditoAtual = valorParcial !== null && Number.isFinite(Number(valorParcial))
+        ? Number(valorParcial)
+        : totalAtualPDV();
 
     lblCreditoTotal.innerText =
         "R$ " +
-        formatar(totalReal);
-
-    if (campoValorCreditoDivisao) {
-        campoValorCreditoDivisao.style.display = valorParcial !== null ? "block" : "none";
-    }
-
-    if (inpValorCreditoDivisao) {
-        inpValorCreditoDivisao.value = valorParcial !== null ? String(valorParcial.toFixed(2)) : "";
-    }
+        formatar(valorCreditoAtual);
 
     selParcelasCredito.value = "";
 
@@ -3360,6 +3347,7 @@ if (bFecharCredito && dialogCredito) {
         dialogCredito.close();
         creditoEmDivisao = false;
         splitCreditoValorPendente = null;
+        valorCreditoAtual = null;
         reabrirModalFormasPagamento();
 
         voltarFoco();
@@ -3399,6 +3387,7 @@ if (dialogCredito) {
         dialogCredito.close();
         creditoEmDivisao = false;
         splitCreditoValorPendente = null;
+        valorCreditoAtual = null;
         reabrirModalFormasPagamento();
 
         voltarFoco();
@@ -3454,7 +3443,7 @@ if (bConfirmarCredito && dialogCredito) {
         }
 
         if (creditoEmDivisao) {
-            const valorCredito = Number(String(inpValorCreditoDivisao?.value || splitCreditoValorPendente || "").replace(",", "."));
+            const valorCredito = Number(valorCreditoAtual);
             const restanteAntes = totalAtualPDV() - valorSplitSomado();
 
             if (!Number.isFinite(valorCredito) || valorCredito <= 0) {
@@ -3475,6 +3464,7 @@ if (bConfirmarCredito && dialogCredito) {
 
             creditoEmDivisao = false;
             splitCreditoValorPendente = null;
+            valorCreditoAtual = null;
             dialogCredito.close();
             atualizarResumoSplit();
             splitValor.focus();

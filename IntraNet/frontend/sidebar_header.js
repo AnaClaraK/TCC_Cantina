@@ -1514,16 +1514,19 @@ function obterCandidatosFotoUsuario(
     }
 
     if (
-        valor.startsWith("http://") ||
-        valor.startsWith("https://")
+        !valor.startsWith("../") &&
+        !valor.startsWith("./") &&
+        !valor.startsWith("/")
     ) {
+        candidatos.push(
+            "../backend/imagens/" +
+            valor
+        );
 
-        candidatos.push(valor);
-
-        candidatos.push(padrao);
-
-        return candidatos;
-
+        candidatos.push(
+            "http://localhost:3000/imagens/" +
+            valor
+        );
     }
 
     if (
